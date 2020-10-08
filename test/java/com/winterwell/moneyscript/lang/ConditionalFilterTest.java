@@ -1,10 +1,7 @@
 package com.winterwell.moneyscript.lang;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 
-import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.utils.Printer;

@@ -1,7 +1,5 @@
 package com.winterwell.moneyscript.lang;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 
 import com.winterwell.moneyscript.output.Business;

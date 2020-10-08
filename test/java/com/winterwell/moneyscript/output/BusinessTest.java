@@ -2,37 +2,23 @@ package com.winterwell.moneyscript.output;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
-import com.winterwell.moneyscript.output.Business;
-import com.winterwell.moneyscript.output.BusinessState;
-import com.winterwell.moneyscript.output.Cell;
-import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.lang.Lang;
-import com.winterwell.moneyscript.lang.LangTest;
-import com.winterwell.moneyscript.output.Row;
-import com.winterwell.nlp.simpleparser.ParseResult;
-import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
-import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.RowName;
-import com.winterwell.moneyscript.lang.num.BasicFormula;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.Numerical;
-import com.winterwell.moneyscript.output.Cell;
-import com.winterwell.moneyscript.output.Particles1D;
+import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.containers.ArrayMap;
-import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.io.FileUtils;
-import com.winterwell.utils.time.TUnit;
 
 public class BusinessTest {
 

@@ -4,7 +4,6 @@ import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Particles1D;
 import com.winterwell.utils.MathUtils;
-import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 
 public class UncertainNumerical extends Numerical {

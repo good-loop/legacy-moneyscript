@@ -1,17 +1,10 @@
 package com.winterwell.moneyscript.output;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
-import java.util.List;
 
 import org.junit.Test;
 
 import com.winterwell.moneyscript.lang.Lang;
-import com.winterwell.moneyscript.lang.Rule;
-import com.winterwell.moneyscript.lang.cells.RowName;
-import com.winterwell.moneyscript.lang.num.Formula;
-import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.nlp.simpleparser.ParseExceptions;
 import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.utils.Printer;

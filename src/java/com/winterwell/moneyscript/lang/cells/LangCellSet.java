@@ -1,27 +1,28 @@
 package com.winterwell.moneyscript.lang.cells;
 
-import java.util.ArrayList;
+import static com.winterwell.nlp.simpleparser.Parsers.bracketed;
+import static com.winterwell.nlp.simpleparser.Parsers.chain;
+import static com.winterwell.nlp.simpleparser.Parsers.first;
+import static com.winterwell.nlp.simpleparser.Parsers.lit;
+import static com.winterwell.nlp.simpleparser.Parsers.opt;
+import static com.winterwell.nlp.simpleparser.Parsers.optSpace;
+import static com.winterwell.nlp.simpleparser.Parsers.ref;
+import static com.winterwell.nlp.simpleparser.Parsers.seq;
+import static com.winterwell.nlp.simpleparser.Parsers.word;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.winterwell.moneyscript.lang.Lang;
-import com.winterwell.moneyscript.lang.bool.Condition;
-import com.winterwell.moneyscript.lang.bool.LangBool;
-import com.winterwell.moneyscript.lang.time.LangTime;
-import com.winterwell.moneyscript.lang.time.TimeDesc;
 import com.winterwell.nlp.simpleparser.AST;
 import com.winterwell.nlp.simpleparser.PP;
 import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.ParseState;
 import com.winterwell.nlp.simpleparser.Parser;
-import static com.winterwell.nlp.simpleparser.Parsers.*;
 import com.winterwell.utils.StrUtils;
-import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.Slice;
-import com.winterwell.utils.time.Dt;
-import com.winterwell.utils.time.TUnit;
 
 /**
  * Loose Inspiration: css selectors

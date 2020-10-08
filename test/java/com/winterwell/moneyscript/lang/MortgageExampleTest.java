@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Col;
-import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.Printer;

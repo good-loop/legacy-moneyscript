@@ -2,8 +2,6 @@ package com.winterwell.moneyscript.lang.cells;
 
 import java.util.Collection;
 
-import com.winterwell.moneyscript.output.Business;
-import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Cell;
 
 public class FilteredCellSet extends CellSet {

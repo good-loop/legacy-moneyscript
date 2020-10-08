@@ -6,13 +6,11 @@ import com.winterwell.maths.GridInfo;
 import com.winterwell.maths.stats.distributions.d1.GridDistribution1D;
 import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
 import com.winterwell.maths.stats.distributions.d1.UniformDistribution1D;
-import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.lang.num.ParticleCloudCalculator;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.containers.Range;
-import com.winterwell.utils.gui.GuiUtils;
 
 public class ParticleCloudCalculatorTest {
 

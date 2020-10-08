@@ -5,14 +5,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.winterwell.maths.graph.RenderGraph_InfoVisJs;
-import com.winterwell.maths.stats.StatsUtils;
-import com.winterwell.maths.stats.distributions.d1.Gaussian1D;
 import com.winterwell.maths.stats.distributions.d1.HistogramData;
 import com.winterwell.maths.stats.distributions.d1.MeanVar1D;
 import com.winterwell.maths.stats.distributions.discrete.ObjectDistribution;
-import com.winterwell.moneyscript.lang.ImportCommand;
-import com.winterwell.nlp.docmodels.WordFreqDocModel;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.io.CSVReader;

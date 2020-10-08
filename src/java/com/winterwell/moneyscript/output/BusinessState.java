@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.winterwell.moneyscript.lang.num.Numerical;
-import com.winterwell.utils.containers.Pair2;
 
 /**
  * The spreadsheet values. Can be used to do monte-carlo stuff.

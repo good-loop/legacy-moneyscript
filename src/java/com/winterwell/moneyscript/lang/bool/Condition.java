@@ -1,14 +1,10 @@
 package com.winterwell.moneyscript.lang.bool;
 
-import com.winterwell.moneyscript.output.Business;
-import com.winterwell.moneyscript.output.Cell;
-import com.winterwell.moneyscript.output.Col;
-import com.winterwell.moneyscript.output.Row;
-import com.winterwell.moneyscript.output.Business.KPhase;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
-import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.Numerical;
+import com.winterwell.moneyscript.output.Business;
+import com.winterwell.moneyscript.output.Business.KPhase;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.utils.TodoException;
 

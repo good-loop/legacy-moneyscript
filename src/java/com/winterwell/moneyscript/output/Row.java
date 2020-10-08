@@ -1,7 +1,5 @@
 package com.winterwell.moneyscript.output;
 
-import static com.winterwell.moneyscript.lang.num.Numerical.isZero;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,7 +7,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
 import com.winterwell.moneyscript.lang.DummyRule;
 import com.winterwell.moneyscript.lang.GroupRule;
 import com.winterwell.moneyscript.lang.MetaRule;

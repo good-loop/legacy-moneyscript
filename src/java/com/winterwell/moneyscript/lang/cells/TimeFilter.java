@@ -1,12 +1,9 @@
 package com.winterwell.moneyscript.lang.cells;
 
-import com.winterwell.moneyscript.output.Business;
-import com.winterwell.moneyscript.output.Cell;
-import com.winterwell.moneyscript.output.Cell;
-import com.winterwell.moneyscript.output.Col;
-import com.winterwell.moneyscript.lang.cells.Filter.KDirn;
 import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.moneyscript.lang.time.TimeDesc;
+import com.winterwell.moneyscript.output.Cell;
+import com.winterwell.moneyscript.output.Col;
 
 /**
  * to/from/at a point in time

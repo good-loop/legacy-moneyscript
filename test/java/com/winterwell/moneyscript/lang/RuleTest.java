@@ -2,19 +2,15 @@ package com.winterwell.moneyscript.lang;
 
 import org.junit.Test;
 
+import com.winterwell.moneyscript.lang.num.Numerical;
+import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
-import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.output.Row;
-import com.winterwell.moneyscript.lang.Rule;
-import com.winterwell.moneyscript.lang.num.Numerical;
-import com.winterwell.moneyscript.lang.time.LangTime;
-import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.utils.Printer;
-import com.winterwell.utils.time.TUnit;
 
 public class RuleTest {
 

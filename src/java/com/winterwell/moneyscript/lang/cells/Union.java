@@ -2,14 +2,10 @@ package com.winterwell.moneyscript.lang.cells;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import com.winterwell.moneyscript.output.Business;
-import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.utils.containers.ArraySet;
-import com.winterwell.utils.containers.Containers;
 
 /**
  * OR two cell sets

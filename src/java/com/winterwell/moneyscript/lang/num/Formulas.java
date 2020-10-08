@@ -1,21 +1,16 @@
 package com.winterwell.moneyscript.lang.num;
 
-import java.util.Collections;
 import java.util.Set;
 
 import com.winterwell.maths.stats.distributions.d1.UniformDistribution1D;
+import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
-import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
-import com.winterwell.moneyscript.lang.UncertainNumerical;
-import com.winterwell.moneyscript.lang.cells.CurrentRow;
-import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.containers.Range;
 import com.winterwell.utils.log.Log;
-import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
 
 public class Formulas {

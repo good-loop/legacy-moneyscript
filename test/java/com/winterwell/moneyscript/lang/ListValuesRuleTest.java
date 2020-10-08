@@ -2,14 +2,11 @@ package com.winterwell.moneyscript.lang;
 
 import org.junit.Test;
 
+import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
-import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
-import com.winterwell.moneyscript.lang.Lang;
-import com.winterwell.moneyscript.lang.ListValuesRule;
 import com.winterwell.moneyscript.output.Row;
-import com.winterwell.moneyscript.lang.num.Numerical;
 
 
 public class ListValuesRuleTest {

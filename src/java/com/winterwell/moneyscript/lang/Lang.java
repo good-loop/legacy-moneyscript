@@ -1,17 +1,18 @@
 package com.winterwell.moneyscript.lang;
 
-import static com.winterwell.nlp.simpleparser.Parsers.*;
+import static com.winterwell.nlp.simpleparser.Parsers.first;
+import static com.winterwell.nlp.simpleparser.Parsers.lit;
+import static com.winterwell.nlp.simpleparser.Parsers.opt;
+import static com.winterwell.nlp.simpleparser.Parsers.optSpace;
+import static com.winterwell.nlp.simpleparser.Parsers.ref;
+import static com.winterwell.nlp.simpleparser.Parsers.seq;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import com.winterwell.moneyscript.lang.LangTest;
 import com.winterwell.moneyscript.lang.bool.LangBool;
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.CurrentRow;
@@ -25,7 +26,6 @@ import com.winterwell.moneyscript.lang.num.LangNum;
 import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
-import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.nlp.simpleparser.AST;
 import com.winterwell.nlp.simpleparser.IDebug;
@@ -35,16 +35,10 @@ import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.ParseState;
 import com.winterwell.nlp.simpleparser.Parser;
-import com.winterwell.utils.Environment;
-import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
-import com.winterwell.utils.containers.ArraySet;
-import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.Slice;
 import com.winterwell.utils.log.Log;
-import com.winterwell.utils.time.Dt;
-import com.winterwell.utils.time.TUnit;
 
 /**
  * 

@@ -1,10 +1,5 @@
 package com.winterwell.moneyscript.lang;
 
-import static org.junit.Assert.assertEquals;
-import static com.winterwell.nlp.simpleparser.Parsers.first;
-import static com.winterwell.nlp.simpleparser.Parsers.lit;
-import static com.winterwell.nlp.simpleparser.Parsers.seq;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
@@ -12,28 +7,21 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.winterwell.maths.stats.distributions.d1.Gaussian1D;
-import com.winterwell.maths.stats.distributions.d1.UniformDistribution1D;
+import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.LangCellSet;
+import com.winterwell.moneyscript.lang.cells.SimpleLangCellSet;
+import com.winterwell.moneyscript.lang.num.BasicFormula;
+import com.winterwell.moneyscript.lang.num.Formula;
+import com.winterwell.moneyscript.lang.num.LangNum;
+import com.winterwell.moneyscript.lang.num.Numerical;
+import com.winterwell.moneyscript.lang.num.SimpleLangNum;
+import com.winterwell.moneyscript.lang.time.TimeDesc;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.BusinessState;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
-import com.winterwell.moneyscript.lang.DummyRule;
-import com.winterwell.moneyscript.lang.GroupRule;
-import com.winterwell.moneyscript.lang.Lang;
-import com.winterwell.moneyscript.lang.ListValuesRule;
-import com.winterwell.moneyscript.lang.MetaRule;
 import com.winterwell.moneyscript.output.Row;
-import com.winterwell.moneyscript.lang.Rule;
-import com.winterwell.moneyscript.lang.StyleRule;
-import com.winterwell.moneyscript.lang.cells.CellSet;
-import com.winterwell.moneyscript.lang.cells.Filter;
-import com.winterwell.moneyscript.lang.cells.LangCellSet;
-import com.winterwell.moneyscript.lang.cells.SimpleLangCellSet;
-import com.winterwell.moneyscript.lang.num.*;
-import com.winterwell.moneyscript.lang.time.TimeDesc;
-import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.nlp.simpleparser.GrammarPrinter;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;

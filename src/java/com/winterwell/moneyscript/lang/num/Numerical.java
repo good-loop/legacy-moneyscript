@@ -1,7 +1,5 @@
 package com.winterwell.moneyscript.lang.num;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,7 +8,6 @@ import com.winterwell.moneyscript.lang.ICalculator;
 import com.winterwell.moneyscript.lang.NumericalTest;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.utils.MathUtils;
-import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.log.Log;
 

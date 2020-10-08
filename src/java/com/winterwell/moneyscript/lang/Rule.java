@@ -1,18 +1,11 @@
 package com.winterwell.moneyscript.lang;
 
-import java.util.List;
-
-import com.winterwell.maths.NumericalException;
 import com.winterwell.moneyscript.lang.cells.CellSet;
-import com.winterwell.moneyscript.lang.cells.Filter;
-import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.Numerical;
-import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.RuleException;
-import com.winterwell.moneyscript.output.Cell;
 
 
 public class Rule {

@@ -2,12 +2,7 @@ package com.winterwell.moneyscript.lang.bool;
 
 import org.junit.Test;
 
-import com.winterwell.moneyscript.output.Cell;
-import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.lang.Lang;
-import com.winterwell.moneyscript.output.Row;
-import com.winterwell.moneyscript.lang.bool.Condition;
-import com.winterwell.moneyscript.lang.bool.LangBool;
 import com.winterwell.moneyscript.lang.cells.ConditionalFilter;
 import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
@@ -15,6 +10,9 @@ import com.winterwell.moneyscript.lang.cells.LangFilter;
 import com.winterwell.moneyscript.lang.cells.SimpleLangCellSet;
 import com.winterwell.moneyscript.lang.num.LangNum;
 import com.winterwell.moneyscript.lang.num.SimpleLangNum;
+import com.winterwell.moneyscript.output.Cell;
+import com.winterwell.moneyscript.output.Col;
+import com.winterwell.moneyscript.output.Row;
 import com.winterwell.nlp.simpleparser.ParseResult;
 
 /**

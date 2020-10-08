@@ -2,18 +2,15 @@ package com.winterwell.moneyscript.lang.time;
 
 import java.util.Collection;
 import java.util.Set;
-import java.util.logging.Level;
 
+import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
-import com.winterwell.moneyscript.lang.cells.CellSet;
-import com.winterwell.moneyscript.lang.num.Numerical;
-import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.Containers;
-import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;

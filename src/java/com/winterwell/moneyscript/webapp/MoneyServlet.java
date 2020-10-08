@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import com.winterwell.moneyscript.data.PlanDoc;
 import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.nlp.simpleparser.ParseExceptions;

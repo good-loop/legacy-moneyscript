@@ -10,31 +10,20 @@ import org.junit.Test;
 
 import com.winterwell.maths.stats.distributions.d1.Gaussian1D;
 import com.winterwell.maths.stats.distributions.discrete.ObjectDistribution;
+import com.winterwell.moneyscript.lang.Lang;
+import com.winterwell.moneyscript.lang.UncertainNumerical;
+import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
-import com.winterwell.moneyscript.lang.Lang;
-import com.winterwell.moneyscript.lang.ListValuesRule;
-import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.output.Row;
-import com.winterwell.moneyscript.lang.UncertainNumerical;
-import com.winterwell.moneyscript.lang.cells.CellSet;
-import com.winterwell.moneyscript.lang.cells.RowName;
-import com.winterwell.moneyscript.lang.num.BinaryOp;
-import com.winterwell.moneyscript.lang.num.Formula;
-import com.winterwell.moneyscript.lang.num.LangNum;
-import com.winterwell.moneyscript.lang.num.MortgageFormula;
-import com.winterwell.moneyscript.lang.num.Numerical;
-import com.winterwell.moneyscript.lang.num.Var;
-import com.winterwell.moneyscript.lang.time.LangTime;
-import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.nlp.simpleparser.GrammarPrinter;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.Printer;
-import com.winterwell.utils.io.SysOutCollectorStream;
 
 public class LangNumTest {
 

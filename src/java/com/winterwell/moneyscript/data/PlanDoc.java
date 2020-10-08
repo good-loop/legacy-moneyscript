@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.winterwell.data.AThing;
 import com.winterwell.es.ESNoIndex;
-import com.winterwell.nlp.simpleparser.ParseFail;
 
 public class PlanDoc extends AThing {
 

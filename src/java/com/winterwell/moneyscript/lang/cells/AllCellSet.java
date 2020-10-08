@@ -8,7 +8,6 @@ import java.util.Set;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Row;
-import com.winterwell.moneyscript.output.Cell;
 
 /**
  * Selects all rows & columns!

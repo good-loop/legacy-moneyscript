@@ -1,5 +1,12 @@
 package com.winterwell.moneyscript.lang.bool;
 
+import static com.winterwell.nlp.simpleparser.Parsers.chain;
+import static com.winterwell.nlp.simpleparser.Parsers.lit;
+import static com.winterwell.nlp.simpleparser.Parsers.opt;
+import static com.winterwell.nlp.simpleparser.Parsers.ref;
+import static com.winterwell.nlp.simpleparser.Parsers.seq;
+import static com.winterwell.nlp.simpleparser.Parsers.space;
+
 import java.util.List;
 
 import com.winterwell.moneyscript.lang.num.Formula;
@@ -8,7 +15,6 @@ import com.winterwell.nlp.simpleparser.AST;
 import com.winterwell.nlp.simpleparser.PP;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
-import static com.winterwell.nlp.simpleparser.Parsers.*;
 
 public class LangBool {
 	
