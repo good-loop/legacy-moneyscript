@@ -1,0 +1,44 @@
+
+Invest:£400k
+
+Staff:
+	Joe: -£40k per year
+	Dan: Joe
+	Commercial Director from month 2: -£40k per year 
+	Chairman: -£1k per month
+	Sales exec: -£24k per year	
+
+// applies to all rows in Staff
+//Staff 1 year from start: + 20%
+
+Overheads: 20% * Staff
+Rent: -£1k per month
+//Parties: if Sales > 5 then £1k else £1
+//Parties if Sales > 5: £1k
+
+Sales: 10 per month
+Customers: sum(Sales to now)
+Income: £300 * Customers
+
+Cashflow: Staff + Overheads + Rent + Income		// TODO sum(above £)
+Balance: sum(Cashflow to now)
+
+// Year 2
+//from year 2...	// ... to indicate this filter applies to all subsequent rules
+
+//Staff:
+//	New Code Monkey: -£24k per year	
+	
+//from Customers > 20:
+//	Staff:
+//		Account Manager: -£24k per year
+	
+//from year 3... // This should over-ride previous "from year 2..." filter
+
+Dummy: £100k per month
+
+Income, Cashflow: plot
+Balance: plot
+Sales: hide
+Dummy: off
+Balance: {font-weight:bold;}

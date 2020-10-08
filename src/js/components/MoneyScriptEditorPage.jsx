@@ -1,0 +1,170 @@
+import React, { Component } from 'react';
+import {ReactDOM} from 'react-dom';
+import {SJTest} from 'sjtest';
+import {Login} from 'you-again';
+import _ from 'lodash';
+import { Col, Row } from 'reactstrap';
+import AceEditor from "react-ace";
+import printer from '../base/utils/printer';
+import C from '../C';
+import Roles from '../base/Roles';
+import Misc from '../base/components/Misc';
+import {stopEvent, modifyHash} from '../base/utils/miscutils';
+import DataStore from '../base/plumbing/DataStore';
+import Settings from '../base/Settings';
+import ShareWidget, {ShareLink} from '../base/components/ShareWidget';
+import ListLoad, {CreateButton} from '../base/components/ListLoad';
+import ActionMan from '../plumbing/ActionMan';
+import PropControl, {DSsetValue, standardModelValueFromInput} from '../base/components/PropControl';
+import JSend from '../base/data/JSend';
+import SimpleTable from '../base/components/SimpleTable';
+import {setTaskTags} from '../base/components/TaskList';
+import ServerIO from '../plumbing/ServerIO';
+import ViewCharts from './ViewCharts';
+import ViewSpreadSheet from './ViewSpreadsheet';
+import SavePublishDeleteEtc from '../base/components/SavePublishDeleteEtc';
+
+
+//
+// import "ace-builds/src-noconflict/mode-java";
+// import "ace-builds/src-noconflict/theme-github";
+
+
+// import brace from 'brace';
+// import AceEditor from 'react-ace';
+// import 'brace/mode/java';
+// import 'brace/theme/github';
+
+/**
+ * We abuse the navbar as an always-visible view switcher -- but we do want to preserve the id
+ * 
+ * TODO don't use focus! It's fragile. Change the urls in nav. Or dont use nav
+ * 
+ * @returns {?String}
+ */
+const getPlanId = () => {
+	// which plan?
+	const upath = DataStore.getValue(['location','path']);
+	const type = 'PlanDoc';
+	let id = upath[1];
+	if ( ! id) {
+		id = DataStore.getFocus(type);
+		if ( ! id) {
+			window.title = 'MoneyScript Planning Tool';
+			return null;
+		}
+		let page = upath[0];
+		modifyHash([page,id]);
+	} else {
+		// set this id as focal, so it survives page switching (which strips down the url)
+		DataStore.setFocus(C.TYPES.PlanDoc, id);
+	}
+	const item = DataStore.getData({type, id, status:C.KStatus.DRAFT});
+	let name = (item && item.name) || id;
+	window.title = 'M$ plan: '+name;
+	setTaskTags(type, id);
+	return id;
+};
+
+const MoneyScriptEditorPage = () => {	
+	let id = getPlanId();
+	const type = C.TYPES.PlanDoc;
+	if ( ! id) {		
+		return <ListLoad type={type} status={C.KStatus.ALL_BAR_TRASH} canDelete canCreate />;
+	}
+
+	const path = DataStore.getDataPath({status:C.KStatus.DRAFT, type, id});
+	const pvItem = ActionMan.getDataItem({type, id, status:C.KStatus.DRAFT});
+	if ( ! pvItem.value) {
+		return (<div><h1>{type}: {id}</h1><Misc.Loading /></div>);
+	}
+	const item = pvItem.value;
+	// TODO https://ace.c9.io/#nav=embedding or https://codemirror.net/
+	// or https://microsoft.github.io/monaco-editor/
+	return (
+		<div className="MoneyScriptEditorPage">
+			<Row>				
+				<Col md={6}><PropControl path={path} prop="name" size="lg" /></Col>
+				<Col md={6}><a href={'/#sheet/'+escape(id)}>View SpreadSheet &gt;</a></Col>
+			</Row>
+			<EditScript id={id} plandoc={item} path={path} option="Text" />
+			{/* <ShareLink /> */}
+			{/* <ShareWidget /> */}
+		</div>
+	);
+};
+
+const saveFn = _.debounce(({path}) => {
+	console.warn("saveFn", path);
+	const plandoc = DataStore.getValue(path);
+	// parse
+	let p = ServerIO.load('/money.json', {data: {action:'parse', text: plandoc.text}});
+	return p.then(res => {
+		DataStore.setValue(['transient', 'parsed', path[path.length-1]], JSend.data(res));
+	}, res => {
+		// error handling
+		if (JSend.status(res) === 'fail') return JSend.data(res);
+		throw res;
+	});
+}, 2000);
+
+/**
+ * Ace markers -- What format?? Any docs??
+ * @param {ParseFail} pf 
+ */
+const markerFromParseFail = pf => {
+	return {startRow:pf.line, endRow:pf.line, className:'error-marker', type: 'background' };
+};
+
+const EditScript = ({id, plandoc, path}) => {
+	let parsed = DataStore.getValue(['transient', 'parsed', plandoc.id]);
+	// standardise on tabs, with 4 spaces = 1 tab
+	let modelValueFromInput = (iv, type, eventType) => standardModelValueFromInput(iv? iv.replace(/ {4}/g, '\t') : iv, type, eventType);
+	 let pes = (parsed && parsed.errors) || [];
+	return (<div>
+		<AceEditor
+			width="100%"		
+			height="70vh"
+			placeholder=""
+			mode="json"
+			theme="tomorrow"
+			name="planit1"
+			onLoad={editor => console.log("Ace onLoad")}
+			onChange={newText => DSsetValue(path.concat('text'), newText, false)}
+			fontSize={14}
+			showPrintMargin={false}
+			showGutter
+			highlightActiveLine
+			value={plandoc.text}
+			setOptions={{
+				// to use this options the corresponding extension file needs to be loaded in addition to the ace.js
+				// enableBasicAutocompletion: false,
+				// enableLiveAutocompletion: true,
+				// enableSnippets: false,
+				showLineNumbers: true,
+				tabSize: 4,
+			}}
+			markers={pes.map(markerFromParseFail)}
+		/>
+		<div>{parsed && parsed.errors? JSON.stringify(parsed.errors) : null}</div>
+		<div>&nbsp;</div>
+		<SavePublishDeleteEtc type="PlanDoc" id={id} saveAs />
+	</div>);    
+
+	// return (<div>
+	// 	<PropControl type='textarea' prop='text' path={path} 
+	// 		saveFn={saveFn} 
+	// 		rows={40}
+	// 		modelValueFromInput={modelValueFromInput}
+	// 	/>
+	// 	<div>{parsed && parsed.errors? JSON.stringify(parsed.errors) : null}</div>
+	// 	<div>&nbsp;</div>
+	// 	<SavePublishDeleteEtc type='PlanDoc' id={id} saveAs />
+	// </div>);
+};
+
+MoneyScriptEditorPage.fullWidth = true;
+export default MoneyScriptEditorPage;
+export {
+	getPlanId
+};

@@ -1,0 +1,146 @@
+start: Jan 2019
+end: Dec 2022
+
+Invest at month 6: £1500k
+
+Marketing:
+	Design to month 6: £600 per month 
+	Design from month 7 to month 12: £1000 per month 
+	PR Retainer: £2k per month
+	SocialMedia: £100 per month
+	Blog: £100 per month
+	Outbound from month 12: £2000
+	Events to month 6: £500 per month
+	Events from month 7: £1000 per month
+	WhitePapers: £2k per month
+	Video Creation from month 18: £1k per month
+	Video Distribution from month 18: £500 per month 
+	SEO from month 18: £500
+
+
+Staff:
+	Management:
+		Amy: £36k per year
+		Dan: Amy
+	SalesStaff:	
+		Junior Sales2: £50k per year
+		Senior Sales Julia: £70k per year
+		Junior Sales Alex: £35k per year
+		Sales Manager: £50k per year
+		Junior Sales3: £35k
+		Senior Sales2: £80k
+		US Head Sales from 2020: £150k
+		US Midlevel Sales1 from 2021: £60k 
+		US Junior Sales4 from 2021: £35k
+		Midlevel Sales2 from 2021: £50k
+		Junior Sales5 from 2021: £25k
+		Junior Sales6 from 2021: £25k
+		Head of EMEA Sales from 2021: £100k
+		Head of LATAM Sales	from 2021: £100k
+	AccountManagement:
+		Ryan: £34k per year
+		Junior Ad Ops1: £25k
+		Senior Account Manager: £50k
+		Account Manager1: £45k
+		Account Manager2: £50k
+		Junior Ad Ops2: £25k
+		Account Manager3: £50k
+		Junior Ad Ops3: £25k
+	MarketingStaff:
+		Junior Marketing Manager: £35k per year
+		Designer: £40k per year
+		Senior Marketing Manager1: £50k per year
+		Senior Marketing Manager2: £55k per year
+	DevStaff:
+		Roscoe: £30k per year
+		Irina: £24k per year
+		Mark: £20k per year 
+		Programmatic Advisor: £12k per year
+		Junior Dev: £25k per year
+		Data Analyst: £30k per year
+		Senior Dev: £80k per year
+		Mid Level Dev: £50k per year
+	Admin:
+		SysAdmin: £25k per year
+		AdminAssistant1: £20k per year
+		AdminAssistant2: £25k per year
+		Finance Director: £40k per year
+
+NumStaff: count Staff
+// TODO NumUS: count Staff matching /US/
+
+Overheads:
+	People Costs: Staff
+	Employers NI: 12% * Staff
+	Pension: 2% * Staff
+// TODO	US Health Tax: £6k * NumUS 
+	Recruitment: 2*(Staff - previous Staff) // 2 months salary
+	Training: (£200 per year) * count(Staff)
+	Property:
+		Rent: £1k
+		Rent from 2021: £2k
+		Service Charge: 10% * Rent
+	Travel:
+		Transport: £500
+		Accommodation: £500
+		Subsistence: £50
+		Staff Entertainment: (£100 per year) * NumStaff
+		Client Entertainment: £50			
+	
+	Marketing Costs: Marketing
+
+	IT: // Not including development (under staff) or hosting (under COS)
+		Software: £100
+		Hardware: £100
+		Internet: £150
+		Phones: £100
+
+	Professional Fees:
+		Accountancy: £500 per month
+		Legal: £100 per month
+		Consultancy: 0
+						
+	Other Overheads:
+		Insurance: £50
+		Bank Charges: £15
+		Exchange Rate: 0 // TODO
+
+
+Sales: 10+-5 per month
+// Average campaign budget expected to increase y.o.y. due to:
+// - Enhanced industry reputation & customer trust. 
+// - Making more sales in the US where deals are typically 5-10X larger.
+
+Customers: Sales + previous
+Income: £300 * Customers
+
+// Cost of Sales
+COS:
+	Hosting: 1% * Income
+	CommissionNeW: 22%
+	CommissionRepeat: 10%
+
+
+Costs: Rent + Staff + Overheads + COS
+
+Cashflow: Invest + Income - Costs
+Balance at month 1: £100k
+Balance: previous + Cashflow
+
+// Year 2
+//from year 2...	// ... to indicate this filter applies to all subsequent rules
+
+//Staff:
+//	New Code Monkey: -£24k per year	
+	
+//from Customers > 20:
+//	Staff:
+//		Account Manager: -£24k per year
+	
+//from year 3... // This should over-ride previous "from year 2..." filter
+
+Income, Costs, Cashflow: plot
+Balance: plot
+//Sales: hide
+Balance: {font-weight:bold;}
+

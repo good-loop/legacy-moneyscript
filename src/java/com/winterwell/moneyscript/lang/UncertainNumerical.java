@@ -1,0 +1,52 @@
+package com.winterwell.moneyscript.lang;
+
+import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
+import com.winterwell.moneyscript.lang.num.Numerical;
+import com.winterwell.moneyscript.output.Particles1D;
+import com.winterwell.utils.MathUtils;
+import com.winterwell.utils.Printer;
+import com.winterwell.utils.StrUtils;
+
+public class UncertainNumerical extends Numerical {
+	
+	private static final long serialVersionUID = 1L;
+	private IDistribution1D dist;
+	
+	public IDistribution1D getDist() {
+		return dist;
+	}
+	
+	public UncertainNumerical(IDistribution1D dist, String unit) {
+		super(Double.NaN, unit);
+		this.dist = dist;
+	}
+	
+	@Override
+	public double doubleValue() {
+		return dist.getMean();
+	}
+	
+//	double LOW_CONFIDENCE = 0.25;
+//	double HIGH_CONFIDENCE = 0.75;
+	
+	@Override
+	public String toString() {				
+		if (dist instanceof Particles1D) {
+			double m = dist.getMean();
+			double sd = dist.getStdDev();
+			if (MathUtils.isTooSmall(sd)) {
+				return super.toString();
+			}
+//			double errLo = dist.getConfidence(LOW_CONFIDENCE); 
+//			double errHi = dist.getConfidence(HIGH_CONFIDENCE);
+			double err = Math.abs(sd/m);
+			// Use absolute +- for divide-by-zero, or just silly-large %
+			if ( ! MathUtils.isFinite(err) || Math.abs(err) > 2.5) {
+				return super.toString()+" ± ~"+StrUtils.toNSigFigs(sd, 2);	
+			}
+			return super.toString()+" ± ~"+StrUtils.toNSigFigs(100*err,2)+"%";
+		}
+		return (getUnit()==null? "":getUnit()) + dist.toString();
+	}
+
+}

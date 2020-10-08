@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta http-equiv="x-ua-compatible" content="ie=edge">
+
+		<title>MoneyScript</title>
+		<link rel="shortcut icon" href="/img/gl-logo/LogoMark/logo.64.png" />
+
+		<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+		<link rel="stylesheet" type="text/css" href="/build/style/main.css">
+	</head>
+	<body>
+		<div id="mainDiv"></div>
+
+		<footer class="footer">
+			<div class="col-md-12">
+				<center>
+					<img alt="logo" class="logo-large" src="/img/gl-logo/LogoMark/logo.svg" />
+					<p class="text-muted">
+						<span>&copy; Good-Loop Ltd, all rights reserved.
+							<a href='https://good-loop.com' target='_blank'>Good-Loop&trade;</a> is a registered UK company, number SC548356.
+						</span>
+					</p>
+				</center>
+			</div>
+		</footer>
+
+		<!-- Scripts -->
+		<!-- everything comes via webpack -->
+		<script>
+			// Insert bundle[-debug].js - but allow dynamic test/production build switch.
+			// Default to debug build on test and local servers.
+			var isDebug = window.location.hostname.match(/^local/) || window.location.hostname.match(/^test/);
+			
+			// Has the user specified debug/production build with a URL param?
+			var debugParam = window.location.search.match(/debug=(\w+)/i);
+			if (debugParam && debugParam[1]) {
+				// Require an exact match to change from default
+				if (debugParam[1] === 'false') isDebug = false;
+				else if (debugParam[1] === 'true') isDebug = true;
+			}
+			
+			var filename = isDebug ? 'bundle-debug.js' : 'bundle.js';
+			if ( ! isDebug) filename += '?cb='+Math.random(); // force fresh loading on e.g. devices
+			document.write('<script src="/build/js/' + filename + '"/><\/script>');
+		</script>
+
+	</body>
+</html>

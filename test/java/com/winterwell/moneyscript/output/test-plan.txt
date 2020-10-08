@@ -1,0 +1,27 @@
+
+
+Costs:
+	Staff:
+		Amy: £46k per year
+		Dan: £46k per year
+		Commercial Director from month 4: £40k per year 
+		Chairman: £1k per month
+		Sales exec: £24k per year	
+	
+	Overheads: 20% * Staff
+	Rent: £1k per month
+
+Sales: 10 +- 2 per month
+Customers: sum(Sales to date)
+Income: £100 * Customers
+
+Cashflow: Income - Costs
+
+Balance: previous Balance + Cashflow
+Balance at month 1: £500k
+
+Income, Cashflow: plot
+Balance: plot
+Sales: hide
+Dummy: off
+Balance: {font-weight:bold;}

@@ -1,0 +1,60 @@
+
+
+MoneyScript is case sensitive.
+It is an error to have names that are the same-except-for-capitalisation.
+Row names start with a capital letter. They cannot include ,:+-*/ or keywords. They can include spaces.
+Columns are always time.
+
+Global variables: row, column - both integers
+
+MoneyScript commands are of the form
+Selector: Rule
+E.g. 
+Director: £50k per year
+
+The Selector picks out a cell, a row, or a set of rows
+E.g.
+Row name - selects all cells in that row, moving left to right
+Row name from 2011 - selects Jan 2011 and later
+Row name to 2011
+Row 1, Row 2 - comma separated list of Selectors - selects both rows
+Group name - selects all rows in that group
+
+Use whitespace indentation for grouping, e.g.
+
+Staff:
+	Alice:
+	Bob:
+
+Dangling column selectors - use "from 2011:" to affect all subsequent statements. 
+
+Reference other sheets by url
+url scheme http://whatever.com/myfile#Selector
+
+A Rule can begin =, in which case all previous rules for that row are dropped.
+Otherwise rules stack.
+
+Rule is a number, e.g. 2, -£10
+Or a formula, e.g. (sum of Sales) + VAT
+Or a reference, e.g. "Dan: = Joe" gives Dan the same salary as Joe
+Rules can use Selectors
+
+Filters:
+	money - ignores non-currency rows
+	
+
+Use {css} for display styling
+
+Comments - use // comment
+
+Conditionals - bit more traditional code syntax
+
+if (Sales > 10) {
+	Staff: +£100 // bonus
+	if (New Hire = 0) New Hire: £24k per year
+} else {
+	Old Bob from now: = 0
+}
+	
+This test would get run every step!
+

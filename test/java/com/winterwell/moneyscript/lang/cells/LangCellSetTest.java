@@ -1,0 +1,422 @@
+package com.winterwell.moneyscript.lang.cells;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.winterwell.moneyscript.output.Business;
+import com.winterwell.moneyscript.output.BusinessContext;
+import com.winterwell.moneyscript.output.Cell;
+import com.winterwell.moneyscript.output.Col;
+import com.winterwell.moneyscript.lang.Lang;
+import com.winterwell.moneyscript.output.Row;
+import com.winterwell.moneyscript.lang.Rule;
+import com.winterwell.moneyscript.lang.bool.LangBool;
+import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.Filter;
+import com.winterwell.moneyscript.lang.cells.FilteredCellSet;
+import com.winterwell.moneyscript.lang.cells.LangCellSet;
+import com.winterwell.moneyscript.lang.cells.LangFilter;
+import com.winterwell.moneyscript.lang.cells.RowName;
+import com.winterwell.moneyscript.lang.cells.TimeFilter;
+import com.winterwell.moneyscript.lang.num.BasicFormula;
+import com.winterwell.moneyscript.lang.num.Formula;
+import com.winterwell.moneyscript.lang.num.LangNum;
+import com.winterwell.moneyscript.lang.num.Numerical;
+import com.winterwell.moneyscript.lang.num.SimpleLangNum;
+import com.winterwell.moneyscript.lang.num.UnaryOp;
+import com.winterwell.moneyscript.lang.time.LangTime;
+import com.winterwell.moneyscript.lang.time.TimeDesc;
+import com.winterwell.moneyscript.output.Cell;
+import com.winterwell.nlp.simpleparser.AST;
+import com.winterwell.nlp.simpleparser.ParseResult;
+import com.winterwell.nlp.simpleparser.Parser;
+import com.winterwell.utils.Printer;
+import com.winterwell.utils.containers.Containers;
+
+
+public class LangCellSetTest {
+	
+	@Test
+	public void testAbove() {
+		Lang lang = new Lang();
+		{
+			lang.langFilter.dirnFilter.parseOut("above");
+		}
+		{
+			Parser.DEBUG = true;
+			lang.langFilter.filter0.parseOut("above");			
+			lang.langNum.num.parseOut("sum(Alice)");
+			lang.langNum.num.parseOut("sum(above)");
+			lang.langNum.num.parseOut("sum above");
+			Business b = lang.parse("Alice:1\nBob:2\nBoth: sum above");
+		}
+	}
+
+	
+	@Test
+	public void testBrackets() {
+		{
+			Lang lang = new Lang();
+			LangCellSet lcs = lang.langCellSet;			
+			lcs.listOfSetsSelector.parseOut("Alice from (2 months ago)");
+			lcs.listOfSetsSelector.parseOut("(Alice)");
+		}
+	}
+	
+	@Test
+	public void testRuleOrdering() {
+		{
+			Lang lang = new Lang();
+			Business b = lang.parse("A: 1\nA at month 1: 2");
+			Row a = b.getRow("A");
+			List<Rule> rules = a.getRules();
+			assert rules.size() == 2;
+			assert rules.get(0).getSelector() instanceof RowName;
+			assert rules.get(1).getSelector() instanceof FilteredCellSet;
+			b.setSamples(1);
+			b.setColumns(3);
+			b.run();
+			assert a.getValues()[0] == 2;
+			assert a.getValues()[1] == 1;
+			assert a.getValues()[2] == 1;
+		}
+		{
+			Lang lang = new Lang();
+			Business b = lang.parse("A at month 1: 2\nA: 1");
+			Row a = b.getRow("A");
+			List<Rule> rules = a.getRules();
+			assert rules.size() == 2;
+			assert rules.get(0).getSelector() instanceof RowName;
+			assert rules.get(1).getSelector() instanceof FilteredCellSet;
+			b.setSamples(1);
+			b.setColumns(3);
+			b.run();
+			assert a.getValues()[0] == 2;
+			assert a.getValues()[1] == 1;
+			assert a.getValues()[2] == 1;
+		}
+		{
+			Lang lang = new Lang();
+			Business b = lang.parse("A at month 1: 2\nA: 1\nA: 3");
+			Row a = b.getRow("A");
+			List<Rule> rules = a.getRules();
+			assert rules.size() == 3;
+			assert rules.get(0).getSelector() instanceof RowName;
+			assert rules.get(1).getSelector() instanceof RowName;
+			assert rules.get(2).getSelector() instanceof FilteredCellSet;
+			b.setSamples(1);
+			b.setColumns(3);
+			b.run();
+			assert a.getValues()[0] == 2;
+			assert a.getValues()[1] == 3;
+			assert a.getValues()[2] == 3;
+		}
+	}
+
+	
+	@Test
+	public void testTimeFilter_smoke() {
+		Lang lang = new Lang();
+		{
+			lang.langFilter.filter.parseOut("at previous");
+			lang.langFilter.filter.parseOut("at 2 months ago");
+			lang.langFilter.filter.parseOut("from 2 months ago to month 4");
+			lang.langFilter.conditionalFilter.parseOut("from 2 months ago");
+			lang.langFilter.conditionalFilter.parseOut("from (2 months ago)");
+			lang.langFilter.filter.parseOut("(from 2 months ago)");
+			lang.langFilter.filter.parseOut("from (2 months ago) to (month 4)");
+		}
+		{			
+			LangCellSet lcs = new LangCellSet();
+			lcs.listOfSetsSelector.parseOut("Alice at previous");
+			lcs.listOfSetsSelector.parseOut("Alice at 2 months ago");
+			lcs.listOfSetsSelector.parseOut("Alice from month 2 to month 4");
+			lcs.listOfSetsSelector.parseOut("Alice from 2 months ago to month 4");
+			lcs.listOfSetsSelector.parseOut("Alice from (2 +- 1) months ago");
+			lcs.listOfSetsSelector.parseOut("Alice from (2 months ago) to (month 4)");
+			lcs.listOfSetsSelector.parseOut("(Alice at 2 months ago)");
+		}
+	}
+
+	@Test
+	public void testTimeFilterToDate() {
+		Lang lang = new Lang();
+		{
+			lang.langFilter.filter.parseOut("to month 3");
+			lang.langFilter.filter.parseOut("to date");
+		}
+		{			
+			LangCellSet lcs = new LangCellSet();
+			lcs.listOfSetsSelector.parseOut("Alice to month 3");
+			lcs.listOfSetsSelector.parseOut("Alice to date");
+		}
+		Business b = lang.parse("Alice: 1, 2\nFoo: sum(Alice to date)");
+		
+		b.run();
+		
+		Numerical c = b.getCell(1, 2);
+		assert c.doubleValue() == 3;
+		
+		System.out.println(b.toCSV());
+		Set<Rule> rules = b.getAllRules();
+		Row row = b.getRow("Foo");
+		Rule rule = row.getRules().get(0);
+		UnaryOp f = (UnaryOp) rule.formula;
+		
+	}
+
+	@Test(timeout=10000)
+	public void testComplex() {
+		Lang lang = new Lang();
+		LangTime lt = new LangTime();
+		LangCellSet lcs = new LangCellSet();
+		LangFilter lf = new LangFilter();
+		SimpleLangNum ln = new SimpleLangNum();
+		{
+			ParseResult<CellSet> pr = lcs.listOfSetsSelector.parseOut("Alice from 1 month from start");
+			FilteredCellSet cells = (FilteredCellSet) pr.getX();
+		}
+		{	// This is a bogus script -- when is start??
+			Business b = lang.parse("Alice from 1 month from start: 1");
+			b.setSamples(1);
+			b.setColumns(3);
+			b.run();
+			Row alice = b.getRow("Alice");
+			FilteredCellSet cells = (FilteredCellSet) alice.getRules().get(0).getSelector();
+			assert Containers.same(cells.getRowNames(), "Alice") : cells.getRowNames();
+			TimeFilter f = (TimeFilter) cells.filter;
+			// see how that goes - should fail (no start)
+			Cell bc = new Cell(alice, new Col(1));
+			assert ! cells.contains(new Cell(alice, new Col(1)), bc);
+		}
+		{
+			Business b = lang.parse("Alice at month 2: 1\nAlice from 1 month from start: 2");
+			b.setColumns(5);
+			b.setSamples(1);
+			b.run();
+			Row alice = b.getRow("Alice");
+			Collection<Cell> cells = alice.getCells();
+			double[] vs = alice.getValues();
+			assert vs[0] == 0 : Printer.toString(vs);
+			assert vs[1] == 1 : Printer.toString(vs);
+			assert vs[2] == 2 : Printer.toString(vs);
+			assert vs[3] == 2 : Printer.toString(vs);
+		}
+		// This is a bogus script (when is start?)
+		{
+			Business b = lang.parse("Alice from 1 month from start: 2");
+			b.setColumns(3);
+			b.setSamples(2);
+			b.run();
+			Row alice = b.getRow("Alice");
+			Collection<Cell> cells = alice.getCells();
+			double[] vs = alice.getValues();
+			for (double d : vs) {
+				assert d==0 : Printer.toString(vs);
+			}
+		}
+	}
+
+	@Test
+	public void testAtMonth() {
+		Lang lang = new Lang();
+		LangTime lt = new LangTime();
+		LangCellSet lcs = new LangCellSet();
+		LangFilter lf = new LangFilter();
+		SimpleLangNum ln = new SimpleLangNum();
+		{
+			ParseResult<Filter> pr = lf.filter.parseOut("at month 1");
+		}
+		{
+			ParseResult<CellSet> pr = lcs.cellSet.parseOut("Invest at month 1");
+			CellSet cells = pr.getX();		
+		}
+		{
+			Business b = lang.parse("Invest at month 1:100");
+			Row row = b.getRow("Invest");
+			b.run();
+			double[] vs = row.getValues();
+			assert vs[0] == 100;
+			assert vs[1] == 0;
+			assert vs[2] == 0;
+			assert row != null;
+		}
+	}
+	
+	@Test
+	public void testFromMonthEval() {
+		Lang lang = new Lang();
+		LangCellSet lcs = new LangCellSet();
+		SimpleLangNum ln = new SimpleLangNum();
+		{
+			String s = "Bob from month 2: 1";
+			Business b = lang.parse(s);			
+			b.setSamples(1);
+			b.setColumns(3);
+			b.run();
+			Row bob = b.getRow("Bob");
+			Rule rule = bob.getRules().get(0);
+			Cell b1 = new Cell(bob, new Col(1));
+			Cell b2 = new Cell(bob, new Col(2));
+			Cell b3 = new Cell(bob, new Col(3));
+			
+			CellSet bobFromM2 = rule.getSelector();			
+			assert ! bobFromM2.contains(b1, b1);
+			assert bobFromM2.contains(b2, b1);
+			assert bobFromM2.contains(b3, b1);
+			
+			Cell c1 = new Cell(bob, new Col(1));
+			Numerical v = rule.calculate(c1);
+			assert v==null || v.doubleValue() == 0 : v;
+			
+			double[] bvs = b.getRow("Bob").getValues();
+			Assert.assertArrayEquals(new double[]{0, 1, 1}, bvs, 0.1);
+		}
+	}
+	
+	@Test
+	public void testFromMonth() {
+		Lang lang = new Lang();
+		LangCellSet lcs = new LangCellSet();
+		SimpleLangNum ln = new SimpleLangNum();
+		{		
+			ParseResult<CellSet> pr = LangCellSet.cellSet.parseOut("Alice from month 2");
+			CellSet cells = pr.getX();
+			assert cells != null;
+			assert cells instanceof FilteredCellSet : cells;
+			FilteredCellSet fcs = (FilteredCellSet) cells;
+			assert Containers.same(fcs.getRowNames(), Arrays.asList("Alice")) : fcs.getRowNames();
+			assert fcs.base instanceof RowName : fcs.base;
+			assert fcs.filter instanceof TimeFilter : fcs.filter;
+			
+			TimeFilter tf = (TimeFilter) fcs.filter;			
+			assert ! tf.contains(new Cell(null, new Col(1)), null);
+			assert tf.contains(new Cell(null, new Col(2)), null);
+			assert tf.contains(new Cell(null, new Col(3)), null);
+			
+			Business b = lang.parse("Alice from month 2: 1");
+			Row alice = b.getRow("Alice");
+			Col start = fcs.getStartColumn(alice, new Cell(alice, null));
+			assert start.index == 2 : start;
+		}
+		{
+			
+		}
+	}
+	
+	@Test
+	public void testTimeRange_Known_BAD() {
+		Lang lang = new Lang();
+		{		
+			ParseResult<CellSet> pr = LangCellSet.cellSet.parseOut("Alice from start to now");
+			CellSet cells = pr.getX();
+			assert cells != null;
+		}
+		{		
+			ParseResult<CellSet> pr = LangCellSet.cellSet.parseOut("Alice from start of Alice to now");
+			CellSet cells = pr.getX();
+			assert cells != null;
+		}
+
+		// This breaks 'cos it is interpreted as base -> time filters
+		// And the base evaluates to "just the one cell in the focal column".
+		// Fix: evaluate base differently?? No, lets add a new keyword for "all of base"
+		// e.g. row(Alice)
+		{
+			Business b = lang.parse("Alice: 1, 2, 3, 4");
+			BusinessContext.setBusiness(b);
+			ParseResult<CellSet> pr = LangCellSet.cellSet.parseOut("Alice from start of Alice to now");
+			CellSet cells = pr.getX();
+			assert cells != null;		
+			Row row = b.getRow("Alice");
+			Cell c1 = new Cell(row, new Col(1));
+			Cell c2 = new Cell(row, new Col(2));
+			Cell c3 = new Cell(row, new Col(3));
+			Collection<Cell> c1s = cells.getCells(c1, true);
+			Collection<Cell> c2s = cells.getCells(c2, true);
+			Collection<Cell> c3s = cells.getCells(c3, true);
+			assert c1s.size() == 1 : c1s;
+			assert c2s.size() == 2 : c2s;
+			assert c3s.size() == 3 : c3s;
+		}
+	}
+	
+	@Test
+	public void testRowName() {		
+		LangCellSet lang = new LangCellSet();
+		LangFilter lf = new LangFilter();
+		LangTime lt = new LangTime();
+		LangBool lb = new LangBool();
+		SimpleLangNum ln = new SimpleLangNum();		
+		{		
+			lang.rowName.parseOut("Dan");
+			lang.rowName.parseOut("Dan W");
+			assert lang.rowName.parse("Dan from start") == null;
+		}
+		{
+			lang.listOfSetsSelector.parseOut("Sales");
+			LangFilter.filter.parseOut("to now");
+			ParseResult<CellSet> pr = lang.listOfSetsSelector.parseOut("Sales to now");
+			CellSet sel = pr.ast.getX();
+			assert sel instanceof FilteredCellSet : sel;
+		}
+//		{
+//			assert lang.rowName.parse("Sales to now") == null;
+//			lang.formulas.mathFnUnary.parseOut("sum Sales");
+//			ParseResult pr = lang.formulas.mathFnUnary.parseOut("sum Sales to now");
+//		}
+		{
+			assert lang.rowName.parse("Sales ") == null;
+			assert lang.rowName.parse("Sales sum") == null;
+		}
+		{
+			assert lang.rowName.parse("Chairman (part time)") == null; //"time" is a reserved keyword
+			lang.rowName.parseOut("Chairman PartTime");
+		}
+	}
+
+
+	
+	@Test
+	public void testSelector() {
+		LangCellSet lang = new LangCellSet();
+//		lang.rowName.parseOut("Alice");
+//		lang.selector1.parseOut("Alice");
+		lang.listOfSetsSelector.parseOut("Alice");
+	}
+	
+
+	@Test
+	public void testCurrentRow() {
+		{
+			Lang lang = new Lang();
+			Business b = lang.parse("Alice: row\nBob: £1");
+			Row alice = b.getRow("Alice");
+			Row bob = b.getRow("Bob");
+			Rule rule = alice.getRules().get(0);
+			CellSet sel = rule.getSelector();
+			Cell bc = new Cell(alice,null);
+			Col col = new Col(3);
+			assert sel.contains(new Cell(alice, col), bc);
+			assert ! sel.contains(new Cell(bob, col), bc);
+		}
+		{
+			Lang lang = new Lang();
+			Business b = lang.parse("Alice: £1\nAlice: * 2\nBob: £1");
+			Row alice = b.getRow("Alice");
+			Row bob = b.getRow("Bob");
+			Rule rule1 = alice.getRules().get(0);
+			Rule rule2 = alice.getRules().get(1);
+			CellSet sel = rule2.getSelector();
+			Cell bc = new Cell(alice, null);
+			Col col = new Col(3);
+			assert sel.contains(new Cell(alice, col), bc);
+			assert ! sel.contains(new Cell(bob, col), bc);
+		}
+	}
+}

@@ -1,0 +1,173 @@
+package com.winterwell.moneyscript.lang;
+
+import static com.winterwell.nlp.simpleparser.Parsers.*;
+
+import java.net.URL;
+import java.text.ParseException;
+import java.util.List;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
+
+import com.winterwell.maths.stats.distributions.d1.ADistribution1D;
+import com.winterwell.maths.stats.distributions.d1.Gaussian1D;
+import com.winterwell.moneyscript.lang.num.Formula;
+import com.winterwell.moneyscript.lang.time.DtDesc;
+import com.winterwell.moneyscript.lang.time.LangTime;
+import com.winterwell.moneyscript.lang.time.TimeDesc;
+import com.winterwell.nlp.simpleparser.AST;
+import com.winterwell.nlp.simpleparser.PP;
+import com.winterwell.nlp.simpleparser.ParseFail;
+import com.winterwell.nlp.simpleparser.ParseResult;
+import com.winterwell.nlp.simpleparser.Parser;
+import com.winterwell.nlp.simpleparser.Parsers;
+import com.winterwell.nlp.simpleparser.RegexParser;
+import com.winterwell.utils.MathUtils;
+import com.winterwell.utils.TodoException;
+import com.winterwell.utils.containers.Range;
+import com.winterwell.utils.time.Dt;
+import com.winterwell.utils.time.TUnit;
+import com.winterwell.utils.time.Time;
+import com.winterwell.utils.web.WebUtils;
+
+/**
+ * Style (css), charts, etc
+ * 
+ * e.g. `columns: 1 year` 
+ * {@link LangMiscTest}
+ */ 
+public class LangMisc {
+	
+
+	static Parser<String> meta = lit("hide", "show", "plot distribution", "plot", "off").label("meta");
+
+	static Parser<String> css = new PP<String>(regex("\\{([^\\}]*)\\}")) {
+		@Override
+		protected String process(ParseResult<?> r) throws ParseFail {
+			MatchResult m = (MatchResult) r.getX();
+			return (String) m.group(1);
+		}		
+	}.label("css").eg("{color:red;}"
+			+ "").setCanBeZeroLength(false);
+	
+	public static final Parser comment = regex("\\s*//.*").label("comment").setCanBeZeroLength(false);	
+
+	/**
+	 * always matches and returns 0+
+	 */
+	static Parser<Number> indent = new PP<Number>(opt(space)){
+		protected Number process(ParseResult<?> r) {
+			return r.ast.getValue().length();
+		};
+	}.label("indent");
+
+	protected static Parser<MatchResult> urlOrFile = Parsers.regex(WebUtils.URL_REGEX.pattern());
+	
+
+	private Parser<Settings> periodSetting = new PP<Settings>(
+//			LangTime.time TODO
+			seq(LangTime.dt, opt(seq(space, word("from"), space, LangTime.time))) 
+	) {
+		protected Settings process(ParseResult<?> r) {
+			Settings s = new Settings();
+//			TimeDesc td = (TimeDesc) r.getX(); TODO
+			AST<DtDesc> ndt = r.getNode(LangTime.dt);
+			s._runTime =  ndt.getX().calculate(null);
+			return s;
+		}
+	}.eg("1 year from Jan 2020");
+
+	private Parser<Settings> cssSetting = new PP<Settings>(css) {
+		protected Settings process(ParseResult<?> r) throws ParseFail {
+			String p = r.parsed();
+			Settings s = new Settings();
+			s.css = p;
+			return s;
+		}
+	};
+	
+	private Parser<Settings> samplesSetting = new PP<Settings>(
+			seq(ignore("samples:"), optSpace, num("n"))) {
+		@Override
+		protected Settings process(ParseResult<?> r) throws ParseFail {
+			Settings s = new Settings();
+			Double n = (Double) r.getLeafValues().get(0);
+			if (n != Math.round(n)) {
+				throw new ParseFail(r, "Number of samples must be a round number");
+			}
+			s.samples = n.intValue();
+			return s;
+		}
+	};
+	
+	private Parser<Settings> columnSettingsMeat = (Parser) first(
+			periodSetting, cssSetting
+	).onFail("Not a valid column setting");
+	
+	private PP<Settings> columnMultiSettings = new PP<Settings>(
+			chain(columnSettingsMeat, regex(",\\s+"))
+	) {
+		protected Settings process(ParseResult<?> r) {
+			List<Settings> ls = r.getLeafValues();
+			if (ls.size()==1) return ls.get(0);
+			Settings s = new Settings();
+			for (Object s2 : ls) {
+				s.merge((Settings) s2);
+			}
+			return s;
+		}
+	}.label("columnMultiSettings");
+	
+	/**
+	 * use-case??
+	 */
+	Parser<Settings> columnSettings = seq(
+				lit("columns").label(null), lit(":").label(null), optSpace, 
+				opt(columnMultiSettings), opt(comment), optSpace);
+
+	
+	PP<Settings> startEndSetting = new PP<Settings>(
+			seq(lit("start", "end"), lit(":"), optSpace, LangTime.time)
+			) {
+		protected Settings process(ParseResult<?> r) {
+			Settings s = new Settings();
+			String keyword = (String) r.getLeafValues().get(0);
+			AST<TimeDesc> ptime = r.getNode(LangTime.time);
+			TimeDesc timeDesc = ptime.getX();
+			Time time = timeDesc.getTime();
+			if ("start".equals(keyword)) {
+				s._start = time;
+			}
+			if ("end".equals(keyword)) {
+				s._end = time;
+			}
+			return s;
+		}
+	};
+	
+	/**
+	 * e.g. import actuals from a csv
+	 * 
+	 * TODO other blend modes?
+	 */
+	PP<ImportCommand> importCommand = new PP<ImportCommand>(
+			seq(lit("import"), lit(":"), optSpace, LangMisc.urlOrFile)
+			) {
+		protected ImportCommand process(ParseResult<?> r) {
+			ImportCommand s = new ImportCommand();
+//			String keyword = (String) r.getLeafValues().get(1);
+			AST<MatchResult> psrc = r.getNode(LangMisc.urlOrFile);
+			s.overwrite = true;
+			s.src = psrc.parsed();
+			return s;
+		}
+	};
+	
+	/**
+	 * start / end
+	 */
+	Parser<Settings> planSettings = seq(
+			first(startEndSetting, samplesSetting),			
+			opt(comment)
+			);
+	
+}

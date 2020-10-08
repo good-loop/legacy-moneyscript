@@ -1,0 +1,573 @@
+package com.winterwell.moneyscript.output;
+
+import java.io.File;
+import java.io.StringReader;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.eclipse.jetty.util.ajax.JSON;
+
+import com.winterwell.gson.Gson;
+import com.winterwell.maths.stats.distributions.d1.UniformDistribution1D;
+import com.winterwell.maths.timeseries.TimeSlicer;
+import com.winterwell.moneyscript.lang.ImportCommand;
+import com.winterwell.moneyscript.lang.MetaRule;
+import com.winterwell.moneyscript.lang.Rule;
+import com.winterwell.moneyscript.lang.Settings;
+import com.winterwell.moneyscript.lang.StyleRule;
+import com.winterwell.moneyscript.lang.UncertainNumerical;
+import com.winterwell.moneyscript.lang.cells.AllCellSet;
+import com.winterwell.moneyscript.lang.cells.CurrentRow;
+import com.winterwell.moneyscript.lang.cells.RowName;
+import com.winterwell.moneyscript.lang.num.Numerical;
+import com.winterwell.moneyscript.output.Business.KPhase;
+import com.winterwell.nlp.dict.Dictionary;
+import com.winterwell.utils.Dep;
+import com.winterwell.utils.MathUtils;
+import com.winterwell.utils.StrUtils;
+import com.winterwell.utils.TodoException;
+import com.winterwell.utils.Utils;
+import com.winterwell.utils.containers.ArrayMap;
+import com.winterwell.utils.containers.Containers;
+import com.winterwell.utils.containers.ListMap;
+import com.winterwell.utils.containers.Pair2;
+import com.winterwell.utils.containers.Range;
+import com.winterwell.utils.containers.Tree;
+import com.winterwell.utils.io.CSVReader;
+import com.winterwell.utils.io.CSVSpec;
+import com.winterwell.utils.io.FileUtils;
+import com.winterwell.utils.log.Log;
+import com.winterwell.utils.time.Dt;
+import com.winterwell.utils.time.TUnit;
+import com.winterwell.utils.time.Time;
+import com.winterwell.utils.time.TimeUtils;
+import com.winterwell.utils.web.WebUtils;
+import com.winterwell.web.FakeBrowser;
+
+/**
+ * Top-level state object
+ * @author daniel
+ *
+ */
+public class Business {
+
+	/**
+	 * Constant used to mark cells that are being evaluated.
+	 */
+	public static final Numerical EVALUATING = new UncertainNumerical(
+			new UniformDistribution1D(new Range(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY)), null) {
+		public String toString() {
+			return "EVALUATING";
+		};		
+		public double doubleValue() throws IllegalStateException {
+			throw new IllegalStateException("EVALUATING");
+		};
+	};
+	
+	/**
+	 * Constant used to mark empty cells
+	 */
+	public static final Numerical EMPTY = new Numerical(0);
+
+	List<Row> _rows = new ArrayList<Row>();	
+	
+	public Business() {
+		setSettings(new Settings());		
+	}
+	
+	public void setColumns(int n) {
+		columns = new ArrayList<Col>(n);
+		for(int i=1; i<=n; i++) {
+			columns.add(new Col(i));	
+		}
+	}
+
+	//TODO check that if you have a rule A*B, then row A and row B do exist
+	void checkVariables() {
+		
+	}
+	
+	@Override
+	public String toString() {
+		return "Business with "+getRows();
+	}
+	
+	public String toCSV() {
+		
+		run();
+		
+		StringBuilder sb = new StringBuilder();
+		for(Row row : getRows()) {
+			if ( ! row.isOn()) {
+				continue;
+			}
+			sb.append(row.name);
+			sb.append(", ");
+			for(Col col : getColumns()) {
+				Numerical v = getCellValue(new Cell(row, col));
+				sb.append(v==null? "" : v.toString());
+				sb.append(", ");
+			}
+			sb.append(StrUtils.LINEEND);
+		}
+		return sb.toString();
+	}
+	
+	/**
+	 * @return an map of name:rows, where each row is an array.
+	 * Map starts columns:column-names
+	 */
+	public ArrayMap toJSON() {
+		assert phase == KPhase.OUTPUT;
+		
+		// parse info
+		ArrayMap map = getParseInfoJson();
+		
+		// columns
+		ArrayList<String> cols = new ArrayList<String>();
+		for(Col col : getColumns()) {
+			cols.add(col.getTimeDesc());			
+		}
+		map.put("columns", cols);
+		
+		// rows				
+		ArrayMap datamap = new ArrayMap();
+		ArrayList<String> rowNames = new ArrayList<String>();
+		List<Map> jrows = new ArrayList();
+		for(Row row : getRows()) {
+			if ( ! row.isOn()) {
+				continue;
+			}			
+			List<Map> rowvs = row.getValuesJSON();
+			datamap.put(row.name, rowvs);
+			jrows.add(new ArrayMap(
+				"name", row.name,
+				"css", getCSSForRow(row)
+			));			
+		}
+		map.put("rows", jrows);
+		map.put("dataForRow", datamap);
+				
+		// insert total
+		cols.add("Total");
+		for(String rowName : rowNames) {
+			Row row = getRow(rowName);
+			List<Map> rowvs = (List<Map>) datamap.get(rowName);
+			try {						
+				// TODO handle uncertainnumerical
+				ArrayList<Number> vs = Containers.apply(rowvs, cv -> ((Number) cv.get("v")).doubleValue());
+				Numerical v = new Numerical(MathUtils.sum(MathUtils.toArray(vs)));
+				Cell c = new Cell(row, new Col(cols.size()));
+				Map sumv = row.getValuesJSON2_cell(this, c, v);
+				rowvs.add(sumv);
+			} catch(Exception ex) {
+				Log.w("Money.Year Total."+rowName, ex);
+				rowvs.add(new ArrayMap());
+			}
+		}
+		
+		return map;
+	}
+
+	public void run() {
+		BusinessContext.setBusiness(this);
+		run2_removeOffRows();
+
+		// Wot no sampling? USeful for debugging and speed. So this is the default
+		int samples = getSettings().getSamples();
+		if (samples <= 1) {
+			state = new BusinessState();
+			run2();
+			phase = KPhase.OUTPUT;
+			return;
+		}
+		
+		for(int i=0; i<samples; i++) {
+			// A fresh state 
+			state = new BusinessState();
+			
+			run2();
+			
+			// add to monteCarlo
+			run2_updateMonteCarlo();
+		}
+		// go stochastic
+		state = monteCarloStates;
+		
+		phase = KPhase.OUTPUT;
+	}
+
+	private void run2() {
+		phase = KPhase.IMPORT;
+		for(ImportCommand ic : importCommands) {
+			ic.run(this);
+		}
+		
+		phase = KPhase.RUN_SIM;
+//		ContextAlteringList<Col> cols = new ContextAlteringList<Col>(columns, Cell.CURRENT_COL);			
+//		ContextAlteringList<Row> rows = new ContextAlteringList<Row>(getRows(), Cell.CURRENT_ROW);
+		List<Row> rows = getRows();
+		for(Col col : columns) {
+			for(Row row : rows) {
+				run3_evaluate(new Cell(row, col));							
+			}
+		}		
+	}
+
+
+	/**
+	 * 
+	 * @return case & canonicalisation insensitive name -to-> row-name
+	 */
+	public Dictionary getRowNames() {
+		Dictionary rowNames = new Dictionary();
+		for(Row row : getRows()) {
+			String name = row.getName();
+			rowNames.add(name, name);
+			String rn = StrUtils.toCanonical(name);
+			rowNames.add(rn, name);
+			rn = rn.replaceAll("[^a-zA-Z0-9]", "");			
+			rowNames.add(rn, name);			
+		}
+		return rowNames;
+	}
+
+	/**
+	 * Calculate the value for this cell. This will not recalculate (as a result, imports are protected).
+	 * <p>
+	 * NB: The {@link Row#calculate(Col, Business)} method will update the {@link #state} to hold the value.
+	 *  
+	 * @param cell
+	 * @return 
+	 */
+	public Numerical run3_evaluate(Cell cell) {		
+		Numerical v = state.get(cell);
+		if (v==EVALUATING) {
+			throw new StackOverflowError("This could loop forever: "+cell);
+		}
+		if (v!=null) {
+			return v;
+		}
+		// set flag
+		state.set(cell, EVALUATING);
+
+		// calculate!
+		v = cell.row.calculate(cell.col, this);
+		if (v==null) {
+			v = Business.EMPTY; // no need to recaluclate this if eg its in a sum
+		}
+		assert state.get(cell)==null || state.get(cell)==EVALUATING 
+				|| state.get(cell)==v : state.get(cell)+" vs "+v;		
+		// clear evaluating flag
+		state.set(cell, v);
+		return v;
+	}
+
+	private void run2_updateMonteCarlo() {
+		phase = KPhase.COLLECT_RESULTS;
+		for(Col col : getColumns()) {
+			for(Row row : getRows()) {		
+				Cell cell = new Cell(row, col);
+				Numerical v = getCellValue(cell);
+				if (v==null) v = Numerical.NULL;
+				UncertainNumerical mc = (UncertainNumerical) monteCarloStates.get(cell);
+				// code null as 0 for averaging
+				if (mc==null) {
+					mc = new UncertainNumerical(new Particles1D(new double[0]), v.getUnit());
+					monteCarloStates.set(cell, mc);
+				}
+				if (mc.getUnit()==null && v.getUnit() != null) {
+					mc = new UncertainNumerical(mc.getDist(), v.getUnit());
+					monteCarloStates.set(cell, mc);
+				}
+				// add to the dist
+				Particles1D dist = (Particles1D) mc.getDist();
+				dist.add(v.doubleValue());
+			}
+		}
+	}
+
+	public Row getRow(String name) {
+		for(Row r : getRows()) {
+			if (name.equals(r.name)) return r;
+		}
+		return null;
+	}
+
+	/**
+	 * 
+	 * @param row
+	 * @return -1 if not known
+	 */
+	public int getRowIndex(Row row) {
+		return getRows().indexOf(row);
+	}
+
+	public Numerical getCell(int rowIndex, int month) {
+		Row row = getRows().get(rowIndex);
+		Col col = getColumns().get(month);
+		return getCellValue(new Cell(row, col));
+	}
+	
+	private void run2_removeOffRows() {
+		for(Row row : _rows.toArray(new Row[0])) {
+			if (row.isOn()) continue;
+			_rows.remove(row);
+		}
+	}
+
+	public List<Row> getRows() {
+		// filter off rows here? No that's confusing
+		return _rows;
+	}
+	
+	/**
+	 * Only use Particles1D here!
+	 */
+	BusinessState monteCarloStates = new BusinessState();
+	
+	// NB: this is reset by run() before each evaluation.
+	// The initial value is only used in tests.
+	public BusinessState state = new BusinessState();
+	
+	public Numerical getCellValue(Cell cell) {	
+		Numerical n = state.get(cell);
+		if (n==null) {
+			n = run3_evaluate(cell);
+		}
+		return n;
+	}
+
+	public void addRule(Rule rule) {
+		Collection<String> rows = rule.getSelector().getRowNames();
+		for (String rn : rows) {						
+			Row row = getRow(rn);
+			assert row != null;
+			row.addRule(rule);			
+		}		
+	}
+	
+	public Set<Rule> getAllRules() {
+		Set<Rule> rules = new HashSet<Rule>();
+		for(Row row : getRows()) {
+			List<Rule> rs = row.getRules();
+			rules.addAll(rs);
+		}
+		return rules;
+	}
+
+	public void addRow(Row row) {
+		assert _rows.indexOf(row) == -1 : row;
+		_rows.add(row);
+	}
+
+	public Dt getTimeStep() {
+		return settings.timeStep;
+	}
+
+	/**
+	 * NB: Col is 1-indexed, so columns[i].index == i + 1
+	 */
+	List<Col> columns;
+	
+	public List<Col> getColumns() {		
+		return columns;
+	}
+
+	/**
+	 * Poke a value into a cell out-with the simulation. 
+	 * @param row
+	 * @param col
+	 * @param value
+	 */
+	@Deprecated
+	public
+	void put(Cell cell, Numerical value) {
+		state.set(cell, value);
+	}
+
+	public String getCSSForCell(Cell cell) {
+		StringBuilder sb = new StringBuilder();
+		// loop over this + ancestors
+		Row arow = cell.row;
+		while(arow != null) {
+			List<StyleRule> rules = arow.getStyleRules();
+			for (StyleRule rule : rules) {			
+				if (rule.getSelector() instanceof RowName) {
+//					continue; // done at the row level
+				}
+				if ( ! rule.getSelector().contains(cell, cell)) continue;
+				String css = rule.getCSS();
+				sb.append(css);
+			}
+			arow = arow.getParent();
+		}		
+		return sb.toString();
+	}
+	
+
+	public String getCSSForRow(Row row) {
+		StringBuilder sb = new StringBuilder();
+		// loop over this + ancestors
+		Row arow = row;
+		while(arow != null) {
+			List<StyleRule> rules = arow.getStyleRules();
+			for (StyleRule rule : rules) {			
+				if ( ! (rule.getSelector() instanceof RowName)) {
+					continue; // cell level
+				}
+				String css = rule.getCSS();
+				sb.append(css);
+			}
+			arow = arow.getParent();
+		}		
+		return sb.toString();
+	}
+
+
+	/**
+	 * Use during parsing when a sub-row has its parentage set.
+	 * This shuffles such sub-rows up to be part of their group.
+	 */
+	public void reorderRows() {
+		ArrayList<Row> rows2 = new ArrayList<Row>();
+		for(Row row : _rows) {
+			reorderRows2(row, rows2);
+		}
+		_rows = rows2;	
+	}
+
+	private void reorderRows2(Row addMe, ArrayList<Row> rows2) {
+		if (rows2.contains(addMe)) return;
+		rows2.add(addMe);
+		for(Row kid : addMe.getChildren()) {
+			reorderRows2(kid, rows2);
+		}			
+	}
+
+	/**
+	 * set by constructor so never null
+	 */
+	Settings settings;
+
+	private KPhase phase;
+
+	public String title;
+	
+	public String getTitle() {
+		return title;
+	}
+	
+	public void setSettings(Settings settings) {
+		this.settings = settings;
+		int months = (int) settings.getRunTime().divide(settings.timeStep);
+		setColumns(months);
+	}
+
+	public KPhase getPhase() {
+		return phase;
+	}
+
+	public static enum KPhase {
+		IMPORT, RUN_SIM, COLLECT_RESULTS, OUTPUT
+	}
+
+	public List<MetaRule> getChartRules() {
+		List<MetaRule> crules = new ArrayList<MetaRule>();
+		for (Rule rule : getAllRules()) {
+			if ( ! (rule instanceof MetaRule)) continue;
+			if (((MetaRule)rule).meta.startsWith("plot")) {
+				crules.add((MetaRule) rule);
+			}
+		}
+		return crules;
+	}
+
+	public static Business get() {
+		return BusinessContext.getBusiness();
+	}
+
+	public Col getColForTime(Time time) {
+		TimeSlicer ts = new TimeSlicer(settings.getStart(), settings.getEnd(), settings.timeStep);		
+		int i = ts.getBucket(time);
+		Col coli = columns.get(i);
+		assert coli.index == i + 1;
+		return coli;
+	}
+
+	public Settings getSettings() {
+		return settings;
+	}
+
+	/**
+	 * 
+	 * @return {parse: {rows, rowtree}}
+	 */
+	public ArrayMap getParseInfoJson() {
+		List<Row> rows = getRows();
+		// make a tree of row names
+		Tree rowtree = new Tree();		
+		for (Row row : rows) {
+			if (row.getParent()!=null) continue;			
+			Tree node = new Tree(rowtree, row.getName());
+			makeRowTree2(node, row);
+		}		
+		// row rules
+		ListMap<String,Map> rulesForRow = new ListMap();
+		for (Row row : rows) {
+			List<Rule> rules = row.getRules();
+			for (Rule rule : rules) {
+				rulesForRow.add(row.getName(), 
+					new ArrayMap(
+							"src", rule.src,
+							"comment", rule.getComment()
+					)
+				);
+			}
+		}
+		// chart rules, in json safe format
+		Object crules = JSON.parse(Gson.toJSON(getChartRules()));
+		return new ArrayMap("parse", new ArrayMap(
+				"rows", Containers.apply(rows, Row::getName), 
+				"rowtree", rowtree.toJson2(),
+				"rulesForRow", rulesForRow,
+				"charts", crules
+				));
+	}
+
+	/**
+	 * recurse
+	 * @param node
+	 * @param row
+	 */
+	private void makeRowTree2(Tree node, Row row) {
+		List<Row> kids = row.getChildren();
+		if (Utils.isEmpty(kids)) return;
+		for (Row row2 : kids) {
+			Tree node2 = new Tree(node, row2.getName());
+			makeRowTree2(node2, row2);	
+		}		
+	}
+
+	/**
+	 * @deprecated Use getSettings() instead
+	 * @param i
+	 */
+	@Deprecated
+	public void setSamples(int i) {
+		getSettings().setSamples(i);
+	}
+
+	public void addImportCommand(ImportCommand ic) {
+		importCommands.add(ic); 
+	}
+	
+	List<ImportCommand> importCommands = new ArrayList<>();
+	
+}
