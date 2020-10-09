@@ -9,7 +9,6 @@ import java.util.Collections;
 import com.winterwell.maths.IScalarArithmetic;
 import com.winterwell.maths.stats.StatsUtils;
 import com.winterwell.maths.stats.distributions.d1.ADistribution1D;
-import com.winterwell.moneyscript.lang.Particles1DTest;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.Range;

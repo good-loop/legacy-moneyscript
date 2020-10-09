@@ -4,7 +4,6 @@ import com.winterwell.maths.IScalarArithmetic;
 import com.winterwell.maths.stats.distributions.d1.Constant1D;
 import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
 import com.winterwell.moneyscript.lang.ICalculator;
-import com.winterwell.moneyscript.lang.ParticleCloudCalculatorTest;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.output.Particles1D;
 
@@ -17,7 +16,7 @@ interface IOp {
 /**
  * 
  * @author daniel
- * @testedby {@link ParticleCloudCalculatorTest}
+ * @testedby ParticleCloudCalculatorTest
  */
 public final class ParticleCloudCalculator implements ICalculator {
 

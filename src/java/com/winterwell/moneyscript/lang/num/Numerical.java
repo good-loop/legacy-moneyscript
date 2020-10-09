@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 
 import com.winterwell.maths.IScalarArithmetic;
 import com.winterwell.moneyscript.lang.ICalculator;
-import com.winterwell.moneyscript.lang.NumericalTest;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.StrUtils;
@@ -14,7 +13,7 @@ import com.winterwell.utils.log.Log;
 /**
  * A number optionally plus a unit.
  * Has a flexible String constructor.
- * @testedby {@link NumericalTest}
+ * @testedby NumericalTest
  * @author daniel
  *
  */

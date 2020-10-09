@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.winterwell.moneyscript.lang.ConditionalFilterTest;
 import com.winterwell.moneyscript.lang.bool.Condition;
 import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.moneyscript.output.Cell;
@@ -14,7 +13,7 @@ import com.winterwell.utils.TodoException;
 
 /**
  * 
- * @testedby {@link ConditionalFilterTest}
+ * @testedby ConditionalFilterTest
  * @author daniel
  *
  */
