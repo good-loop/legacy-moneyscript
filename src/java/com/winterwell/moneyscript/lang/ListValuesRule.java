@@ -12,7 +12,7 @@ import com.winterwell.moneyscript.output.Col;
 /**
  * A csv chunk, e.g. "10, 20, 30"
  * Use-case: e.g. to put actuals into a plan, Sales: 8, 19, 27
- * @testedby {@link ListValuesRuleTest}
+ * @testedby  ListValuesRuleTest}
  * @author daniel
  *
  */

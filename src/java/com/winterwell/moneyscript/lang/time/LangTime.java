@@ -27,7 +27,7 @@ import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
 
 /**
- * @testedby {@link LangTimeTest}
+ * @testedby  LangTimeTest}
  * @author daniel
  *
  */

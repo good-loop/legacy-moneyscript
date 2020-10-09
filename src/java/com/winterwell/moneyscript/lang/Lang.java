@@ -42,7 +42,7 @@ import com.winterwell.utils.log.Log;
 
 /**
  * 
- * @testedby {@link LangTest}
+ * @testedby  LangTest}
  * @author daniel
  *
  */

@@ -29,7 +29,7 @@ public class Particles1D extends ADistribution1D implements IScalarArithmetic {
 	double[] pts;
 	
 	/**
-	 * @testedby {@link Particles1DTest#testGetConfidence()}
+	 * @testedby  Particles1DTest#testGetConfidence()}
 	 */
 	@Override
 	public synchronized double getConfidence(double totalWeight) {

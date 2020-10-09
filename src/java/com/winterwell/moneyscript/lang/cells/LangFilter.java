@@ -27,7 +27,7 @@ import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.utils.TodoException;
 
 /**
- * @testedby {@link LangFilterTest}
+ * @testedby  LangFilterTest}
  * @author daniel
  *
  */

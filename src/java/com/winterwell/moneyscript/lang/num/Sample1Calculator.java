@@ -8,7 +8,7 @@ import com.winterwell.moneyscript.output.Business;
 /**
  * 
  * @author daniel
- * @testedby {@link ParticleCloudCalculatorTest}
+ * @testedby  ParticleCloudCalculatorTest}
  */
 public final class Sample1Calculator implements ICalculator {
 
