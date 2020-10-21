@@ -6,6 +6,7 @@ import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.RuleException;
+import com.winterwell.utils.log.Log;
 
 
 public class Rule {
@@ -19,7 +20,7 @@ public class Rule {
 	
 	public CellSet getSelector() {
 		if (selector==null) {
-			System.out.println(this);
+			Log.w("Rule", "null selector? "+this); 
 		}
 		return selector;
 	}

@@ -10,6 +10,8 @@ import ServerIO from '../base/plumbing/ServerIOBase';
 import Login from 'you-again';
 
 
+// ServerIO.APIBASE = 'https://moneyscript.good-loop.com'; // live data, edited local!
+
 // ServerIO.DATALOG_ENDPOINT = 'https://testlg.good-loop.com/data';
 ServerIO.DATALOG_ENDPOINT = '/data';
 

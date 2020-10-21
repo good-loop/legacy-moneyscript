@@ -174,7 +174,7 @@ public class Business {
 		for(int i=0; i<samples; i++) {
 			// A fresh state 
 			state = new BusinessState();
-			
+			Log.d("Business", "Sample "+(i+1)+" of "+samples);
 			run2();
 			
 			// add to monteCarlo

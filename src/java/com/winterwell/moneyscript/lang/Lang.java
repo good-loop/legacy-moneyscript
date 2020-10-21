@@ -57,12 +57,16 @@ public class Lang {
 			+"year quarter month day hour minute years quarters months days hours minutes "
 			// finance
 			+""
+			// maths
+			+"min max "
 			// prob
 			+"or "
 			// logic
 			+"if then else and "
 			// meta
 			+"show hide plot off "
+			// IO
+			+"import fresh "
 			// global variables
 			+"row column previous "
 			// future use: 

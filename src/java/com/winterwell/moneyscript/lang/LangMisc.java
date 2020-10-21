@@ -25,6 +25,7 @@ import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.nlp.simpleparser.Parsers;
 import com.winterwell.utils.time.Time;
+import com.winterwell.utils.time.TimeUtils;
 import com.winterwell.utils.web.WebUtils;
 
 /**
@@ -143,12 +144,18 @@ public class LangMisc {
 	};
 	
 	/**
+	 * TODO flexible cache settings for imports.
+	 * fresh = no cache
+	 */
+	Parser<String> cache = lit(" fresh");
+	
+	/**
 	 * e.g. import actuals from a csv
 	 * 
 	 * TODO other blend modes?
 	 */
 	PP<ImportCommand> importCommand = new PP<ImportCommand>(
-			seq(lit("import"), lit(":"), optSpace, LangMisc.urlOrFile)
+			seq(lit("import"), opt(cache), lit(":"), optSpace, LangMisc.urlOrFile)
 			) {
 		protected ImportCommand process(ParseResult<?> r) {
 			ImportCommand s = new ImportCommand();
@@ -156,6 +163,11 @@ public class LangMisc {
 			AST<MatchResult> psrc = r.getNode(LangMisc.urlOrFile);
 			s.overwrite = true;
 			s.src = psrc.parsed();
+			// cache settings?
+			AST<String> isFresh = r.getNode(cache);
+			if (isFresh != null) {
+				s.cacheDt = TimeUtils.NO_TIME_AT_ALL; 
+			}
 			return s;
 		}
 	};

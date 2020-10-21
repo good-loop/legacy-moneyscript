@@ -82,7 +82,7 @@ const MoneyScriptEditorPage = () => {
 	// TODO https://ace.c9.io/#nav=embedding or https://codemirror.net/
 	// or https://microsoft.github.io/monaco-editor/
 	return (
-		<BG src='img/bg/data_money_82831320.jpg'>
+		<BG src='img/bg/data_money_82831320.jpg' fullscreen >
 			<div className="MoneyScriptEditorPage">
 				<Row>				
 					<Col md={6}><PropControl path={path} prop="name" size="lg" /></Col>

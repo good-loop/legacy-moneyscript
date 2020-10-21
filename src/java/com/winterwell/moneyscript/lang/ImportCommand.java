@@ -14,11 +14,13 @@ import com.winterwell.nlp.dict.Dictionary;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
+import com.winterwell.utils.containers.Cache;
 import com.winterwell.utils.io.CSVReader;
 import com.winterwell.utils.io.CSVSpec;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Dt;
+import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
 import com.winterwell.utils.time.TimeUtils;
 import com.winterwell.utils.web.WebUtils;
@@ -33,20 +35,15 @@ public class ImportCommand {
 	public String toString() {
 		return "ImportCommand[src=" + src + "]";
 	}
-
+	
+	Dt cacheDt = new Dt(1, TUnit.MINUTE); 
+	
+	String csv;
+	
+	static Cache<String, String> csvCache = new Cache<>(20);
+	
 	public void run(Business b) {
-		ImportCommand ic = this;
-		String csv;
-		// is it a file?
-		if (ic.src.startsWith("file:")) {
-			URI u = WebUtils.URI(ic.src);
-			String fpath = u.getPath();
-			csv = FileUtils.read(new File(fpath));
-		} else { // fetch (TODO with some cache)
-			FakeBrowser fb = new FakeBrowser();
-			fb.setFollowRedirects(true);
-			csv = fb.getPage(ic.src);
-		}
+		fetch();
 		CSVSpec spec = new CSVSpec();
 		CSVReader r = new CSVReader(new StringReader(csv), spec);
 		// the first row MUST be headers
@@ -73,7 +70,8 @@ public class ImportCommand {
 				col1 = b.getColForTime(time).index;
 			}
 		} catch (Exception ex) {
-			Log.w("Business.import", h1 + " > " + ex);
+			// Not a time 
+			Log.d("Business.import", "(oh well) First row of csv import does not seem to be a list of times: \""+h1+ "\" > " + ex);
 			col1 = 1;
 		}
 
@@ -85,9 +83,12 @@ public class ImportCommand {
 				continue;
 			// match row name
 			String ourRowName = run2_ourRowName(rowName, rowNames);
-			if (rowName.toLowerCase().contains("balance")) {
-				System.out.println(row);
-			}
+			
+			// debug a row??
+//			if (rowName.toLowerCase().contains("balance")) {
+//				System.out.println(row);
+//			}
+			
 			Row brow = b.getRow(ourRowName);
 			if (brow == null) {
 				if (isEmptyRow(row)) {
@@ -115,6 +116,40 @@ public class ImportCommand {
 				b.state.set(cell, v);
 			}
 		}
+	}
+
+	Time fetched;
+	
+	private void fetch() {
+		// Always use in memory if set (e.g. if doing samples: 20))
+		if (csv !=null) {
+			return;
+		}
+		// cached?
+		String cached = csvCache.get(src);
+		if ( ! Utils.isBlank(cached) && cacheDt!=null && fetched != null
+				&& fetched.plus(cacheDt).isAfter(new Time())) 
+		{
+			// use cache
+			csv = cached;
+			Log.d("import", "use cached "+src);
+			return;
+		}
+		fetched = new Time();
+		// is it a file?
+		if (src.startsWith("file:")) {
+			URI u = WebUtils.URI(src);
+			String fpath = u.getPath();
+			csv = FileUtils.read(new File(fpath));
+		} else { // fetch (TODO with some cache)
+			FakeBrowser fb = new FakeBrowser();
+			fb.setFollowRedirects(true);
+			csv = fb.getPage(src);
+		}
+		if (cacheDt!=null && cacheDt.getValue() > 0) {
+			csvCache.put(src, csv);
+		}
+		Log.d("import", "fetched "+src);
 	}
 
 	/**
