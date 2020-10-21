@@ -2,6 +2,7 @@ package com.winterwell.moneyscript.lang;
 
 import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
 import com.winterwell.moneyscript.lang.num.Numerical;
+import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Particles1D;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.StrUtils;
@@ -46,6 +47,22 @@ public class UncertainNumerical extends Numerical {
 			return super.toString()+" ± ~"+StrUtils.toNSigFigs(100*err,2)+"%";
 		}
 		return (getUnit()==null? "":getUnit()) + dist.toString();
+	}
+
+	/**
+	 * Random sample if sampling OR return the mean if Business.settings.samples = 1
+	 * @return
+	 */
+	public Numerical sample() {
+		// HACK sampling??
+		Business b = Business.get();
+		int samples = b.getSettings().getSamples();
+		if (samples < 2) {
+			// no - use the mean
+			return new Numerical(dist.getMean(), getUnit());
+		}
+		Double x = dist.sample();
+		return new Numerical(x, getUnit());
 	}
 
 }

@@ -14,6 +14,7 @@ import {ReactDOM} from 'react-dom';
 	// or https://microsoft.github.io/monaco-editor/
 
 import AceEditor from "react-ace";
+import PropControl, {DSsetValue} from '../base/components/PropControl';
 
 // ?? import webpack resolver to dynamically load modes, you need to install file-loader for this to work!
 // import "../../build/webpack-resolver";

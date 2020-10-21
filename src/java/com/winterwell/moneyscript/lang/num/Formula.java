@@ -17,16 +17,9 @@ public abstract class Formula {
 	 */
 	public static final Numerical sample(Numerical n) {
 		if (n instanceof UncertainNumerical) {
-			IDistribution1D dist = ((UncertainNumerical) n).getDist();
-			// sampling??
-			Business b = Business.get();
-			int samples = b.getSettings().getSamples();
-			if (samples < 2) {
-				// no - use the mean
-				return new Numerical(dist.getMean(), n.getUnit());
-			}
-			Double x = dist.sample();
-			return new Numerical(x, n.getUnit());
+			UncertainNumerical un = (UncertainNumerical) n;
+			Numerical n2 = un.sample();
+			return n2;
 		}
 		// just a number
 		return n;

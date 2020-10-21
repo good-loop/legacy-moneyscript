@@ -75,7 +75,7 @@ const MoneyScriptEditorPage = () => {
 			<div className="MoneyScriptEditorPage">
 				<Row>				
 					<Col md={6}><PropControl path={path} prop="name" size="lg" /></Col>
-					<Col md={6}><a href={'/#sheet/'+escape(id)}>View SpreadSheet &gt;</a></Col>
+					<Col md={6}><a className='btn btn-light' href={'/#sheet/'+escape(id)}>View SpreadSheet &gt;</a></Col>
 				</Row>
 				<EditScript id={id} plandoc={item} path={path} option="Text" />
 				{/* <ShareLink /> */}

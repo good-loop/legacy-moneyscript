@@ -46,10 +46,8 @@ public final class Sample1Calculator implements ICalculator {
 		if (x==Business.EVALUATING) {
 			throw new LoopyEvaluationException("Cannot sample EVALUATING "+this);
 		}
-		if (x instanceof UncertainNumerical) {
-			IDistribution1D dist = ((UncertainNumerical) x).getDist();
-			Double v = dist.sample();
-			return new Numerical(v, x.getUnit());
+		if (x instanceof UncertainNumerical) {			
+			return ((UncertainNumerical) x).sample();
 		}
 		return x;
 	}

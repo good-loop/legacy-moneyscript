@@ -1,7 +1,7 @@
 start: Jan 2020
 end: Sep 2022
 
-samples: 5
+samples: 10
 
 // Import actuals from a g-drive spreadsheet
 // https://docs.google.com/spreadsheets/d/e/2PACX-1vRvLd73E4kTwaoV3PRzQeDnJT7A1VZGzj6DjQty4sPckoikUEdqsuR0lkRCjVLFSWReywOfX5vtgif5/
