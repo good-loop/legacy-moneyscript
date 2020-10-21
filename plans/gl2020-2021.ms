@@ -34,20 +34,23 @@ UK Staff: {.bg-blue}
 
 // 4 day week
 Amy from Apr 2020 to Sep 2020: * 80%
-Account Management Staff from Apr 2020 to Sep 2020: * 80%
+Dan from Apr 2020 to Sep 2020: * 80%
+Ryan from Apr 2020 to Sep 2020: * 80%
 Roscoe from Apr 2020 to Jun 2020: * 80%
+Tom from Apr 2020 to Oct 2020: * 80%
 Eve to Dec 2020: * 80%
 Kati to Dec 2020: * 80%
 Ben to Dec 2020: * 80%
 
 // October / December pay rises
-UK Staff from Dec 2020: + 1.5%
+// TODO check proposal
 Amy from Oct 2020: Ryan	
 Dan from Dec 2020: Ryan
 Charley from Dec 2020: + £2k per year
 Stuart from Oct 2020: + £3k per year
 Roscoe from Oct 2020: + £3k per year
 DanA from Dec 2020: + £1k per year
+UK Staff except(Amy, Dan, Roscoe, Stuart, Charley, DanA) from Dec 2020: + 1.5%
 
 // 2021 pay-rises - 4% in Dec 2021?
 UK Staff from Dec 2021: + 4%
@@ -102,7 +105,7 @@ Costs:
 		Client Entertainment: £200 per month
 	Travel_Entertainment from Feb 2021: * 200% // lockdown lifts?
 
-	External Professional Fees: // Not including e.g. Pete, Amanda, Donia
+	Professional Fees: // Not including e.g. Pete, Amanda, Donia
 		UK Accountancy: £575			
 		US Accountancy from 2021: £750 per month
 		UK Legal: £2k per month
