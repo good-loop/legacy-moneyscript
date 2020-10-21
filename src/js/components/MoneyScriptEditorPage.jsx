@@ -82,15 +82,17 @@ const MoneyScriptEditorPage = () => {
 	// TODO https://ace.c9.io/#nav=embedding or https://codemirror.net/
 	// or https://microsoft.github.io/monaco-editor/
 	return (
-		<div className="MoneyScriptEditorPage">
-			<Row>				
-				<Col md={6}><PropControl path={path} prop="name" size="lg" /></Col>
-				<Col md={6}><a href={'/#sheet/'+escape(id)}>View SpreadSheet &gt;</a></Col>
-			</Row>
-			<EditScript id={id} plandoc={item} path={path} option="Text" />
-			{/* <ShareLink /> */}
-			{/* <ShareWidget /> */}
-		</div>
+		<BG src='img/bg/data_money_82831320.jpg'>
+			<div className="MoneyScriptEditorPage">
+				<Row>				
+					<Col md={6}><PropControl path={path} prop="name" size="lg" /></Col>
+					<Col md={6}><a href={'/#sheet/'+escape(id)}>View SpreadSheet &gt;</a></Col>
+				</Row>
+				<EditScript id={id} plandoc={item} path={path} option="Text" />
+				{/* <ShareLink /> */}
+				{/* <ShareWidget /> */}
+			</div>
+		</BG>
 	);
 };
 
@@ -124,7 +126,7 @@ const EditScript = ({id, plandoc, path}) => {
 	return (<div>
 		<AceEditor
 			width="100%"		
-			height="70vh"
+			height="calc(100vh - 15em)"
 			placeholder=""
 			mode="json"
 			theme="tomorrow"
@@ -151,16 +153,6 @@ const EditScript = ({id, plandoc, path}) => {
 		<SavePublishDeleteEtc type="PlanDoc" id={id} saveAs />
 	</div>);    
 
-	// return (<div>
-	// 	<PropControl type='textarea' prop='text' path={path} 
-	// 		saveFn={saveFn} 
-	// 		rows={40}
-	// 		modelValueFromInput={modelValueFromInput}
-	// 	/>
-	// 	<div>{parsed && parsed.errors? JSON.stringify(parsed.errors) : null}</div>
-	// 	<div>&nbsp;</div>
-	// 	<SavePublishDeleteEtc type='PlanDoc' id={id} saveAs />
-	// </div>);
 };
 
 MoneyScriptEditorPage.fullWidth = true;
