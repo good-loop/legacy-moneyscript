@@ -23,7 +23,7 @@ import ServerIO from '../plumbing/ServerIO';
 import ViewCharts from './ViewCharts';
 import ViewSpreadSheet from './ViewSpreadsheet';
 import SavePublishDeleteEtc from '../base/components/SavePublishDeleteEtc';
-
+import BG from '../base/components/BG';
 
 //
 // import "ace-builds/src-noconflict/mode-java";
