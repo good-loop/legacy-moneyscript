@@ -1,7 +1,7 @@
 start: Jan 2020
 end: Sep 2022
 
-//samples: 10
+//samples: 20
 
 // Import actuals from a g-drive spreadsheet
 // https://docs.google.com/spreadsheets/d/e/2PACX-1vRvLd73E4kTwaoV3PRzQeDnJT7A1VZGzj6DjQty4sPckoikUEdqsuR0lkRCjVLFSWReywOfX5vtgif5/
@@ -53,11 +53,13 @@ DanA from Dec 2020: + £1k per year
 // 2021 pay-rises - 4% in Dec 2021?
 UK Staff from Dec 2021: + 4%
 
+
 US Staff:
 	Barbara from Oct 2020: £800 per month
 //	US Remote Sales Agent from Jun 2021: £66k per year
 //	Head of US Sales from Jun 2021: £120k per year
 US Staff: {.bg-blue}
+
 
 Contractors:
 	Amanda: £450 per month		
@@ -126,9 +128,9 @@ Costs: {.bg-red}
 Sales_Revenue: {.bg-green}
 Sales_Revenue: (Marketing ROI + (Campaign_Size * UK_Campaigns)) * Seasonality
 Revenue Details: na
-	RampedUp Staff: count(Sales Staff from 5 months ago)
-	CampaignsPerSalesperson: 1 per month // It was about 0.7 in 2019 and 0.9 in 2020 (source: email from Jules re SF data, noting that head-count his blurry). Allowing for covid, it could be higher. This is new and repeat.
-	UK_Campaigns: CampaignsPerSalesperson * RampedUp Staff
+	RampedUpStaff: count(Sales Staff from 5 months ago)
+	CampaignsPerSalesperson: 1 +- 1 per month // It was about 0.7 in 2019 and 0.9 in 2020 (source: email from Jules re SF data, noting that head-count his blurry). Allowing for covid, it could be higher. This is new and repeat.
+	UK_Campaigns: CampaignsPerSalesperson * RampedUpStaff
 	Campaign_Size: N(23k, 451m) // Checking the data: new and existing clients have the same profile
 	// Adjustments
 	Seasonality: 70%,	75%,	90%,	115%,	125%,	115%,	90%,	80%,	100%,	100%,	115%,	125%,	70%,	75%,	90%,	115%,	125%,	115%,	90%,	80%,	100%,	100%,	115%,	125%

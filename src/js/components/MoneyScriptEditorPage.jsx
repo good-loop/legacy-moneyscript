@@ -70,6 +70,7 @@ const MoneyScriptEditorPage = () => {
 		return (<div><h1>{type}: {id}</h1><Misc.Loading /></div>);
 	}
 	const item = pvItem.value;
+	window.document.title = "M$: "+item.name;
 	return (
 		<BG src='img/bg/data_money_82831320.jpg' fullscreen >
 			<div className="MoneyScriptEditorPage">

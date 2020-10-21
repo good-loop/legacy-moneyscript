@@ -22,6 +22,7 @@ import ViewSpreadSheet from './ViewSpreadsheet';
 import _ from 'lodash';
 import { getPlanId } from './MoneyScriptEditorPage';
 import { Alert, Col, Row } from 'reactstrap';
+import ErrorAlert from '../base/components/ErrorAlert';
 
 // import brace from 'brace';
 // import AceEditor from 'react-ace';
@@ -38,10 +39,14 @@ const SheetPage = () => {
 	// load
 	const type = C.TYPES.PlanDoc;
 	const pvItem = ActionMan.getDataItem({type, id, status:C.KStatus.DRAFT});
-	if ( ! pvItem.value) {
+	if ( ! pvItem.resolved) {
 		return (<div><h1>{type}: {id}</h1><Misc.Loading /></div>);
 	}
+	if (pvItem.error) {
+		return (<div><h1>{type}: {id}</h1><ErrorAlert error={pvItem.error} /></div>);
+	}
 	const item = pvItem.value;
+	window.document.title = "M$: "+item.name;
 
 	return <>
 		<Row>

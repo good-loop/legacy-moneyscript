@@ -1,3 +1,6 @@
+
+// TODO build this into web/lib/ace
+
 /* ***** BEGIN LICENSE BLOCK *****
  * Distributed under the BSD license:
  *
@@ -40,11 +43,11 @@ var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
 var PythonHighlightRules = function() {
 
     var keywords = (
-        "from|per|year|month|at|count|months|ago|previous"
+        "from|per|year|month|at|count|months|ago|previous|fresh"
     );
 
     var builtinConstants = (
-        "true|false|Jan|January|Feb|February|Mar|March"
+        "true|false|Jan|January|Feb|February|Mar|March|April|Apr"
     );
 
     var builtinFunctions = (

@@ -22,12 +22,14 @@ import PropControl, {DSsetValue} from '../base/components/PropControl';
 
 // TODO control-f is broken :( It DOES work in the react-ace demo -- something in the webpack setup??
 
+ace.config.set('basePath','/lib/ace')
+
 const AceCodeEditor = ({path, prop, markers, ...props}) => {
 	return <AceEditor
 		{...props}
 	width="100%"
 	placeholder=""
-	mode="json"
+	mode="acems" // json
 	theme="tomorrow"
 	name="planit1"
 	onLoad={editor => console.log("Ace onLoad")}
