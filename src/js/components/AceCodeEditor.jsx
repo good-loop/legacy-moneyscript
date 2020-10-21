@@ -24,7 +24,7 @@ import AceEditor from "react-ace";
 const AceCodeEditor = ({path, prop, markers, ...props}) => {
 	return <AceEditor
 		{...props}
-	width="100%"			
+	width="100%"
 	placeholder=""
 	mode="json"
 	theme="tomorrow"
