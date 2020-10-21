@@ -12,9 +12,12 @@ import static com.winterwell.nlp.simpleparser.Parsers.seq;
 import static com.winterwell.nlp.simpleparser.Parsers.space;
 import static com.winterwell.nlp.simpleparser.Parsers.word;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.MatchResult;
 
+import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.time.DtDesc;
 import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.moneyscript.lang.time.TimeDesc;
@@ -24,6 +27,7 @@ import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.nlp.simpleparser.Parsers;
+import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.time.Time;
 import com.winterwell.utils.time.TimeUtils;
 import com.winterwell.utils.web.WebUtils;
@@ -148,6 +152,39 @@ public class LangMisc {
 	 * fresh = no cache
 	 */
 	Parser<String> cache = lit(" fresh");
+
+	/**
+	 * key:value - doesn't require ""s
+	 */
+	Parser<Map> jsonLikeKeyVal = new PP<Map>(regex("\"?[a-zA-Z0-9]+\"?:\\s*[^},]+")) {
+		@Override
+		protected Map process(ParseResult<?> r) throws ParseFail {
+			String kv = r.parsed();
+			int i = kv.indexOf(':');
+			// TODO handle "s
+			String k = kv.substring(0, i).trim();
+			String v = kv.substring(i+1).trim();
+			return new ArrayMap(k,v);
+		}		
+	};
+	
+	Parser<Map> jsonLike = new PP<Map>(
+			seq(lit("{"), chain(jsonLikeKeyVal, seq(optSpace,lit(","),optSpace)), lit("}"))
+	) {
+		@Override
+		protected Map process(ParseResult<?> pr) throws ParseFail {
+			List<AST> leaves = (List) pr.ast.getLeaves();
+			Map jobj = new ArrayMap();
+			for (AST ast : leaves) {
+				Object kv = ast.getX();
+				// NB: skip spacing
+				if (kv instanceof Map) {
+					jobj.putAll((Map)kv); 
+				}
+			}
+			return jobj;
+		}		
+	};
 	
 	/**
 	 * e.g. import actuals from a csv
@@ -155,7 +192,7 @@ public class LangMisc {
 	 * TODO other blend modes?
 	 */
 	PP<ImportCommand> importCommand = new PP<ImportCommand>(
-			seq(lit("import"), opt(cache), lit(":"), optSpace, LangMisc.urlOrFile)
+			seq(lit("import"), opt(cache), lit(":"), optSpace, LangMisc.urlOrFile, optSpace, opt(jsonLike))
 			) {
 		protected ImportCommand process(ParseResult<?> r) {
 			ImportCommand s = new ImportCommand();
@@ -167,6 +204,17 @@ public class LangMisc {
 			AST<String> isFresh = r.getNode(cache);
 			if (isFresh != null) {
 				s.cacheDt = TimeUtils.NO_TIME_AT_ALL; 
+			}
+			// extra info
+			AST<Map> _jobj = r.getNode(jsonLike);
+			if (_jobj!=null) {
+				Map jobj = _jobj.getX();
+				if (jobj.containsKey("name")) {
+					s.name = (String) jobj.get("name");
+				}
+				if (jobj.containsKey("url")) {
+					s.url = (String) jobj.get("url");
+				}
 			}
 			return s;
 		}

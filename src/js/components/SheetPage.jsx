@@ -23,6 +23,7 @@ import _ from 'lodash';
 import { getPlanId } from './MoneyScriptEditorPage';
 import { Alert, Col, Row } from 'reactstrap';
 import ErrorAlert from '../base/components/ErrorAlert';
+import LinkOut from '../base/components/LinkOut';
 
 // import brace from 'brace';
 // import AceEditor from 'react-ace';
@@ -46,11 +47,11 @@ const SheetPage = () => {
 		return (<div><h1>{type}: {id}</h1><ErrorAlert error={pvItem.error} /></div>);
 	}
 	const item = pvItem.value;
-	window.document.title = "M$: "+item.name;
+	if (item.name) window.document.title = "M$: "+item.name;
 
 	return <>
 		<Row>
-			<Col md={6}><a href={'/#plan/'+escape(id)}>&lt; View Plan</a></Col>
+			<Col md={6}><a className='mt-1 btn btn-dark' href={'/#plan/'+escape(id)}>&lt; View Plan</a></Col>
 			<Col md={6}><h2>{item.name || item.id}</h2></Col>
 		</Row>
 		<ViewSpreadSheet plandoc={item} />

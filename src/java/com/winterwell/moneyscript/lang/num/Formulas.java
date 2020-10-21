@@ -6,53 +6,13 @@ import com.winterwell.maths.stats.distributions.d1.UniformDistribution1D;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
-import com.winterwell.moneyscript.output.Col;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.containers.Range;
 import com.winterwell.utils.log.Log;
-import com.winterwell.utils.time.TUnit;
 
 public class Formulas {
 }
-
-
-
-class Var extends Formula {
-
-	private String var;
-
-	public Var(String varName) {
-		super("");
-		this.var = varName;
-	}
-
-	@Override
-	public Numerical calculate(Cell b) {
-		if (var.equals("row")) {
-			return new Numerical(b.getBusiness().getRowIndex(b.getRow()));
-		}
-		if (var.equals("column")) return new Numerical(b.col.index);
-		if (var.equals("month")) {
-			assert b.getBusiness().getTimeStep().equals(TUnit.MONTH.dt);
-			return new Numerical(b.col.index);
-		}		
-		if (var.equals("year")) {
-			assert b.getBusiness().getTimeStep().equals(TUnit.MONTH.dt);
-			int yr = 1 + (int)Math.floor(b.getColumn().index/12);
-			return new Numerical(yr);
-		}
-		// Note that previous(X) is handled by UnaryOp
-		if (var.equals("previous")) {
-			if (b.getColumn().index == 1) return new Numerical(0);
-			Cell prevCell = new Cell(b.getRow(), new Col(b.getColumn().index-1));
-			return b.getBusiness().getCellValue(prevCell);
-		}
-		throw new TodoException(var);
-	}
-
-}
-
 
 
 

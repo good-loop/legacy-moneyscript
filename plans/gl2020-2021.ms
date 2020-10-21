@@ -4,11 +4,10 @@ end: Sep 2022
 //samples: 10
 
 // Import actuals from a g-drive spreadsheet
-// https://docs.google.com/spreadsheets/d/e/2PACX-1vRvLd73E4kTwaoV3PRzQeDnJT7A1VZGzj6DjQty4sPckoikUEdqsuR0lkRCjVLFSWReywOfX5vtgif5/
 // Source:	"NEW Reasonable Estimate PLUS SE Funding_INC Revised Spending_15.09.20"	https://docs.google.com/spreadsheets/d/1qDa7ZuGr3g7OvVycUaE2WiwL8diZ0YRBPYrNi8TYrIU/edit#gid=1708815537
 // Manually copied over by Dan into the `actuals` sheet
 // NB: G-drive is a bit slow to respond, so by default we cache the g-drive resposne for a minute. Use "import fresh" to switch off caching.
-import: https://docs.google.com/spreadsheets/d/e/2PACX-1vRvLd73E4kTwaoV3PRzQeDnJT7A1VZGzj6DjQty4sPckoikUEdqsuR0lkRCjVLFSWReywOfX5vtgif5/pub?output=csv
+import: https://docs.google.com/spreadsheets/d/e/2PACX-1vRvLd73E4kTwaoV3PRzQeDnJT7A1VZGzj6DjQty4sPckoikUEdqsuR0lkRCjVLFSWReywOfX5vtgif5/pub?output=csv {url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRvLd73E4kTwaoV3PRzQeDnJT7A1VZGzj6DjQty4sPckoikUEdqsuR0lkRCjVLFSWReywOfX5vtgif5/}
 
 UK Staff:
 	Sales Staff:	// salaries are base - commission is done separately

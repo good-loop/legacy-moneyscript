@@ -28,6 +28,23 @@ import com.winterwell.utils.containers.Containers;
 
 public class LangCellSetTest {
 	
+
+	@Test public void testCellSetFrom() {
+		Lang lang = new Lang();
+		CellSet cs = LangCellSet.cellSet.parseOut("Staff from month 3").getX();
+		assert cs instanceof FilteredCellSet;
+		FilteredCellSet fcs = (FilteredCellSet) cs;
+		assert fcs.base.toString().equals("Staff");
+	}
+	
+	@Test public void testCellSetExcept() {
+		Lang lang = new Lang();
+		CellSet cs = LangCellSet.cellSet.parseOut("Staff except(Alice)").getX();
+		assert cs instanceof FilteredCellSet;
+		FilteredCellSet fcs = (FilteredCellSet) cs;
+		assert fcs.base.toString().equals("Staff");
+	}
+	
 	@Test
 	public void testAbove() {
 		Lang lang = new Lang();

@@ -28,7 +28,7 @@ import com.winterwell.utils.containers.Slice;
  * Loose Inspiration: css selectors
  * 
  * @author daniel
- *
+ * @testedby LangCellSetTest
  */
 public class LangCellSet {
 

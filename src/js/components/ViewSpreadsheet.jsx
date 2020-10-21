@@ -19,6 +19,7 @@ import {setTaskTags} from '../base/components/TaskList';
 import ServerIO from '../plumbing/ServerIO';
 import md5 from 'md5';
 import { Alert } from 'reactstrap';
+import LinkOut from '../base/components/LinkOut';
 
 /**
  * @returns {PromiseValue<PlanResults>}
@@ -135,6 +136,7 @@ const ViewSpreadSheet = ({plandoc}) => {
 	console.log("dataTree", runOutput.dataTree, "allcolumns", runOutput.allcolumns);
 	// The Table
 	return <>
+		<ImportsList runOutput={runOutput} />
 		<SimpleTable 
 			tableName={plandoc.name}
 			dataTree={runOutput.dataTree}
@@ -144,6 +146,12 @@ const ViewSpreadSheet = ({plandoc}) => {
 			hasCollapse 
 			hideEmpty={false}
 			csv /></>;
+};
+
+const ImportsList = ({runOutput}) => {
+	if ( ! runOutput.imports || ! runOutput.imports.length) return null;
+	// NB the import src is usually g-drive gibberish
+	return <div className='ImportsList'>{runOutput.imports.map((imp,i) => <LinkOut className='mr-2' href={imp.url || imp.src}>[Import {imp.name || i}]</LinkOut>)}</div>
 };
 
 export {doShowMeTheMoney};

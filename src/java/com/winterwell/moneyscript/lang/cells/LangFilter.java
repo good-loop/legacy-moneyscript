@@ -5,6 +5,7 @@ import static com.winterwell.nlp.simpleparser.Parsers.chain;
 import static com.winterwell.nlp.simpleparser.Parsers.first;
 import static com.winterwell.nlp.simpleparser.Parsers.lit;
 import static com.winterwell.nlp.simpleparser.Parsers.opt;
+import static com.winterwell.nlp.simpleparser.Parsers.optSpace;
 import static com.winterwell.nlp.simpleparser.Parsers.ref;
 import static com.winterwell.nlp.simpleparser.Parsers.regex;
 import static com.winterwell.nlp.simpleparser.Parsers.seq;
@@ -14,8 +15,13 @@ import static com.winterwell.nlp.simpleparser.Parsers.word;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.winterwell.moneyscript.lang.bool.Comparison;
 import com.winterwell.moneyscript.lang.bool.Condition;
 import com.winterwell.moneyscript.lang.bool.LangBool;
+import com.winterwell.moneyscript.lang.num.BasicFormula;
+import com.winterwell.moneyscript.lang.num.Formula;
+import com.winterwell.moneyscript.lang.num.Numerical;
+import com.winterwell.moneyscript.lang.num.Var;
 import com.winterwell.moneyscript.lang.time.DtDesc;
 import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.moneyscript.lang.time.TimeDesc;
@@ -38,6 +44,27 @@ public class LangFilter {
 	public static final Parser<Filter> filter = ref(FILTER);
 
 	
+	Parser<Filter> exceptFilter = new PP<Filter>(		
+			seq(lit("except"), bracketed("(",  
+					chain(ref(LangCellSet.ROW_NAME), seq(lit(","),optSpace)),
+					")"))
+	) {
+		protected Filter process(ParseResult<?> r) {			
+			List<AST> leaves = r.getLeaves();
+			List<String> rowNames = new ArrayList();
+			for (AST ast : leaves) {
+				if (ast.isNamed(LangCellSet.ROW_NAME)) {
+					rowNames.add(ast.parsed());
+				}
+			}
+			CellSet sel = new RowListCellSet(rowNames);
+			Formula list = new BasicFormula(sel);
+			Formula row = new BasicFormula(new CurrentRow());
+			Condition condition = Condition.not(new Comparison(row, "in", list));
+			
+			return new ConditionalFilter("if", condition);			
+		};
+	}.label("exceptFilter").eg("except(Alice, Bob)");
 
 
 	Parser<Filter> conditionalFilter = new PP<Filter>(
@@ -129,7 +156,7 @@ public class LangFilter {
 	
 	
 	Parser<Filter> filter0 = bracketed("(",
-			first(conditionalFilter, dirnFilter, periodFilter, periodicFilter, textMatchFilter).label("cond/dirn/period/periodic/text"),
+			first(conditionalFilter, dirnFilter, periodFilter, periodicFilter, textMatchFilter, exceptFilter).label("cond/dirn/period/periodic/text/except"),
 			")")
 			.label("filter0");//.setDesc("(?conditionalFilter/dirnFilter/periodFilter)?");
 

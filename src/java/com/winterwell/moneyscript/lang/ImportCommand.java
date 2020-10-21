@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
@@ -14,6 +15,7 @@ import com.winterwell.nlp.dict.Dictionary;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
+import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Cache;
 import com.winterwell.utils.io.CSVReader;
 import com.winterwell.utils.io.CSVSpec;
@@ -23,13 +25,22 @@ import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
 import com.winterwell.utils.time.TimeUtils;
+import com.winterwell.utils.web.IHasJson;
 import com.winterwell.utils.web.WebUtils;
 import com.winterwell.web.FakeBrowser;
 
-public class ImportCommand {
+public class ImportCommand implements IHasJson {
 
+	public ImportCommand() {
+		
+	}
+	
 	public String src;
-	protected boolean overwrite;
+	
+	/**
+	 * TODO
+	 */
+	protected boolean overwrite = true;
 
 	@Override
 	public String toString() {
@@ -38,7 +49,7 @@ public class ImportCommand {
 	
 	Dt cacheDt = new Dt(1, TUnit.MINUTE); 
 	
-	String csv;
+	transient String csv;
 	
 	static Cache<String, String> csvCache = new Cache<>(20);
 	
@@ -118,7 +129,11 @@ public class ImportCommand {
 		}
 	}
 
-	Time fetched;
+	transient Time fetched;
+
+	String name;
+
+	String url;
 	
 	private void fetch() {
 		// Always use in memory if set (e.g. if doing samples: 20))
@@ -190,6 +205,15 @@ public class ImportCommand {
 		}
 
 		return StrUtils.toTitleCase(rowName);
+	}
+
+	@Override
+	public Map toJson2() throws UnsupportedOperationException {
+		return new ArrayMap(
+			"src", src,
+			"name", name,
+			"url", url
+		);
 	}
 
 }

@@ -95,6 +95,17 @@ public class LangFilterTest {
 			LangFilter.filter.parseOut("from 1 year from start");
 		}
 	}
+	
+	@Test
+	public void testExcept() {
+		{
+			Parser.clearGrammar();
+			Lang lang = new Lang();
+			lang.langFilter.exceptFilter.parseOut("except(Alice)");			
+			LangFilter.filter.parseOut("except(Alice, Bob)");
+//			LangFilter.filter.parseOut("except Alice"); TODO
+		}
+	}
 
 	@Test
 	public void testPeriod() {

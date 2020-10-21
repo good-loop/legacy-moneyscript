@@ -14,6 +14,7 @@ import com.winterwell.utils.StrUtils;
 
 public class MortgageExampleTest {
 
+	
 	@Test public void testMortgageOverlySimpleEg() {
 		String plan = "columns: 25 years\n"					
 					+"Payment: repay(previous Capital, (3.99%), 25 years)\n"

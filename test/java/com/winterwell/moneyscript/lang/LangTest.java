@@ -76,6 +76,19 @@ public class LangTest {
 		}
 	}
 
+
+	@Test public void testExcept() {
+		String plan = "Staff:\n\tAlice: £12k per year\n\tBob: £12k per year\n"
+					+"Staff from month 3: + £12k per year";
+		Lang lang = new Lang();
+		Business b = lang.parse(plan);
+		b.setColumns(6);
+		b.run();
+		
+		List<Row> rows = b.getRows();
+		String srows = Printer.str(rows);
+		assert srows.equals("Staff, Alice, Bob") : srows;
+	}
 	
 	@Test
 	public void testSimpleRule() {

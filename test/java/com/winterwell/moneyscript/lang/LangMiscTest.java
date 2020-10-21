@@ -40,7 +40,19 @@ public class LangMiscTest {
 		Lang lang = new Lang();
 		LangMisc lm = lang.langMisc;
 		{
-			ParseResult<ImportCommand> p = lm.importCommand.parseOut("import from http://example.com/asheet.csv");
+			ParseResult<ImportCommand> p = lm.importCommand.parseOut("import: http://example.com/asheet.csv");
+			ImportCommand settings = p.getX();
+			assert settings.src.equals("http://example.com/asheet.csv");
+		}
+	}
+	
+
+	@Test
+	public void testImportWithJsonInfo() {
+		Lang lang = new Lang();
+		LangMisc lm = lang.langMisc;
+		{
+			ParseResult<ImportCommand> p = lm.importCommand.parseOut("import: http://example.com/asheet.csv {wibble: https://foo.com}");
 			ImportCommand settings = p.getX();
 			assert settings.src.equals("http://example.com/asheet.csv");
 		}

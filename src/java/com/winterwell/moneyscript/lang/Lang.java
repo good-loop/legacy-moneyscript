@@ -50,7 +50,7 @@ public class Lang {
 	
 	public static final String[] keywords =
 			// filters
-			("from to above below at £ $ "
+			("from to above below at £ $ except "
 			// times
 			+"start end now for "
 			+"per sum over "

@@ -155,6 +155,9 @@ public class Business {
 			}
 		}
 		
+		// imports
+		map.put("imports", Containers.apply(importCommands, ImportCommand::toJson2));
+		//done
 		return map;
 	}
 

@@ -1,6 +1,7 @@
 package com.winterwell.moneyscript.lang.cells;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class ConditionalFilter extends Filter {
 	public ConditionalFilter(String op, Condition tst) {
 		super(null);
 		this.op = op;
-		assert "if".equals(op) || LangTime.from.equals(op) || "to".equals(op) : "TODO "+op;
+		assert Arrays.asList("if", LangTime.from, "to").contains(op) : "TODO "+op;
 		this.cond = tst;
 		dirn = KDirn.LEFT; // ??
 	}

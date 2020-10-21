@@ -29,7 +29,7 @@ const AceCodeEditor = ({path, prop, markers, ...props}) => {
 		{...props}
 	width="100%"
 	placeholder=""
-	mode="acems" // json
+	mode="json" //acems" // previously tried json
 	theme="tomorrow"
 	name="planit1"
 	onLoad={editor => console.log("Ace onLoad")}
