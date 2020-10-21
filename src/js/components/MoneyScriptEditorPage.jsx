@@ -4,7 +4,7 @@ import {SJTest} from 'sjtest';
 import {Login} from 'you-again';
 import _ from 'lodash';
 import { Col, Row } from 'reactstrap';
-import AceEditor from "react-ace";
+
 import printer from '../base/utils/printer';
 import C from '../C';
 import Roles from '../base/Roles';
@@ -24,16 +24,7 @@ import ViewCharts from './ViewCharts';
 import ViewSpreadSheet from './ViewSpreadsheet';
 import SavePublishDeleteEtc from '../base/components/SavePublishDeleteEtc';
 import BG from '../base/components/BG';
-
-//
-// import "ace-builds/src-noconflict/mode-java";
-// import "ace-builds/src-noconflict/theme-github";
-
-
-// import brace from 'brace';
-// import AceEditor from 'react-ace';
-// import 'brace/mode/java';
-// import 'brace/theme/github';
+import AceCodeEditor from './AceCodeEditor';
 
 /**
  * We abuse the navbar as an always-visible view switcher -- but we do want to preserve the id
@@ -79,8 +70,6 @@ const MoneyScriptEditorPage = () => {
 		return (<div><h1>{type}: {id}</h1><Misc.Loading /></div>);
 	}
 	const item = pvItem.value;
-	// TODO https://ace.c9.io/#nav=embedding or https://codemirror.net/
-	// or https://microsoft.github.io/monaco-editor/
 	return (
 		<BG src='img/bg/data_money_82831320.jpg' fullscreen >
 			<div className="MoneyScriptEditorPage">
@@ -124,30 +113,7 @@ const EditScript = ({id, plandoc, path}) => {
 	let modelValueFromInput = (iv, type, eventType) => standardModelValueFromInput(iv? iv.replace(/ {4}/g, '\t') : iv, type, eventType);
 	 let pes = (parsed && parsed.errors) || [];
 	return (<div>
-		<AceEditor
-			width="100%"		
-			height="calc(100vh - 15em)"
-			placeholder=""
-			mode="json"
-			theme="tomorrow"
-			name="planit1"
-			onLoad={editor => console.log("Ace onLoad")}
-			onChange={newText => DSsetValue(path.concat('text'), newText, false)}
-			fontSize={14}
-			showPrintMargin={false}
-			showGutter
-			highlightActiveLine
-			value={plandoc.text}
-			setOptions={{
-				// to use this options the corresponding extension file needs to be loaded in addition to the ace.js
-				// enableBasicAutocompletion: false,
-				// enableLiveAutocompletion: true,
-				// enableSnippets: false,
-				showLineNumbers: true,
-				tabSize: 4,
-			}}
-			markers={pes.map(markerFromParseFail)}
-		/>
+		<AceCodeEditor path={path} prop='text' markers={pes.map(markerFromParseFail)} height="calc(100vh - 15em)" />
 		<div>{parsed && parsed.errors? JSON.stringify(parsed.errors) : null}</div>
 		<div>&nbsp;</div>
 		<SavePublishDeleteEtc type="PlanDoc" id={id} saveAs />
