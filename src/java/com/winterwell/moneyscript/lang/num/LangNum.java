@@ -107,7 +107,7 @@ public class LangNum {
 									.label(NUMBER); // temporary assignment for simple egs in this class
 
 
-	final Parser<String> mathFnNameUnary = word("sum", "log", "sqrt", "abs", "previous", "p", "count").label("mathFnNameUnary");
+	final Parser<String> mathFnNameUnary = word("sum row", "sum", "log", "sqrt", "abs", "previous", "p", "count row", "count").label("mathFnNameUnary");
 
 
 	// if then else formulae		

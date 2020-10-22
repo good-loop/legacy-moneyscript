@@ -66,7 +66,12 @@ class BinaryOp extends Formula {
 		
 		if (x instanceof UncertainNumerical) Log.report("unexpected Uncertain: "+x+" from "+left);
 		if (y instanceof UncertainNumerical) Log.report("unexpected Uncertain: "+y+" from "+right);
-		
+
+		// handle minus as + -1*y -- so that we get the same % handling behaviour
+		if ("-"==op) {
+			y = y.times(-1);
+			op = "+";
+		}
 		if ("+"==op) {
 			// special case: e.g. £10 + 20% = £12
 			if ("%".equals(y.getUnit()) && ! "%".equals(x.getUnit())) {
@@ -75,10 +80,7 @@ class BinaryOp extends Formula {
 			}
 			return x.plus(y);
 		}
-		if ("-"==op) {
-			return x.plus( y.times(-1) );
-		}
-		if ("*"==op || "@"==op) {
+		if ("*"==op) {
 			if (x==Numerical.NULL || y==Numerical.NULL) return null;
 			return x.times(y);
 		}

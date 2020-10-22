@@ -34,7 +34,7 @@ const AceCodeEditor = ({path, prop, markers, ...props}) => {
 	name="planit1"
 	onLoad={editor => console.log("Ace onLoad")}
 	onChange={newText => DSsetValue(path.concat(prop), newText, false)}
-	fontSize={14}
+	fontSize={16}
 	showPrintMargin={false}
 	showGutter
 	highlightActiveLine

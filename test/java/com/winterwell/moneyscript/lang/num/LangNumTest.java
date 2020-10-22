@@ -42,6 +42,46 @@ public class LangNumTest {
 	}
 
 
+	@Test
+	public void testCount() {
+		Lang lang = new Lang();
+		ParseResult<Formula> n = LangNum.num.parseOut("count(Staff)");
+		Formula f = n.getX();
+		
+		Business b = lang.parse("Staff:\n\tAlice: £1k\n\tBob from month 3: £2k");
+		// just alice
+		Numerical c = f.calculate(new Cell(b.getRow("Staff"), new Col(1)));
+		assert c.doubleValue() == 1 : c;
+		// + Bob
+		Numerical c3 = f.calculate(new Cell(b.getRow("Staff"), new Col(3)));
+		assert c3.doubleValue() == 2 : c3;
+	}
+	
+	@Test
+	public void testCountRow () {
+		Lang lang = new Lang();
+		{
+			ParseResult<Formula> n = LangNum.num.parseOut("count row(Bob from month 1 to month 6)");
+			Formula f = n.getX();
+			
+			Business b = lang.parse("Staff:\n\tAlice: £1k\n\tBob from month 3: £2k");
+	
+			Numerical c = f.calculate(new Cell(b.getRow("Bob"), new Col(6)));
+			assert c.doubleValue() == 4 : c; // Note: from - to is INCLUSIVE, so this count picks up 3,4,5,6
+		}
+		{
+			ParseResult<Formula> n = LangNum.num.parseOut("count row(from month 1 to month 6)");
+			Formula f = n.getX();
+			
+			Business b = lang.parse("Staff:\n\tAlice: £1k\n\tBob from month 3: £2k");
+	
+			Cell b6 = new Cell(b.getRow("Bob"), new Col(6));
+			Numerical c = f.calculate(b6);
+			assert c.doubleValue() == 4 : c; // Note: from - to is INCLUSIVE, so this count picks up 3,4,5,6
+		}
+	}
+	
+
 	
 	@Test
 	public void testPlusMinus() {

@@ -42,6 +42,9 @@ public class UnaryOp extends Formula {
 		if (op.startsWith("sum")) {
 			return calculate2_sum(b);
 		}
+		if (op.startsWith("count row")) {
+			return calculate2_countRow(b);
+		}
 		if (op.startsWith("count")) {
 			return calculate2_count(b);
 		}
@@ -162,7 +165,57 @@ public class UnaryOp extends Formula {
 		return new Numerical(cnt);
 	}
 
-	
+
+
+	/**
+	 * count of non-zero values __in a row__
+	 * Unpacks groups 
+	 * @param b
+	 * @return
+	 */
+	private Numerical calculate2_countRow(Cell b) {
+		// eg "sum Sales"
+		// right should be a selector
+		CellSet sel = ((BasicFormula)right).sel;
+		
+		// Which row? Probably b.row...
+		Row row = b.row;
+		// ...get the leaf rows - e.g. to handle "count row(MySpecificRow)"
+		ArrayList<Row> leafRows = new ArrayList();
+		List<String> rns = new ArrayList(sel.getRowNames());		 
+		Business biz = b.getBusiness();
+		ArrayList<Row> rows = Containers.apply(rns, biz::getRow);
+		getLeafRows(rows, leafRows, biz);		
+		if ( ! leafRows.contains(b.row)) {
+			if (leafRows.size() != 1) {
+				throw new CalculateException(this+" for "+b+": which row is ambiguous: "+leafRows);
+			}
+			row = leafRows.get(0);
+		}
+		
+		// get all the cells in the selector
+		Collection<Cell> cells = sel.getCells(b, true);
+		// filter by row and by non-zero		
+		int cnt = 0;
+		for (Cell cell : cells) {
+			if ( ! leafRows.contains(cell.row)) {
+				continue;
+			}
+			Numerical c = biz.getCellValue(cell);
+			if (c != null && c.doubleValue() != 0) {
+				cnt++;
+			}
+		}
+		return new Numerical(cnt);
+	}
+
+
+	/**
+	 * Recursive expand of the agenda, adding to leafRows
+	 * @param agenda
+	 * @param leafRows
+	 * @param b
+	 */
 	private void getLeafRows(List<Row> agenda, ArrayList leafRows, Business b) {
 		for(Row row : agenda) {
 			if (row==null) {
@@ -173,7 +226,10 @@ public class UnaryOp extends Formula {
 				List<Row> kids = row.getChildren();
 				getLeafRows(kids, leafRows, b);
 			} else {
-				leafRows.add(row);
+				// NB: dupes can happen if the input list contains e.g. a group + a member of that group
+				if ( ! leafRows.contains(row)) {
+					leafRows.add(row);
+				}
 			}
 		}		
 	}
