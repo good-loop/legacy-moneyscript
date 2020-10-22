@@ -2,6 +2,7 @@ package com.winterwell.moneyscript.lang.num;
 
 import java.util.Set;
 
+import com.winterwell.maths.IScalarArithmetic;
 import com.winterwell.maths.stats.distributions.d1.UniformDistribution1D;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.output.Business;
@@ -67,6 +68,11 @@ class BinaryOp extends Formula {
 		if (y instanceof UncertainNumerical) Log.report("unexpected Uncertain: "+y+" from "+right);
 		
 		if ("+"==op) {
+			// special case: e.g. £10 + 20% = £12
+			if ("%".equals(y.getUnit()) && ! "%".equals(x.getUnit())) {
+				Numerical yplus1 = y.plus(1);
+				return x.times(yplus1);	
+			}
 			return x.plus(y);
 		}
 		if ("-"==op) {

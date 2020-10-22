@@ -4,10 +4,9 @@ end: Sep 2022
 //samples: 10
 
 // Import actuals from a g-drive spreadsheet
-// Source:	"NEW Reasonable Estimate PLUS SE Funding_INC Revised Spending_15.09.20"	https://docs.google.com/spreadsheets/d/1qDa7ZuGr3g7OvVycUaE2WiwL8diZ0YRBPYrNi8TYrIU/edit#gid=1708815537
 // Manually copied over by Dan into the `actuals` sheet
-// NB: G-drive is a bit slow to respond, so by default we cache the g-drive resposne for a minute. Use "import fresh" to switch off caching.
-import: https://docs.google.com/spreadsheets/d/e/2PACX-1vRvLd73E4kTwaoV3PRzQeDnJT7A1VZGzj6DjQty4sPckoikUEdqsuR0lkRCjVLFSWReywOfX5vtgif5/pub?output=csv {url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRvLd73E4kTwaoV3PRzQeDnJT7A1VZGzj6DjQty4sPckoikUEdqsuR0lkRCjVLFSWReywOfX5vtgif5/}
+// NB: G-drive is a bit slow to respond, so by default we cache the g-drive response for a minute. Use "import fresh" to switch off caching.
+import: https://docs.google.com/spreadsheets/d/e/2PACX-1vRvLd73E4kTwaoV3PRzQeDnJT7A1VZGzj6DjQty4sPckoikUEdqsuR0lkRCjVLFSWReywOfX5vtgif5/pub?output=csv {url: https://docs.google.com/spreadsheets/d/1qDa7ZuGr3g7OvVycUaE2WiwL8diZ0YRBPYrNi8TYrIU, name:"actuals taken from NEW Reasonable Estimate PLUS SE Funding_INC Revised Spending_15.09.20"}
 
 UK Staff:
 	Sales Staff:	// salaries are base - commission is done separately
@@ -43,7 +42,7 @@ Kati to Dec 2020: * 80%
 Ben to Dec 2020: * 80%
 
 // October / December pay rises
-// TODO check proposal
+// TODO check proposal for details
 Amy from Oct 2020: Ryan	
 Dan from Dec 2020: Ryan
 Charley from Dec 2020: + £2k per year
@@ -85,7 +84,7 @@ Costs:
 		Pension: 3% * UK Staff
 		Wellness budget: £100 * count(UK Staff) * 75% 				// let's assume a decent but 100% take-up
 		Training: £20 * HeadCount + £100 * count(US Staff) 		// plan for US staff doing a UK visit
-		Recruitment: £500 per month
+		Recruitment from month 2: £7500 * max(0, HeadCount - previous(HeadCount))
 
 	Rent:
 		Edinburgh: £450 per month
@@ -103,7 +102,7 @@ Costs:
 		Subsistence: £100
 		Staff Entertainment: £30 * Staff Count		
 		Client Entertainment: £200 per month
-	Travel_Entertainment from Feb 2021: * 200% // lockdown lifts?
+	Travel_Entertainment from Feb 2021: * 500% // lockdown lifts?
 
 	Professional Fees: // Not including e.g. Pete, Amanda, Donia
 		UK Accountancy: £575			
@@ -128,13 +127,12 @@ Costs: {.bg-red}
 Sales_Revenue: {.bg-green}
 Sales_Revenue: (Marketing ROI + (Campaign_Size * UK_Campaigns)) * Seasonality
 Revenue Details: na
-	RampedUp Staff: count(Sales Staff from 5 months ago)
-	CampaignsPerSalesperson: 1 per month // It was about 0.7 in 2019 and 0.9 in 2020 (source: email from Jules re SF data, noting that head-count his blurry). Allowing for covid, it could be higher. This is new and repeat.
-	UK_Campaigns: CampaignsPerSalesperson * RampedUp Staff
+	RampedUpStaff: count(Sales Staff from 5 months ago)
+	CampaignsPerSalesperson: 1+-1 per month // It was about 0.7 in 2019 and 0.9 in 2020 (source: email from Jules re SF data, noting that head-count his blurry). Allowing for covid, it could be higher. This is new and repeat.
+	UK_Campaigns: CampaignsPerSalesperson * RampedUpStaff
 	Campaign_Size: N(23k, 451m) // Checking the data: new and existing clients have the same profile
 	// Adjustments
 	Seasonality: 70%,	75%,	90%,	115%,	125%,	115%,	90%,	80%,	100%,	100%,	115%,	125%,	70%,	75%,	90%,	115%,	125%,	115%,	90%,	80%,	100%,	100%,	115%,	125%
-	// seasonality + covid 70%,	75%,	18%,	23%,	25%,	58%,	45%,	45%,	70%,	90%,	80%,	90%,	70%,	75%,	18%,	23%,	25%,	58%,	45%,	45%,	50%,	80%,	80%,	90%,	70%,	75%,	90%,	115%,	125%,	115%,	90%,	80%,	100%,	100%,	115%,	125%, // inc Corona effect, copy-pasta from Amy's sheet
 	Marketing ROI: 20% * (Marketing from 3 months ago + Trudi from 3 months ago) // this is over-egging as we haven't subtracted this from the historical average.
 Revenue Details: {.bg-green}
 

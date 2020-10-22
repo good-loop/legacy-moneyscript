@@ -93,19 +93,22 @@ public class Numerical extends Number implements IScalarArithmetic {
 
 	@Override
 	public String toString() {
+		int sigFigs = 3;
 		String sign = doubleValue() < 0? "-" : "";
 		double v = Math.abs(doubleValue());
 		if ("%".equals(unit)) {
 			v *= 100;
 		}
+		// round + to string
 		String num;
 		if (v>1000000) {
-			num = StrUtils.toNSigFigs(v/1000000, 2)+"M";
+			num = StrUtils.toNSigFigs(v/1000000, sigFigs)+"M";
 		} else if (v>1000) {
-			num = StrUtils.toNSigFigs(v/1000, 2)+"k";
+			num = StrUtils.toNSigFigs(v/1000, sigFigs)+"k";
 		} else {
-			num = StrUtils.toNSigFigs(v, 2);
+			num = StrUtils.toNSigFigs(v, sigFigs);
 		}
+		
 		if (unit==null) {
 			return sign+num;	
 		}
@@ -179,7 +182,7 @@ public class Numerical extends Number implements IScalarArithmetic {
 	}
 
 	@Override
-	public IScalarArithmetic plus(double b) {
+	public Numerical plus(double b) {
 		return calc.plus(this, new Numerical(b));
 	}
 
