@@ -23,7 +23,7 @@ public class RowListCellSet extends CellSet {
 	}
 	
 	@Override
-	public Set<String> getRowNames() {
+	public Set<String> getRowNames(Cell focus) {
 		return new ArraySet(rowName);
 	}
 	

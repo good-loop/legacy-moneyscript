@@ -11,8 +11,8 @@ public class FilteredCellSet extends CellSet {
 		return base+" "+filter;
 	}
 	
-	public java.util.Set<String> getRowNames() {
-		return base.getRowNames();
+	public java.util.Set<String> getRowNames(Cell focus) {
+		return base.getRowNames(focus);
 	}
 	
 	CellSet base;

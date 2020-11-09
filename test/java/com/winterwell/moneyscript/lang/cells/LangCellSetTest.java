@@ -192,7 +192,7 @@ public class LangCellSetTest {
 			b.run();
 			Row alice = b.getRow("Alice");
 			FilteredCellSet cells = (FilteredCellSet) alice.getRules().get(0).getSelector();
-			assert Containers.same(cells.getRowNames(), "Alice") : cells.getRowNames();
+			assert Containers.same(cells.getRowNames(null), "Alice") : cells.getRowNames(null);
 			TimeFilter f = (TimeFilter) cells.filter;
 			// see how that goes - should fail (no start)
 			Cell bc = new Cell(alice, new Col(1));
@@ -294,7 +294,7 @@ public class LangCellSetTest {
 			assert cells != null;
 			assert cells instanceof FilteredCellSet : cells;
 			FilteredCellSet fcs = (FilteredCellSet) cells;
-			assert Containers.same(fcs.getRowNames(), Arrays.asList("Alice")) : fcs.getRowNames();
+			assert Containers.same(fcs.getRowNames(null), Arrays.asList("Alice")) : fcs.getRowNames(null);
 			assert fcs.base instanceof RowName : fcs.base;
 			assert fcs.filter instanceof TimeFilter : fcs.filter;
 			

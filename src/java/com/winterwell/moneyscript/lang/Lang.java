@@ -239,7 +239,7 @@ public class Lang {
 			if (selector==null) {
 				selector = new CurrentRow(); // is this always OK?? How do grouping rules behave??
 			}
-			Set<String> rowNames = selector.getRowNames();					
+			Set<String> rowNames = selector.getRowNames(null);					
 			assert ! rowNames.isEmpty() : rule;	
 			// the rows named in this rule's selector
 			List<Row> rows = new ArrayList<Row>();
@@ -358,7 +358,7 @@ public class Lang {
 			if (r.formula == null) continue;
 			Set<String> vars;
 			try {
-				vars = r.formula.getRowNames();
+				vars = r.formula.getRowNames(null);
 			} catch (UnsupportedOperationException e) {
 				// e.g. CurrentRow
 				continue;

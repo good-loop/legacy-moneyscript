@@ -30,9 +30,9 @@ public class Union extends CellSet {
 	}
 	
 	@Override
-	public Set<String> getRowNames() {
-		Set<String> rn = new ArraySet<String>(a.getRowNames());
-		rn.addAll(b.getRowNames());
+	public Set<String> getRowNames(Cell focus) {
+		Set<String> rn = new ArraySet<String>(a.getRowNames(focus));
+		rn.addAll(b.getRowNames(focus));
 		return rn;
 	}
 

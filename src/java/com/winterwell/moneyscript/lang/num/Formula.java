@@ -44,7 +44,12 @@ public abstract class Formula {
 		return false;
 	}
 
-	public Set<String> getRowNames() {
+	/**
+	 * 
+	 * @param focus Can be null
+	 * @return
+	 */
+	public Set<String> getRowNames(Cell focus) {
 		return Collections.emptySet();
 	}
 	

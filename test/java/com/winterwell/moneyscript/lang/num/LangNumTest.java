@@ -41,6 +41,8 @@ public class LangNumTest {
 		}
 	}
 
+	
+
 
 	@Test
 	public void testCount() {
@@ -60,7 +62,7 @@ public class LangNumTest {
 	@Test
 	public void testCountRow () {
 		Lang lang = new Lang();
-		{
+		{	// specific row
 			ParseResult<Formula> n = LangNum.num.parseOut("count row(Bob from month 1 to month 6)");
 			Formula f = n.getX();
 			
@@ -69,7 +71,7 @@ public class LangNumTest {
 			Numerical c = f.calculate(new Cell(b.getRow("Bob"), new Col(6)));
 			assert c.doubleValue() == 4 : c; // Note: from - to is INCLUSIVE, so this count picks up 3,4,5,6
 		}
-		{
+		{	// implicit row
 			ParseResult<Formula> n = LangNum.num.parseOut("count row(from month 1 to month 6)");
 			Formula f = n.getX();
 			
@@ -147,6 +149,18 @@ public class LangNumTest {
 	
 	@Test public void testPrevious() {
 		Lang lang = new Lang();
+		{	// dummy test
+			String plan = "A: 100\n"
+						 +"B: 1000 - A\n";			
+			Business b = lang.parse(plan);
+			b.getSettings().setSamples(1);
+			b.setColumns(3);
+			b.run();
+			Row cap = b.getRow("B");
+			double[] bvalues = cap.getValues();
+			assert bvalues[0] == 900 : Printer.str(bvalues);
+			assert bvalues[1] == 900 : Printer.str(bvalues);
+		}
 		{
 			String plan = "Payment: 100\n"
 						 +"Capital: previous - Payment\n"
@@ -155,8 +169,8 @@ public class LangNumTest {
 			b.setColumns(3);
 			b.run();
 			Row cap = b.getRow("Capital");
-			assert cap.getValues()[0] == 1000 : cap.getValues();
-			assert cap.getValues()[1] == 900 : cap.getValues();
+			assert cap.getValues()[0] == 1000 : Printer.str(cap.getValues());
+			assert cap.getValues()[1] == 900 : Printer.str(cap.getValues());
 		}
 		{	// previous OtherRow
 			lang.langNum.mathFnUnary.parseOut("previous(X)");
@@ -464,6 +478,79 @@ public class LangNumTest {
 	}
 
 
+
+
+	@Test
+	public void testArithmetic() {
+		LangNum lang = new LangNum();
+		Cell cell = new Cell(new Row("blah"), new Col(1));
+		{
+			Formula f22 = lang.formula.parseOut("2 + 2").getX();
+			Numerical v4 = f22.calculate(cell);
+			assert v4.doubleValue() == 4;		
+		}
+		{
+			Formula f223 = lang.formula.parseOut("2 + 2 + 3").getX();
+			Numerical v7 = f223.calculate(cell);
+			assert v7.doubleValue() == 7;
+		}
+		{
+			Formula f223 = lang.formula.parseOut("(2 + 2) + 3").getX();
+			Numerical v7 = f223.calculate(cell);
+			assert v7.doubleValue() == 7;
+		}
+		{
+			Formula f223 = lang.formula.parseOut("(2 + 2 + 3)").getX();
+			Numerical v7 = f223.calculate(cell);
+			assert v7.doubleValue() == 7;
+		}
+		{
+			Formula f223 = lang.formula.parseOut("(2 + (2 + 3))").getX();
+			Numerical v7 = f223.calculate(cell);
+			assert v7.doubleValue() == 7;
+		}
+		{
+			Formula f223 = lang.formula.parseOut("((2 + 2) + 3)").getX();
+			Numerical v7 = f223.calculate(cell);
+			assert v7.doubleValue() == 7;
+		}
+		{
+			Formula fm102 = lang.formula.parseOut("10 - 2").getX();
+			Numerical v = fm102.calculate(cell);
+			assert v.doubleValue() == 8;
+		}
+		{
+			Formula fm102 = lang.formula.parseOut("10 - 3 - 1").getX();
+			Numerical v = fm102.calculate(cell);
+			assert v.doubleValue() == 6;
+		}
+	}
+	
+	@Test
+	public void testMinusTimes() {
+		LangNum lang = new LangNum();
+		Cell cell = new Cell(new Row("blah"), new Col(1));
+		{
+			Formula f = lang.formula.parseOut("2*3 - 5*7").getX();
+			Numerical v = f.calculate(cell);
+			assert v.doubleValue() == -29 : v;		
+		}
+		{
+			Formula f = lang.formula.parseOut("3 * -2 + 7").getX();
+			Numerical v = f.calculate(cell);
+			assert v.doubleValue() == 1 : v;		
+		}
+		{
+			Formula f = lang.formula.parseOut("-3 * -2 + 7").getX();
+			Numerical v = f.calculate(cell);
+			assert v.doubleValue() == 13 : v;		
+		}
+		{
+			Formula f = lang.formula.parseOut("3 - 2 * -2").getX();
+			Numerical v = f.calculate(cell);
+			assert v.doubleValue() == 7 : v;	
+		}
+	}
 	@Test
 	public void testMinusMinus() {		
 		LangNum lang = new LangNum();

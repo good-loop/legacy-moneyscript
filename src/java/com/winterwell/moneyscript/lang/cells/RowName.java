@@ -19,7 +19,7 @@ public final class RowName extends CellSet {
 	}
 	
 	@Override
-	public Set<String> getRowNames() {
+	public Set<String> getRowNames(Cell focus) {
 		return Collections.singleton(rowName);
 	}
 	

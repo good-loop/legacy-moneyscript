@@ -17,6 +17,9 @@ public class Settings {
 	 * Not sure what this should apply to :(
 	 */
 	String css;
+	/**
+	 * 1 or 0 mean "don't sample"
+	 */
 	int samples;
 	protected Dt _runTime;
 	

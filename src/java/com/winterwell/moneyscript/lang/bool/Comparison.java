@@ -35,8 +35,8 @@ public class Comparison extends Condition {
 			// fugly HACK
 			if  (lhs instanceof BasicFormula && ((BasicFormula) lhs).getCellSetSelector() instanceof CurrentRow) {
 				lnames = Collections.singleton(cell.row.getName());
-			} else lnames = lhs.getRowNames(); 
-			Set<String> names = rhs.getRowNames();
+			} else lnames = lhs.getRowNames(b); 
+			Set<String> names = rhs.getRowNames(b);
 			for (String lname : lnames) {
 				if ( ! names.contains(lname)) return false;
 			}

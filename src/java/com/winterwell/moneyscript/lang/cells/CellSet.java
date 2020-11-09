@@ -42,7 +42,7 @@ public abstract class CellSet implements Comparable<CellSet> {
 	/**
 	 * @return all the rows which might contain cells.
 	 */
-	public abstract Set<String> getRowNames();	
+	public abstract Set<String> getRowNames(Cell focus);	
 	
 
 	public final Col getStartColumn(Row row, Cell context) {

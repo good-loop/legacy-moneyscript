@@ -33,8 +33,8 @@ public class UnaryOp extends Formula {
 	}
 	
 	@Override
-	public Set<String> getRowNames() {
-		return right.getRowNames();
+	public Set<String> getRowNames(Cell focus) {
+		return right.getRowNames(focus);
 	}
 
 	@Override
@@ -99,7 +99,7 @@ public class UnaryOp extends Formula {
 		// must be a cell set as formula
 		CellSet cellSet = ((BasicFormula)right).sel;
 		assert cellSet != null : right;
-		Set<String> rows = cellSet.getRowNames();
+		Set<String> rows = cellSet.getRowNames(b);
 		assert rows.size() == 1 : rows;
 		Row row = b.getBusiness().getRow(Containers.first(rows));
 		assert row != null : rows;
@@ -148,7 +148,7 @@ public class UnaryOp extends Formula {
 		// right should be a selector
 		CellSet sel = ((BasicFormula)right).sel;
 		// get the rows
-		List<String> rns = new ArrayList(sel.getRowNames());
+		List<String> rns = new ArrayList(sel.getRowNames(b));
 		ArrayList<Row> leafRows = new ArrayList(); 
 		Business biz = b.getBusiness();
 		getLeafRows(Containers.apply(rns, biz::getRow), leafRows, biz);
@@ -182,7 +182,7 @@ public class UnaryOp extends Formula {
 		Row row = b.row;
 		// ...get the leaf rows - e.g. to handle "count row(MySpecificRow)"
 		ArrayList<Row> leafRows = new ArrayList();
-		List<String> rns = new ArrayList(sel.getRowNames());		 
+		List<String> rns = new ArrayList(sel.getRowNames(b));		 
 		Business biz = b.getBusiness();
 		ArrayList<Row> rows = Containers.apply(rns, biz::getRow);
 		getLeafRows(rows, leafRows, biz);		

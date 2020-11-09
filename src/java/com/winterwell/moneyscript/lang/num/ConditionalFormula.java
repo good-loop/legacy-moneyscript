@@ -13,9 +13,9 @@ public class ConditionalFormula extends Formula {
 	private Formula other;
 
 	@Override
-	public Set<String> getRowNames() {
-		ArraySet<String> set = new ArraySet<String>(then.getRowNames());
-		set.addAll(other.getRowNames());
+	public Set<String> getRowNames(Cell focus) {
+		ArraySet<String> set = new ArraySet<String>(then.getRowNames(focus));
+		set.addAll(other.getRowNames(focus));
 		return set;
 	}
 	

@@ -167,7 +167,7 @@ public class Business {
 
 		// Wot no sampling? USeful for debugging and speed. So this is the default
 		int samples = getSettings().getSamples();
-		if (samples <= 1) {
+		if (samples < 2) {
 			state = new BusinessState();
 			run2();
 			phase = KPhase.OUTPUT;
@@ -331,7 +331,7 @@ public class Business {
 	}
 
 	public void addRule(Rule rule) {
-		Collection<String> rows = rule.getSelector().getRowNames();
+		Collection<String> rows = rule.getSelector().getRowNames(null);
 		for (String rn : rows) {						
 			Row row = getRow(rn);
 			assert row != null;

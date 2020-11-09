@@ -38,9 +38,9 @@ class BinaryOp extends Formula {
 	}
 	
 	@Override
-	public Set<String> getRowNames() {
-		ArraySet<String> set = new ArraySet<String>(left.getRowNames());
-		set.addAll(right.getRowNames());
+	public Set<String> getRowNames(Cell focus) {
+		ArraySet<String> set = new ArraySet<String>(left.getRowNames(focus));
+		set.addAll(right.getRowNames(focus));
 		return set;
 	}
 
@@ -67,50 +67,42 @@ class BinaryOp extends Formula {
 		if (x instanceof UncertainNumerical) Log.report("unexpected Uncertain: "+x+" from "+left);
 		if (y instanceof UncertainNumerical) Log.report("unexpected Uncertain: "+y+" from "+right);
 
-		// handle minus as + -1*y -- so that we get the same % handling behaviour
-		if ("-"==op) {
+		switch(op) {
+		case "-":
+			// handle minus as + -1*y -- so that we get the same % handling behaviour
 			y = y.times(-1);
-			op = "+";
-		}
-		if ("+"==op) {
+		case "+":
 			// special case: e.g. £10 + 20% = £12
 			if ("%".equals(y.getUnit()) && ! "%".equals(x.getUnit())) {
 				Numerical yplus1 = y.plus(1);
 				return x.times(yplus1);	
 			}
 			return x.plus(y);
-		}
-		if ("*"==op) {
+		case "*":
 			if (x==Numerical.NULL || y==Numerical.NULL) return null;
 			return x.times(y);
-		}
-		if ("@"==op) { // like *, but preserves the LHS value for access
+		case "@":	// like *, but preserves the LHS value for access
 			if (x==Numerical.NULL || y==Numerical.NULL) return null;
 			Numerical n = x.times(y);
 			return new Numerical2(n, x);
-		}
-		if ("/"==op) {
+		case "/":
 			if (x==Numerical.NULL) return null;
 			// what to do with divide by zero?
 			return x.divide(y);
-		}
-		if ("+-".equals(op) || "±".equals(op)) {
+		case "+-": case "±":
 			Range range = new Range(x.doubleValue()-y.doubleValue(), x.doubleValue()+y.doubleValue());
 			UniformDistribution1D dist = new UniformDistribution1D(range);
-			return sample(new UncertainNumerical(dist, DefaultCalculator.unit(x, y)));
-		}
-		if ("min".equals(op)) {
+			return sample(new UncertainNumerical(dist, DefaultCalculator.unit(x, y)));		
+		case"min":
 			double xy = Math.min(x.doubleValue(), y.doubleValue());
 			return new Numerical(xy, DefaultCalculator.unit(x, y));
-		}
-		if ("max".equals(op)) {
-			double xy = Math.max(x.doubleValue(), y.doubleValue());
+		case "max":
+			xy = Math.max(x.doubleValue(), y.doubleValue());
 			return new Numerical(xy, DefaultCalculator.unit(x, y));
-		}
-		if ("power".equals(op) || "^".equals(op)) {
+		case "power": case "^":
 			if (x==Numerical.NULL) return null;
-			double xy = Math.pow(x.doubleValue(), y.doubleValue());
-			return new Numerical(xy, x.getUnit()); // Keep the x unit
+			double xtoy = Math.pow(x.doubleValue(), y.doubleValue());
+			return new Numerical(xtoy, x.getUnit()); // Keep the x unit
 		}
 		throw new TodoException(toString());
 	}

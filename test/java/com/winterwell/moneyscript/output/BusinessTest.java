@@ -348,7 +348,7 @@ public class BusinessTest {
 		Cell bc = new Cell(both, col);
 		Rule sum = both.getRules().get(0);
 		RowName sumSel = (RowName) sum.getSelector();
-		assert sumSel.getRowNames().contains("Both");
+		assert sumSel.getRowNames(null).contains("Both");
 		
 		Formula f = sum.formula;
 		Numerical s = sum.calculate(bc);

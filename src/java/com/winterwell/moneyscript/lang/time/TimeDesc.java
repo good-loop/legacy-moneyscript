@@ -130,7 +130,7 @@ public class TimeDesc {
 		Row row = focus.getRow();
 		Business business = focus.getBusiness();
 		if (context != null) {
-			Set<String> rowNames = context.getRowNames();
+			Set<String> rowNames = context.getRowNames(focus);
 			assert rowNames.size() == 1;
 			String rn = Containers.first(rowNames);
 			row = business.getRow(rn);

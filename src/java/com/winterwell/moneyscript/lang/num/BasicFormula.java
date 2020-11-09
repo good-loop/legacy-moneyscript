@@ -25,8 +25,8 @@ public class BasicFormula extends Formula {
 		return sel;
 	}
 	
-	public Set<String> getRowNames() {
-		return (Set) (sel==null? Collections.emptySet() : sel.getRowNames());
+	public Set<String> getRowNames(Cell focus) {
+		return (Set) (sel==null? Collections.emptySet() : sel.getRowNames(focus));
 	}
 	
 	CellSet sel;

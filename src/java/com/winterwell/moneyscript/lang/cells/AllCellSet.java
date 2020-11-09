@@ -1,6 +1,7 @@
 package com.winterwell.moneyscript.lang.cells;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,7 +38,11 @@ public class AllCellSet extends CellSet {
 	}
 
 	@Override
-	public Set<String> getRowNames() {
+	public Set<String> getRowNames(Cell focus) {
+		if (focus != null && focus.row!=null) {
+			// implicit row
+			return Collections.singleton(focus.row.getName());
+		}
 		Business b = Business.get();
 		List<Row> rows = b.getRows();
 		Set<String> rns = new HashSet<String>();

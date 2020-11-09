@@ -212,6 +212,7 @@ public class LangNum {
 				Formula left = (Formula) ls.get(0).getX();
 				String op = (String) ls.get(1).getX();
 				Formula right = (Formula) ls.get(2).getX();
+				// FIXME I'm sure this can be broken -- and also done better
 				// special case hack!
 				// (1 - 2 - 3) parses as 1 - (2 - 3), which would give the wrong answer
 				if (op.equals("-") && right instanceof BinaryOp &&
