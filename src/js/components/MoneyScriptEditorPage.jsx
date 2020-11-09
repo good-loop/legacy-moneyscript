@@ -86,19 +86,19 @@ const MoneyScriptEditorPage = () => {
 	);
 };
 
-const saveFn = _.debounce(({path}) => {
-	console.warn("saveFn", path);
-	const plandoc = DataStore.getValue(path);
-	// parse
-	let p = ServerIO.load('/money.json', {data: {action:'parse', text: plandoc.text}});
-	return p.then(res => {
-		DataStore.setValue(['transient', 'parsed', path[path.length-1]], JSend.data(res));
-	}, res => {
-		// error handling
-		if (JSend.status(res) === 'fail') return JSend.data(res);
-		throw res;
-	});
-}, 2000);
+// const saveFn = _.debounce(({path}) => {
+// 	console.warn("saveFn", path);
+// 	const plandoc = DataStore.getValue(path);
+// 	// parse
+// 	let p = ServerIO.load('/money.json', {data: {action:'parse', text: plandoc.text}});
+// 	return p.then(res => {
+// 		DataStore.setValue(['transient', 'parsed', path[path.length-1]], JSend.data(res));
+// 	}, res => {
+// 		// error handling
+// 		if (JSend.status(res) === 'fail') return JSend.data(res);
+// 		throw res;
+// 	});
+// }, 2000);
 
 /**
  * Ace markers -- What format?? Any docs??
@@ -109,10 +109,11 @@ const markerFromParseFail = pf => {
 };
 
 const EditScript = ({id, plandoc, path}) => {
-	let parsed = DataStore.getValue(['transient', 'parsed', plandoc.id]);
+	// syntax errors?
+	let parsed = plandoc; // NB: parse info is added server-side by augment
+	let pes = (parsed && parsed.errors) || [];
 	// standardise on tabs, with 4 spaces = 1 tab
 	let modelValueFromInput = (iv, type, eventType) => standardModelValueFromInput(iv? iv.replace(/ {4}/g, '\t') : iv, type, eventType);
-	 let pes = (parsed && parsed.errors) || [];
 	return (<div>
 		<AceCodeEditor path={path} prop='text' markers={pes.map(markerFromParseFail)} height="calc(100vh - 15em)" />
 		<div>{parsed && parsed.errors? JSON.stringify(parsed.errors) : null}</div>

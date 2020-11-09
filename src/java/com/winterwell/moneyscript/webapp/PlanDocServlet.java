@@ -8,9 +8,12 @@ import com.winterwell.moneyscript.data.PlanDoc;
 import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.nlp.simpleparser.ParseExceptions;
+import com.winterwell.utils.Utils;
+import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.log.Log;
+import com.winterwell.utils.web.IHasJson;
 import com.winterwell.web.WebEx.E403;
 import com.winterwell.web.ajax.JThing;
 import com.winterwell.web.app.CrudServlet;
@@ -33,13 +36,21 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 			String text = plandoc.getText();
 			Business biz = lang.parse(text);			
 			Map pi = biz.getParseInfoJson();
-//			plandoc.parseInfo = pi; This upsets gson :(
-			plandoc.errors = null;
+			if ( ! Utils.isEmpty(plandoc.errors)) {
+				plandoc.errors = null;
+				jThing.setJava(plandoc);
+			}
 		} catch(ParseExceptions exs) {
-			plandoc.errors = Containers.apply(exs.getErrors(), e -> e.toString());
+			plandoc.errors = Containers.apply(exs.getErrors(), IHasJson::toJson2);
+			jThing.setJava(plandoc);
 		} catch(Throwable ex) {
 			Log.e("parse", ex);
-			plandoc.errors = Arrays.asList(com.winterwell.utils.Printer.toString(ex, true));
+			// NB same json format as ParseFail
+			plandoc.errors = Arrays.asList(new ArrayMap(
+				"@type", ex.getClass().getSimpleName(),
+				"message", com.winterwell.utils.Printer.toString(ex, true)
+			));
+			jThing.setJava(plandoc);
 		}
 	}
 	

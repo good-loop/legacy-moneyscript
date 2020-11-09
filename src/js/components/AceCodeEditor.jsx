@@ -33,7 +33,7 @@ const AceCodeEditor = ({path, prop, markers, ...props}) => {
 	theme="tomorrow"
 	name="planit1"
 	onLoad={editor => console.log("Ace onLoad")}
-	onChange={newText => DSsetValue(path.concat(prop), newText, false)}
+	onChange={newText => DSsetValue(path.concat(prop), newText, true)}
 	fontSize={16}
 	showPrintMargin={false}
 	showGutter
