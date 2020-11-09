@@ -1,4 +1,4 @@
-<line> ::= <indent> <CellSet> ":" ["\s+"] <ruleBody> [<comment>] ["\s+"]|<indent> [<scenario>] <row-name> ":" ["\s+"] ["na"] [<comment>]|<comment>|"start"|"end" ":" ["\s+"] <time>|"samples:" ["\s+"] <n> [<comment>]|"import" [" fresh"] ":" ["\s+"] "[a-z]{3,6}://([a-zA-Z0-9_\-\.]+)\/?([a-zA-Z0-9_%\-\.,\?&\/=\+'~#!\*:]+[a-zA-Z0-9_%\-&\/=\+])?" ["\s+"] ["{" {""?[a-zA-Z0-9]+"?:\s*[^},]+", ["\s+"] "," ["\s+"]}+ "}"]
+<line> ::= <indent> <CellSet> ":" ["\s+"] <ruleBody> [<comment>] ["\s+"]|<indent> [<scenario>] <row-name> ":" ["\s+"] ["na"] [<comment>]|<comment>|"start"|"end" ":" ["\s+"] <time>|"samples:" ["\s+"] <n>|"columns" ":" ["\s+"] [<columnMultiSettings>] [<comment>] ["\s+"] [<comment>]|"import" [" fresh"] ":" ["\s+"] "[a-z]{3,6}://([a-zA-Z0-9_\-\.]+)\/?([a-zA-Z0-9_%\-\.,\?&\/=\+'~#!\*:]+[a-zA-Z0-9_%\-&\/=\+])?" ["\s+"] ["{" {""?[a-zA-Z0-9]+"?:\s*[^},]+", ["\s+"] "," ["\s+"]}+ "}"]
 
 <indent> ::= ["\s+"]
 
@@ -10,13 +10,15 @@
 
 <n> ::= "-?\d+(\.\d+)?"
 
-<CellSet> ::= {<__wyjyud175aeb8c4d1>|<CellSet1Row>, "," ["\s+"]}+
+<columnMultiSettings> ::= {<dt> ["\s+" "from" "\s+" <time>]|"\{([^\}]*)\}", ",\s+"}+
+
+<CellSet> ::= {<__xttiso175aedd6cba>|<CellSet1Row>, "," ["\s+"]}+
 
 <numList> ::= {<num>, ",\s*"}+
 
 <opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
 
-<num> ::= {<__uqsebp175aeb8c4d1>|<fPer>, <opAny>}+
+<num> ::= {<__ojxwmq175aedd6cb9>|<fPer>, <opAny>}+
 
 <meta> ::= "hide"|"show"|"plot distribution"|"plot"|"off"
 
@@ -24,17 +26,17 @@
 
 <row-name> ::= row-name-Parser
 
-<time> ::= <__r214>|"start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"
+<time> ::= <__r220>|"start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"
 
-<__wyjyud175aeb8c4d1> ::= "(" <CellSet1Row>|<__wyjyud175aeb8c4d1> ")"
+<__xttiso175aedd6cba> ::= "(" <CellSet1Row>|<__xttiso175aedd6cba> ")"
 
 <CellSet1Row> ::= <row-name>|"all" ["\s+"] [<filter>]
 
-<__uqsebp175aeb8c4d1> ::= "(" <fPer>|<__uqsebp175aeb8c4d1> ")"
+<__ojxwmq175aedd6cb9> ::= "(" <fPer>|<__ojxwmq175aedd6cb9> ")"
 
 <fPer> ::= <fPlus> ["\s+" "per" "\s+" <dt>]
 
-<__r214> ::= "(" "start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"|<__r214> ")"
+<__r220> ::= "(" "start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"|<__r220> ")"
 
 <of> ::= "of"
 
@@ -42,19 +44,19 @@
 
 <n> ::= "-?\d+(\.\d+)?"
 
-<fPlus> ::= <fTimes> ["\s+"] "+"|"-" ["\s+"] <fPlus>|<fTimes>
-
 <dt> ::= <num> "\s+" <tunit>|<tunit>
+
+<fPlus> ::= <fTimes> ["\s+"] "+"|"-" ["\s+"] <fPlus>|<fTimes>
 
 <filter> ::= {<filter0>, "\s+"}+
 
 <fTimes> ::= <fTight> ["\s+"] "*"|"/"|"@" ["\s+"] <fTimes>|<fTight>
 
-<filter0> ::= <__grwqvv175aeb8c4d2>|<cond_dirn_period_periodic_text_except>
+<filter0> ::= <__yaodcx175aedd6cbb>|<cond_dirn_period_periodic_text_except>
 
 <fTight> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year" ["\s+"] "+-"|"±"|"^" ["\s+"] <fTight>|"N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
 
-<__grwqvv175aeb8c4d2> ::= "(" <cond_dirn_period_periodic_text_except>|<__grwqvv175aeb8c4d2> ")"
+<__yaodcx175aedd6cbb> ::= "(" <cond_dirn_period_periodic_text_except>|<__yaodcx175aedd6cbb> ")"
 
 <cond_dirn_period_periodic_text_except> ::= <conditionalFilter>|<dirnFilter>|<periodFilter>|"each" "\s+" <dt> ["\s+" "from" "\s+" <time>]|<textMatchFilter>|<exceptFilter>
 
@@ -76,12 +78,12 @@
 
 <textMatchFilter> ::= "matching" "\s+" "\/[^//]+\/"
 
-<exceptFilter> ::= "except" <__r215>|{<row-name>, "," ["\s+"]}+
+<exceptFilter> ::= "except" <__r221>|{<row-name>, "," ["\s+"]}+
 
 <CellSetFilter> ::= <filter>
 
 <op> ::= "from"|"to"|"if"|"at"
 
-<__r215> ::= "(" {<row-name>, "," ["\s+"]}+|<__r215> ")"
+<__r221> ::= "(" {<row-name>, "," ["\s+"]}+|<__r221> ")"
 
 <bool> ::= {<num> ["\s+"] ">"|"<"|"=="|"<="|">=" ["\s+"] <num>, "\s+" "and"|"or" "\s+"}+

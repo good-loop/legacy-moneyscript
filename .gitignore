@@ -13,3 +13,4 @@ bob.log
 dependencies
 logs
 boblog
+com.winterwell.web.app.build.PublishProjectTask.log

@@ -224,7 +224,7 @@ public class LangMisc {
 	 * start / end
 	 */
 	Parser<Settings> planSettings = seq(
-			first(startEndSetting, samplesSetting),			
+			first(startEndSetting, samplesSetting, columnSettings),			
 			opt(comment)
 			);
 	

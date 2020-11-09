@@ -276,7 +276,7 @@ public class BusinessTest {
 	public void testMonteCarloBug() {
 		{	// bug with zero handling
 			Lang lang = new Lang();
-			Business b = lang.parse("columns: 1 month\nAlice: p(0.25)");
+			Business b = lang.parse("columns: 2 months\n\nAlice: p(0.25)");
 			int n = 100;
 			b.setSamples(n);
 			b.run();

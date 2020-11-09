@@ -43,12 +43,12 @@ public class NumericalTest {
 		{
 			Numerical n = new Numerical("0.00018002301");
 			Printer.out(n);
-			assert n.toString().equals("0.00018") : n;
+			assert n.toString().startsWith("0.00018") : n;
 		}
 		{
-			Numerical n = new Numerical("0.00010802301");
+			Numerical n = new Numerical("0.00010772301");
 			Printer.out(n);
-			assert n.toString().equals("0.00011");
+			assert n.toString().equals("0.000108");
 		}
 	}
 	

@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.nlp.simpleparser.ParseResult;
+import com.winterwell.utils.Printer;
 import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
@@ -32,8 +33,29 @@ public class LangMiscTest {
 			System.out.println(settings.getRunTime());
 			assert new Dt(3, TUnit.YEAR).isShorterThan(settings.getRunTime()) : settings.getRunTime();
 		}
+		{
+			ParseResult<Settings> p = lm.planSettings.parseOut("start: Jan 2020");
+			Settings settings = p.getX();
+			System.out.println(settings.getStart());			
+			assert settings.getStart().equals(new Time(2020,1,1));
+		}
 	}
 
+	@Test
+	public void testColumns() {
+		Lang lang = new Lang();
+		LangMisc lm = lang.langMisc;
+		{
+			ParseResult<Settings> p = lm.columnSettings.parseOut("columns: 6 months");
+			Settings settings = p.getX();
+			Printer.out(settings.getRunTime());
+		}
+		{
+			ParseResult<Settings> p = lm.planSettings.parseOut("columns: 6 months");
+			Settings settings = p.getX();
+			Printer.out(settings.getRunTime());
+		}
+	}
 
 	@Test
 	public void testImportOver() {
