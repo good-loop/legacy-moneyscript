@@ -12,7 +12,7 @@ public class PlanDoc extends AThing {
 	
 	public transient Map parseInfo;
 	
-	@ESNoIndex
+	@ESNoIndex 
 	public List errors;
 	
 	public String getText() {

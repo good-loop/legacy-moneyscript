@@ -35,7 +35,7 @@ const SheetPage = () => {
 	// which plan?
 	const id = getPlanId();
 	if ( ! id) {
-		return <Alert color='warning'>No plan ID - go to <a href='#Plan'>Plans</a> to select or create one</Alert>;
+		return <Alert color='warning'>No plan ID - go to <a href='#plan'>Plans</a> to select or create one</Alert>;
 	}
 	// load
 	const type = C.TYPES.PlanDoc;

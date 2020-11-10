@@ -25,7 +25,14 @@ import PropControl, {DSsetValue} from '../base/components/PropControl';
 ace.config.set('basePath','/lib/ace')
 
 const AceCodeEditor = ({path, prop, markers, ...props}) => {
-	return <AceEditor
+	// DEBUG
+	if ( ! markers) markers = [];
+	// markers.push({startRow: 3, startCol: 5, endRow: 4, endCol: 6, className: 'replacement_marker', type: 'text' })	
+	// markers.push({startRow: 1, startCol: 1, endRow: 2, endCol: 6, className: 'bg-warning', type: 'fullLine' })	
+
+	// markers.push({startRow: 4, startCol: 1, endRow: 4, endCol: 6, className: 'bg-danger', type: 'fullLine' })	
+
+	return <div className='position-relative'><AceEditor
 		{...props}
 	width="100%"
 	placeholder=""
@@ -61,8 +68,10 @@ const AceCodeEditor = ({path, prop, markers, ...props}) => {
 	// 		readOnly: true
 	// 	})
 	// }}
-	markers={markers}
+	// markers={markers} Not working ?!
 	/>
+	{markers.map(m => <div key={JSON.stringify(m)} className='bg-warning' style={{position:"absolute",left:"75%",right:0,top:16*m.startRow}} title={m.text}>{m.text}</div>)}
+	</div>
 };	
 
 export default AceCodeEditor;

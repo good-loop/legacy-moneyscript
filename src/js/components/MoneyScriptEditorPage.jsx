@@ -27,10 +27,6 @@ import BG from '../base/components/BG';
 import AceCodeEditor from './AceCodeEditor';
 
 /**
- * We abuse the navbar as an always-visible view switcher -- but we do want to preserve the id
- * 
- * TODO don't use focus! It's fragile. Change the urls in nav. Or dont use nav
- * 
  * @returns {?String}
  */
 const getPlanId = () => {
@@ -39,17 +35,18 @@ const getPlanId = () => {
 	const type = 'PlanDoc';
 	let id = upath[1];
 	if ( ! id) {
-		id = DataStore.getFocus(type);
-		if ( ! id) {
+		// id = DataStore.getFocus(type);
+		// if ( ! id) {
 			window.title = 'MoneyScript Planning Tool';
 			return null;
-		}
-		let page = upath[0];
-		modifyHash([page,id]);
-	} else {
-		// set this id as focal, so it survives page switching (which strips down the url)
-		DataStore.setFocus(C.TYPES.PlanDoc, id);
-	}
+		// }
+		// let page = upath[0];
+		// modifyHash([page,id]);
+	} 
+	// else {
+	// 	// set this id as focal, so it survives page switching (which strips down the url)
+	// 	DataStore.setFocus(C.TYPES.PlanDoc, id);
+	// }
 	const item = DataStore.getData({type, id, status:C.KStatus.DRAFT});
 	let name = (item && item.name) || id;
 	window.title = 'M$ plan: '+name;
@@ -105,18 +102,20 @@ const MoneyScriptEditorPage = () => {
  * @param {ParseFail} pf 
  */
 const markerFromParseFail = pf => {
-	return {startRow:pf.line, endRow:pf.line, className:'error-marker', type: 'background' };
+	// markers.push({startRow: 4, startCol: 1, endRow: 4, endCol: 6, className: 'bg-danger', type: 'fullLine' })	
+	let line = pf.line
+	return {startRow:line, startCol:1, endRow:line, endCol:2, className:'bg-warning', type: 'fullLine', text:pf.message };
 };
 
 const EditScript = ({id, plandoc, path}) => {
 	// syntax errors?
 	let parsed = plandoc; // NB: parse info is added server-side by augment
-	let pes = (parsed && parsed.errors) || [];
+	let pes = []; // TODO immortal error bug - as we don't reset value on return -- FIX use diffs (parsed && parsed.errors) || [];
 	// standardise on tabs, with 4 spaces = 1 tab
 	let modelValueFromInput = (iv, type, eventType) => standardModelValueFromInput(iv? iv.replace(/ {4}/g, '\t') : iv, type, eventType);
 	return (<div>
 		<AceCodeEditor path={path} prop='text' markers={pes.map(markerFromParseFail)} height="calc(100vh - 15em)" />
-		<div>{parsed && parsed.errors? JSON.stringify(parsed.errors) : null}</div>
+		<div>{pes.length? JSON.stringify(pes) : null}</div>
 		<div>&nbsp;</div>
 		<SavePublishDeleteEtc type="PlanDoc" id={id} saveAs />
 	</div>);    

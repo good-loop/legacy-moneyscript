@@ -1,6 +1,7 @@
 package com.winterwell.moneyscript.webapp;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -26,6 +27,11 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		augmentFlag = true;
 	}
 
+	@Override
+	protected void doBeforeSaveOrPublish(JThing<PlanDoc> _jthing, WebRequest stateIgnored) {
+		super.doBeforeSaveOrPublish(_jthing, stateIgnored);
+		_jthing.java().errors = new ArrayList();
+	}
 	
 	@Override
 	protected void augment(JThing<PlanDoc> jThing, WebRequest state) {
