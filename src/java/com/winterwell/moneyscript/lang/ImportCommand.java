@@ -214,23 +214,32 @@ public class ImportCommand extends DummyRule implements IHasJson {
 	}
 
 	private String run2_ourRowName(String rowName, Dictionary rowNames) {
+		// exact match
 		if (rowNames.contains(rowName)) {
 			return rowNames.getMeaning(rowName);
 		}
+		// match ignoring case+
 		String rn = StrUtils.toCanonical(rowName);
 		if (rowNames.contains(rn)) {
 			return rowNames.getMeaning(rn);
 		}
+		// match on ascii
 		rn = rn.replaceAll("[^a-zA-Z0-9]", "");
-		if (rowNames.contains(rn)) {
+		if ( ! rn.isEmpty() && rowNames.contains(rn)) {
 			return rowNames.getMeaning(rn);
 		}
 		// try removing "total" since MS group rows are totals
 		if (rn.contains("total")) {
+			todo canon
 			String rn2 = rn.replace("total", "");
-			if (!rn2.isBlank() && rowNames.contains(rn2)) {
+			if ( ! rn2.isBlank() && rowNames.contains(rn2)) {
 				return rowNames.getMeaning(rn2);
 			}
+		}
+		// Allow a first-word match if it is unambiguous
+		firstWord = StrUtils.splitFirst(rn, c)
+		for(String existingName : rowNames) {
+			
 		}
 
 		return StrUtils.toTitleCase(rowName);
