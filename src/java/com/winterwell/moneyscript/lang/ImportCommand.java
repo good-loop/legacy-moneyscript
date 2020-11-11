@@ -238,7 +238,7 @@ public class ImportCommand extends DummyRule implements IHasJson {
 				}
 			}
 		}
-		// Allow a first-word match if it is unambiguous e.g. Alice = Alice Smith
+		// Allow a first-word or starts-with match if it is unambiguous e.g. Alice = Alice Smith
 		ArraySet<String> matches = new ArraySet();
 		String firstWord = rowNameCanon.split(" ")[0];
 		for(String existingName : rowNames) {
@@ -249,6 +249,24 @@ public class ImportCommand extends DummyRule implements IHasJson {
 		}
 		if (matches.size() == 1) {
 			return matches.first();
+		}
+		if (matches.size() > 1) {
+			Log.d("import", "(skip match) Ambiguous 1st word matches for "+rowName+" to "+matches);
+		}
+		// starts-with?
+		matches.clear();
+		for(String existingName : rowNames) {
+			if (rowName.startsWith(existingName)) {
+				matches.add(rowNames.getMeaning(existingName));
+			} else if (existingName.startsWith(rowName)) {
+				matches.add(rowNames.getMeaning(existingName));
+			}
+		}
+		if (matches.size() == 1) {
+			return matches.first();
+		}
+		if (matches.size() > 1) {
+			Log.d("import", "(skip match) Ambiguous startsWith matches for "+rowName+" to "+matches);
 		}
 		// Nothing left but "Nope"
 		return null;
