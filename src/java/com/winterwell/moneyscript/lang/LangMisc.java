@@ -27,6 +27,7 @@ import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.nlp.simpleparser.Parsers;
+import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.time.Time;
 import com.winterwell.utils.time.TimeUtils;
@@ -161,9 +162,8 @@ public class LangMisc {
 		protected Map process(ParseResult<?> r) throws ParseFail {
 			String kv = r.parsed();
 			int i = kv.indexOf(':');
-			// TODO handle "s
-			String k = kv.substring(0, i).trim();
-			String v = kv.substring(i+1).trim();
+			String k = StrUtils.unquote(kv.substring(0, i).trim());
+			String v = StrUtils.unquote(kv.substring(i+1).trim());
 			return new ArrayMap(k,v);
 		}		
 	};
@@ -213,6 +213,9 @@ public class LangMisc {
 				}
 				if (jobj.containsKey("url")) {
 					s.url = (String) jobj.get("url");
+				}
+				if (jobj.containsKey("rows")) {
+					s.rows= (String) jobj.get("rows");
 				}
 			}
 			return s;

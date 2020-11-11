@@ -119,9 +119,14 @@ public class ImportCommand extends DummyRule implements IHasJson {
 				if (isEmptyRow(row)) {
 					continue;
 				}
+				if ("overlap".equals(rows)) {
+					Log.d("import", "Skip non-overlap row "+rowName);
+					continue; // don't import this row
+				}
 				brow = new Row(ourRowName);
 				b.addRow(brow);
 			}
+			// add in the data
 			for (int i = 1; i < row.length; i++) {
 				String ri = row[i];
 				double n = MathUtils.getNumber(ri);
