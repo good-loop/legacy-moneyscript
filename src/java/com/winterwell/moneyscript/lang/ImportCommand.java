@@ -3,6 +3,7 @@ package com.winterwell.moneyscript.lang;
 import java.io.File;
 import java.io.StringReader;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,9 @@ import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
+import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.containers.Cache;
+import com.winterwell.utils.containers.Pair;
 import com.winterwell.utils.io.CSVReader;
 import com.winterwell.utils.io.CSVSpec;
 import com.winterwell.utils.io.FileUtils;
@@ -108,12 +111,8 @@ public class ImportCommand extends DummyRule implements IHasJson {
 				continue;
 			// match row name
 			String ourRowName = run2_ourRowName(rowName, rowNames);
-			
-			// debug a row??
-//			if (rowName.toLowerCase().contains("balance")) {
-//				System.out.println(row);
-//			}
-			
+			if (ourRowName==null) ourRowName = StrUtils.toTitleCase(rowName);
+			// get/make the row
 			Row brow = b.getRow(ourRowName);
 			if (brow == null) {
 				if (isEmptyRow(row)) {
@@ -219,30 +218,40 @@ public class ImportCommand extends DummyRule implements IHasJson {
 			return rowNames.getMeaning(rowName);
 		}
 		// match ignoring case+
-		String rn = StrUtils.toCanonical(rowName);
-		if (rowNames.contains(rn)) {
-			return rowNames.getMeaning(rn);
+		String rowNameCanon = StrUtils.toCanonical(rowName);
+		if (rowNames.contains(rowNameCanon)) {
+			return rowNames.getMeaning(rowNameCanon);
 		}
 		// match on ascii
-		rn = rn.replaceAll("[^a-zA-Z0-9]", "");
-		if ( ! rn.isEmpty() && rowNames.contains(rn)) {
-			return rowNames.getMeaning(rn);
+		String rowNameAscii = rowNameCanon.replaceAll("[^a-zA-Z0-9]", "");
+		if ( ! rowNameAscii.isEmpty() && rowNames.contains(rowNameAscii)) {
+			return rowNames.getMeaning(rowNameAscii);
 		}
 		// try removing "total" since MS group rows are totals
-		if (rn.contains("total")) {
-			todo canon
-			String rn2 = rn.replace("total", "");
-			if ( ! rn2.isBlank() && rowNames.contains(rn2)) {
-				return rowNames.getMeaning(rn2);
+		if (rowNameCanon.contains("total")) {			
+			String rn2 = rowNameCanon.replace("total", "");
+			assert rn2.length() < rowNameCanon.length();
+			if ( ! rn2.isBlank()) {
+				String found = run2_ourRowName(rn2, rowNames);
+				if (found!=null) {
+					return found;
+				}
 			}
 		}
-		// Allow a first-word match if it is unambiguous
-		firstWord = StrUtils.splitFirst(rn, c)
+		// Allow a first-word match if it is unambiguous e.g. Alice = Alice Smith
+		ArraySet<String> matches = new ArraySet();
+		String firstWord = rowNameCanon.split(" ")[0];
 		for(String existingName : rowNames) {
-			
+			String existingNameFW = existingName.split(" ")[0];
+			if (firstWord.equals(existingNameFW)) {
+				matches.add(rowNames.getMeaning(existingName));
+			}
 		}
-
-		return StrUtils.toTitleCase(rowName);
+		if (matches.size() == 1) {
+			return matches.first();
+		}
+		// Nothing left but "Nope"
+		return null;
 	}
 
 	@Override

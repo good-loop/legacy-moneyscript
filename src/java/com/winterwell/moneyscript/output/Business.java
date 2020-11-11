@@ -211,7 +211,7 @@ public class Business {
 
 	/**
 	 * 
-	 * @return case & canonicalisation insensitive name -to-> row-name
+	 * @return case & canonicalisation insensitive (all variants included!) name -to-> row-name
 	 */
 	public Dictionary getRowNames() {
 		Dictionary rowNames = new Dictionary();
