@@ -162,11 +162,23 @@ public class LangMisc {
 		protected Map process(ParseResult<?> r) throws ParseFail {
 			String kv = r.parsed();
 			int i = kv.indexOf(':');
-			String k = StrUtils.unquote(kv.substring(0, i).trim());
-			String v = StrUtils.unquote(kv.substring(i+1).trim());
+			String k = unquote(kv.substring(0, i).trim());
+			String v = unquote(kv.substring(i+1).trim());
 			return new ArrayMap(k,v);
 		}		
 	};
+	
+	@Deprecated // temp copy-pasta from StrUtils to keep the server compiler happy until open-code updates 
+	public static String unquote(String s) {
+		if (s==null) return null;
+		if (s.startsWith("\"") && s.endsWith("\"")) {
+			s = s.substring(1, s.length()-1);
+		}
+		if (s.startsWith("'") && s.endsWith("'")) {
+			s = s.substring(1, s.length()-1);
+		}
+		return s;
+	}
 	
 	Parser<Map> jsonLike = new PP<Map>(
 			seq(lit("{"), chain(jsonLikeKeyVal, seq(optSpace,lit(","),optSpace)), lit("}"))
