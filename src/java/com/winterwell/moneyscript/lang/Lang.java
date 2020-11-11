@@ -183,20 +183,23 @@ public class Lang {
 		ParseResult pr = line.parse(scriptLine);
 		if (pr==null) return null;
 		Object r = pr.ast.getX();
-		
-		if (r instanceof Rule) return (Rule) r;
-		
+		// import?
+		if (r instanceof ImportCommand) {
+			b.addImportCommand((ImportCommand) r);
+			return (Rule) r;
+		}
+		// A rule (the normal case)
+		if (r instanceof Rule) {
+			return (Rule) r;
+		}
+		// settings?
 		if (r instanceof Settings) {
 			Settings settings = (Settings) r;
 			Settings oldSettings = b.getSettings();
 			Settings merged = oldSettings.merge(settings);
 			b.setSettings(merged);
 			return new DummyRule(null, scriptLine);
-		}
-		if (r instanceof ImportCommand) {
-			b.addImportCommand((ImportCommand) r);
-			return new DummyRule(null, scriptLine);
-		}
+		}		
 		// a comment?
 		AST cn = pr.getNode(LangMisc.comment);
 		assert cn.parsed().equals(scriptLine) : pr;
@@ -316,6 +319,18 @@ public class Lang {
 			
 			rule.lineNum = ln;
 			rules.add(rule);
+
+			// HACK: Process import of m$
+			if (rule instanceof ImportCommand && rule.src.endsWith("ms") || rule.src.endsWith("ms")) {
+				ImportCommand ic = (ImportCommand) rule;
+				Business b2 = ic.runImportMS(this);
+				Set<Rule> importedRules = b2.getAllRules();
+				Settings settings2 = b2.getSettings();
+				rules.addAll(importedRules);
+				// merge (our settings take precedence)
+				Settings s3 = settings2.merge(b.getSettings());
+				b.setSettings(s3);
+			}			
 		}
 		return rules;
 	}

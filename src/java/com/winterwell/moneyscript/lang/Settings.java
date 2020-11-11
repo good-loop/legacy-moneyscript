@@ -28,7 +28,7 @@ public class Settings {
 	}
 	/**
 	 * 
-	 * @param s2 This will over-write
+	 * @param s2 NB: will over-write anything in this
 	 * @return copy with merge
 	 */
 	public Settings merge(Settings s2) {

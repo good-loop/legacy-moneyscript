@@ -14,6 +14,7 @@ import com.winterwell.moneyscript.output.Row;
 import com.winterwell.nlp.dict.Dictionary;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.StrUtils;
+import com.winterwell.utils.TodoException;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Cache;
@@ -29,13 +30,17 @@ import com.winterwell.utils.web.IHasJson;
 import com.winterwell.utils.web.WebUtils;
 import com.winterwell.web.FakeBrowser;
 
-public class ImportCommand implements IHasJson {
+/**
+ * @author daniel
+ *
+ */
+public class ImportCommand extends DummyRule implements IHasJson {
 
-	public ImportCommand() {
-		
-	}
+	public ImportCommand(String src) {
+		super(null, src);
+	}	
 	
-	public String src;
+	protected String rows = "overlap";
 	
 	/**
 	 * TODO
@@ -54,7 +59,13 @@ public class ImportCommand implements IHasJson {
 	static Cache<String, String> csvCache = new Cache<>(20);
 	
 	public void run(Business b) {
+		// Is it another m$ file??
+		if (src.endsWith(".m$") || src.endsWith(".ms")) {			
+			return; // Should be done already during parse!
+		}
+		// fetch
 		fetch();
+		// CSV
 		CSVSpec spec = new CSVSpec();
 		CSVReader r = new CSVReader(new StringReader(csv), spec);
 		// the first row MUST be headers
@@ -128,6 +139,7 @@ public class ImportCommand implements IHasJson {
 			}
 		}
 	}
+
 
 	transient Time fetched;
 
@@ -214,6 +226,12 @@ public class ImportCommand implements IHasJson {
 			"name", name,
 			"url", url
 		);
+	}
+
+	public Business runImportMS(Lang lang) {
+		fetch();
+		Business b2 = lang.parse(csv);
+		return b2;
 	}
 
 }

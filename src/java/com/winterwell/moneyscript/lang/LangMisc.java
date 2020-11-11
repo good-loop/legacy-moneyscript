@@ -194,12 +194,11 @@ public class LangMisc {
 	PP<ImportCommand> importCommand = new PP<ImportCommand>(
 			seq(lit("import"), opt(cache), lit(":"), optSpace, LangMisc.urlOrFile, optSpace, opt(jsonLike))
 			) {
-		protected ImportCommand process(ParseResult<?> r) {
-			ImportCommand s = new ImportCommand();
+		protected ImportCommand process(ParseResult<?> r) {			
 //			String keyword = (String) r.getLeafValues().get(1);
 			AST<MatchResult> psrc = r.getNode(LangMisc.urlOrFile);
-			s.overwrite = true;
-			s.src = psrc.parsed();
+			ImportCommand s = new ImportCommand(psrc.parsed());
+			s.overwrite = true;			
 			// cache settings?
 			AST<String> isFresh = r.getNode(cache);
 			if (isFresh != null) {

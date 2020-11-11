@@ -11,9 +11,8 @@ public class ImportCommandTest {
 
 	@Test
 	public void testBusinessRun() {
-		ImportCommand ic = new ImportCommand();
+		ImportCommand ic = new ImportCommand(new File("test/test-input.csv").toURI().toString());
 		ic.overwrite = true;
-		ic.src = new File("test/test-input.csv").toURI().toString();
 		Business bs = new Business();
 		bs.getSettings()._start = new Time(new Time().getYear(), 1, 1);
 		bs.getSettings()._end = new Time(new Time().getYear(), 12, 31);
