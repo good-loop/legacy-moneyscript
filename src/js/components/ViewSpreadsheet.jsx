@@ -18,7 +18,7 @@ import SimpleTable, {Column} from '../base/components/SimpleTable';
 import {setTaskTags} from '../base/components/TaskList';
 import ServerIO from '../plumbing/ServerIO';
 import md5 from 'md5';
-import { Alert } from 'reactstrap';
+import { Alert, Badge } from 'reactstrap';
 import LinkOut from '../base/components/LinkOut';
 
 /**
@@ -108,10 +108,18 @@ const ViewSpreadSheet = ({plandoc}) => {
 				style: fStyle
 			});
 		});	
+		// The row name TH column
 		let rowCol = new Column({
 			accessor:'row', Header:'Row',
-			// Cell: (v, column, item) => ((item[column.index] && item[column.index].str) || v || '').replace('-', '‑'), // str value for display, then replace - with a non-breaking hyphen
-			// tooltip: ({cellValue, item, column}) => item && item[i] && item[i].comment,			
+			Cell: (v, column, item) => {				
+				let row = runOutput.rows.find(r => r.name === v);
+				let comment = row && row.comment;
+				return <>{v}{comment && <InfoPop text={comment}/>}</>;
+			},
+			tooltip: ({cellValue, item, column}) => {
+				let row = runOutput.rows.find(r => r.name === cellValue);
+				return row && row.comment;
+			},
 			style: fStyle
 		});
 		runOutput.allcolumns = [rowCol].concat(columns);		
@@ -146,6 +154,11 @@ const ViewSpreadSheet = ({plandoc}) => {
 			hasCollapse 
 			hideEmpty={false}
 			csv /></>;
+};
+
+const InfoPop = ({text}) => {
+	if ( ! text) return null;
+	return <Badge className='ml-1 mr-1' color='info' pill title={text}>i</Badge>;
 };
 
 const ImportsList = ({runOutput}) => {

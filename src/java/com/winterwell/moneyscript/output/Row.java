@@ -205,7 +205,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		// sum over the kids
 		List<Row> kids = getChildren();
 		
-		// sample from distributions?
+		// sample from distributions? (could we preserve in some cases instead?? But thats messy)
 		Business biz = Business.get();
 		Numerical dummy = biz.getCellValue(new Cell(kids.get(0), col));
 		if (dummy instanceof UncertainNumerical) {
@@ -215,10 +215,16 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		Numerical sum = new Numerical(0);
 		for (Row kid : kids) {
 			Numerical v = biz.getCellValue(new Cell(kid, col));			
-			if (v==null) continue;
-			assert ! (v instanceof UncertainNumerical) : this;
-			sum = sum.plus(v);			
-		}
+			assert ! (v instanceof UncertainNumerical) : this; // Sampled above
+			if (Numerical.isZero(v)) {
+				continue;
+			}
+			String newComment = StrUtils.joinWithSkip(" + ", sum.comment, 
+					kid.getName()+"("+v+")");
+			sum = sum.plus(v);
+			// what went into the sum?
+			sum.comment = newComment;
+		}		
 		return sum;
 	}
 

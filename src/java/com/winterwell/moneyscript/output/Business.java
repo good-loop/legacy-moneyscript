@@ -129,8 +129,10 @@ public class Business {
 			}			
 			List<Map> rowvs = row.getValuesJSON();
 			datamap.put(row.name, rowvs);
+			String comment = StrUtils.joinWithSkip(". ", Containers.apply(row.getRules(), Rule::getComment));
 			jrows.add(new ArrayMap(
 				"name", row.name,
+				"comment", comment,
 				"css", getCSSForRow(row)
 			));			
 		}

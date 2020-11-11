@@ -48,6 +48,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 			}
 		} catch(ParseExceptions exs) {
 			plandoc.errors = Containers.apply(exs.getErrors(), IHasJson::toJson2);
+			Log.d("parse.error", exs);
 			jThing.setJava(plandoc);
 		} catch(Throwable ex) {
 			Log.e("parse", ex);

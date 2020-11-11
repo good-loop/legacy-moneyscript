@@ -19,6 +19,11 @@ import com.winterwell.utils.log.Log;
  */
 public class Numerical extends Number implements IScalarArithmetic {
 
+	/**
+	 * 
+	 * @param x Can be null
+	 * @return
+	 */
 	public static boolean isZero(Numerical x) {
 		if (x==null) return true;
 		if (x instanceof UncertainNumerical) {

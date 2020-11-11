@@ -6,6 +6,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import com.winterwell.moneyscript.data.PlanDoc;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
@@ -29,6 +30,8 @@ import com.winterwell.utils.time.TimeUtils;
 import com.winterwell.utils.web.IHasJson;
 import com.winterwell.utils.web.WebUtils;
 import com.winterwell.web.FakeBrowser;
+import com.winterwell.web.ajax.JSend;
+import com.winterwell.web.ajax.JThing;
 
 /**
  * @author daniel
@@ -173,6 +176,15 @@ public class ImportCommand extends DummyRule implements IHasJson {
 			fb.setFollowRedirects(true);
 			csv = fb.getPage(src);
 		}
+		// HACK Is it a JSend wrapper?
+		if (src.endsWith(".ms") || src.endsWith(".m$") || src.endsWith(".json")) {
+			JSend jsend = JSend.parse(csv);
+			JThing<PlanDoc> data = jsend.getData().setType(PlanDoc.class);
+			PlanDoc pd = data.java();
+			csv = pd.getText();
+			name = Utils.or(pd.getName(), pd.getId());
+		}		
+		// cache
 		if (cacheDt!=null && cacheDt.getValue() > 0) {
 			csvCache.put(src, csv);
 		}
@@ -229,7 +241,7 @@ public class ImportCommand extends DummyRule implements IHasJson {
 	}
 
 	public Business runImportMS(Lang lang) {
-		fetch();
+		fetch();		
 		Business b2 = lang.parse(csv);
 		return b2;
 	}
