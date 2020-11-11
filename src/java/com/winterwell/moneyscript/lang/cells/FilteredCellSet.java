@@ -4,6 +4,11 @@ import java.util.Collection;
 
 import com.winterwell.moneyscript.output.Cell;
 
+/**
+ * @testedby {@link FilteredCellSetTest}
+ * @author daniel
+ *
+ */
 public class FilteredCellSet extends CellSet {
 
 	@Override
@@ -35,7 +40,9 @@ public class FilteredCellSet extends CellSet {
 
 	@Override
 	public Collection<Cell> getCells(Cell bc, boolean wide) {
-		Collection<Cell> cells = base.getCells(bc, wide); // should we set wide=true here??		
+		// FIXME this should fix the deltas -- but what does it break?!!
+		// wide=true!
+		Collection<Cell> cells = base.getCells(bc, true); // should we set wide=true here??		
 		return filter.filter(cells, bc);
 	}
 

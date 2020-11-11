@@ -58,7 +58,7 @@ public class ImportCommand extends DummyRule implements IHasJson {
 		return "ImportCommand[src=" + src + "]";
 	}
 	
-	Dt cacheDt = new Dt(1, TUnit.MINUTE); 
+	Dt cacheDt = new Dt(10, TUnit.MINUTE); 
 	
 	transient String csv;
 	

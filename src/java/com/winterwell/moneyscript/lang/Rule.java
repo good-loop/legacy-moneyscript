@@ -40,7 +40,7 @@ public class Rule {
 	 */
 	int indent;	
 	/**
-	 * TODO
+	 * TODO (not tested!)
 	 * If not null, this rule only applies under this scenario
 	 */
 	String scenario;

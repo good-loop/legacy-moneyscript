@@ -203,7 +203,8 @@ public class Business {
 		List<Row> rows = getRows();
 		for(Col col : columns) {
 			for(Row row : rows) {
-				run3_evaluate(new Cell(row, col));							
+				Cell cell = new Cell(row, col);
+				run3_evaluate(cell);							
 			}
 		}		
 	}
@@ -332,6 +333,11 @@ public class Business {
 		return n;
 	}
 
+	/**
+	 * Add to the row(s) rules. 
+	 * NB: Row must already exist.
+	 * @param rule
+	 */
 	public void addRule(Rule rule) {
 		Collection<String> rows = rule.getSelector().getRowNames(null);
 		for (String rn : rows) {						
@@ -422,6 +428,8 @@ public class Business {
 	/**
 	 * Use during parsing when a sub-row has its parentage set.
 	 * This shuffles such sub-rows up to be part of their group.
+	 * 
+	 * Use-case: define current Staff, then add a new staff member later on in the plan
 	 */
 	public void reorderRows() {
 		ArrayList<Row> rows2 = new ArrayList<Row>();
@@ -500,12 +508,7 @@ public class Business {
 	public ArrayMap getParseInfoJson() {
 		List<Row> rows = getRows();
 		// make a tree of row names
-		Tree rowtree = new Tree();		
-		for (Row row : rows) {
-			if (row.getParent()!=null) continue;			
-			Tree node = new Tree(rowtree, row.getName());
-			makeRowTree2(node, row);
-		}		
+		Tree<String> rowtree = getRowTree();		
 		// row rules
 		ListMap<String,Map> rulesForRow = new ListMap();
 		for (Row row : rows) {
@@ -529,16 +532,27 @@ public class Business {
 				));
 	}
 
+	public Tree<String> getRowTree() {
+		List<Row> rows = getRows();
+		Tree<String> rowtree = new Tree();		
+		for (Row row : rows) {
+			if (row.getParent()!=null) continue;			
+			Tree<String> node = new Tree(rowtree, row.getName());
+			makeRowTree2(node, row);
+		}
+		return rowtree;
+	}
+
 	/**
 	 * recurse
 	 * @param node
 	 * @param row
 	 */
-	private void makeRowTree2(Tree node, Row row) {
+	private void makeRowTree2(Tree<String> node, Row row) {
 		List<Row> kids = row.getChildren();
 		if (Utils.isEmpty(kids)) return;
 		for (Row row2 : kids) {
-			Tree node2 = new Tree(node, row2.getName());
+			Tree<String> node2 = new Tree<>(node, row2.getName());
 			makeRowTree2(node2, row2);	
 		}		
 	}

@@ -229,13 +229,25 @@ public class Lang {
 			}
 			break;
 		}
-		
+		// track the group we're in to group rules
 		List<Group> groupStack = new ArrayList();
 
 		List<ParseFail> errors = new ArrayList<ParseFail>();		
 		List<Rule> rules = parse2_rulesFromLines(lines, ln, errors, b);
+		// make rows + group
+		parse3_addRulesAndGroupRows(b, groupStack, rules);
+
+		parse4_checkReferences(b, errors);
+		
+		if ( ! errors.isEmpty()) throw new ParseExceptions(errors);
+		
+		return b;
+	}
+
+
+	private void parse3_addRulesAndGroupRows(Business b, List<Group> groupStack, List<Rule> rules) {
 		for (Rule rule : rules) {			
-			if (rule instanceof DummyRule) {
+			if (rule instanceof DummyRule) {	// Includes ImportCommand
 				continue;
 			}
 
@@ -246,47 +258,55 @@ public class Lang {
 			Set<String> rowNames = selector.getRowNames(null);					
 			assert ! rowNames.isEmpty() : rule;	
 			// the rows named in this rule's selector
+			// Make sure they exist
 			List<Row> rows = new ArrayList<Row>();
+			boolean isNewRow = false;
 			for (String rn : rowNames) {
 				Row row = b.getRow(rn);
 				if (row==null) {
 					row = new Row(rn);
 					b.addRow(row);
+					isNewRow = true;
 				}
 				rows.add(row);
 			}	
 			
-			
-			// Grouping -- only if there's one rule
-			if (rows.size() == 1) {
-				Row row0 = rows.get(0);
-				Group group = new Group(row0, rule.indent);
-				Group parent = null;
-				while( ! groupStack.isEmpty()) {
-					Group last = groupStack.get(groupStack.size() - 1);
-					if (last.indent < group.indent) {
-						parent = last;
-						break;
-					}
-					groupStack.remove(groupStack.size() - 1);
-				}
-				// the current rule is the new group
-				groupStack.add(group);
-				// NB: the first parent wins -- later rules wont change it
-				if (parent!=null && row0.getParent() == null) {
-					row0.setParent(parent.byRow);
-				}
-				b.reorderRows();
-			}
-			
+			// add the rule
 			b.addRule(rule);
+			
+			// Grouping by groupStack
+			// NB: only if there's one row (i.e. not for no-row comments, or a multi-row rule -- Do we have those?)
+			if (rows.size() != 1) {
+				continue;
+			}
+			Row row0 = rows.get(0);
+			Group group = new Group(row0, rule.indent);
+			Group parent = null;
+			while( ! groupStack.isEmpty()) {
+				Group last = groupStack.get(groupStack.size() - 1);
+				if (last.indent < group.indent) {
+					parent = last;
+					break;
+				}
+				groupStack.remove(groupStack.size() - 1);
+			}
+			// the current rule is the new group
+			groupStack.add(group);
+			
+			// add this row0 to a group?
+			if (parent==null) continue;
+			// the first appearance wins -- later rules wont change the parent
+			if (isNewRow) {
+				row0.setParent(parent.byRow);
+				b.reorderRows();
+			} else {
+				// a later group - it can't claim the row fully
+				// Hm: for e.g. the `Pay Rise` use case, it'd be nice to see the effect of those rules broken out.
+				// But fiddly!	
+				// We could have Numerical's track their history, and what each Rule contributes
+				// (perhaps just for some Rules)
+			} // ./grouping			
 		}
-
-		parse2_checkReferences(b, errors);
-		
-		if ( ! errors.isEmpty()) throw new ParseExceptions(errors);
-		
-		return b;
 	}
 
 	/**
@@ -313,7 +333,7 @@ public class Lang {
 				Log.w("Lang.parse", ex);
 			}
 			if (rule == null) {	// error :(
-				ParseFail pf = parse2_fail(line, ln);
+				ParseFail pf = parse2_rulesFromLines2_fail(line, ln);
 				errors.add(pf);
 				continue;
 			}
@@ -337,7 +357,7 @@ public class Lang {
 	}
 
 
-	private ParseFail parse2_fail(String text, int lineNum) {
+	private ParseFail parse2_rulesFromLines2_fail(String text, int lineNum) {
 		ParseFail e = ParseFail.getParseFail();
 		if (e == null) {
 			e = new ParseFail(new Slice(text), null);
@@ -357,7 +377,7 @@ public class Lang {
 	 * @param b
 	 * @param unref
 	 */
-	private void parse2_checkReferences(Business b, List<ParseFail> unref) {
+	private void parse4_checkReferences(Business b, List<ParseFail> unref) {
 		// row names
 		HashSet<String> names = new HashSet<String>();
 		// To handle case typos - name for strongly-canonicalised name - e.g. {danw: "Dan W"}
@@ -365,7 +385,7 @@ public class Lang {
 		for(Row r : b.getRows()) {
 			String name = r.getName();
 			names.add(name);
-			String n2 = parse3_checkReferences2_stripNameDown(name);			
+			String n2 = parse4_checkReferences2_stripNameDown(name);			
 			similarNames.put(n2,name);
 		}
 		
@@ -380,7 +400,7 @@ public class Lang {
 				continue;
 			}
 			for (String var : vars) {
-				String v2 = parse3_checkReferences2_stripNameDown(var);
+				String v2 = parse4_checkReferences2_stripNameDown(var);
 				String couldBe = similarNames.get(v2);
 				boolean exists = names.contains(var);
 				// undefined?!
@@ -403,7 +423,7 @@ public class Lang {
 		}
 	}
 
-	private String parse3_checkReferences2_stripNameDown(String name) {
+	private String parse4_checkReferences2_stripNameDown(String name) {
 		return StrUtils.toCanonical(name).replaceAll("\\W", "");
 	}
 	

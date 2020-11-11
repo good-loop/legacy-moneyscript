@@ -22,6 +22,62 @@ import com.winterwell.utils.io.FileUtils;
 
 public class BusinessTest {
 
+	@Test
+	public void testDeltaPrevious() {
+		{
+			String s = "Alice: previous + £1\nAliceDelta: previous(Alice) - Alice";
+			Lang lang = new Lang();
+			Business b = lang.parse(s);
+			b.setSamples(1);
+			b.setColumns(4);
+			b.run();
+			double[] bvs = b.getRow("Alice").getValues();
+			Assert.assertArrayEquals(bvs, new double[]{1, 2, 3, 4}, 0.1);
+			
+			double[] delta = b.getRow("AliceDelta").getValues();
+			Printer.out(b.toCSV());
+			Assert.assertArrayEquals(delta, new double[]{-1, -1, -1, -1}, 0.1);
+		}
+	}
+	
+	@Test
+	public void test2MAgo() {
+		{
+			String s = "Alice: previous + £1\nAlice2M: Alice at 2 months ago";
+			Lang lang = new Lang();
+			Business b = lang.parse(s);
+			b.setSamples(1);
+			b.setColumns(4);
+			
+			b.run();
+			
+			double[] bvs = b.getRow("Alice").getValues();
+			Assert.assertArrayEquals(bvs, new double[]{1, 2, 3, 4}, 0.1);
+			
+			double[] delta = b.getRow("Alice2M").getValues();
+			Printer.out(b.toCSV());
+			Assert.assertArrayEquals(delta, new double[]{0,0,1, 2}, 0.1);
+		}
+	}
+
+	
+	@Test
+	public void testDelta2M() {
+		{
+			String s = "Alice: previous + £1\nAlice2MDelta: (Alice at 2 months ago) - Alice";
+			Lang lang = new Lang();
+			Business b = lang.parse(s);
+			b.setSamples(1);
+			b.setColumns(4);
+			b.run();
+			double[] bvs = b.getRow("Alice").getValues();
+			Assert.assertArrayEquals(bvs, new double[]{1, 2, 3, 4}, 0.1);
+			
+			double[] delta = b.getRow("Alice2MDelta").getValues();
+			Printer.out(b.toCSV());
+			Assert.assertArrayEquals(delta, new double[]{-1, -2, -2, -2}, 0.1);
+		}
+	}
 	
 	@Test
 	public void testPrevious() {
