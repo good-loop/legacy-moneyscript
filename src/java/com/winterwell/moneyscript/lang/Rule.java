@@ -91,7 +91,7 @@ public class Rule {
 	//		}
 			return v;
 		} catch(Throwable ex) {
-			throw new RuleException("Cell "+b+" Rule "+this, ex);
+			throw new RuleException(ex+" Cell "+b+" Rule "+this, ex);
 		}
 	}
 
