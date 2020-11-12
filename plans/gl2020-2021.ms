@@ -17,10 +17,11 @@ UK Staff:
 		Nick from Mar 2020: £68k per year	// NB: Amy's sheet counts Brand-Direct staff separately at 1/2 a sales person for new leads. But Nick's been crushing it, so he's counted here as 1.
 		Claire from Mar 2020: £68k per year		
 		Junior Sales Publicis from Jan 2021: £35k per year
-        Martina Tumwebaze: // ex
-        Claudia: // ex
-	Marketing Staff: // no-one yet, but Charley would like to move
-		TransferCharley: 0 
+		ExSalesStaff:
+            Martina Tumwebaze: 0 // ex
+            Claudia: 0 // ex
+	Marketing Staff: // no-one yet
+	    Transfer Charley: 0
 	Account Management Staff:
 		Ryan: £60k per year
 		Tom: £40k per year	
@@ -32,8 +33,9 @@ UK Staff:
 		Katalin from May 2020: £35k per year
 		Ben from Jun 2020: £20k per year
 		Kai from Oct 2020: £500 per month	// part-time student
-		Andris: // ex
-        Rachad: // ex
+		ExTechStaff:
+    		Andris: 0 // ex
+            Rachad: 0 // ex
 UK Staff: {.bg-blue}
 
 
@@ -71,43 +73,45 @@ Katalin to Dec 2020: * 80%
 Ben to Dec 2020: * 80%
 
 
-Pay Rises: na
-    // October / December pay rises
-    Amy from Oct 2020: Ryan	
-    Daniel Winterstein from Dec 2020: Ryan
-    Charley from Dec 2020: + £2k per year
-    Stuart from Oct 2020: + £3k per year
-    Roscoe from Oct 2020: + £3k per year
-    Daniel Appel from Dec 2020: + £1k per year
-    // TODO in-year joiners like Nick, Ben, Raimah get less of an end-of-year raise
-    UK Staff except(Amy, Dan, Roscoe, Stuart, Charley, DanA) from Dec 2020: * 101.5%
-    
-    // Students graduate
-    Kai from Jun 2021: £24k per year
-    Ben from Jun 2021: £26k per year
-    
-    // 2021 pay-rises - 4% in Dec 2021?
-    UK Staff from Dec 2021: * 104%
+// Pay Rises
+// October / December pay rises
+Amy from Oct 2020: Ryan	
+Daniel Winterstein from Dec 2020: Ryan
+Charley from Dec 2020: + £2k per year
+Stuart from Dec 2020: + £3k per year
+Roscoe from Dec 2020: + £3k per year
+Daniel Appel from Dec 2020: + £1k per year
+// TODO in-year joiners like Nick, Ben, Raimah get less of an end-of-year raise
+UK Staff except(Amy, Dan, Roscoe, Stuart, Charley, DanA) from Dec 2020: * 101.5%
+
+// Students graduate
+Kai from Jun 2021: £24k per year
+Ben from Jun 2021: £26k per year
+
+// Extra pay rise for Stu
+Stuart from Jun 2021: + £2k per year
+
+// 2021 pay-rises - 4% in Dec 2021?
+UK Staff from Dec 2021: * 104%
 
 
 // New Peeps:
 Sales Staff:
-	Kickstart Sales Assistant from Dec 2020: £500 per month // Initially hired on govt scheme (with some top-up)
-	Kickstart Sales Assistant from June 2021: £25k per year		
+    Kickstart Sales Assistant from Dec 2020: £500 per month // Initially hired on govt scheme (with some top-up)
+    Kickstart Sales Assistant from June 2021: £25k per year		
 	Junior Agency Salesperson1 from Jan 2021: £29k per year
-	Junior Agency Salesperson2 from Jan 2021: £29k per year
 Marketing Staff:        
-	TransferCharley from Jan 2021: £29k per year // filed under Marketing as Charley would move over
+	Transfer Charley from Jan 2021: £31k per year // So we'd hire a new salesperson (modelled by the Charley line) and Charley would move over
 Account Management Staff:
-	Admin Officer from Jan 2021: 50% * £30k
-	Kickstart Social Media Community Manager from Dec 2020:  £500 per month // Initially hired on govt scheme (with some top-up)
-	Kickstart Social Media Community Manager from June 2021: £25k per year
-	CFO from June 2021: 20% * £70k per year // start part-time
+    Admin Officer from Jan 2021: 50% * £30k per year
+    Kickstart Social Media Community Manager from Dec 2020:  £500 per month // Initially hired on govt scheme (with some top-up)
+    Kickstart Social Media Community Manager from June 2021: £25k per year
+    CFO from June 2021: 20% * £70k per year // start part-time
 Contractors:
-	Raimah from Apr 2021: 0 // Sadly we expect to part ways with Raimah
-	Motion Designer: £1k per month // This will be off and on
+    Raimah from Apr 2021: 0 // Sadly we expect to part ways with Raimah
+    Motion Designer: £1k per month // This will be off and on
 Tech Staff:		
-	AdTech Dev from Apr 2021: £45k per year
+    AdTech Dev from Apr 2021: £45k per year
 
 
 Costs:
@@ -173,8 +177,9 @@ Revenue Details: na
 	UK_Campaigns: CampaignsPerSalesperson * RampedUpStaff
 	Campaign_Size: N(23k, 451m) // Checking the data: new and existing clients have the same profile
 	// Adjustments
-	Seasonality: 70%,	75%,	90%,	115%,	125%,	115%,	90%,	80%,	100%,	100%,	115%,	125%,	70%,	75%,	90%,	115%,	125%,	115%,	90%,	80%,	100%,	100%,	115%,	125%
-	Marketing ROI: 20% * (Marketing from 3 months ago + Trudi from 3 months ago) // This is slightly over-egging as we haven't subtracted this from the historical average. But its a small addition anyway.
+	Seasonality: 70%,	75%,	90%,	115%,	125%,	115%,	90%,	80%,	100%,	100%,	115%,	125%
+	Seasonality: Seasonality at 12 months ago // annual loop
+	Marketing ROI: 20% * (Marketing at 3 months ago + Trudi at 3 months ago) // This is slightly over-egging as we haven't subtracted this from the historical average. But its a small addition anyway.
 Revenue Details: {.bg-green}
 
 
@@ -211,7 +216,10 @@ Balance: previous Balance + Burn Rate
 //Balance at Jan 2020: £1,196,202 
 Balance: {fontWeight: bold}
 
-// Cashflow (TODO - currently the Balance actuals fold in aged debtors/creditors, so that's fairly close to Cashflow)
-//Creditors: sum(Sales Commission from 4 months ago to now) + sum(Business Donations from 4 months ago to now)
-//Debtors: sum(Sales_Revenue from 3 months ago to now)
-//CashAtBank: Balance + Creditors - Debtors
+CashAtBank at Oct 2020: £1m // TODO get an actual number
+CashAtBank: previous(CashAtBank) + Burn Rate + Sales Receipts Delta - DelayedCreditorsDelta // Use deltas to swap which months are counted in the burn rate
+Cashflow Details: na
+    Sales Receipts Delta: (Sales_Revenue at 2 months ago) - Sales_Revenue // we get paid 2 months after the cost-of-sale
+    Delayed Creditors: Sales Commission + Agent Commission + Business Donations
+    DelayedCreditorsDelta: (Delayed Creditors at 3 months ago) - Delayed Creditors // we pay donations and commission after we get paid 
+    // TODO VAT     

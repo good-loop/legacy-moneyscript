@@ -239,7 +239,7 @@ public class BusinessTest {
 	@Test
 	public void testRunGLPlan() {
 		Parser.DEBUG = false;
-		String txt = FileUtils.read(new File("plans/gl2020.ms"));
+		String txt = FileUtils.read(new File("plans/gl2020-2021.ms"));
 		Lang lang = new Lang();
 		Business b = lang.parse(txt);
 		b.run();
