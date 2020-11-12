@@ -11,7 +11,7 @@ export default C;
 C.app = {
 	name: "MoneyScript",
 	service: "moneyscript",
-	logo: "/img/gl-logo/LogoMark/logo.svg"
+	logo: "/img/gl-logo/LogoMark/logo.green.svg"
 };
 
 C.TYPES = new Enum("Task User PlanDoc Money");
