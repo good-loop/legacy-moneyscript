@@ -114,7 +114,7 @@ const EditScript = ({id, plandoc, path}) => {
 	// standardise on tabs, with 4 spaces = 1 tab
 	let modelValueFromInput = (iv, type, eventType) => standardModelValueFromInput(iv? iv.replace(/ {4}/g, '\t') : iv, type, eventType);
 	return (<div>
-		<AceCodeEditor path={path} prop='text' markers={pes.map(markerFromParseFail)} height="calc(100vh - 15em)" />
+		<AceCodeEditor path={path} prop='text' markers={pes.map(markerFromParseFail)} height="calc(100vh - 12em)" />
 		<div>{pes.length? JSON.stringify(pes) : null}</div>
 		<div>&nbsp;</div>
 		<SavePublishDeleteEtc type="PlanDoc" id={id} saveAs />
