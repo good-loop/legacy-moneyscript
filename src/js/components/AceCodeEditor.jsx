@@ -1,34 +1,23 @@
 import React, { Component } from 'react';
 import {ReactDOM} from 'react-dom';
 
-//
-// import "ace-builds/src-noconflict/mode-java";
-// import "ace-builds/src-noconflict/theme-github";
-
-
-// import brace from 'brace';
-// import AceEditor from 'react-ace';
-// import 'brace/mode/java';
-// import 'brace/theme/github';
-	// TODO https://ace.c9.io/#nav=embedding or https://codemirror.net/
-	// or https://microsoft.github.io/monaco-editor/
-
 import AceEditor from "react-ace";
 import PropControl, {DSsetValue} from '../base/components/PropControl';
 
-// ?? import webpack resolver to dynamically load modes, you need to install file-loader for this to work!
-// import "../../build/webpack-resolver";
+/**
+ * HACK! In order to get our mode to load - we hacked the ace-build python mode file!
+ * Our file mode-ms.backup.js should be copied into place over node_modules/ace-builds/src-noconflict/mode-python.js
+ */
+import "ace-builds/src-noconflict/mode-python";
 
 
 // TODO control-f is broken :( It DOES work in the react-ace demo -- something in the webpack setup??
-
-ace.config.set('basePath','/lib/ace')
 
 const AceCodeEditor = ({path, prop, markers, ...props}) => {
 	// DEBUG
 	if ( ! markers) markers = [];
 	// markers.push({startRow: 3, startCol: 5, endRow: 4, endCol: 6, className: 'replacement_marker', type: 'text' })	
-	// markers.push({startRow: 1, startCol: 1, endRow: 2, endCol: 6, className: 'bg-warning', type: 'fullLine' })	
+	// markers.push({startRow: 1, startCol: 1, endRow: 1, endCol: 6, className: 'bg-warning', type: 'fullLine' })	
 
 	// markers.push({startRow: 4, startCol: 1, endRow: 4, endCol: 6, className: 'bg-danger', type: 'fullLine' })	
 
@@ -36,12 +25,12 @@ const AceCodeEditor = ({path, prop, markers, ...props}) => {
 		{...props}
 	width="100%"
 	placeholder=""
-	mode="json" //acems" // previously tried json
-	theme="tomorrow"
+	mode="python" //acems" // previously tried json
+	// theme="tomorrow"
 	name="planit1"
 	onLoad={editor => console.log("Ace onLoad")}
 	onChange={newText => DSsetValue(path.concat(prop), newText, true)}
-	fontSize={16}
+	fontSize={17}
 	showPrintMargin={false}
 	showGutter
 	highlightActiveLine
@@ -68,9 +57,9 @@ const AceCodeEditor = ({path, prop, markers, ...props}) => {
 	// 		readOnly: true
 	// 	})
 	// }}
-	// markers={markers} Not working ?!
+	markers={markers} //Not working ?!
 	/>
-	{markers.map(m => <div key={JSON.stringify(m)} className='bg-warning' style={{position:"absolute",left:"75%",right:0,top:16*m.startRow}} title={m.text}>{m.text}</div>)}
+	{/* {markers.map(m => <div key={JSON.stringify(m)} className='bg-warning' style={{position:"absolute",left:"75%",right:0,top:16*m.startRow}} title={m.text}>{m.text || "!"}</div>)} */}
 	</div>
 };	
 

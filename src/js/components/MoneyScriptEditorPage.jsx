@@ -103,14 +103,14 @@ const MoneyScriptEditorPage = () => {
  */
 const markerFromParseFail = pf => {
 	// markers.push({startRow: 4, startCol: 1, endRow: 4, endCol: 6, className: 'bg-danger', type: 'fullLine' })	
-	let line = pf.line
+	let line = pf.line	
 	return {startRow:line, startCol:1, endRow:line, endCol:2, className:'bg-warning', type: 'fullLine', text:pf.message };
 };
 
 const EditScript = ({id, plandoc, path}) => {
 	// syntax errors?
 	let parsed = plandoc; // NB: parse info is added server-side by augment
-	let pes = []; // TODO immortal error bug - as we don't reset value on return -- FIX use diffs (parsed && parsed.errors) || [];
+	let pes = [] || (parsed && parsed.errors) || []; //[{line:3,message:"Boo"}]; // TODO immortal error bug - as we don't reset value on return -- FIX use diffs (parsed && parsed.errors) || [];
 	// standardise on tabs, with 4 spaces = 1 tab
 	let modelValueFromInput = (iv, type, eventType) => standardModelValueFromInput(iv? iv.replace(/ {4}/g, '\t') : iv, type, eventType);
 	return (<div>

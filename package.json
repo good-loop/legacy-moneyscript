@@ -7,7 +7,7 @@
     "type": "git"
   },
   "dependencies": {
-    "brace": "^0.11.1",
+    "ace-builds": "^1.4.12",
     "chart.js": "^2.9.3",
     "data-pivot": "^1.0.2",
     "easy-enums": "^1.1.7",
@@ -19,7 +19,7 @@
     "md5": "^2.2.1",
     "promise-value": "^1.2.8",
     "react": "^16.13.1",
-    "react-ace": "^9.1.4",
+    "react-ace": "^9.2.0",
     "react-autocomplete": "^1.8.1",
     "react-chartjs2": "^1.2.1",
     "react-dom": "^16.13.1",
