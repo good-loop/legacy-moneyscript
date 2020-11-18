@@ -1,3 +1,6 @@
+// Useful doc links:
+// https://ace.c9.io/#nav=higlighter&api=tokenizer
+// https://macromates.com/manual/en/language_grammars
 ace.define("ace/mode/python_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
 "use strict";
 
@@ -388,7 +391,11 @@ var PythonHighlightRules = function() {
         }, {
             token: ["punctuation", "function.support"],// method
             regex: "(\\.)([a-zA-Z_]+)\\b"
-        }, {
+		}, {
+            token: "string.unquoted", // url
+            regex: "https?://([a-zA-Z0-9_\\-\\.]+)\\/?([a-zA-Z0-9_%\\-\\.,\\?&\\/=\\+'~#!\\*:]+[a-zA-Z0-9_%\\-&\\/=\\+])?\\b"
+        },		
+		{
             token: keywordMapper,
             regex: "[a-zA-Z_$][a-zA-Z0-9_$]*\\b"
         }]
