@@ -25,11 +25,6 @@ import { Alert, Col, Row } from 'reactstrap';
 import ErrorAlert from '../base/components/ErrorAlert';
 import LinkOut from '../base/components/LinkOut';
 
-// import brace from 'brace';
-// import AceEditor from 'react-ace';
-// import 'brace/mode/java';
-// import 'brace/theme/github';
-
 
 const SheetPage = () => {
 	// which plan?

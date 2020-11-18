@@ -6,7 +6,8 @@ end: Sep 2022
 // Import actuals from a g-drive spreadsheet
 // Manually copied over by Dan into the `actuals` sheet
 // NB: G-drive is a bit slow to respond, so by default we cache the g-drive response for a minute. Use "import fresh" to switch off caching.
-import: https://docs.google.com/spreadsheets/d/e/2PACX-1vRvLd73E4kTwaoV3PRzQeDnJT7A1VZGzj6DjQty4sPckoikUEdqsuR0lkRCjVLFSWReywOfX5vtgif5/pub?gid=0&single=true&output=csv {url:https://docs.google.com/spreadsheets/d/14DOm3ex5FiG9-k11_9JWuhwS-AeTv-eLrXBZjl9nups, name:"actuals", rows:"all"}
+import: https://docs.google.com/spreadsheets/d/14DOm3ex5FiG9-k11_9JWuhwS-AeTv-eLrXBZjl9nups/gviz/tq?tqx=out:csv&sheet=actuals {url:https://docs.google.com/spreadsheets/d/14DOm3ex5FiG9-k11_9JWuhwS-AeTv-eLrXBZjl9nups, name:"actuals", rows:"all"}
+// https://docs.google.com/spreadsheets/d/e/2PACX-1vRvLd73E4kTwaoV3PRzQeDnJT7A1VZGzj6DjQty4sPckoikUEdqsuR0lkRCjVLFSWReywOfX5vtgif5/pub?gid=0&single=true&output=csv 
 
 UK Staff:
 	Sales Staff:	// salaries are base - commission is done separately

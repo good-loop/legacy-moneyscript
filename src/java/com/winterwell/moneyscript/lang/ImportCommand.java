@@ -71,6 +71,10 @@ public class ImportCommand extends DummyRule implements IHasJson {
 		}
 		// fetch
 		fetch();
+		// not a csv?
+		if (csv.startsWith("<!doctype ") || csv.startsWith("<html")) {
+			throw new IllegalArgumentException("Import fail: Url "+src+" returned a web page NOT a csv");
+		}
 		// CSV
 		CSVSpec spec = new CSVSpec();
 		CSVReader r = new CSVReader(new StringReader(csv), spec);
@@ -145,6 +149,8 @@ public class ImportCommand extends DummyRule implements IHasJson {
 				b.state.set(cell, v);
 			}
 		}
+		// error level?
+//		r.getB
 	}
 
 
