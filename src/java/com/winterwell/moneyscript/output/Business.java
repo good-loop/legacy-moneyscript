@@ -114,9 +114,9 @@ public class Business {
 		
 		// columns
 		ArrayList<String> cols = new ArrayList<String>();
+		Time prevTime = null;
 		for(Col col : getColumns()) {
 			cols.add(col.getTimeDesc());
-			// put in a year total?
 		}
 		map.put("columns", cols);
 		
@@ -128,7 +128,7 @@ public class Business {
 			if ( ! row.isOn()) {
 				continue;
 			}			
-			List<Map> rowvs = row.getValuesJSON();
+			List<Map> rowvs = row.getValuesJSON();			
 			datamap.put(row.name, rowvs);
 			String comment = StrUtils.joinWithSkip(". ", Containers.apply(row.getRules(), Rule::getComment));
 			jrows.add(new ArrayMap(
