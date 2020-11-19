@@ -115,7 +115,8 @@ public class Business {
 		// columns
 		ArrayList<String> cols = new ArrayList<String>();
 		for(Col col : getColumns()) {
-			cols.add(col.getTimeDesc());			
+			cols.add(col.getTimeDesc());
+			// put in a year total?
 		}
 		map.put("columns", cols);
 		
