@@ -132,7 +132,7 @@ public class LangTime implements IInit {
 			assert i != -1 : r;	
 			Time t = new Time(yr, i+1, 1);
 			// TODO "from April" in December means from April of the next year
-			return new SpecificTimeDesc(t);
+			return new SpecificTimeDesc(t, r.parsed());
 		}	
 	};
 

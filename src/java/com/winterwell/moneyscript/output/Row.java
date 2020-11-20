@@ -296,7 +296,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			// year total?
 			if ( ! yearTotals) continue;
 			Time t = c.getColumn().getTime();
-			map.put("time", i+" "+t.ddMMyyyy()+" "+t.getMonth());
+//			debug map.put("time", i+" "+t.ddMMyyyy()+" "+t.getMonth());
 			if (t.getMonth()!=12) continue;
 			Numerical yearSum = new Numerical(0);
 			for (int j=Math.max(0, i-11); j<=i; j++) {

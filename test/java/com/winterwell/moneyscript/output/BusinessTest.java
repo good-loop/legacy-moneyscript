@@ -36,7 +36,7 @@ public class BusinessTest {
 			Time firstt = first.getTime();
 			Time lastt = last.getTime();
 			assert firstt.getMonth() == 1;
-			assert lastt.getMonth() == 12;
+			assert lastt.getMonth() == 12 : lastt;
 			
 			Time dec = new Time(2020,12,01);
 			Col col = b.getColForTime(dec);

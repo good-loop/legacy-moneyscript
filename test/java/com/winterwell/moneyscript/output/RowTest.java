@@ -24,7 +24,7 @@ public class RowTest {
 			Row row = b.getRow("Alice");
 			double[] bvs = row.getValues();
 			String sbvs = Printer.out(bvs);
-			Assert.assertEquals(sbvs,"1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18");
+			Assert.assertEquals(sbvs,"1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19");
 			List<Map> json = row.getValuesJSON(true);
 			Printer.out(json);
 			assert json.size() == bvs.length + 2 : json.size();

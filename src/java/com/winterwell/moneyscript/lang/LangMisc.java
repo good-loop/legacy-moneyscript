@@ -21,6 +21,7 @@ import java.util.regex.MatchResult;
 import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.time.DtDesc;
 import com.winterwell.moneyscript.lang.time.LangTime;
+import com.winterwell.moneyscript.lang.time.SpecificTimeDesc;
 import com.winterwell.moneyscript.lang.time.TimeDesc;
 import com.winterwell.nlp.simpleparser.AST;
 import com.winterwell.nlp.simpleparser.PP;
@@ -144,11 +145,12 @@ public class LangMisc {
 			if ("start".equals(keyword)) {
 				s.setStart(time);
 			}
-			if ("end".equals(keyword)) {				
+			if ("end".equals(keyword) && timeDesc instanceof SpecificTimeDesc) {				
 				// HACK end of month?				
-				Period p = TimeUtils.parsePeriod(timeDesc.getDesc(), null);
-				Time eom = TimeUtils.getEndOfMonth(time);				
-				s.setEnd(time);
+				String tdesc = timeDesc.getDesc(); // TODO what if they ask for a specific day?
+				Time eom = TimeUtils.getEndOfMonth(time);
+				eom = eom.minus(TUnit.MILLISECOND); // in the month, just
+				s.setEnd(eom);
 			}
 			return s;
 		}

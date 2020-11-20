@@ -12,10 +12,6 @@ import com.winterwell.utils.time.Time;
 public class SpecificTimeDesc extends TimeDesc {
 
 	private final Time time;
-
-	public SpecificTimeDesc(Time time) {
-		this(time, time.toString());
-	}
 	
 	public SpecificTimeDesc(Time time, String parsed) {
 		super(parsed);

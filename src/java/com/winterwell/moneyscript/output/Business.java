@@ -375,7 +375,7 @@ public class Business {
 	 * NB: this list is of course 0-indexed. But Col is 1-indexed, 
 	 * so columns[i].index == i + 1
 	 */
-	List<Col> columns;
+	private List<Col> columns;
 	
 	public List<Col> getColumns() {		
 		return columns;
@@ -470,7 +470,7 @@ public class Business {
 	public void setSettings(Settings settings) {
 		this.settings = settings;
 		int months = (int) settings.getRunTime().divide(settings.timeStep);
-		months += 1; // include the end month
+//		months += 1; // include the end month - done by a hack on end
 		setColumns(months);
 	}
 
