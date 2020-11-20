@@ -15,6 +15,7 @@ import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.LangNum;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.lang.num.SimpleLangNum;
+import com.winterwell.moneyscript.lang.time.RelativeTimeDesc;
 import com.winterwell.moneyscript.lang.time.TimeDesc;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
@@ -134,7 +135,7 @@ public class LangTest {
 			assert cv==null || cv.doubleValue() == 0 : cv;
 			Numerical cv2 = b.getCellValue(new Cell(alice, new Col(2)));
 			assert cv2.doubleValue() == 1 : cv;
-			TimeDesc td = new TimeDesc("start");
+			TimeDesc td = new RelativeTimeDesc("start");
 			
 			Cell bc = new Cell(alice, null);
 			Col col = td.getCol(bc);

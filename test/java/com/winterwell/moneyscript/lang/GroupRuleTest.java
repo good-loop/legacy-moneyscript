@@ -17,8 +17,8 @@ public class GroupRuleTest {
 		Lang lang = new Lang();
 		Business b = lang.parse(s);		
 		
-		b.getSettings()._start = new Time(2020,1,1);
-		b.getSettings()._end = new Time(2020,3,31);
+		b.getSettings().setStart(new Time(2020,1,1));
+		b.getSettings().setEnd(new Time(2020,3,31));
 		b.setSettings(b.getSettings()); // trigger columns
 		
 		b.run();
@@ -44,8 +44,8 @@ public class GroupRuleTest {
 		Lang lang = new Lang();
 		Business b = lang.parse(s);		
 		
-		b.getSettings()._start = new Time(2020,1,1);
-		b.getSettings()._end = new Time(2020,3,31);
+		b.getSettings().setStart(new Time(2020,1,1));
+		b.getSettings().setEnd(new Time(2020,3,31));
 		b.setSettings(b.getSettings()); // trigger columns
 		
 		b.run();
@@ -71,8 +71,8 @@ public class GroupRuleTest {
 		Lang lang = new Lang();
 		Business b = lang.parse(s);		
 		
-		b.getSettings()._start = new Time(2020,1,1);
-		b.getSettings()._end = new Time(2020,3,1);
+		b.getSettings().setStart(new Time(2020,1,1));
+		b.getSettings().setEnd(new Time(2020,3,1));
 		b.run();
 		
 		Printer.out(b.toCSV());

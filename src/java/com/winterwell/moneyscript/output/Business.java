@@ -31,6 +31,7 @@ import com.winterwell.utils.containers.Range;
 import com.winterwell.utils.containers.Tree;
 import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Dt;
+import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
 
 /**
@@ -113,10 +114,14 @@ public class Business {
 		ArrayMap map = getParseInfoJson();
 		
 		// columns
+		boolean incYearTotals = TUnit.MONTH.equals(getSettings().timeStep);
 		ArrayList<String> cols = new ArrayList<String>();
-		Time prevTime = null;
 		for(Col col : getColumns()) {
 			cols.add(col.getTimeDesc());
+			// year total?
+			if (col.getTime().getMonth() == 12 && incYearTotals) {
+				cols.add("Total "+col.getTime().getYear());
+			}
 		}
 		map.put("columns", cols);
 		
@@ -128,7 +133,7 @@ public class Business {
 			if ( ! row.isOn()) {
 				continue;
 			}			
-			List<Map> rowvs = row.getValuesJSON();			
+			List<Map> rowvs = row.getValuesJSON(incYearTotals);			
 			datamap.put(row.name, rowvs);
 			String comment = StrUtils.joinWithSkip(". ", Containers.apply(row.getRules(), Rule::getComment));
 			jrows.add(new ArrayMap(
@@ -367,7 +372,8 @@ public class Business {
 	}
 
 	/**
-	 * NB: Col is 1-indexed, so columns[i].index == i + 1
+	 * NB: this list is of course 0-indexed. But Col is 1-indexed, 
+	 * so columns[i].index == i + 1
 	 */
 	List<Col> columns;
 	
@@ -464,6 +470,7 @@ public class Business {
 	public void setSettings(Settings settings) {
 		this.settings = settings;
 		int months = (int) settings.getRunTime().divide(settings.timeStep);
+		months += 1; // include the end month
 		setColumns(months);
 	}
 

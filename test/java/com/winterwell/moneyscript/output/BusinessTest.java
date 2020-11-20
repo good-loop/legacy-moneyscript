@@ -19,8 +19,30 @@ import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.io.FileUtils;
+import com.winterwell.utils.time.Time;
 
 public class BusinessTest {
+	@Test
+	public void testStartEnd1Year() {
+		{	// year totals - saving pocketmoney
+			String s = "start: Jan 2020\nend: Dec 2020\nAlice: previous + £1";
+			Lang lang = new Lang();
+			Business b = lang.parse(s);
+						
+			List<Col> cols = b.getColumns();
+			Col first = cols.get(0);
+			Col last = cols.get(cols.size()-1);
+			
+			Time firstt = first.getTime();
+			Time lastt = last.getTime();
+			assert firstt.getMonth() == 1;
+			assert lastt.getMonth() == 12;
+			
+			Time dec = new Time(2020,12,01);
+			Col col = b.getColForTime(dec);
+			assert col.equals(last);
+		}
+	}
 
 	@Test
 	public void testDeltaPrevious() {

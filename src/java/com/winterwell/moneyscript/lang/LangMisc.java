@@ -15,6 +15,7 @@ import static com.winterwell.nlp.simpleparser.Parsers.word;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.MatchResult;
 
 import com.winterwell.moneyscript.lang.cells.Filter;
@@ -29,6 +30,8 @@ import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.nlp.simpleparser.Parsers;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.containers.ArrayMap;
+import com.winterwell.utils.time.Period;
+import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
 import com.winterwell.utils.time.TimeUtils;
 import com.winterwell.utils.web.WebUtils;
@@ -139,10 +142,13 @@ public class LangMisc {
 			TimeDesc timeDesc = ptime.getX();
 			Time time = timeDesc.getTime();
 			if ("start".equals(keyword)) {
-				s._start = time;
+				s.setStart(time);
 			}
-			if ("end".equals(keyword)) {
-				s._end = time;
+			if ("end".equals(keyword)) {				
+				// HACK end of month?				
+				Period p = TimeUtils.parsePeriod(timeDesc.getDesc(), null);
+				Time eom = TimeUtils.getEndOfMonth(time);				
+				s.setEnd(time);
 			}
 			return s;
 		}

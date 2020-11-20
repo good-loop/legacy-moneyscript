@@ -40,6 +40,9 @@ public final class Col {
 				+"]";
 	}
 
+	/**
+	 * 1 indexed!
+	 */
 	public int index;
 
 	@Override

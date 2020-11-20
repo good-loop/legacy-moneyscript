@@ -8,10 +8,10 @@ import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
 
-public class Settings {
+public final class Settings {
 
-	public Time _end;
-	public Time _start;
+	private Time _end;
+	private Time _start;
 	public Dt timeStep = TUnit.MONTH.dt;
 	/**
 	 * Not sure what this should apply to :(
@@ -89,7 +89,12 @@ public class Settings {
 	public int getSamples() {
 		return samples;
 	}
-
+	public void setStart(Time time) {
+		this._start = time;
+	}
+	public void setEnd(Time _end) {
+		this._end = _end;
+	}
 	
 	
 }

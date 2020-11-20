@@ -20,6 +20,7 @@ import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.ITree;
+import com.winterwell.utils.time.Time;
 
 /**
  * Each line of the plan will produce a Row in the spreadsheet??
@@ -283,7 +284,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		});
 	}
 
-	public List<Map> getValuesJSON() {
+	public List<Map> getValuesJSON(boolean yearTotals) {
 		List<Cell> cells = Containers.getList(getCells());
 		Business b = Business.get();
 		List<Map> list = new ArrayList<Map>();
@@ -291,7 +292,21 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			Cell c = cells.get(i);
 			Numerical v = b.getCellValue(c);
 			ArrayMap map = getValuesJSON2_cell(b, c, v);
-			list.add(map);
+			list.add(map);			
+			// year total?
+			if ( ! yearTotals) continue;
+			Time t = c.getColumn().getTime();
+			map.put("time", i+" "+t.ddMMyyyy()+" "+t.getMonth());
+			if (t.getMonth()!=12) continue;
+			Numerical yearSum = new Numerical(0);
+			for (int j=Math.max(0, i-11); j<=i; j++) {
+				Cell cj = cells.get(j);
+				Numerical vj = b.getCellValue(cj);
+				yearSum = yearSum.plus(vj);
+			}
+			yearSum.comment = "total for year "+t.getYear();
+			ArrayMap ymap = getValuesJSON2_cell(b, null, yearSum);
+			list.add(ymap);
 		}
 		return list;
 	}
@@ -309,7 +324,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			"str", v.toString(),
 			"unit", v.getUnit(),
 			"comment", v.comment,
-			"css", b.getCSSForCell(c)
+			"css", c==null? null : b.getCSSForCell(c)
 		);
 		return map;
 	}

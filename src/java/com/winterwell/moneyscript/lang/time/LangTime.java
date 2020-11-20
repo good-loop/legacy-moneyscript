@@ -107,10 +107,10 @@ public class LangTime implements IInit {
 			DtDesc _dt = r.getNode(dt).getX();
 			if (ls.size() == 2) {
 				assert ls.get(1).parsed().equals("ago") : ls+" from "+r;
-				return new TimeDesc(_dt, "ago", null);
+				return new RelativeTimeDesc(_dt, "ago", null);
 			}
 			TimeDesc td = (TimeDesc) ls.get(2).getX();
-			return new TimeDesc(_dt, from, td);
+			return new RelativeTimeDesc(_dt, from, td);
 		}	
 	}.eg("2 months ago").eg("3 months from start");
 
@@ -173,7 +173,7 @@ public class LangTime implements IInit {
 				Number n = (Number)r.getNode("n").getX();
 				TUnit _unit = unit.getX();
 				double dn = n.doubleValue();
-				return new TimeDesc(_unit, dn);	
+				return new RelativeTimeDesc(_unit, dn);	
 			}
 			// "3 months from now"
 			AST<TimeDesc> ctn = r.getNode(complexTime);
@@ -181,7 +181,7 @@ public class LangTime implements IInit {
 			// "start of US Sales"
 			if (r.getNode("of")!=null) {
 				CellSet row = (CellSet) r.getNode(LangCellSet.ROW_NAME).getX();
-				TimeDesc start = new TimeDesc("start");
+				TimeDesc start = new RelativeTimeDesc("start");
 				start.setContext(row);
 				return start;
 			}			
@@ -193,7 +193,7 @@ public class LangTime implements IInit {
 				}
 			}
 			// "previous" - handled later
-			return new TimeDesc(r.parsed());
+			return new RelativeTimeDesc(r.parsed());
 		};
 	}.label(TIME);
 

@@ -20,9 +20,14 @@ import com.winterwell.utils.time.Time;
  * @author daniel
  *
  */
-public class TimeDesc {
+public abstract class TimeDesc {
 
 	private String desc;
+	
+	public String getDesc() {
+		return desc;
+	}
+	
 //	private TUnit unit;
 	private DtDesc dt;
 //	private Number n;
@@ -165,8 +170,10 @@ public class TimeDesc {
 	}
 
 	// add a context input??
-	public Time getTime() {
-		throw new TodoException(this);
-	}
+	/**
+	 * Done in overrides
+	 * @return
+	 */
+	public abstract Time getTime();
 
 }

@@ -29,8 +29,8 @@ public class ImportCommandTest {
 		ImportCommand ic = new ImportCommand(new File("test/test-input.csv").toURI().toString());
 		ic.overwrite = true;
 		Business bs = new Business();
-		bs.getSettings()._start = new Time(new Time().getYear(), 1, 1);
-		bs.getSettings()._end = new Time(new Time().getYear(), 12, 31);
+		bs.getSettings().setStart(new Time(new Time().getYear(), 1, 1));
+		bs.getSettings().setEnd(new Time(new Time().getYear(), 12, 31));
 		bs.addImportCommand(ic);
 		bs.run();
 		System.out.println(bs.toCSV());

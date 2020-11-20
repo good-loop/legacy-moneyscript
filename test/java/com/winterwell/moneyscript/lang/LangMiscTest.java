@@ -28,7 +28,7 @@ public class LangMiscTest {
 		{
 			ParseResult<Settings> p = lm.startEndSetting.parseOut("end: March 2099");
 			Settings settings = p.getX();
-			settings._start = new Time(2019, 2, 1);
+			settings.setStart(new Time(2019, 2, 1));
 			System.out.println(settings.getEnd());
 			System.out.println(settings.getRunTime());
 			assert new Dt(3, TUnit.YEAR).isShorterThan(settings.getRunTime()) : settings.getRunTime();
