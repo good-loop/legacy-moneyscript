@@ -114,7 +114,7 @@ public class Business {
 		ArrayMap map = getParseInfoJson();
 		
 		// columns
-		boolean incYearTotals = TUnit.MONTH.equals(getSettings().timeStep);
+		boolean incYearTotals = TUnit.MONTH.dt.equals(getSettings().timeStep);
 		ArrayList<String> cols = new ArrayList<String>();
 		for(Col col : getColumns()) {
 			cols.add(col.getTimeDesc());
@@ -405,7 +405,10 @@ public class Business {
 				}
 				if ( ! rule.getSelector().contains(cell, cell)) continue;
 				String css = rule.getCSS();
-				sb.append(css);
+				if (css!=null) sb.append(css);
+				// make sure it's closed with a ;
+				if ( ! css.endsWith(";")) sb.append(";");
+				frontend
 			}
 			arow = arow.getParent();
 		}		

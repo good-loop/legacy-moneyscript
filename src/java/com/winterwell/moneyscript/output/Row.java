@@ -306,6 +306,9 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			}
 			yearSum.comment = "total for year "+t.getYear();
 			ArrayMap ymap = getValuesJSON2_cell(b, null, yearSum);
+			String css = (String) map.get("css");
+			css = (css==null?"":css)+"fontWeight:bold;";
+			ymap.put("css", css);
 			list.add(ymap);
 		}
 		return list;
