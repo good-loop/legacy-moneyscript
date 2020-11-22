@@ -46,6 +46,7 @@ const fStyle = ({cellValue, item, row, depth, column}) => {
 	if (css) {
 		let kvs = css.split("[\n;]");
 		kvs.forEach(kv => {
+			kv = kv.trim();
 			// HACK
 			if (kv === ".bg-red") {
 				cellStyle.background = "rgba(255,128,128, "+1/(1+depth)+")";
@@ -71,7 +72,10 @@ const fStyle = ({cellValue, item, row, depth, column}) => {
 	if (colVal && colVal.comment==="import") cellStyle.color = "blue"; // cellStyle.backgroundColor = "#ddf"; // blue pastel highlight on actuals
 	// column hacks
 	if (column.Header) {
-		if (column.Header.toLowerCase()==='total') cellStyle.fontWeight = "bold";
+		if (column.Header.toLowerCase().includes("total")) {
+			cellStyle.fontWeight = "bold";
+			cellStyle.borderRight = "2px solid black"; // end of year marker line
+		}
 		if (column.Header.toLowerCase().includes('dec')) cellStyle.borderRight = "2px solid black"; // end of year marker line
 		if (column.Header.toLowerCase() === 'row') cellStyle.borderRight = "2px solid black"; // start numbers marker line
 	}
