@@ -408,7 +408,6 @@ public class Business {
 				if (css!=null) sb.append(css);
 				// make sure it's closed with a ;
 				if ( ! css.endsWith(";")) sb.append(";");
-				frontend
 			}
 			arow = arow.getParent();
 		}		
