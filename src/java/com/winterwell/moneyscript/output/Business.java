@@ -405,7 +405,8 @@ public class Business {
 				}
 				if ( ! rule.getSelector().contains(cell, cell)) continue;
 				String css = rule.getCSS();
-				if (css!=null) sb.append(css);
+				if (css==null) continue;				
+				sb.append(css.trim());
 				// make sure it's closed with a ;
 				if ( ! css.endsWith(";")) sb.append(";");
 			}
