@@ -44,9 +44,11 @@ const fStyle = ({cellValue, item, row, depth, column}) => {
 	// no styling on blank/zero cells
 	let css = cellValue && colVal && colVal.css;
 	if (css) {
-		let kvs = css.split("[\n;]");
+		let kvs = css.split("[\n;]+");
 		kvs.forEach(kv => {
+			// cleanup
 			kv = kv.trim();
+			if (kv[kv.length-1] === ";") kv = kv.substr(0, kv.length-1); // should be redundant given the split() above
 			// HACK
 			if (kv === ".bg-red") {
 				cellStyle.background = "rgba(255,128,128, "+1/(1+depth)+")";
