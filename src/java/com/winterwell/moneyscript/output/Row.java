@@ -42,6 +42,13 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 	
 	public Row(String name) {
 		this.name = name.trim();
+		// HACK - avoid annual totals for Balance, Head Count, etc
+		// ??How might we make this a setting in the script??
+		// maybe "Total: annual except(Balance)"
+		String cname = StrUtils.toCanonical(name).replace(" ","");
+		if ("balance cashatbank cash".contains(cname) || cname.contains("count")) {
+			noTotal = true;
+		}
 	}
 
 
@@ -68,6 +75,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 	private List<Row> kids = new ArrayList<Row>();
 	private Row parent;
 	private List<StyleRule> stylers = new ArrayList<StyleRule>();
+	private boolean noTotal;
 
 	/**
 	 * Process the cell -- except group cells
@@ -295,6 +303,11 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			list.add(map);			
 			// year total?
 			if ( ! yearTotals) continue;
+			// ...avoid for e.g. balance
+			if (noTotal) {
+				list.add(new ArrayMap());
+				continue;
+			}
 			Time t = c.getColumn().getTime();
 //			debug map.put("time", i+" "+t.ddMMyyyy()+" "+t.getMonth());
 			if (t.getMonth()!=12) continue;
