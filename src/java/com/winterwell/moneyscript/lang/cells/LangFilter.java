@@ -20,8 +20,6 @@ import com.winterwell.moneyscript.lang.bool.Condition;
 import com.winterwell.moneyscript.lang.bool.LangBool;
 import com.winterwell.moneyscript.lang.num.BasicFormula;
 import com.winterwell.moneyscript.lang.num.Formula;
-import com.winterwell.moneyscript.lang.num.Numerical;
-import com.winterwell.moneyscript.lang.num.Var;
 import com.winterwell.moneyscript.lang.time.DtDesc;
 import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.moneyscript.lang.time.TimeDesc;

@@ -9,10 +9,9 @@ import com.winterwell.moneyscript.lang.num.BasicFormula;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
-import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Business.KPhase;
+import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.utils.TodoException;
-import com.winterwell.utils.containers.Containers;
 
 public class Comparison extends Condition {
 

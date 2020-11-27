@@ -5,9 +5,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.winterwell.moneyscript.output.Business;
-import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
-import com.winterwell.nlp.dict.Dictionary;
 import com.winterwell.utils.Printer;
 
 public class PayRiseExampleTest {

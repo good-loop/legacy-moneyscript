@@ -1,14 +1,9 @@
 package com.winterwell.moneyscript.lang.num;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 
 import com.winterwell.moneyscript.lang.Lang;
-import com.winterwell.moneyscript.lang.UncertainNumerical;
-import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.nlp.simpleparser.ParseResult;
-import com.winterwell.utils.Printer;
 
 public class FormulasTest {
 

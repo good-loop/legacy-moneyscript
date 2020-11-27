@@ -1,10 +1,7 @@
 package com.winterwell.moneyscript.lang.cells;
 
-import static org.junit.Assert.*;
-
 import java.util.Collection;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.winterwell.moneyscript.lang.Lang;
@@ -14,7 +11,6 @@ import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
-import com.winterwell.utils.Printer;
 
 public class FilteredCellSetTest {
 

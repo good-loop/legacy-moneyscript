@@ -2,7 +2,6 @@ package com.winterwell.moneyscript.lang.num;
 
 import java.util.Set;
 
-import com.winterwell.maths.IScalarArithmetic;
 import com.winterwell.maths.stats.distributions.d1.UniformDistribution1D;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.output.Business;

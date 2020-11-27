@@ -3,9 +3,7 @@ package com.winterwell.moneyscript.lang.num;
 import java.util.Collections;
 import java.util.Set;
 
-import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
-import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
 
 public abstract class Formula {
