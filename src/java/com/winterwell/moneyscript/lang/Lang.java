@@ -35,7 +35,6 @@ import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.ParseState;
 import com.winterwell.nlp.simpleparser.Parser;
-import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Slice;

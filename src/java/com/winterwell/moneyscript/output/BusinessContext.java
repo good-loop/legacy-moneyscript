@@ -1,7 +1,6 @@
 package com.winterwell.moneyscript.output;
 
 import java.util.Collection;
-import java.util.Map;
 
 import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.cells.Scenario;

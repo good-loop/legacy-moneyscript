@@ -12,7 +12,6 @@ import com.winterwell.moneyscript.lang.DummyRule;
 import com.winterwell.moneyscript.lang.GroupRule;
 import com.winterwell.moneyscript.lang.MetaRule;
 import com.winterwell.moneyscript.lang.Rule;
-import com.winterwell.moneyscript.lang.ScenarioRule;
 import com.winterwell.moneyscript.lang.StyleRule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.cells.CellSet;

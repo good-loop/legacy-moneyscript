@@ -1,6 +1,5 @@
 package com.winterwell.moneyscript.lang;
 
-import java.util.Collection;
 import java.util.Map;
 
 import com.winterwell.moneyscript.lang.cells.CellSet;
@@ -10,7 +9,6 @@ import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.RuleException;
-import com.winterwell.utils.AString;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.log.Log;
 

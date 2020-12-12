@@ -4,7 +4,6 @@ import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.utils.Utils;
-import com.winterwell.utils.containers.Containers;
 
 /**
  * marker for grouping rules
