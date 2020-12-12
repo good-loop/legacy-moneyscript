@@ -284,6 +284,9 @@ public class Lang {
 			// Grouping by groupStack
 			// NB: only if there's one row (i.e. not for no-row comments, or a multi-row rule -- Do we have those?)
 			Group group = parse4_addRulesAndGroupRows2_group(rule, rows);
+			if (group==null) {
+				continue;
+			}
 			// Manage the group stack
 			Group parent = null;
 			while( ! groupStack.isEmpty()) {
@@ -326,6 +329,12 @@ public class Lang {
 		}
 	}
 
+	/**
+	 * 
+	 * @param rule
+	 * @param rows
+	 * @return Can return null
+	 */
 	private Group parse4_addRulesAndGroupRows2_group(Rule rule, List<Row> rows) {
 		if (rule instanceof ScenarioRule) {
 			return new Group(rule.scenario, rule.indent);

@@ -89,8 +89,8 @@ public class LangMiscTest {
 		Time s = new Time(2012, 3, 1);
 		assert settings.getStart().equals(s) : settings.getStart();
 		Time e = TimeUtils.getEndOfMonth(new Time(2013, 5, 1));
-		assert settings.getEnd().equals(e) : settings.getEnd();
-		assert settings.getRunTime().equals(s.dt(e));
+		assert Math.abs(settings.getEnd().diff(e)) <= TUnit.MINUTE.millisecs : settings.getEnd();
+		assert Math.abs(settings.getRunTime().getMillisecs() - s.dt(e).getMillisecs()) <= TUnit.MINUTE.millisecs;
 	}
 
 }
