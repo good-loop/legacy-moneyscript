@@ -33,7 +33,7 @@
     "papaparse": "^5.0.1"
   },
   "scripts": {
-    "compile": "webpack --config $PWD/webpack.config.js --progress --colors && ./gitstamp.sh",
+    "compile": "webpack --config $PWD/webpack.config.js --progress --colors && ./gitstamp.sh && cp src/js/components/mode-ms.backup.js node_modules/ace-builds/src-noconflict/mode-python.js",
     "compile-watch": "webpack --config $PWD/webpack.config.js --progress --colors --watch",
     "compile-watch-fast": "NO_PROD=true webpack --config $PWD/webpack.config.js --progress --colors --watch",
     "test": "jest",

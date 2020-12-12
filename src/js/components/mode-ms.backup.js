@@ -11,7 +11,7 @@ var PythonHighlightRules = function() {
 
     var keywords = (
 		"from|to|per|year|month|at|count|months|ago|previous|fresh|" +
-        "if|import|in|start|end|columns|na|samples"
+        "if|import|in|start|end|columns|na|samples|scenario"
     );
 
     var builtinConstants = (
