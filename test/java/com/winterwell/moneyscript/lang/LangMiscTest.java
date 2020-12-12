@@ -8,6 +8,7 @@ import com.winterwell.utils.Printer;
 import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
+import com.winterwell.utils.time.TimeUtils;
 
 public class LangMiscTest {
 
@@ -87,7 +88,7 @@ public class LangMiscTest {
 		Settings settings = b.getSettings();
 		Time s = new Time(2012, 3, 1);
 		assert settings.getStart().equals(s) : settings.getStart();
-		Time e = new Time(2013, 5, 1);
+		Time e = TimeUtils.getEndOfMonth(new Time(2013, 5, 1));
 		assert settings.getEnd().equals(e) : settings.getEnd();
 		assert settings.getRunTime().equals(s.dt(e));
 	}

@@ -15,6 +15,7 @@ import com.winterwell.maths.timeseries.TimeSlicer;
 import com.winterwell.moneyscript.lang.ImportCommand;
 import com.winterwell.moneyscript.lang.MetaRule;
 import com.winterwell.moneyscript.lang.Rule;
+import com.winterwell.moneyscript.lang.ScenarioRule;
 import com.winterwell.moneyscript.lang.Settings;
 import com.winterwell.moneyscript.lang.StyleRule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
@@ -345,14 +346,22 @@ public class Business {
 	 * @param rule
 	 */
 	public void addRule(Rule rule) {
+		if (rule instanceof ScenarioRule) {
+			return;
+		}
 		Collection<String> rows = rule.getSelector().getRowNames(null);
-		for (String rn : rows) {						
+		for (String rn : rows) {			
 			Row row = getRow(rn);
 			assert row != null;
 			row.addRule(rule);			
 		}		
 	}
 	
+	/**
+	 * Ahem, this does not include non-row rules, like "start: Jan 2020"
+	 * Or scenario rules
+	 * @return
+	 */
 	public Set<Rule> getAllRules() {
 		Set<Rule> rules = new HashSet<Rule>();
 		for(Row row : getRows()) {

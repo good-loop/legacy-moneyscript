@@ -1,6 +1,9 @@
 package com.winterwell.moneyscript.output;
 
+import java.util.Collection;
+
 import com.winterwell.moneyscript.lang.Rule;
+import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.utils.Environment;
 import com.winterwell.utils.Key;
 
@@ -14,7 +17,7 @@ public final class BusinessContext {
 
 	private static final Key<Business> BUSINESS = new Key<Business>("business");
 	private static final Key<Rule> ACTIVE_RULE = new Key<Rule>("rule");
-	private static final Key<String> SCENARIO = new Key<String>("scenario");
+	private static final Key<Collection<Scenario>> SCENARIO = new Key<>("scenario");
 	
 	public static Business getBusiness() {
 		Environment env = Environment.get();
@@ -33,12 +36,12 @@ public final class BusinessContext {
 	}
 	
 	
-	public static void setScenario(String scenario) {
+	public static void setScenarios(Collection<Scenario> scenarios) {
 		Environment env = Environment.get();
-		env.put(SCENARIO, scenario);
+		env.put(SCENARIO, scenarios);
 	}
 
-	public static String getScenario() {
+	public static Collection<Scenario> getScenarios() {
 		return Environment.get().get(SCENARIO);
 	}
 

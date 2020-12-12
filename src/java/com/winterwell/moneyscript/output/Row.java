@@ -11,6 +11,7 @@ import com.winterwell.moneyscript.lang.DummyRule;
 import com.winterwell.moneyscript.lang.GroupRule;
 import com.winterwell.moneyscript.lang.MetaRule;
 import com.winterwell.moneyscript.lang.Rule;
+import com.winterwell.moneyscript.lang.ScenarioRule;
 import com.winterwell.moneyscript.lang.StyleRule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.cells.CellSet;
@@ -101,7 +102,8 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			if (r instanceof StyleRule) continue;
 			if (r instanceof DummyRule) continue;
 			if (r instanceof GroupRule) continue;
-			assert r != null : rs;			
+			assert r != null : rs;
+			// NB: scenario on/off is done inside calculate
 			Numerical v2 = r.calculate(cell);
 			if (v2==null) {
 				continue; // e.g. rule not active yet
@@ -181,6 +183,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		parent = group;
 		assert ! group.kids.contains(this) : this;
 		group.kids.add(this);
+		// NB: scenario is done at the rule level (not the row level)
 	}
 
 

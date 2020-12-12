@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.winterwell.moneyscript.lang.Lang;
+import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.output.Business;
+import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.nlp.simpleparser.ParseExceptions;
 import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.utils.containers.ArrayMap;
@@ -15,9 +17,12 @@ import com.winterwell.web.ajax.JThing;
 import com.winterwell.web.ajax.KAjaxStatus;
 import com.winterwell.web.app.IServlet;
 import com.winterwell.web.app.WebRequest;
+import com.winterwell.web.fields.ListField;
 
 public class MoneyServlet implements IServlet {
 
+	private static final ListField<Scenario> SCENARIOS = new ListField<Scenario>(
+			"scenarios", new AStringField("", Scenario.class));
 	static Lang lang = new Lang();
 	
 	@Override
@@ -28,6 +33,10 @@ public class MoneyServlet implements IServlet {
 		}
 		try {
 			Business biz = lang.parse(text);
+			
+			// scenarios?
+			List<Scenario> scs = state.get(SCENARIOS);			
+			BusinessContext.setScenarios(scs);
 			
 			// parse only?
 			if (state.actionIs("parse")) {

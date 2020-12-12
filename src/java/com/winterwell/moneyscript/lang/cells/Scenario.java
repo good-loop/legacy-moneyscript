@@ -1,18 +1,15 @@
 package com.winterwell.moneyscript.lang.cells;
 
+import com.winterwell.utils.AString;
+
 /**
  * @author daniel
  *
  */
-public class Scenario {
+public class Scenario extends AString {
 
-	@Override
-	public String toString() {	
-		return name;
+	public Scenario(CharSequence name) {
+		super(name);
 	}
-	final String name;
-	
-	public Scenario(String name) {
-		this.name = name;
-	}
+
 }

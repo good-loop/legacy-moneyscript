@@ -1,11 +1,15 @@
 package com.winterwell.moneyscript.lang;
 
+import java.util.Collection;
+
 import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.RuleException;
+import com.winterwell.utils.AString;
 import com.winterwell.utils.log.Log;
 
 
@@ -40,10 +44,9 @@ public class Rule {
 	 */
 	int indent;	
 	/**
-	 * TODO (not tested!)
 	 * If not null, this rule only applies under this scenario
 	 */
-	String scenario;
+	Scenario scenario;
 	
 	public Rule(CellSet selector, Formula formula, String src, int indent) {
 		super();
@@ -72,10 +75,12 @@ public class Rule {
 			BusinessContext.setActiveRule(this);
 			// Are we in a scenario - if so, does this rule apply?
 			if (scenario!=null) {
-				String sc = BusinessContext.getScenario();
-				assert sc != null : scenario;
-				if ( ! scenario.equals(sc)) {
+				Collection<Scenario> scs = BusinessContext.getScenarios();				
+				if ( ! AString.contains(scenario, scs)) {
 					return null;
+				} else { // NB: allow for breakpoints here
+					Collection<Scenario> debugActiveScenario = scs;
+					assert debugActiveScenario != null;
 				}
 			}		
 			// Filtered out?
@@ -93,6 +98,12 @@ public class Rule {
 		} catch(Throwable ex) {
 			throw new RuleException(ex+" Cell "+b+" Rule "+this, ex);
 		}
+	}
+
+	public void setScenario(Scenario byScenario) {
+		// scenario can only be set once, to protect against confusing setups
+		assert this.scenario==null || this.scenario.equiv(byScenario) : this;
+		this.scenario = byScenario;
 	}
 
 

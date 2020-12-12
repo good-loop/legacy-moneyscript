@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
+import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.cells.SimpleLangCellSet;
 import com.winterwell.moneyscript.lang.num.BasicFormula;
 import com.winterwell.moneyscript.lang.num.Formula;
@@ -26,6 +27,7 @@ import com.winterwell.moneyscript.output.Row;
 import com.winterwell.nlp.simpleparser.GrammarPrinter;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
+import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
@@ -266,6 +268,69 @@ public class LangTest {
 			for(Cell cell : alice.getCells()) {
 				System.out.print(b.getCellValue(cell)+"\t");
 			}
+		}		
+	}
+	
+	@Test
+	public void testScenarioRule() {
+		Lang lang = new Lang();
+		ParseResult<Rule> sa = lang.groupRow.parseOut("scenario A:");
+		GroupRule gr = (GroupRule) sa.getX();
+		assert gr.scenario.equiv("A") : gr.scenario;
+		{	// scenario off
+			Business b = lang.parse(
+					"start: Jan 2020\nAlice:£1 per month\n" +
+					"scenario Growth:\n" +
+					"\tBob from month 2: £2 per month");
+			b.run();
+			Row alice = b.getRow("Alice");
+			Row bob = b.getRow("Bob");
+			Rule br = bob.getRules().get(0);
+			assert br.scenario.equiv("Growth") : br;
+			Col c3 = new Col(3);
+			Numerical v3 = bob.calculate(c3, b);
+			assert Numerical.isZero(v3) : v3;
+			String csv = b.toCSV();
+			Printer.out(csv);
+			double[] bobVals = bob.getValues();
+			assert MathUtils.sum(bobVals) == 0;
+		}
+		{	// scenario on
+			Business b = lang.parse(
+					"Alice:£1 per month\n" +
+					"scenario Growth:\n" +
+					"\tBob from month 2: £2 per month");
+			BusinessContext.setScenarios(Arrays.asList(new Scenario("Growth")));
+			b.run();
+			Row bob = b.getRow("Bob");
+			Rule br = bob.getRules().get(0);
+			assert br.scenario.equiv("Growth") : br;
+			Col c3 = new Col(3);
+			Numerical v3 = bob.calculate(c3, b);
+			assert v3.doubleValue() == 2 : v3;
+			String csv = b.toCSV();
+			Printer.out(csv);
+			double[] bobVals = bob.getValues();
+			assert MathUtils.sum(bobVals) > 2;
+		}
+		if (false) {	// TODO scenario on by default
+			Business b = lang.parse(
+					"Alice:£1 per month\n" +
+					"scenario(on) Growth:\n" +
+					"\tBob from month 2: £2 per month");
+			Collection<Scenario> scs = BusinessContext.getScenarios();
+			assert scs.contains(new Scenario("Growth")) : scs; 
+			b.run();
+			Row bob = b.getRow("Bob");
+			Rule br = bob.getRules().get(0);
+			assert br.scenario.equiv("Growth") : br;
+			Col c3 = new Col(3);
+			Numerical v3 = bob.calculate(c3, b);
+			assert v3.doubleValue() == 2 : v3;
+			String csv = b.toCSV();
+			Printer.out(csv);
+			double[] bobVals = bob.getValues();
+			assert MathUtils.sum(bobVals) > 2;
 		}		
 	}
 	

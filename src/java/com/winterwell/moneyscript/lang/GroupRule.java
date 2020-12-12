@@ -28,8 +28,4 @@ public class GroupRule extends Rule {
 		super(row, null, row+":", indent);
 	}
 
-	public GroupRule(Scenario scenario, int indent) {
-		super(null, null, "scenario "+scenario+":", indent);
-	}
-
 }

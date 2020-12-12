@@ -8,6 +8,7 @@ import static com.winterwell.nlp.simpleparser.Parsers.ref;
 import static com.winterwell.nlp.simpleparser.Parsers.seq;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,7 +17,6 @@ import java.util.Set;
 import com.winterwell.moneyscript.lang.bool.LangBool;
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.CurrentRow;
-import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
 import com.winterwell.moneyscript.lang.cells.LangFilter;
 import com.winterwell.moneyscript.lang.cells.RowName;
@@ -35,6 +35,7 @@ import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.ParseState;
 import com.winterwell.nlp.simpleparser.Parser;
+import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Slice;
@@ -91,7 +92,8 @@ public class Lang {
 	Parser na = lit("na");
 	
 	/**
-	 * group rows are just a row-name without a formula
+	 * group rows are just a row-name without a formula.
+	 * Scenarios are groups created with the keyword `scenario`
 	 */
 	Parser<Rule> groupRow = new PP<Rule>(
 			seq(LangMisc.indent, opt(lit("scenario ").label("scenario")), 
@@ -103,7 +105,7 @@ public class Lang {
 			AST rn = r.getNode(LangCellSet.ROW_NAME);
 			String rname = rn.parsed();
 			boolean scenario = r.getNode("scenario") != null;			
-			GroupRule gr = scenario? new GroupRule(new Scenario(rname), ind)
+			GroupRule gr = scenario? new ScenarioRule(new Scenario(rname), ind)
 							: new GroupRule(new RowName(rname), ind);
 			AST rna = r.getNode(na);
 			if (rna != null) {
@@ -255,8 +257,13 @@ public class Lang {
 			if (selector==null) {
 				selector = new CurrentRow(); // is this always OK?? How do grouping rules behave??
 			}
-			Set<String> rowNames = selector.getRowNames(null);					
-			assert ! rowNames.isEmpty() : rule;	
+			Set<String> rowNames = selector.getRowNames(null);
+			if (rule instanceof ScenarioRule) {
+				// HACK don't add a row for scenario X
+				rowNames = Collections.emptySet();
+			} else {
+				assert ! rowNames.isEmpty() : rule;
+			}
 			// the rows named in this rule's selector
 			// Make sure they exist
 			List<Row> rows = new ArrayList<Row>();
@@ -276,38 +283,77 @@ public class Lang {
 			
 			// Grouping by groupStack
 			// NB: only if there's one row (i.e. not for no-row comments, or a multi-row rule -- Do we have those?)
-			if (rows.size() != 1) {
-				continue;
-			}
-			Row row0 = rows.get(0);
-			Group group = new Group(row0, rule.indent);
+			Group group = parse4_addRulesAndGroupRows2_group(rule, rows);
+			// Manage the group stack
 			Group parent = null;
 			while( ! groupStack.isEmpty()) {
 				Group last = groupStack.get(groupStack.size() - 1);
 				if (last.indent < group.indent) {
+					// group found - stop here
 					parent = last;
 					break;
 				}
+				// pop a now closed group
 				groupStack.remove(groupStack.size() - 1);
 			}
 			// the current rule is the new group
 			groupStack.add(group);
+			group.setParent(parent);
 			
 			// add this row0 to a group?
-			if (parent==null) continue;
+			if (parent==null) {
+				continue;
+			}			
 			// the first appearance wins -- later rules wont change the parent
 			if (isNewRow) {
-				row0.setParent(parent.byRow);
-				b.reorderRows();
+				if (group.byRow != null) {
+					Row row0 = group.byRow;
+					row0.setParent(parent.byRow);
+					b.reorderRows();
+				} else {
+					Log.d("Lang", "huh "+rule);
+				}
 			} else {
 				// a later group - it can't claim the row fully
 				// Hm: for e.g. the `Pay Rise` use case, it'd be nice to see the effect of those rules broken out.
 				// But fiddly!	
 				// We could have Numerical's track their history, and what each Rule contributes
 				// (perhaps just for some Rules)
-			} // ./grouping			
+			} // ./grouping	
+			
+			// rule grouping eg for scenarios (which apply at the rule level not the row level)
+			parse4_addRulesAndGroupRows2_setRuleGroup(rule, parent);			
 		}
 	}
+
+	private Group parse4_addRulesAndGroupRows2_group(Rule rule, List<Row> rows) {
+		if (rule instanceof ScenarioRule) {
+			return new Group(rule.scenario, rule.indent);
+		}
+		if (rows.size() != 1) {
+			return null;
+		}
+		Row row0 = rows.get(0);		
+		Group group = new Group(row0, rule.indent);
+		return group;
+	}
+
+
+	/**
+	 * rule grouping eg for scenarios (which apply at the rule level not the row level)
+	 * @param rule2
+	 * @param parent
+	 */
+	private void parse4_addRulesAndGroupRows2_setRuleGroup(Rule newRule, Group parent) {		
+		// check up the stack
+		while(parent!=null) {
+			if (parent.byScenario != null) {
+				newRule.setScenario(parent.byScenario);
+			}
+			parent = parent.parent;
+		}
+	}
+
 
 	/**
 	 * 
@@ -427,49 +473,4 @@ public class Lang {
 		return StrUtils.toCanonical(name).replaceAll("\\W", "");
 	}
 	
-}
-
-/**
- * marker for grouping rules
- * @author daniel
- *
- */
-final class Group {
-	
-	@Override
-	public String toString() {
-		return "Group [byRow=" + byRow + ", byScenario=" + byScenario + ", byFilter=" + byFilter + ", indent=" + indent
-				+ "]";
-	}
-	public Group(Row row, int indent) {
-		this.indent = indent;
-		byRow = row;
-		byScenario = null;
-		byFilter = null;
-	}
-	public Group(Scenario row, int indent) {
-		this.indent = indent;
-		byRow = null;
-		byScenario = row;
-		byFilter = null;
-	}
-	public Group(Filter f, int indent) {
-		this.indent = indent;
-		byRow = null;
-		byScenario = null;
-		byFilter = f;
-	}
-	
-	/**
-	 * No group
-	 */
-	public Group() {
-		indent = 0;
-		byRow = null; byScenario = null; byFilter = null;
-	}
-
-	final Row byRow;
-	final Scenario byScenario;
-	final Filter byFilter;
-	final int indent;
 }
