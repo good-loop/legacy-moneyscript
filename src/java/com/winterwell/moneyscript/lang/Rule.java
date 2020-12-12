@@ -1,6 +1,7 @@
 package com.winterwell.moneyscript.lang;
 
 import java.util.Collection;
+import java.util.Map;
 
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.Scenario;
@@ -10,6 +11,7 @@ import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.RuleException;
 import com.winterwell.utils.AString;
+import com.winterwell.utils.Utils;
 import com.winterwell.utils.log.Log;
 
 
@@ -75,11 +77,11 @@ public class Rule {
 			BusinessContext.setActiveRule(this);
 			// Are we in a scenario - if so, does this rule apply?
 			if (scenario!=null) {
-				Collection<Scenario> scs = BusinessContext.getScenarios();				
-				if ( ! AString.contains(scenario, scs)) {
+				Map<Scenario, Boolean> scs = b.getBusiness().getScenarios();				
+				if ( ! Utils.yes(scs.get(scenario))) {
 					return null;
 				} else { // NB: allow for breakpoints here
-					Collection<Scenario> debugActiveScenario = scs;
+					Object debugActiveScenario = scs;
 					assert debugActiveScenario != null;
 				}
 			}		
@@ -104,6 +106,10 @@ public class Rule {
 		// scenario can only be set once, to protect against confusing setups
 		assert this.scenario==null || this.scenario.equiv(byScenario) : this;
 		this.scenario = byScenario;
+	}
+
+	public Scenario getScenario() {
+		return scenario;
 	}
 
 

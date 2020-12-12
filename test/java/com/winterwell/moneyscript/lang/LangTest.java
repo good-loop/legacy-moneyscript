@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -31,6 +32,7 @@ import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
+import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Slice;
 import com.winterwell.utils.containers.Tree;
 import com.winterwell.utils.io.FileUtils;
@@ -300,7 +302,7 @@ public class LangTest {
 					"Alice:£1 per month\n" +
 					"scenario Growth:\n" +
 					"\tBob from month 2: £2 per month");
-			BusinessContext.setScenarios(Arrays.asList(new Scenario("Growth")));
+			b.setScenarios(new ArrayMap(new Scenario("Growth"), true));
 			b.run();
 			Row bob = b.getRow("Bob");
 			Rule br = bob.getRules().get(0);
@@ -318,8 +320,8 @@ public class LangTest {
 					"Alice:£1 per month\n" +
 					"scenario(on) Growth:\n" +
 					"\tBob from month 2: £2 per month");
-			Collection<Scenario> scs = BusinessContext.getScenarios();
-			assert scs.contains(new Scenario("Growth")) : scs; 
+			Map<Scenario, Boolean> scs = b.getScenarios();
+			assert scs.containsKey(new Scenario("Growth")) : scs; 
 			b.run();
 			Row bob = b.getRow("Bob");
 			Rule br = bob.getRules().get(0);

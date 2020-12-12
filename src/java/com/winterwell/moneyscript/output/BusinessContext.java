@@ -1,6 +1,7 @@
 package com.winterwell.moneyscript.output;
 
 import java.util.Collection;
+import java.util.Map;
 
 import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.cells.Scenario;
@@ -33,16 +34,6 @@ public final class BusinessContext {
 	public static void setActiveRule(Rule rule) {
 		Environment env = Environment.get();
 		env.put(ACTIVE_RULE, rule);
-	}
-	
-	
-	public static void setScenarios(Collection<Scenario> scenarios) {
-		Environment env = Environment.get();
-		env.put(SCENARIO, scenarios);
-	}
-
-	public static Collection<Scenario> getScenarios() {
-		return Environment.get().get(SCENARIO);
-	}
+	}	
 
 }

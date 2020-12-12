@@ -22,13 +22,14 @@ import { Alert, Badge } from 'reactstrap';
 import LinkOut from '../base/components/LinkOut';
 
 /**
+ * @param {?string[]} scenarios
  * @returns {PromiseValue<PlanResults>}
  */
-const doShowMeTheMoney = ({plandoc}) => {
+const doShowMeTheMoney = ({plandoc, scenarios}) => {
 	if ( ! plandoc) return null;
-	return DataStore.fetch(['transient', 'run', plandoc.id, md5(plandoc.text || '')],
+	return DataStore.fetch(['transient', 'run', plandoc.id, md5(plandoc.text || 'blank'), str(scenarios) || 'base'],
 		() => {
-			let p = ServerIO.post('/money.json', {text: plandoc.text});
+			let p = ServerIO.post('/money.json', {text: plandoc.text, scenarios});
 			return p.then(JSend.data, res => {
 				// error handling
 				if (JSend.status(res) === 'fail') return JSend.data(res);
@@ -86,9 +87,9 @@ const fStyle = ({cellValue, item, row, depth, column}) => {
 
 
 
-const ViewSpreadSheet = ({plandoc}) => {
+const ViewSpreadSheet = ({plandoc, scenarios}) => {
 	if ( ! plandoc) return null;
-	const pvrun = doShowMeTheMoney({plandoc});
+	const pvrun = doShowMeTheMoney({plandoc, scenarios});
 	if ( ! pvrun.resolved) {
 		return <Misc.Loading />;
 	}

@@ -20,8 +20,6 @@ import JSend from '../base/data/JSend';
 import SimpleTable from '../base/components/SimpleTable';
 import {setTaskTags} from '../base/components/TaskList';
 import ServerIO from '../plumbing/ServerIO';
-import ViewCharts from './ViewCharts';
-import ViewSpreadSheet from './ViewSpreadsheet';
 import SavePublishDeleteEtc from '../base/components/SavePublishDeleteEtc';
 import BG from '../base/components/BG';
 import AceCodeEditor from './AceCodeEditor';

@@ -16,7 +16,7 @@ public class AStringField<S extends AString> extends AField<S> {
 	public AStringField(String name, Class<S> class1) {
 		super(name);
 		try {
-			this.cons = class1.getConstructor(String.class);
+			this.cons = class1.getConstructor(CharSequence.class);
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw Utils.runtime(e);
 		}

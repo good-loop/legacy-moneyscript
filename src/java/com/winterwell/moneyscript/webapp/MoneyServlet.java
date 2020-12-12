@@ -35,8 +35,13 @@ public class MoneyServlet implements IServlet {
 			Business biz = lang.parse(text);
 			
 			// scenarios?
-			List<Scenario> scs = state.get(SCENARIOS);			
-			BusinessContext.setScenarios(scs);
+			List<Scenario> scs = state.get(SCENARIOS);
+			Map<Scenario, Boolean> bscs = biz.getScenarios();
+			if (scs != null) {
+				for (Scenario scenario : scs) {
+					bscs.put(scenario, true);
+				}
+			}
 			
 			// parse only?
 			if (state.actionIs("parse")) {

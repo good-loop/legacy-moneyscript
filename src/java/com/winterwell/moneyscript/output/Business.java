@@ -20,6 +20,7 @@ import com.winterwell.moneyscript.lang.Settings;
 import com.winterwell.moneyscript.lang.StyleRule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.cells.RowName;
+import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.nlp.dict.Dictionary;
 import com.winterwell.utils.MathUtils;
@@ -42,6 +43,9 @@ import com.winterwell.utils.time.Time;
  */
 public class Business {
 
+	
+	Map<Scenario,Boolean> scenarios = new ArrayMap();
+	
 	/**
 	 * Constant used to mark cells that are being evaluated.
 	 */
@@ -166,6 +170,8 @@ public class Business {
 		
 		// imports
 		map.put("imports", Containers.apply(importCommands, ImportCommand::toJson2));
+		// scenarios
+		map.put("scenarios", getScenarios());
 		//done
 		return map;
 	}
@@ -347,6 +353,9 @@ public class Business {
 	 */
 	public void addRule(Rule rule) {
 		if (rule instanceof ScenarioRule) {
+			Scenario s = rule.getScenario();
+			assert s != null : rule;
+			scenarios.put(s, false);
 			return;
 		}
 		Collection<String> rows = rule.getSelector().getRowNames(null);
@@ -591,5 +600,16 @@ public class Business {
 	}
 	
 	List<ImportCommand> importCommands = new ArrayList<>();
+
+	public Map<Scenario, Boolean> getScenarios() {
+		if (scenarios==null) {
+			scenarios = new ArrayMap(); // paranoia
+		}
+		return scenarios;
+	}
+
+	public void setScenarios(Map<Scenario, Boolean> map) {
+		this.scenarios = map;
+	}
 	
 }

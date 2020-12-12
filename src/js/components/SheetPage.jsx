@@ -44,12 +44,19 @@ const SheetPage = () => {
 	const item = pvItem.value;
 	if (item.name) window.document.title = "M$: "+item.name;
 
+	let _scenarios = DataStore.getUrlValue("scenarios");
+	let scenariosOn = _scenarios? _scenarios.split(",") : null;
+	let scenarios = item.scenarios;
+
 	return <>
 		<Row>
 			<Col md={6}><a className='mt-1 btn btn-dark' href={'/#plan/'+escape(id)}>&lt; View Plan</a></Col>
 			<Col md={6}><h2>{item.name || item.id}</h2></Col>
 		</Row>
-		<ViewSpreadSheet plandoc={item} />
+		<div>
+			{scenarios && JSON.stringify(scenarios)}
+		</div>
+		<ViewSpreadSheet plandoc={item} scenarios={scenariosOn} />
 	</>;
 };
 
