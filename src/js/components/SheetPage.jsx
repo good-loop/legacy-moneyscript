@@ -18,10 +18,10 @@ import SimpleTable from '../base/components/SimpleTable';
 import {setTaskTags} from '../base/components/TaskList';
 import ServerIO from '../plumbing/ServerIO';
 import ViewCharts from './ViewCharts';
-import ViewSpreadSheet from './ViewSpreadsheet';
+import ViewSpreadSheet, { doShowMeTheMoney } from './ViewSpreadsheet';
 import _ from 'lodash';
 import { getPlanId } from './MoneyScriptEditorPage';
-import { Alert, Col, Row } from 'reactstrap';
+import { Alert, Col, Form, Label, Row } from 'reactstrap';
 import ErrorAlert from '../base/components/ErrorAlert';
 import LinkOut from '../base/components/LinkOut';
 
@@ -46,18 +46,25 @@ const SheetPage = () => {
 
 	let _scenarios = DataStore.getUrlValue("scenarios");
 	let scenariosOn = _scenarios? _scenarios.split(",") : null;
-	let scenarios = item.scenarios;
+
+	const pvrun = doShowMeTheMoney({plandoc:item, scenarios:scenariosOn});
+	let scenarioMap = pvrun.value && pvrun.value.scenarios;
 
 	return <>
 		<Row>
 			<Col md={6}><a className='mt-1 btn btn-dark' href={'/#plan/'+escape(id)}>&lt; View Plan</a></Col>
 			<Col md={6}><h2>{item.name || item.id}</h2></Col>
 		</Row>
-		<div>
-			{scenarios && JSON.stringify(scenarios)}
-		</div>
+		<ScenariosOnOff scenarioMap={scenarioMap} />
 		<ViewSpreadSheet plandoc={item} scenarios={scenariosOn} />
 	</>;
+};
+
+const ScenariosOnOff = ({scenarioMap}) => {
+	if ( ! scenarioMap) return null;
+	return (<Form inline><Label>Scenarios</Label>
+		{Object.keys(scenarioMap).map(s => <PropControl tooltip={"Toggle scenario "+s} type='checkbox' prop='scenarios' value={s} label={s} key={s} className='ml-2 mr-1' />)}
+		</Form>);
 };
 
 SheetPage.fullWidth = true;

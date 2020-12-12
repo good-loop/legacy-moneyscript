@@ -1,6 +1,7 @@
 package com.winterwell.moneyscript.output;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -47,7 +48,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		// ??How might we make this a setting in the script??
 		// maybe "Total: annual except(Balance)"
 		String cname = StrUtils.toCanonical(name).replace(" ","");
-		if ("balance cashatbank cash".contains(cname) || cname.contains("count")) {
+		if (Arrays.asList("balance","cashatbank", "cash").contains(cname) || cname.contains("count")) {
 			noTotal = true;
 		}
 	}
@@ -76,6 +77,10 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 	private List<Row> kids = new ArrayList<Row>();
 	private Row parent;
 	private List<StyleRule> stylers = new ArrayList<StyleRule>();
+	/**
+	 * If true don't include a year-end total for this row
+	 * e.g. Balance
+	 */
 	private boolean noTotal;
 
 	/**
@@ -303,17 +308,20 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			Cell c = cells.get(i);
 			Numerical v = b.getCellValue(c);
 			ArrayMap map = getValuesJSON2_cell(b, c, v);
-			list.add(map);			
+			list.add(map);	
+			
 			// year total?
 			if ( ! yearTotals) continue;
+			Time t = c.getColumn().getTime();
+			if (t.getMonth()!=12) {
+				continue;
+			}
 			// ...avoid for e.g. balance
 			if (noTotal) {
 				list.add(new ArrayMap());
 				continue;
 			}
-			Time t = c.getColumn().getTime();
-//			debug map.put("time", i+" "+t.ddMMyyyy()+" "+t.getMonth());
-			if (t.getMonth()!=12) continue;
+			// sum the year
 			Numerical yearSum = new Numerical(0);
 			for (int j=Math.max(0, i-11); j<=i; j++) {
 				Cell cj = cells.get(j);
