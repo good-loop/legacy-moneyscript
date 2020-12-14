@@ -16,8 +16,11 @@ public class UncertainNumerical extends Numerical {
 		return dist;
 	}
 	
+	public UncertainNumerical(IDistribution1D dist) {
+		this(dist, null);
+	}
 	public UncertainNumerical(IDistribution1D dist, String unit) {
-		super(Double.NaN, unit);
+		super(Double.NaN, unit); // send NaN down to help flag any use of it
 		this.dist = dist;
 	}
 	

@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.MatchResult;
 
+import com.winterwell.moneyscript.lang.num.Formula;
+import com.winterwell.moneyscript.lang.num.LangNum;
 import com.winterwell.moneyscript.lang.time.DtDesc;
 import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.moneyscript.lang.time.SpecificTimeDesc;
@@ -26,6 +28,7 @@ import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.nlp.simpleparser.Parsers;
+import com.winterwell.nlp.simpleparser.Ref;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
@@ -63,7 +66,7 @@ public class LangMisc {
 		};
 	}.label("indent");
 
-	protected static Parser<MatchResult> urlOrFile = Parsers.regex(WebUtils.URL_REGEX.pattern());
+	protected static Parser<MatchResult> urlOrFile = Parsers.regex(WebUtils.URL_REGEX.pattern()).label("url");
 	
 
 	private Parser<Settings> periodSetting = new PP<Settings>(
@@ -160,7 +163,7 @@ public class LangMisc {
 	/**
 	 * key:value - doesn't require ""s
 	 */
-	Parser<Map> jsonLikeKeyVal = new PP<Map>(regex("\"?[a-zA-Z0-9]+\"?:\\s*[^},]+")) {
+	Parser<Map> jsonLike1KeyVal = new PP<Map>(regex("\"?[a-zA-Z0-9 \\-_]+\"?:\\s*[^},]+")) {
 		@Override
 		protected Map process(ParseResult<?> r) throws ParseFail {
 			String kv = r.parsed();
@@ -169,7 +172,7 @@ public class LangMisc {
 			String v = unquote(kv.substring(i+1).trim());
 			return new ArrayMap(k,v);
 		}		
-	};
+	}.label("jsonLike1KeyVal");
 	
 	@Deprecated // temp copy-pasta from StrUtils to keep the server compiler happy until open-code updates 
 	public static String unquote(String s) {
@@ -184,7 +187,7 @@ public class LangMisc {
 	}
 	
 	Parser<Map> jsonLike = new PP<Map>(
-			seq(lit("{"), chain(jsonLikeKeyVal, seq(optSpace,lit(","),optSpace)), lit("}"))
+			seq(lit("{"), chain(jsonLike1KeyVal, seq(optSpace,lit(","),optSpace)), lit("}"))
 	) {
 		@Override
 		protected Map process(ParseResult<?> pr) throws ParseFail {
@@ -199,10 +202,10 @@ public class LangMisc {
 			}
 			return jobj;
 		}		
-	};
+	}.label("jsonLike");
 	
 	/**
-	 * e.g. import actuals from a csv
+	 * e.g. import actuals from a csv. See also importRule
 	 * 
 	 * TODO other blend modes?
 	 */
@@ -236,6 +239,49 @@ public class LangMisc {
 			return s;
 		}
 	};
+
+	public static Parser<ImportRowCommand> importRow = new Ref("importRow");
+	
+	PP<ImportRowCommand> _importRow = (PP<ImportRowCommand>) new PP<ImportRowCommand>(
+			seq(lit("import"), opt(cache), 
+					space, lit("by month","aggregate").label("slicing"), 
+					space, LangNum.num, 
+					opt(seq(lit(" using "), jsonLike)), 
+					lit(" from "), LangMisc.urlOrFile)
+			) {
+		protected ImportRowCommand process(ParseResult<?> r) {			
+			AST<MatchResult> psrc = r.getNode(LangMisc.urlOrFile);
+			ImportRowCommand s = new ImportRowCommand(psrc.parsed());
+			// the formula
+			AST<Formula> fNode = r.getNode(LangNum.num);
+			s.formula = fNode.getX();
+			// cache settings?
+			AST<String> isFresh = r.getNode(cache);
+			if (isFresh != null) {
+				s.cacheDt = TimeUtils.NO_TIME_AT_ALL; 
+			}
+			// slicing -- monthly or one-aggregate number?
+			String slicing = (String) r.getNode("slicing").getX();
+			s.setSlicing(slicing);
+			// extra info
+			AST<Map> _jobj = r.getNode(jsonLike);
+			if (_jobj!=null) {
+				Map jobj = _jobj.getX();
+				// meta data
+				if (jobj.containsKey("name")) {
+					s.name = (String) jobj.get("name");
+				}
+				if (jobj.containsKey("url")) {
+					s.url = (String) jobj.get("url");
+				}
+				// mapping
+				s.setMapping(jobj);
+			}
+			return s;
+		}
+	}.eg("import sum(Net Amount) using {\"Start Date\":month} from file:///home/daniel/winterwell/moneyscript/data/SF-won-report.csv").label("importRow");
+	
+
 	
 	/**
 	 * start / end

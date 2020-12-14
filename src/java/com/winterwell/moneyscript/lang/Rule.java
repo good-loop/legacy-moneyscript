@@ -15,11 +15,19 @@ import com.winterwell.utils.log.Log;
 
 public class Rule {
 
-	private final CellSet selector;
+	private CellSet selector;
 	private String comment;
 	
 	public String getComment() {
 		return comment;
+	}
+	
+	/**
+	 * @deprecated usually done in constructor
+	 * @param selector
+	 */
+	public void setSelector(CellSet selector) {
+		this.selector = selector;
 	}
 	
 	public CellSet getSelector() {

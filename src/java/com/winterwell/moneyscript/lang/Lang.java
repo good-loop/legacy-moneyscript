@@ -35,6 +35,7 @@ import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.ParseState;
 import com.winterwell.nlp.simpleparser.Parser;
+import com.winterwell.nlp.simpleparser.Ref;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Slice;
@@ -115,8 +116,8 @@ public class Lang {
 	}.eg("Staff: na");
 	
 	Parser ruleBody = first(langNum.numList, LangNum.num, 
-							langNum.compoundingFormula, 							 
-							LangMisc.meta, 
+							langNum.compoundingFormula, 						 
+							LangMisc.meta, LangMisc.importRow,
 							LangMisc.css)
 					.label("ruleBody")
 					.setDebug(new IDebug<ParseState>() {public void call(ParseState state) {
@@ -142,13 +143,20 @@ public class Lang {
 			AST astComment = r.getNode(LangMisc.comment);
 			String comment = astComment==null? null : ""+astComment.getValue();
 			// a formula?
-			Object rbx = rb.getX();
+			Object rbx = rb.getX();			
 			if (rbx instanceof Formula) {
 				return new Rule(sel, (Formula) rbx, r.parsed(), ind).setComment(comment);
 			}
 			// a list of values
 			if (rbx instanceof List) {
 				return new ListValuesRule(sel, (List<Formula>) rbx, r.parsed(), ind).setComment(comment);
+			}
+			// a rule? (importRow does this -- it probably should return a formula instead)
+			if (rbx instanceof Rule) {
+				Rule _rule = (Rule) rbx;
+				_rule.setSelector(sel);
+				_rule.indent = ind;
+				return _rule;
 			}
 			// meta rule?
 			AST<String> m = rb.getNode(LangMisc.meta);
@@ -159,8 +167,8 @@ public class Lang {
 			AST c = rb.getNode(LangMisc.css);			
 			if (c != null) {
 				return new StyleRule(sel, (String) rbx, r.parsed(), ind).setComment(comment);
-			}
-			Log.report("DummyRule used for: "+r.parsed());
+			}			
+			Log.d("DummyRule used for: "+r.parsed());
 			return new DummyRule(sel, r.parsed()).setComment(comment);
 		};
 	};		
@@ -248,7 +256,7 @@ public class Lang {
 
 	private void parse3_addRulesAndGroupRows(Business b, List<Group> groupStack, List<Rule> rules) {
 		for (Rule rule : rules) {			
-			if (rule instanceof DummyRule) {	// Includes ImportCommand
+			if (rule instanceof DummyRule) {
 				continue;
 			}
 
@@ -373,8 +381,8 @@ public class Lang {
 	private List<Rule> parse2_rulesFromLines(String[] lines, int ln, List<ParseFail> errors, Business b) {
 		List<Rule> rules = new ArrayList();
 		for (; ln<lines.length; ln++) {
-			String line = lines[ln];
-			if (Utils.isBlank(line)) {
+			String lineln = lines[ln];
+			if (Utils.isBlank(lineln)) {
 				continue;			
 			}
 			
@@ -382,12 +390,12 @@ public class Lang {
 			Rule rule = null;
 			try {
 				// NB: can return null on error
-				rule = parseLine(line, b);
+				rule = parseLine(lineln, b);
 			} catch(Throwable ex) {
 				Log.w("Lang.parse", ex);
 			}
 			if (rule == null) {	// error :(
-				ParseFail pf = parse2_rulesFromLines2_fail(line, ln);
+				ParseFail pf = parse2_rulesFromLines2_fail(lineln, ln);
 				errors.add(pf);
 				continue;
 			}
@@ -446,6 +454,9 @@ public class Lang {
 		Set<Rule> rules = b.getAllRules();				
 		for (Rule r : rules) {
 			if (r.formula == null) continue;
+			if (r instanceof ImportRowCommand) {
+				continue; // allow references to imported rows
+			}
 			Set<String> vars;
 			try {
 				vars = r.formula.getRowNames(null);

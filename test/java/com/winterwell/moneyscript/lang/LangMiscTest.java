@@ -1,5 +1,7 @@
 package com.winterwell.moneyscript.lang;
 
+import java.util.Map;
+
 import org.junit.Test;
 
 import com.winterwell.moneyscript.output.Business;
@@ -12,6 +14,31 @@ import com.winterwell.utils.time.TimeUtils;
 
 public class LangMiscTest {
 
+	@Test
+	public void testJsonLike() {
+		Lang lang = new Lang();
+		LangMisc lm = lang.langMisc;
+		
+		Map jobj0 = lm.jsonLike.parseOut("{\"hello\":\"world\"}").getX();
+		Map jobj0b = lm.jsonLike.parseOut("{hello:world}").getX();
+		Map jobj0b2 = lm.jsonLike.parseOut("{hello: world}").getX();
+		
+		Map jobj1a = lm.jsonLike.parseOut("{\"Start Date\":month}").getX();
+		Map jobj1b = lm.jsonLike.parseOut("{name:\"SF exported csv\"}").getX();
+		
+		Map jobj1 = lm.jsonLike.parseOut("{\"Start Date\":month, name:\"SF exported csv\"}").getX();
+		
+	}
+	
+
+	@Test
+	public void testUrl() {
+		Lang lang = new Lang();
+		LangMisc lm = lang.langMisc;
+		lm.urlOrFile.parseOut("https://bbc.co.uk");
+		lm.urlOrFile.parseOut("file:///home/daniel/winterwell/moneyscript/data/SF-won-report.csv");
+	}
+		
 	@Test
 	public void testStartEnd() {
 		Lang lang = new Lang();

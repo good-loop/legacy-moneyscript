@@ -107,7 +107,7 @@ public class LangNum {
 									.label(NUMBER); // temporary assignment for simple egs in this class
 
 
-	final Parser<String> mathFnNameUnary = word("sum row", "sum", "log", "sqrt", "abs", "previous", "p", "count row", "count").label("mathFnNameUnary");
+	final Parser<String> mathFnNameUnary = word("sum row", "sum", "mean", "log", "sqrt", "abs", "previous", "p", "count row", "count").label("mathFnNameUnary");
 
 
 	// if then else formulae		
@@ -151,7 +151,7 @@ public class LangNum {
 			}			
 		}
 	};
-	Parser<String> mathFnNameBinary = lit("max","min");
+	Parser<String> mathFnNameBinary = lit("max","min"); // should these be unary as well??
 	Parser<Formula> mathFnBinary = new PP<Formula>(			
 			seq(mathFnNameBinary, lit("(").label(null),optSpace,
 			num,optSpace,lit(",").label(null),optSpace,num,
