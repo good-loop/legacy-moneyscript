@@ -1,7 +1,8 @@
 start: Jan 2020
 end: Sep 2022
 
-//samples: 20
+//samples: 20 
+// ^ uncomment this to do some stochastic modelling. Which can be a bit slow.
 
 // Import actuals from a g-drive spreadsheet
 // Manually copied over by Dan into the `actuals` sheet
@@ -181,6 +182,8 @@ Costs: {.bg-red}
 // Sales
 Sales_Revenue: {.bg-green}
 Sales_Revenue: (Marketing ROI + (Campaign_Size * UK_Campaigns)) * Seasonality
+Campaign_Size: import aggregate mean(Net Amount) from https://docs.google.com/spreadsheets/d/1FR8Y8LBgMF_aFxTXNPWl9Rc6WQZkdLBckwE61lMLJOw/gviz/tq?tqx=out:csv
+// last I checked the campaign size was about N(25k, std-dev 25k). Note that from the data: existing clients don't have a different £ profile.
 Revenue Details: na
     // TODO let's split into bigger deals which get a brand uplift study and smaller deals
     // Maybe - model sales staff by person, using their SF track record
@@ -191,13 +194,14 @@ Revenue Details: na
 	RampedUpStaff: count(Sales Staff from 5 months ago) // This doesn't model churn - e.g. if a new peep comes in and Charley moves over to Marketing
 	CampaignsPerSalesperson: 1+-1 per month // It was about 0.7 in 2019 and 0.9 in 2020 (source: email from Jules re SF data, noting that head-count his blurry). Allowing for covid, it could be higher. This is new and repeat.
 	UK_Campaigns: CampaignsPerSalesperson * RampedUpStaff
-	Campaign_Size: N(23k, 451m) // Checking the data: new and existing clients have the same profile
 	// Adjustments
 	Seasonality: 70%,	75%,	90%,	115%,	125%,	115%,	90%,	80%,	100%,	100%,	115%,	125%
 	Seasonality: Seasonality at 12 months ago // annual loop
 	Marketing ROI: 20% * (Marketing at 3 months ago + Trudi at 3 months ago) // This is titchy, but because we've really included marketing in sales already
 Revenue Details: {.bg-green}
 
+// import SalesForce actuals for the number of campaigns
+UK_Campaigns to Nov 2020: import by month count(New Amount) using {"End Date": month} from https://docs.google.com/spreadsheets/d/1FR8Y8LBgMF_aFxTXNPWl9Rc6WQZkdLBckwE61lMLJOw/gviz/tq?tqx=out:csv
 
 COS:
 	Advertising Inventory: 25% * Sales_Revenue // ie we'll get 25% profit margin TODO split self-serve vs managed

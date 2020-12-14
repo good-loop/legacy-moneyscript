@@ -7,7 +7,7 @@ import java.util.Set;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Row;
 
-public class CurrentRow extends CellSet {
+public final class CurrentRow extends CellSet {
 
 	@Override
 	public String toString() {
@@ -22,7 +22,7 @@ public class CurrentRow extends CellSet {
 	
 	@Override
 	public Set<String> getRowNames(Cell focus) {
-		throw new UnsupportedOperationException(getClass().getName());
+		throw new UnsupportedOperationException("CurrentRow is too flexible for getRowNames()");
 	}
 
 	@Override
