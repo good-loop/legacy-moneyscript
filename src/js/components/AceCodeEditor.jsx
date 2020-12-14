@@ -6,7 +6,8 @@ import PropControl, {DSsetValue} from '../base/components/PropControl';
 
 /**
  * HACK! In order to get our mode to load - we hacked the ace-build python mode file!
- * Our file mode-ms.backup.js should be copied into place over node_modules/ace-builds/src-noconflict/mode-python.js
+ * Our file mode-ms.src.js should be copied into place over node_modules/ace-builds/src-noconflict/mode-python.js
+ * This is done by the package.json compile script
  */
 import "ace-builds/src-noconflict/mode-python";
 

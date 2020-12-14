@@ -60,6 +60,27 @@ public class ImportRowCommandTest {
 	}			
 
 	
+	
+	@Test 
+	public void testParseImportFromSF_https() {
+		{
+			String ms = "import aggregate mean(Net Amount) from https://docs.google.com/spreadsheets/d/e/2PACX-1vRy.csv";
+			Lang lang = new Lang();
+			PP<ImportRowCommand> p = lang.langMisc._importRow;
+			p.parseOut(ms);
+		}
+		{
+			String ms = "import aggregate mean(Net Amount) from https://docs.google.com/spreadsheets/d/e/2PACX-1vRyHr0yWj22C_2Q_DiS_eC3z0IRdRslHRXn3yy68cdIbW3If_DzwNnIyTWH-PQTrF4BDa1S_WsanH00/pub?output=csv";
+			Lang lang = new Lang();
+			PP<ImportRowCommand> p = lang.langMisc._importRow;
+			p.parseOut(ms);
+		}
+		{
+			String ms = "Campaign_Size: import aggregate mean(Net Amount) from https://docs.google.com/spreadsheets/d/e/2PACX-1vRyHr0yWj22C_2Q_DiS_eC3z0IRdRslHRXn3yy68cdIbW3If_DzwNnIyTWH-PQTrF4BDa1S_WsanH00/pub?output=csv  // last I checked it was about N(25k, std-dev 25k). Note that from the data: existing clients don't have a different £ profile.";
+			Lang lang = new Lang();
+			Business b = lang.parse(ms);
+		}
+	}
 
 	@Test
 	public void testImportRowFromSF_fns() {
