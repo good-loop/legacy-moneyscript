@@ -22,6 +22,7 @@ public final class Settings {
 	 */
 	int samples;
 	protected Dt _runTime;
+	public boolean fuzzyNames;
 	
 	public void setSamples(int samples) {
 		this.samples = samples;

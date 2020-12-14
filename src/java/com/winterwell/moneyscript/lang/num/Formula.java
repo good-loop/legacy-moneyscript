@@ -25,6 +25,10 @@ public abstract class Formula {
 	
 	String op;
 	
+	public String getOp() {
+		return op;
+	}
+	
 	public Formula(String op) {
 		assert op != null;
 		this.op = op.intern(); // allow for == comparisons

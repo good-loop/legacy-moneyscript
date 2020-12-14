@@ -27,6 +27,7 @@ import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
+import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.ListMap;
 import com.winterwell.utils.containers.Range;
@@ -230,7 +231,7 @@ public class Business {
 	public Dictionary getRowNames() {
 		Dictionary rowNames = new Dictionary();
 		for(Row row : getRows()) {
-			String name = row.getName();
+			final String name = row.getName();
 			rowNames.add(name, name);
 			String rn = StrUtils.toCanonical(name);
 			rowNames.add(rn, name);
@@ -299,8 +300,88 @@ public class Business {
 		for(Row r : getRows()) {
 			if (name.equals(r.name)) return r;
 		}
+		if (getSettings().fuzzyNames) {	
+			// maybe cache for speed??
+			Dictionary rowNames = getRowNames();
+			String rn = getRow2(name, rowNames);
+			if (rn==null) {
+				return null;
+			}
+			for(Row r : getRows()) {
+				if (rn.equals(r.name)) {
+					return r;
+				}
+			}	
+		}
 		return null;
 	}
+
+	/**
+	 * Copy pasta from ImportCommand ?? refactor to share code
+	 * @param rowName
+	 * @param rowNames 
+	 * @return
+	 */
+	String getRow2(String rowName, Dictionary rowNames) {		
+		// exact match
+		if (rowNames.contains(rowName)) {
+			return rowNames.getMeaning(rowName);
+		}
+		// match ignoring case+
+		String rowNameCanon = StrUtils.toCanonical(rowName);
+		if (rowNames.contains(rowNameCanon)) {
+			return rowNames.getMeaning(rowNameCanon);
+		}
+		// match on ascii
+		String rowNameAscii = rowNameCanon.replaceAll("[^a-zA-Z0-9]", "");
+		if ( ! rowNameAscii.isEmpty() && rowNames.contains(rowNameAscii)) {
+			return rowNames.getMeaning(rowNameAscii);
+		}
+		// try removing "total" since MS group rows are totals
+		if (rowNameCanon.contains("total")) {			
+			String rn2 = rowNameCanon.replace("total", "");
+			assert rn2.length() < rowNameCanon.length();
+			if ( ! rn2.isBlank()) {
+				String found = getRow2(rn2, rowNames);
+				if (found!=null) {
+					return found;
+				}
+			}
+		}
+		// Allow a first-word or starts-with match if it is unambiguous e.g. Alice = Alice Smith
+		ArraySet<String> matches = new ArraySet();
+		String firstWord = rowNameCanon.split(" ")[0];
+		for(String existingName : rowNames) {
+			String existingNameFW = existingName.split(" ")[0];
+			if (firstWord.equals(existingNameFW)) {
+				matches.add(rowNames.getMeaning(existingName));
+			}
+		}
+		if (matches.size() == 1) {
+			return matches.first();
+		}
+		if (matches.size() > 1) {
+			Log.d("import", "(skip match) Ambiguous 1st word matches for "+rowName+" to "+matches);
+		}
+		// starts-with?
+		matches.clear();
+		for(String existingName : rowNames) {
+			if (rowName.startsWith(existingName)) {
+				matches.add(rowNames.getMeaning(existingName));
+			} else if (existingName.startsWith(rowName)) {
+				matches.add(rowNames.getMeaning(existingName));
+			}
+		}
+		if (matches.size() == 1) {
+			return matches.first();
+		}
+		if (matches.size() > 1) {
+			Log.d("import", "(skip match) Ambiguous startsWith matches for "+rowName+" to "+matches);
+		}
+		// Nothing left but "Nope"
+		return null;
+	}
+	
 
 	/**
 	 * 

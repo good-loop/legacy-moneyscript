@@ -230,7 +230,7 @@ public class LangMisc {
 					s.url = (String) jobj.get("url");
 				}
 				if (jobj.containsKey("rows")) {
-					s.rows= (String) jobj.get("rows");
+					s.setRows((String)jobj.get("rows"));
 				}
 			}
 			return s;

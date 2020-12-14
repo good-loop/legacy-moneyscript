@@ -19,8 +19,8 @@ import com.winterwell.utils.log.Log;
 
 public class UnaryOp extends Formula {
 
-	final Formula right;
-
+	public final Formula right;
+	
 	public UnaryOp(String op, Formula right) {
 		super(op);
 //		assert ! (right instanceof SetValueFormula);

@@ -3,8 +3,12 @@ package com.winterwell.moneyscript.lang;
 import java.io.File;
 import java.io.StringReader;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.tree.RowMapper;
 
 import com.winterwell.moneyscript.data.PlanDoc;
 import com.winterwell.moneyscript.lang.num.Numerical;
@@ -19,6 +23,7 @@ import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.containers.Cache;
+import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.io.CSVReader;
 import com.winterwell.utils.io.CSVSpec;
 import com.winterwell.utils.io.FileUtils;
@@ -34,16 +39,31 @@ import com.winterwell.web.ajax.JSend;
 import com.winterwell.web.ajax.JThing;
 
 /**
- * @author daniel
+ * e.g. import some actuals
+ * import: https://docs.google.com/spreadsheets/meh?output=csv {name:"actuals", rows:"overlap"}
  *
+ * e.g. TODO import SF deal data
+ *  
+ * @author daniel
+ * @testedby {@link ImportCommandTest}
  */
-public class ImportCommand extends DummyRule implements IHasJson {
+public class ImportCommand extends Rule implements IHasJson {
+
+	@Override
+	public Numerical calculate(Cell b) {
+		return null;
+	}
+
+	/**
+	 * magic-string value for rows = "import the ones which overlap with our rules"
+	 */
+	private static final String OVERLAP = "overlap";
 
 	public ImportCommand(String src) {
-		super(null, src);
+		super(null, null, src, 0);
 	}	
 	
-	protected String rows = "overlap";
+	private List<String> rows = Arrays.asList(OVERLAP);
 	
 	/**
 	 * TODO
@@ -61,7 +81,7 @@ public class ImportCommand extends DummyRule implements IHasJson {
 	
 	static Cache<String, String> csvCache = new Cache<>(20);
 	
-	public void run(Business b) {
+	public void run(Business b) {		
 		// Is it another m$ file??
 		if (src.endsWith(".m$") || src.endsWith(".ms")) {			
 			return; // Should be done already during parse!
@@ -119,7 +139,7 @@ public class ImportCommand extends DummyRule implements IHasJson {
 				if (isEmptyRow(row)) {
 					continue;
 				}
-				if ("overlap".equals(rows)) {
+				if (rows.contains(OVERLAP)) {
 					Log.d("import", "Skip non-overlap row "+rowName);
 					continue; // don't import this row
 				}
@@ -156,8 +176,13 @@ public class ImportCommand extends DummyRule implements IHasJson {
 	String name;
 
 	String url;
+
+	/**
+	 * map incoming names to our names
+	 */
+	protected Map<String, String> mappingImportRow2ourRow;
 	
-	private void fetch() {
+	protected void fetch() {
 		// Always use in memory if set (e.g. if doing samples: 20))
 		if (csv !=null) {
 			return;
@@ -216,6 +241,14 @@ public class ImportCommand extends DummyRule implements IHasJson {
 	}
 
 	private String run2_ourRowName(String rowName, Dictionary rowNames) {
+		// mapping?
+		if (mappingImportRow2ourRow != null) {
+			String mappedName = Containers.getLenient(mappingImportRow2ourRow, rowName);
+			if (mappedName!=null) {
+				// TODO try correcting for slight mismatches?? e.g. using this method recursively??
+				return mappedName;
+			}
+		}
 		// exact match
 		if (rowNames.contains(rowName)) {
 			return rowNames.getMeaning(rowName);
@@ -290,4 +323,23 @@ public class ImportCommand extends DummyRule implements IHasJson {
 		return b2;
 	}
 
+	public void setRows(List<String> rows) {
+		this.rows = rows;
+	}
+	
+	/**
+	 * 
+	 * @param rows e.g. "overlap"
+	 */
+	public void setRows(String rows) {
+		if (rows==null) {
+			this.rows = new ArrayList();
+			return;
+		}
+		this.rows = Arrays.asList(rows);
+	}
+
+	public void setMapping(Map<String,String> mappingImportRow2ourRow) {
+		this.mappingImportRow2ourRow = mappingImportRow2ourRow;
+	}
 }

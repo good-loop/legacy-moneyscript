@@ -17,6 +17,7 @@ import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.Printer;
+import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.time.Time;
@@ -41,6 +42,25 @@ public class BusinessTest {
 			Time dec = new Time(2020,12,01);
 			Col col = b.getColForTime(dec);
 			assert col.equals(last);
+		}
+	}
+	
+	@Test
+	public void testColForTime() {
+		{
+			String s = "start: Jan 2020\nend: Dec 2020\nAlice: previous + £1";
+			Lang lang = new Lang();
+			Business b = lang.parse(s);
+						
+			List<Col> cols = b.getColumns();
+			Col first = cols.get(0);
+			Col last = cols.get(cols.size()-1);
+
+			Time midMar = new Time(2020,3,15);
+			Col col = b.getColForTime(midMar);
+			Time colt = col.getTime();
+			assert col.getTimeDesc().contains("Mar") : col.getTimeDesc();
+			throw new TodoException(col);
 		}
 	}
 

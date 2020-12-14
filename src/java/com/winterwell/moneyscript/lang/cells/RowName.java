@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
+import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
@@ -16,6 +17,10 @@ public final class RowName extends CellSet {
 		assert rowName != null;
 //		assert LangCellSet.rowName.parse(rowName) != null : rowName;
 		this.rowName = rowName;
+	}
+	
+	public String getRowName() {
+		return rowName;
 	}
 	
 	@Override
@@ -34,7 +39,9 @@ public final class RowName extends CellSet {
 	}
 	
 	private Row getRow(Cell ignored) {
-		return BusinessContext.getBusiness().getRow(rowName);
+		Business b = BusinessContext.getBusiness();
+		Row r = b.getRow(rowName);
+		return r;
 	}
 
 	private boolean contains2(Row myRow, Cell cell) {
