@@ -27,11 +27,7 @@ public class ListValuesRule extends Rule {
 	}
 	
 	@Override
-	public Numerical calculate(Cell b) {
-		BusinessContext.setActiveRule(this);
-		if ( ! getSelector().contains(b, b)) {
-			return null;
-		}
+	protected Numerical calculate2_formula(Cell b) {
 		// Pick the nth formula from the start of the selected cells to supply the value
 		Col start = getSelector().getStartColumn(b.getRow(), b);
 		int i = b.getColumn().index - start.index;

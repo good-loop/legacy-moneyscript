@@ -158,7 +158,7 @@ public class Business {
 			List<Map> rowvs = (List<Map>) datamap.get(rowName);
 			try {						
 				// TODO handle uncertainnumerical
-				ArrayList<Number> vs = Containers.apply(rowvs, cv -> ((Number) cv.get("v")).doubleValue());
+				List<Number> vs = Containers.apply(rowvs, cv -> ((Number) cv.get("v")).doubleValue());
 				Numerical v = new Numerical(MathUtils.sum(MathUtils.toArray(vs)));
 				Cell c = new Cell(row, new Col(cols.size()));
 				Map sumv = row.getValuesJSON2_cell(this, c, v);
@@ -170,7 +170,8 @@ public class Business {
 		}
 		
 		// imports
-		map.put("imports", Containers.apply(importCommands, ImportCommand::toJson2));
+		List<Map> importMaps = Containers.apply(importCommands, ImportCommand::toJson2);
+		map.put("imports", importMaps);
 		// scenarios
 		map.put("scenarios", getScenarios());
 		//done

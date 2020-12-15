@@ -50,7 +50,7 @@ import com.winterwell.web.ajax.JThing;
 public class ImportCommand extends Rule implements IHasJson {
 
 	@Override
-	public Numerical calculate(Cell b) {
+	protected Numerical calculate2_formula(Cell b) {
 		return null;
 	}
 
@@ -331,12 +331,8 @@ public class ImportCommand extends Rule implements IHasJson {
 	 * 
 	 * @param rows e.g. "overlap"
 	 */
-	public void setRows(String rows) {
-		if (rows==null) {
-			this.rows = new ArrayList();
-			return;
-		}
-		this.rows = Arrays.asList(rows);
+	public void setRows(String row) {
+		setRows(Arrays.asList(row));
 	}
 
 	public void setMapping(Map<String,String> mappingImportRow2ourRow) {

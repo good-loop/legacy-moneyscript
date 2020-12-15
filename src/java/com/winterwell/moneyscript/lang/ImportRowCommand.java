@@ -44,8 +44,6 @@ import com.winterwell.utils.time.TimeUtils;
  */
 public class ImportRowCommand extends ImportCommand {
 
-	private String targetRowName = "dummy";
-
 	public ImportRowCommand(String src) {
 		super(src);
 	}	
@@ -196,7 +194,7 @@ public class ImportRowCommand extends ImportCommand {
 	private String slicing;
 
 	@Override
-	public Numerical calculate(Cell b) {
+	protected Numerical calculate2_formula(Cell b) {
 		if (values==null) {
 			run(b.getBusiness());
 		}

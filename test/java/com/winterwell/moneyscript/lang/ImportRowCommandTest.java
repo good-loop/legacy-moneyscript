@@ -19,7 +19,39 @@ import com.winterwell.utils.time.Time;
 
 public class ImportRowCommandTest {
 
-
+	
+	@Test
+	public void testImportRowFromSF_count() {
+		{
+			String ms = "NumCampaigns: import by month count(Amount) using {\"End Date\": month} from https://docs.google.com/spreadsheets/d/1FR8Y8LBgMF_aFxTXNPWl9Rc6WQZkdLBckwE61lMLJOw/gviz/tq?tqx=out:csv";
+			Lang lang = new Lang();
+			Business b = lang.parse(ms);
+			b.getSettings().setStart(new Time(2020,1,1));
+			b.getSettings().setEnd(new Time(2021,12,31));
+			b.run();
+			Row sfna = b.getRow("NumCampaigns");						
+			double[] vs = sfna.getValues();
+			System.out.println(b.toCSV());
+			assert MathUtils.equalish(vs[9], 9) : vs[9]; // Oct
+		}	
+	}
+	
+	@Test
+	public void testImportRowTimeCap() {
+		{	// time limit
+			String ms = "Blah to Mar 2020: 1\nNumCampaigns to Mar 2020: import by month count(Amount) using {\"End Date\": month} from https://docs.google.com/spreadsheets/d/1FR8Y8LBgMF_aFxTXNPWl9Rc6WQZkdLBckwE61lMLJOw/gviz/tq?tqx=out:csv";
+			Lang lang = new Lang();
+			Business b = lang.parse(ms);
+			b.getSettings().setStart(new Time(2020,1,1));
+			b.getSettings().setEnd(new Time(2021,12,31));
+			b.run();
+			Row sfna = b.getRow("NumCampaigns");						
+			double[] vs = sfna.getValues();
+			System.out.println(b.toCSV());
+			assert vs[9]==0 : vs[9]; // Oct
+		}	
+	}
+	
 	@Test
 	public void testImportRowFromSF_lowLevel() {
 		// sum(Net Amount) using {Start Date: month} 

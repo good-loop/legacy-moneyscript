@@ -78,7 +78,7 @@ public class Rule {
 	 * @param b
 	 * @return null if the rule has no effect
 	 */
-	public Numerical calculate(Cell b) {
+	public final Numerical calculate(Cell b) {
 		try {
 			BusinessContext.setActiveRule(this);
 			// Are we in a scenario - if so, does this rule apply?
@@ -95,17 +95,24 @@ public class Rule {
 			if ( ! getSelector().contains(b, b)) {
 				return null;
 			}
-			if (formula==null) return null;
-			Numerical v = formula.calculate(b);
+			Numerical v = calculate2_formula(b);
 			// Issue: conditional probs require global samples - working with local marginals is wrong
 			assert ! (v instanceof UncertainNumerical);
-	//			Double s = ((UncertainNumerical) v).getDist().sample();
-	//			v = new Numerical(s, v.getUnit());
-	//		}
 			return v;
 		} catch(Throwable ex) {
 			throw new RuleException(ex+" Cell "+b+" Rule "+this, ex);
 		}
+	}
+
+	/**
+	 * Called after filters have been applied
+	 * @param b
+	 * @return
+	 */
+	protected Numerical calculate2_formula(Cell b) {
+		if (formula==null) return null;
+		Numerical v = formula.calculate(b);
+		return v;
 	}
 
 	public void setScenario(Scenario byScenario) {

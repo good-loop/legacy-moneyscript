@@ -156,6 +156,7 @@ public class Lang {
 				Rule _rule = (Rule) rbx;
 				_rule.setSelector(sel);
 				_rule.indent = ind;
+				_rule.setComment(comment);
 				return _rule;
 			}
 			// meta rule?

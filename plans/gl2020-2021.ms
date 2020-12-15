@@ -201,7 +201,7 @@ Revenue Details: na
 Revenue Details: {.bg-green}
 
 // import SalesForce actuals for the number of campaigns
-UK_Campaigns to Nov 2020: import by month count(New Amount) using {"End Date": month} from https://docs.google.com/spreadsheets/d/1FR8Y8LBgMF_aFxTXNPWl9Rc6WQZkdLBckwE61lMLJOw/gviz/tq?tqx=out:csv
+SFNUMUK_Campaigns to Nov 2020: import by month count(Net Amount) using {"End Date": month} from https://docs.google.com/spreadsheets/d/1FR8Y8LBgMF_aFxTXNPWl9Rc6WQZkdLBckwE61lMLJOw/gviz/tq?tqx=out:csv
 
 COS:
 	Advertising Inventory: 25% * Sales_Revenue // ie we'll get 25% profit margin TODO split self-serve vs managed

@@ -12,10 +12,9 @@ public class DummyRule extends Rule {
 	}
 
 	@Override
-	public Numerical calculate(Cell b) {
+	protected Numerical calculate2_formula(Cell b) {
 		return null;
 	}
-
 	
 
 }

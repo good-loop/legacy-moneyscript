@@ -184,7 +184,7 @@ public class UnaryOp extends Formula {
 		ArrayList<Row> leafRows = new ArrayList();
 		List<String> rns = new ArrayList(sel.getRowNames(b));		 
 		Business biz = b.getBusiness();
-		ArrayList<Row> rows = Containers.apply(rns, biz::getRow);
+		List<Row> rows = Containers.apply(rns, biz::getRow);
 		getLeafRows(rows, leafRows, biz);		
 		if ( ! leafRows.contains(b.row)) {
 			if (leafRows.size() != 1) {
