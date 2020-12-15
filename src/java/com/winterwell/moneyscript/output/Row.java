@@ -104,9 +104,9 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		Numerical v = null;
 		// Last rule wins in a straight calculation (some rules are modifiers)
 		for (Rule r : rs) {
-			if (r instanceof ImportRowCommand) {
-				System.out.println("debug");
-			}
+//			if (r instanceof ImportRowCommand) {
+//				System.out.println("debug");
+//			}
 			if (r instanceof MetaRule) continue;
 			if (r instanceof StyleRule) continue;
 			if (r instanceof DummyRule) continue;

@@ -171,7 +171,7 @@ const InfoPop = ({text}) => {
 const ImportsList = ({runOutput}) => {
 	if ( ! runOutput.imports || ! runOutput.imports.length) return null;
 	// NB the import src is usually g-drive gibberish
-	return <div className='ImportsList'>{runOutput.imports.map((imp,i) => <LinkOut className='mr-2' href={imp.url || imp.src}>[Import {imp.name || i}]</LinkOut>)}</div>
+	return <div className='ImportsList'>{runOutput.imports.map((imp,i) => <LinkOut key={imp.src} className='mr-2' href={imp.url || imp.src}>[Import {imp.name || i}]</LinkOut>)}</div>
 };
 
 export {doShowMeTheMoney};

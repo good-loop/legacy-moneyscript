@@ -24,7 +24,7 @@ import { getPlanId } from './MoneyScriptEditorPage';
 import { Alert, Col, Form, Label, Row } from 'reactstrap';
 import ErrorAlert from '../base/components/ErrorAlert';
 import LinkOut from '../base/components/LinkOut';
-
+import CSS from '../base/components/CSS';
 
 const SheetPage = () => {
 	// which plan?
@@ -51,7 +51,7 @@ const SheetPage = () => {
 	let scenarioMap = pvrun.value && pvrun.value.scenarios;
 
 	return <>
-		<CSS src={`nav {display: none;}`} />
+		<CSS css={`nav {display: none;}`} />
 		<Row>
 			<Col md={6}><a className='mt-1 btn btn-dark' href={'/#plan/'+escape(id)}>&lt; View Plan</a></Col>
 			<Col md={6}><h2>{item.name || item.id}</h2></Col>
