@@ -1,5 +1,6 @@
 package com.winterwell.moneyscript.lang;
 
+import com.winterwell.maths.stats.distributions.d1.Gaussian1D;
 import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
@@ -49,6 +50,12 @@ public class UncertainNumerical extends Numerical {
 			}
 			return super.toString()+" ± ~"+StrUtils.toNSigFigs(100*err,2)+"%";
 		}
+		// hack - std-dev is more useful than variance for human info
+		if (dist instanceof Gaussian1D) {
+			double m = dist.getMean();
+			double sd = dist.getStdDev();
+			return "N("+super.toString()+", sd:"+StrUtils.toNSigFigs(sd, 2)+")";
+		}
 		return (getUnit()==null? "":getUnit()) + dist.toString();
 	}
 
@@ -57,15 +64,20 @@ public class UncertainNumerical extends Numerical {
 	 * @return
 	 */
 	public Numerical sample() {
+		Numerical n;
 		// HACK sampling??
-		Business b = Business.get();
+		Business b = Business.get();		
 		int samples = b.getSettings().getSamples();
 		if (samples < 2) {
-			// no - use the mean
-			return new Numerical(dist.getMean(), getUnit());
+			// no samples - use the mean for robust sensible answers
+			n = new Numerical(dist.getMean(), getUnit());			
+		} else {
+			Double x = dist.sample();
+			n = new Numerical(x, getUnit());
 		}
-		Double x = dist.sample();
-		return new Numerical(x, getUnit());
+		// pass along the distro info in a comment (it's better than nothing)
+		n.comment = StrUtils.joinWithSkip(". ", comment, toString());
+		return n;
 	}
 
 }

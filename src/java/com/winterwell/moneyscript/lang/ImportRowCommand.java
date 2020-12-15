@@ -44,10 +44,18 @@ import com.winterwell.utils.time.TimeUtils;
  */
 public class ImportRowCommand extends ImportCommand {
 
+	private String propForComment;
+	private String propToSum;
+
 	public ImportRowCommand(String src) {
 		super(src);
 	}	
 
+	@Override
+	public String toString() {
+		return "ImportRowCommand[src=" + src +", formula="+formula+"]";
+	}
+	
 	public void run(Business b) {		
 		// Is it another m$ file??
 		if (src.endsWith(".m$") || src.endsWith(".ms")) {			
@@ -85,8 +93,10 @@ public class ImportRowCommand extends ImportCommand {
 		}
 		BasicFormula coltosum = (BasicFormula) f.right;
 		RowName fcs = (RowName) coltosum.getCellSetSelector();
-		String propToSum = fcs.getRowName();
-
+		propToSum = fcs.getRowName();
+		
+		propForComment = mappingImportRow2ourRow==null? null : mappingImportRow2ourRow.get("commentary");
+		
 		// filter out of window data
 		Period period = new Period(b.getSettings().getStart(), b.getSettings().getEnd());
 		List<Map> inItems = Containers.filter(items, map -> {
@@ -102,7 +112,7 @@ public class ImportRowCommand extends ImportCommand {
 		// process the items
 		
 		if ("aggregate".equals(slicing)) {
-			Numerical n = run2_numForItems(op, propToSum, inItems);
+			Numerical n = run2_numForItems(op, inItems);
 			values.add(n);
 			return;
 		}
@@ -119,7 +129,7 @@ public class ImportRowCommand extends ImportCommand {
 		values.add(null); // to make it 1-indexed
 		for(Col col : col2items.keySet()) {
 			List<Map> citems = col2items.get(col);
-			Numerical n = run2_numForItems(op, propToSum, citems);
+			Numerical n = run2_numForItems(op, citems);
 			getCreateCol(col);			
 			values.set(col.index, n);			
 		}
@@ -131,11 +141,12 @@ public class ImportRowCommand extends ImportCommand {
 		return t;
 	}
 
-	private Numerical run2_numForItems(String op, String propToSum, Iterable<Map> citems) {
+	private Numerical run2_numForItems(String op, Iterable<Map> citems) {
 		// pluck and sum
 		MeanVar1D mv = new MeanVar1D();
 		double sum = 0;
-		int cnt = 0;
+		int cnt = 0;		
+		StringBuilder comment = propForComment==null? null : new StringBuilder();
 		for (Map<String, ?> citem : citems) {
 			String v = (String) Containers.getLenient(citem, propToSum);
 			double vn = MathUtils.getNumber(v);
@@ -144,7 +155,11 @@ public class ImportRowCommand extends ImportCommand {
 			if ( ! Utils.isBlank(v) && ! v.equals("0") && ! v.equals("0.0")) {
 				cnt++;
 			}
-		}			
+			if (comment!=null) {
+				String c = (String) Containers.getLenient(citem, propForComment);
+				if (c !=null) { comment.append(c); comment.append(", "); }
+			}
+		}
 		Numerical n;
 		switch(op) {
 		case "sum": 
@@ -156,6 +171,9 @@ public class ImportRowCommand extends ImportCommand {
 			n = new UncertainNumerical(norm); break;
 		default:
 			throw new IllegalArgumentException("TODO op "+op+" in "+this);
+		}
+		if (comment!=null) {
+			n.comment = comment.toString();
 		}
 		return n;
 	}

@@ -96,8 +96,15 @@ public class Rule {
 				return null;
 			}
 			Numerical v = calculate2_formula(b);
-			// Issue: conditional probs require global samples - working with local marginals is wrong
-			assert ! (v instanceof UncertainNumerical);
+			// Should we allow local distributions -- or force all stochastic work to be done by global samples?
+			// Local distros have the problem that they might be sampled twice with different results!
+			// e.g. Sales: 1 +- 1		Revenue: Sales * £10		CostOfSales: Sales * £2 	<-- Sales must return the same answers
+			// TODO allow UncertainNumerical to fix its value as it is sampled - but preserve the distro info.
+			// For now: convert to number
+			if (v instanceof UncertainNumerical) {
+				Numerical vFixed = ((UncertainNumerical) v).sample();
+				v = vFixed;
+			}
 			return v;
 		} catch(Throwable ex) {
 			throw new RuleException(ex+" Cell "+b+" Rule "+this, ex);

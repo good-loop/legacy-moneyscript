@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.tree.RowMapper;
 
@@ -61,6 +63,22 @@ public class ImportCommand extends Rule implements IHasJson {
 
 	public ImportCommand(String src) {
 		super(null, null, src, 0);
+		// HACK g-drive sources
+		if (src.startsWith("https://docs.google.com/spreadsheets/")) {
+			if (src.contains("gviz")) {
+				// remove the gviz bit to get a normal url
+				url = src.substring(0, src.indexOf("/gviz"));
+			} else {	
+				// convert a normal url to a gviz
+				Pattern gsu = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)");
+				Matcher m = gsu.matcher(src);
+				if (m.matches()) {
+					String docid = m.group(1);
+					url = src;
+					src = url.substring(0, m.end())+"/gviz/tq?tqx=out:csv";					
+				}
+			}
+		}
 	}	
 	
 	private List<String> rows = Arrays.asList(OVERLAP);

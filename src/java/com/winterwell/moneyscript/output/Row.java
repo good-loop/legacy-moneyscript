@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.winterwell.moneyscript.lang.DummyRule;
 import com.winterwell.moneyscript.lang.GroupRule;
+import com.winterwell.moneyscript.lang.ImportRowCommand;
 import com.winterwell.moneyscript.lang.MetaRule;
 import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.StyleRule;
@@ -101,11 +102,15 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		List<Rule> rs = getRules();		
 		if (rs.isEmpty()) return null;
 		Numerical v = null;
+		// Last rule wins in a straight calculation (some rules are modifiers)
 		for (Rule r : rs) {
+			if (r instanceof ImportRowCommand) {
+				System.out.println("debug");
+			}
 			if (r instanceof MetaRule) continue;
 			if (r instanceof StyleRule) continue;
 			if (r instanceof DummyRule) continue;
-			if (r instanceof GroupRule) continue;
+			if (r instanceof GroupRule) continue;			
 			assert r != null : rs;
 			// NB: scenario on/off is done inside calculate
 			Numerical v2 = r.calculate(cell);
@@ -306,6 +311,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		for (int i = 0; i < cells.size(); i++) {
 			Cell c = cells.get(i);
 			Numerical v = b.getCellValue(c);
+			// cell json
 			ArrayMap map = getValuesJSON2_cell(b, c, v);
 			list.add(map);	
 			

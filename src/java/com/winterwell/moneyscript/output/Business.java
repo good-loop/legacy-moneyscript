@@ -2,6 +2,7 @@ package com.winterwell.moneyscript.output;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -170,8 +171,21 @@ public class Business {
 		}
 		
 		// imports
-		List<Map> importMaps = Containers.apply(importCommands, ImportCommand::toJson2);
+		Collection<Map> importMaps = Containers.apply(importCommands, ImportCommand::toJson2);
+		// merge if same src
+		Map<String,Map> im4src = new ArrayMap();
+		for (Map im : importMaps) {
+			String s = ""+im.get("src");
+			Map im2 = im4src.get(s);
+			if (im2 == null) {
+				im4src.put(s, im);
+			} else {
+				im2.putAll(im);
+			}
+		}
+		importMaps = im4src.values();
 		map.put("imports", importMaps);
+		
 		// scenarios
 		map.put("scenarios", getScenarios());
 		//done

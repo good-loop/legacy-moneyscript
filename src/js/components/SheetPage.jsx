@@ -51,6 +51,7 @@ const SheetPage = () => {
 	let scenarioMap = pvrun.value && pvrun.value.scenarios;
 
 	return <>
+		<CSS src={`nav {display: none;}`} />
 		<Row>
 			<Col md={6}><a className='mt-1 btn btn-dark' href={'/#plan/'+escape(id)}>&lt; View Plan</a></Col>
 			<Col md={6}><h2>{item.name || item.id}</h2></Col>
