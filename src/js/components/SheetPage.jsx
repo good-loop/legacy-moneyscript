@@ -50,8 +50,9 @@ const SheetPage = () => {
 	const pvrun = doShowMeTheMoney({plandoc:item, scenarios:scenariosOn});
 	let scenarioMap = pvrun.value && pvrun.value.scenarios;
 
+	// TODO use the navbar as the title bar instead of hiding it
 	return <>
-		<CSS css={`nav {display: none;}`} />
+		<CSS css={`nav {display: none !important;}`} />
 		<Row>
 			<Col md={6}><a className='mt-1 btn btn-dark' href={'/#plan/'+escape(id)}>&lt; View Plan</a></Col>
 			<Col md={6}><h2>{item.name || item.id}</h2></Col>
