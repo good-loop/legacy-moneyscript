@@ -58,7 +58,9 @@ const SheetPage = () => {
 			<Col md={6}><h2>{item.name || item.id}</h2></Col>
 		</Row>
 		<ScenariosOnOff scenarioMap={scenarioMap} />
-		<ViewSpreadSheet plandoc={item} scenarios={scenariosOn} />
+		<div style={{height:"85vh"}}> {/* This % kind of fills the page TODO use flex to set height to fill down to the bottom of the page */}
+			<ViewSpreadSheet plandoc={item} scenarios={scenariosOn} />
+		</div>
 	</>;
 };
 
