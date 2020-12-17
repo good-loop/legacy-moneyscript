@@ -4,6 +4,12 @@ import {ReactDOM} from 'react-dom';
 import AceEditor from "react-ace";
 import PropControl, {DSsetValue} from '../base/components/PropControl';
 
+import "ace-builds/src-noconflict/ext-prompt";
+import "ace-builds/src-noconflict/ext-searchbox";
+// import "ace-builds/src-noconflict/theme-tomorrow";
+// import "ace-builds/src-noconflict/theme-tomorrow_night_eighties";
+// import "ace-builds/webpack-resolver";
+
 /**
  * HACK! In order to get our mode to load - we hacked the ace-build python mode file!
  * Our file mode-ms.src.js should be copied into place over node_modules/ace-builds/src-noconflict/mode-python.js
@@ -27,7 +33,7 @@ const AceCodeEditor = ({path, prop, markers, ...props}) => {
 	width="100%"
 	placeholder=""
 	mode="python" //acems" // previously tried json
-	// theme="tomorrow"
+	// theme="tomorrow_night_eighties"
 	name="planit1"
 	onLoad={editor => console.log("Ace onLoad")}
 	onChange={newText => DSsetValue(path.concat(prop), newText, true)}
@@ -44,20 +50,6 @@ const AceCodeEditor = ({path, prop, markers, ...props}) => {
 		showLineNumbers: true,
 		tabSize: 4,
 	}}
-	// control-f find is broken??
-	// editorProps={{
-	// 	editor.commands.addCommand({
-	// 		name: "unfind",
-	// 		bindKey: {
-	// 			win: "Ctrl-F",
-	// 			mac: "Command-F"
-	// 		},
-	// 		exec: function(editor, line) {
-	// 			return false;
-	// 		},
-	// 		readOnly: true
-	// 	})
-	// }}
 	markers={markers} //Not working ?!
 	/>
 	{/* {markers.map(m => <div key={JSON.stringify(m)} className='bg-warning' style={{position:"absolute",left:"75%",right:0,top:16*m.startRow}} title={m.text}>{m.text || "!"}</div>)} */}
