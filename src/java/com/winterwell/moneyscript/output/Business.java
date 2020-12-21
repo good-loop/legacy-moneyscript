@@ -13,6 +13,7 @@ import org.eclipse.jetty.util.ajax.JSON;
 import com.winterwell.gson.Gson;
 import com.winterwell.maths.stats.distributions.d1.UniformDistribution1D;
 import com.winterwell.maths.timeseries.TimeSlicer;
+import com.winterwell.moneyscript.lang.CompareCommand;
 import com.winterwell.moneyscript.lang.ImportCommand;
 import com.winterwell.moneyscript.lang.MetaRule;
 import com.winterwell.moneyscript.lang.Rule;
@@ -223,6 +224,7 @@ public class Business {
 	private void run2() {
 		phase = KPhase.IMPORT;
 		for(ImportCommand ic : importCommands) {
+			if (ic instanceof CompareCommand) continue; // later
 			ic.run(this);
 		}
 		
@@ -235,7 +237,13 @@ public class Business {
 				Cell cell = new Cell(row, col);
 				run3_evaluate(cell);							
 			}
-		}		
+		}
+		
+		for(ImportCommand ic : importCommands) {
+			if (ic instanceof CompareCommand) {
+				ic.run(this);
+			}
+		}
 	}
 
 
@@ -407,6 +415,12 @@ public class Business {
 		return getRows().indexOf(row);
 	}
 
+	/**
+	 * @deprecated confusing 0 index
+	 * @param rowIndex
+	 * @param month 0 indexed!
+	 * @return
+	 */
 	public Numerical getCell(int rowIndex, int month) {
 		Row row = getRows().get(rowIndex);
 		Col col = getColumns().get(month);

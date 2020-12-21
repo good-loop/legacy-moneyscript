@@ -178,14 +178,19 @@ public class ImportCommand extends Rule implements IHasJson {
 				}
 				Col col = new Col(j);
 				Cell cell = new Cell(brow, col);
-				Numerical v = new Numerical(n);
-				v.comment = "import";
-				// Set value
-				b.state.set(cell, v);
+				Numerical v = run2_setCellValue(b, n, cell);
 			}
 		}
 		// error level?
 //		r.getB
+	}
+
+	Numerical run2_setCellValue(Business b, double n, Cell cell) {
+		Numerical v = new Numerical(n);
+		v.comment = "import";
+		// Set value
+		b.state.set(cell, v);
+		return v;
 	}
 
 
@@ -258,7 +263,13 @@ public class ImportCommand extends Rule implements IHasJson {
 		return true;
 	}
 
-	private String run2_ourRowName(String rowName, Dictionary rowNames) {
+	/**
+	 * See Business.getRow2() - refactor to share
+	 * @param rowName
+	 * @param rowNames
+	 * @return
+	 */
+	String run2_ourRowName(String rowName, Dictionary rowNames) {
 		// mapping?
 		if (mappingImportRow2ourRow != null) {
 			String mappedName = Containers.getLenient(mappingImportRow2ourRow, rowName);

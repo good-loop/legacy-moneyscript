@@ -328,12 +328,20 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			}
 			// sum the year
 			Numerical yearSum = new Numerical(0);
+			double delta = 0;
+			boolean hasDelta = false;
 			for (int j=Math.max(0, i-11); j<=i; j++) {
 				Cell cj = cells.get(j);
 				Numerical vj = b.getCellValue(cj);
 				yearSum = yearSum.plus(vj);
+				if (vj.getDelta()!=null) {
+					delta += vj.getDelta();
+					hasDelta = true;
+				}
 			}
 			yearSum.comment = "total for year "+t.getYear();
+			if (hasDelta) yearSum.setDelta(delta);
+			// ... into json
 			ArrayMap ymap = getValuesJSON2_cell(b, null, yearSum);
 			String css = (String) map.get("css");
 			css = (css==null?"":css)+"fontWeight:bold;";
@@ -355,9 +363,12 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			"v", v.doubleValue(),
 			"str", v.toString(),
 			"unit", v.getUnit(),
-			"comment", v.comment,
+			"comment", v.comment,			
 			"css", c==null? null : b.getCSSForCell(c)
 		);
+		if (v.getDelta() != null) {
+			map.put("delta", v.getDelta());
+		}
 		return map;
 	}
 

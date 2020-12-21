@@ -160,7 +160,7 @@ const ViewSpreadSheet = ({plandoc, scenarios}) => {
 			scroller 
 			hasCollapse 
 			hideEmpty={false}
-			csv /></>;
+			hasCsv /></>;
 };
 
 const InfoPop = ({text}) => {

@@ -210,12 +210,15 @@ public class LangMisc {
 	 * TODO other blend modes?
 	 */
 	PP<ImportCommand> importCommand = new PP<ImportCommand>(
-			seq(lit("import"), opt(cache), lit(":"), optSpace, LangMisc.urlOrFile, optSpace, opt(jsonLike))
+			seq(first(lit("import"),lit("compare").label("cmd")), opt(cache), lit(":"), optSpace, LangMisc.urlOrFile, optSpace, opt(jsonLike))
 			) {
 		protected ImportCommand process(ParseResult<?> r) {			
-//			String keyword = (String) r.getLeafValues().get(1);
+			String cmd = (String) r.getNode("cmd").getX();
 			AST<MatchResult> psrc = r.getNode(LangMisc.urlOrFile);
 			ImportCommand s = new ImportCommand(psrc.parsed());
+			if ("compare".equals(cmd)) {
+				s = new CompareCommand(psrc.parsed());
+			}
 			s.overwrite = true;			
 			// cache settings?
 			AST<String> isFresh = r.getNode(cache);

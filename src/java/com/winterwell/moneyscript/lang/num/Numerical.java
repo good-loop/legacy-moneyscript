@@ -32,6 +32,10 @@ public class Numerical extends Number implements IScalarArithmetic {
 		return x.doubleValue()==0;
 	}
 	
+	public Double getDelta() {
+		return delta;
+	}
+	
 	protected static final ICalculator calc = new Sample1Calculator(); 
 	
 	private static final long serialVersionUID = 1L;
@@ -49,6 +53,11 @@ public class Numerical extends Number implements IScalarArithmetic {
 	 * treat % as a unit - but one that gets over-ridden by anything else
 	 */
 	private final String unit;
+
+	/**
+	 * For comparing against another set of values
+	 */
+	private Double delta;
 
 	// TODO remove the ,?
 	public static Pattern number = Pattern.compile("-?(£|$)?([0-9]+[0-9,]+[0-9]{3}|[0-9]+\\.[0-9]+|[0-9]+)(k|m|bn)?%?", Pattern.CASE_INSENSITIVE);
@@ -190,6 +199,11 @@ public class Numerical extends Number implements IScalarArithmetic {
 	public Numerical plus(double b) {
 		return calc.plus(this, new Numerical(b));
 	}
+
+	public void setDelta(Double d) {
+		this.delta = d;
+	}
+		
 
 }
 

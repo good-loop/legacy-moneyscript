@@ -23,6 +23,22 @@ import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.time.Time;
 
 public class BusinessTest {
+
+	@Test
+	public void testDoubleNestedSum() {
+		{	// binary salaries so we can see what's in the sums
+			String s = "Staff:\n\tAlice: £1\n\tUK:\n\t\tBob:£2\n\t\tCarol:£4\n\tUS:\n\t\tDinah:£8\n\t\tEd:£16";
+			Lang lang = new Lang();
+			Business b = lang.parse(s);
+			b.getSettings().setStart(new Time(2020,1,1));
+			b.getSettings().setEnd(new Time(2020,3,31));
+			b.run();
+
+			String csv = b.toCSV();
+			Printer.out(csv); // Staff = 31 is correct 
+		}
+	}
+	
 	@Test
 	public void testStartEnd1Year() {
 		{	// year totals - saving pocketmoney

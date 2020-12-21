@@ -5,6 +5,12 @@ import java.util.Map;
 import com.winterwell.data.KStatus;
 import com.winterwell.datalog.DataLog;
 import com.winterwell.es.XIdTypeAdapter;
+import com.winterwell.es.client.ESHttpClient;
+import com.winterwell.es.client.IESResponse;
+import com.winterwell.es.client.admin.ClusterAdminClient;
+import com.winterwell.es.client.admin.ClusterOverridReadOnlyRequest;
+import com.winterwell.es.fail.ESException;
+import com.winterwell.es.fail.ESIndexReadOnlyException;
 import com.winterwell.gson.Gson;
 import com.winterwell.gson.GsonBuilder;
 import com.winterwell.gson.KLoopPolicy;
@@ -18,6 +24,7 @@ import com.winterwell.utils.time.Time;
 import com.winterwell.web.app.AMain;
 import com.winterwell.web.app.AppUtils;
 import com.winterwell.web.app.JettyLauncher;
+import com.winterwell.web.app.KServerType;
 import com.winterwell.web.app.MasterServlet;
 import com.winterwell.web.data.XId;
 
@@ -74,7 +81,23 @@ public class MoneyScriptMain extends AMain<MoneyScriptConfig> {
 		Class[] dbclasses = new Class[] {PlanDoc.class};
 		AppUtils.initESIndices(KStatus.main(), dbclasses);
 		Map<Class, Map> mappingFromClass = new ArrayMap();
-		AppUtils.initESMappings(KStatus.main(), 
-				dbclasses, mappingFromClass);
+		try {
+			AppUtils.initESMappings(KStatus.main(), 
+					dbclasses, mappingFromClass);
+		} catch (ESIndexReadOnlyException ex) {
+			// ES being fussy about memory -- if local, poke the index
+			if (AppUtils.getServerType()==KServerType.LOCAL) {
+				ESHttpClient esjc = Dep.get(ESHttpClient.class);
+				ClusterAdminClient cac = new ClusterAdminClient(esjc);
+				ClusterOverridReadOnlyRequest oro = cac.prepareOverrideReadOnly();
+				oro.setDebug(true);
+				IESResponse ok = oro.get().check();
+				// try again
+				AppUtils.initESMappings(KStatus.main(), 
+						dbclasses, mappingFromClass);
+			} else {
+				throw ex;
+			}
+		}
 	}
 }

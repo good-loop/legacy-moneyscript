@@ -11,7 +11,7 @@ public abstract class Formula {
 	/**
 	 * Convert distributions into samples. 
 	 * @param n
-	 * @return
+	 * @return a fresh new Numerical
 	 */
 	public static final Numerical sample(Numerical n) {
 		if (n instanceof UncertainNumerical) {
@@ -20,7 +20,8 @@ public abstract class Formula {
 			return n2;
 		}
 		// just a number
-		return n;
+		// Copy it to avoid shared structure e.g. comments, delta
+		return new Numerical(n);
 	}
 	
 	String op;
