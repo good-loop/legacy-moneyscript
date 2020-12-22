@@ -58,7 +58,7 @@ Contractors: // Trudi and Emilia are under Marketing
 	Amanda: £450 per month		
 	Pete: £900 per month
 	Raimah: £1k per month
-	Raimah from Mar 2021: 0
+	Raimah from Feb 2021: 0
 	Motion Designer from Jan 2021: £6k per year // 3x £2k projects?
 	Governance & Advisors:
 		Chairman from Apr 2021: £1k per month
@@ -66,6 +66,7 @@ Contractors: // Trudi and Emilia are under Marketing
 		Alexandra Jorge: £250 per month // Ryan Mentor - being replaced?
 		Kate Ho from Nov 2020: £70 // Kati mentor
 		Tech Advisor from Feb 2021: £400 per month
+        US Finance from May 2021: £1k per month
 
 Staff Count: count(UK Staff) + count(US Staff)
 HeadCount: Staff Count + count(Contractors)
@@ -99,6 +100,7 @@ Pay Rises: na
     
     // Extra pay rise for Stu
     Stuart from Jun 2021: + £2k per year
+    Charley from Jun 2021: + £2k per year
     
     // 2021 pay-rises - 4% in Dec 2021? (inflation is likely to go up)
     UK Staff from Dec 2021: * 104%
@@ -110,25 +112,29 @@ UK Staff:
             Kickstart Sales Assistant A from Jan 2021: £300 per month // Initially hired on govt scheme (with some top-up)
             Kickstart Sales Assistant A from June 2021: £25k per year		
             Kickstart Sales Assistant B from Jan 2021 to June 2021: £300 per month
-            Junior Omnicom Sales Person from Jun 2021: £30k per year // Or is this the KickStart person?
-        New Marketing Staff:        
-        	Transfer Charley from Jun 2021: £31k per year // So we'd hire a new salesperson (modelled by the Charley line) and Charley would move over
+            // Junior Omnicom Sales Person from Jun 2021: £30k per year // Or is this the KickStart person?
         New Account Management Staff:
             Admin Officer from Jan 2021: £30k per year // full-time so they're heart and soul into the job
-            Junior AdOps from Jun 2021: £35k per year
+            Kickstart AdOps from Feb 2021: £300 per month
+            Kickstart AdOps from July 2021: £25k per year
             Kickstart Social Media Community Manager from Jan 2021:  £300 per month // Initially hired on govt scheme (with some top-up)
-            Kickstart Social Media Community Manager from June 2021: £25k per year
-            CFO from June 2021: 20% * £70k per year // start part-time
+            Kickstart Social Media Community Manager from June 2021: £0 //£25k per year
+//            CFO from June 2021: 20% * £70k per year // start part-time
+            // Pete from August 2021: 0
 //        New Tech Staff:		
 //            AdTech Dev from Apr 2021: £50k per year
 //            AdExchange Partnership Manager from Jan 2021: £50k per year // grant fund for a bit from SE??
+// Charley at Jan 2021: shift to Marketing
 
 
-scenario Claire_Leaves:
-    Claire from Mar 2021: £0
+// scenario Claire_Leaves:
+//     Claire from Mar 2021: £0
     // model a sales pick-up / dip
 
-
+scenario Hiring_Delay:
+    New Sales Staff from Jun 2021: 0
+    Kickstart AdOps from Jun 2021: 0
+    Kickstart Social Media Community Manager from Jun 2021: 0
 
 Operating Expenses: // costs apart from COS
 	People:
@@ -137,7 +143,7 @@ Operating Expenses: // costs apart from COS
 		Pension: 3% * (UK Staff + Sales Commission + Profit Share)
 		Wellness budget: £100 * count(UK Staff) * 75% 				// let's assume a decent but 100% take-up
 		Training: £20 * HeadCount + £100 * count(US Staff) 		// plan for US staff doing a UK visit
-		Recruitment from Feb 2021: £7500 * max(0, Staff Count - previous(Staff Count)) // assumes all staff are recruited
+		Recruitment from Feb 2021: £0 //£7500 * max(0, Staff Count - previous(Staff Count)) // assumes all staff are recruited
 		Childcare Vouchers: // in the past
 		Freelancer Bonus: // a one-off
         Profit Share: 3% * (Sales_Revenue - COS) // ?? is this the right definition? was prev Advertising Inventory - Business Donations - Brand_Uplift_Research
@@ -151,43 +157,42 @@ Operating Expenses: // costs apart from COS
 		London Club from Jan 2021: £100 * count(London Staff)
         Maintenance: // from the spreadsheet
 
-	Marketing: // excluding Charley's salary
-    	Trudi: £3k per month
-		Design Consultant Emilia: £1.4k per month
-		Misc Marketing: £50 per month // design/editing/IAB/Awards
-		Owned Events: £1150 per month
-		Industry Events: £2500 per month
-		Content Creation from Jan 2021: £1k per month
-        Other Marketing: // a category in the spreadsheet
-        Misc design editing IAB Awards: £250 // TODO average(actuals) an ad-hoc category in the actuals spreadsheet
-        Paid Media: £1k per month
+	Marketing: £6,700 per month // excluding Charley's salary
+//     	Trudi: £3k per month
+// 		Design Consultant Emilia: £1.4k per month
+// 		Misc Marketing: £50 per month // design/editing/IAB/Awards
+// 		Owned Events: £1150 per month
+// 		Industry Events: £2500 per month
+// 		Content Creation from Jan 2021: £1k per month
+//         Other Marketing: // a category in the spreadsheet
+//         Misc design editing IAB Awards: £250 // TODO average(actuals) an ad-hoc category in the actuals spreadsheet
+//         Paid Media: £1k per month
 
 	Travel_Entertainment:
-		Travel: £100
-		Accommodation: £100
-		Subsistence: £100
+		Travel US from May 2021: £1k per month
+		Travel UK: £500 per month // Edinburgh trips + misc
 		Staff Entertainment: £100 * count(London Staff) + £20 * count(Tech Staff) // London are no office + more events
-		Client Entertainment: £200 per month
-	Travel_Entertainment from Feb 2021: * 500% // lockdown lifts?
+		Client Entertainment: £500 per month
 
 	Professional Fees: // Not including e.g. Pete, Amanda, Donia
 	    Accountancy:
 		    UK Accountancy: £575			
-		    US Accountancy from 2021: £750 per month
+		  //  US Accountancy from 2021: £750 per month
 		Legal:
 		    UK Legal: £500 per month
-		    UK Legal from August 2021: £1k per month
+		    UK Legal from Oct 2021: £1k per month
 		    US Legal from 2021: £2k per month // a patent = $20k alone
-		Consultants: £80 per month // 2020 average to date - but who is included?
+		Consultants: £80 per month // 2020 average to date - but who is included <- B Lab membership
 
 	Other Expenses:
 		Insurance: £3k per year
 		Telephones Internet: £2.5k per year
-		Bank Charges: £6,400 per year
+		Bank Charges: £100 per month
 		Exchange Rate: £100
 		Misc Overheads: £300 per month // subs/donations/postage
     
 	IT:
+	    Hardware: max(0, Staff Count - previous(Staff Count))
 		Software: £25 * Staff Count
 		Servers: £1200
 Operating Expenses: {.bg-red}
@@ -195,7 +200,7 @@ Operating Expenses: {.bg-red}
 
 // Sales
 Income:
-    Sales_Revenue: (Marketing ROI + (Campaign_Size * Num_Campaigns)) * Seasonality
+    Sales_Revenue: £3m per year //(Marketing ROI + (Campaign_Size * Num_Campaigns)) * Seasonality
     Revenue Details: na
     	RampedUpStaff: count(Sales Staff from 5 months ago) + count(New Sales Staff from 5 months ago) // This doesn't model churn - e.g. if a new peep comes in and Charley moves over to Marketing
     	CampaignsPerSalesperson: 1+-1 per month // It was about 0.7 in 2019 and 0.9 in 2020 (source: email from Jules re SF data, noting that head-count his blurry). Allowing for covid, it could be higher. This is new and repeat.
@@ -203,7 +208,7 @@ Income:
     	// Adjustments
     	Seasonality: 70%,	75%,	90%,	115%,	125%,	115%,	90%,	80%,	100%,	100%,	115%,	125%
     	Seasonality: Seasonality at 12 months ago // annual loop
-    	Marketing ROI: 20% * (Marketing at 3 months ago + Trudi at 3 months ago) // This is titchy, but because we've really included marketing in sales already
+    	Marketing ROI: 20% * (Marketing at 3 months ago) // This is titchy, but because we've really included marketing in sales already
 	Grant Income: // Hm - counting grants as income, but perhaps it'd make more sence under financing/investment?
 		SE_Early_Stage at Oct 2020: £300k
 		SE_RnD_Grant from Nov 2020 to Jun 2021: £50k per year 
