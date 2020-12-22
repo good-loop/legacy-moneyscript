@@ -10,8 +10,10 @@
 	import com.google.api.client.json.jackson2.JacksonFactory;
 	import com.google.api.client.util.store.FileDataStoreFactory;
 	import com.google.api.services.sheets.v4.Sheets;
-	import com.google.api.services.sheets.v4.SheetsScopes;
-	import com.google.api.services.sheets.v4.model.ValueRange;
+import com.google.api.services.sheets.v4.Sheets.Spreadsheets.Create;
+import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.Spreadsheet;
+import com.google.api.services.sheets.v4.model.ValueRange;
 import com.winterwell.utils.io.FileUtils;
 
 import java.io.File;
@@ -75,6 +77,11 @@ import java.io.FileNotFoundException;
 	        ValueRange response = service.spreadsheets().values()
 	                .get(spreadsheetId, range)
 	                .execute();
+	        
+//	        Spreadsheet ss = new Spreadsheet();	        
+//	        https://developers.google.com/sheets/api/guides/values
+//			Create ssr = service.spreadsheets().create(ss);
+	        
 	        List<List<Object>> values = response.getValues();
 	        if (values == null || values.isEmpty()) {
 	            System.out.println("No data found.");
