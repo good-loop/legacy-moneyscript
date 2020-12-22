@@ -6,18 +6,23 @@ import com.winterwell.moneyscript.output.Cell;
 
 public class CompareCommand extends ImportCommand {
 
+
 	public CompareCommand(String src) {
 		super(src);
 	}
 
 	@Override
 	Numerical run2_setCellValue(Business b, double v, Cell cell) {
+		if (cell.row.getName().contains("Grant")) {
+			System.out.println(cell);
+		}
 		Numerical ours = b.getCellValue(cell);
 		if (ours==null) {
 			ours = new Numerical(0);
 			b.state.set(cell, ours);
 		}
-		ours.setDelta(ours.doubleValue() - v); 
+		double d = ours.doubleValue() - v;
+		ours.setDelta(d); 
 		return ours;
 	}
 }

@@ -305,6 +305,9 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 	}
 
 	public List<Map> getValuesJSON(boolean yearTotals) {
+//		if (name.contains("Grant")) {	// debug
+//			System.out.println(this);
+//		}
 		List<Cell> cells = Containers.getList(getCells());
 		Business b = Business.get();
 		List<Map> list = new ArrayList<Map>();
@@ -328,19 +331,21 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			}
 			// sum the year
 			Numerical yearSum = new Numerical(0);
-			double delta = 0;
+//			double delta = 0;
 			boolean hasDelta = false;
 			for (int j=Math.max(0, i-11); j<=i; j++) {
 				Cell cj = cells.get(j);
 				Numerical vj = b.getCellValue(cj);
 				yearSum = yearSum.plus(vj);
 				if (vj.getDelta()!=null) {
-					delta += vj.getDelta();
+//					delta += vj.getDelta();
 					hasDelta = true;
 				}
 			}
 			yearSum.comment = "total for year "+t.getYear();
-			if (hasDelta) yearSum.setDelta(delta);
+			if (hasDelta) {
+//				yearSum.setDelta(delta); TODO
+			}
 			// ... into json
 			ArrayMap ymap = getValuesJSON2_cell(b, null, yearSum);
 			String css = (String) map.get("css");

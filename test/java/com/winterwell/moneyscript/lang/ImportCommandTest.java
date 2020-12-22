@@ -48,25 +48,5 @@ public class ImportCommandTest {
 		System.out.println(bs.toJSON());
 	}
 
-	@Test
-	public void testBusinessRun_compare() {
-		CompareCommand ic = new CompareCommand(new File("test/test-input.csv").toURI().toString());
-		ic.overwrite = true;
-		Lang lang = new Lang();
-		Business bs = lang.parse("Bob: £2");
-		bs.getSettings().setStart(new Time(new Time().getYear(), 1, 1));
-		bs.getSettings().setEnd(new Time(new Time().getYear(), 12, 31));
-		bs.addImportCommand(ic);
-		bs.run();
-		Row brow = bs.getRow("Bob");
-		Numerical c1 = bs.getCell(brow.getIndex(), 0);
-		Numerical c5 = bs.getCell(brow.getIndex(), 5);
-		List<Map> vs = brow.getValuesJSON(true);
-//		System.out.println(Printer.toString(vs, "\n"));
-		assert c5.getDelta() == null;
-		assert c1.getDelta() == -2;
-//		System.out.println(bs.toCSV());
-//		System.out.println(bs.toJSON());
-	}
 
 }

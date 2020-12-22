@@ -33,6 +33,7 @@ import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
+import com.winterwell.utils.time.TimeParser;
 import com.winterwell.utils.time.TimeUtils;
 import com.winterwell.utils.web.IHasJson;
 import com.winterwell.utils.web.WebUtils;
@@ -51,6 +52,22 @@ import com.winterwell.web.ajax.JThing;
  */
 public class ImportCommand extends Rule implements IHasJson {
 
+	/**
+	 * If set, there IS a row that provides column times.
+	 * -- and columns which can't beparsed should be skipped.
+	 *  
+	 * 1-indexed to match spreadsheets
+	 */
+	Integer timeRow;
+
+	/**
+	 * 1-indexed to match spreadsheets
+	 * @param timeRow
+	 */
+	public void setTimeRow(int timeRow) {
+		this.timeRow = timeRow;
+	}
+	
 	@Override
 	protected Numerical calculate2_formula(Cell b) {
 		return null;
@@ -61,6 +78,8 @@ public class ImportCommand extends Rule implements IHasJson {
 	 */
 	private static final String OVERLAP = "overlap";
 
+	private static final String LOGTAG = "import";
+
 	public ImportCommand(String src) {
 		super(null, null, src, 0);
 		// HACK g-drive sources
@@ -70,9 +89,9 @@ public class ImportCommand extends Rule implements IHasJson {
 				url = src.substring(0, src.indexOf("/gviz"));
 			} else {	
 				// convert a normal url to a gviz
-				Pattern gsu = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)");
+				Pattern gsu = Pattern.compile("^https://docs.google.com/spreadsheets/d/([^/]+)");
 				Matcher m = gsu.matcher(src);
-				if (m.matches()) {
+				if (m.find()) {
 					String docid = m.group(1);
 					url = src;
 					src = url.substring(0, m.end())+"/gviz/tq?tqx=out:csv";					
@@ -113,34 +132,21 @@ public class ImportCommand extends Rule implements IHasJson {
 		// CSV
 		CSVSpec spec = new CSVSpec();
 		CSVReader r = new CSVReader(new StringReader(csv), spec);
-		// the first row MUST be headers
-		r.setHeaders(r.next());
-		r.setNumFields(-1); // flex
-		Dictionary rowNames = b.getRowNames(); // do this now, so we can support fuzzy matching but not give a fuzzy
-												// match against the csv's own rows
-		List<String> headers = r.getHeaders();
-		// match headers to columns
-		String h1 = headers.get(1);
-		int col1;
-		// is it a time?
-		try {
-			Time time = TimeUtils.parseExperimental(h1);
-			// HACK
-			if (time.isBefore(b.getSettings().getStart())) {
-				Dt dt = time.dt(b.getSettings().getStart());
-				double i = dt.divide(b.getSettings().timeStep);
-				col1 = (int) Math.round(1 - i); // i steps back from 1st col
-			} else if (time.isAfter(b.getSettings().getStart())) {
-				Log.w("Business.import", "Skip import " + h1);
-				return; // import nothing
-			} else {
-				col1 = b.getColForTime(time).index;
-			}
-		} catch (Exception ex) {
-			// Not a time 
-			Log.d("Business.import", "(oh well) First row of csv import does not seem to be a list of times: \""+h1+ "\" > " + ex);
-			col1 = 1;
+
+		// headers
+		int hrow = timeRow!=null? timeRow : 1; // 1-indexed
+		for(int i=1; i<hrow; i++) {
+			r.next();
 		}
+		String[] headers = r.next();
+		r.setHeaders(headers);	
+		r.setNumFields(-1); // flex
+		
+		Dictionary rowNames = b.getRowNames(); // do this now, so we can support fuzzy matching but not give a fuzzy
+												// match against the csv's own rows		
+		// match headers to columns
+		// NB: 1-indexed, so [0] = null
+		Col[] ourCol4importCol = run2_ourCol4importCol(b, headers, b.getSettings().getStart(), b.getSettings().getEnd());
 
 		for (String[] row : r) {
 			if (row.length == 0)
@@ -166,23 +172,62 @@ public class ImportCommand extends Rule implements IHasJson {
 			}
 			// add in the data
 			for (int i = 1; i < row.length; i++) {
+				if (i >= ourCol4importCol.length) {
+					Log.e(LOGTAG, "Overlong row? "+i+" from "+rowName);
+					break;
+				}
+				Col col = ourCol4importCol[i];
+				if (col==null) {
+					continue; // skip e.g. not in the sheet's time window
+				}
 				String ri = row[i];
 				double n = MathUtils.getNumber(ri);
 				if (n == 0 && (ri==null || ! "0".equals(ri.trim()))) {
 					continue; // skip blanks and non-numbers but not "true" 0s
 				}
-				int j = col1 + i - 1;
-				if (j < 1) {
-					// skip until we enter the sheet's time window
-					continue;
-				}
-				Col col = new Col(j);
 				Cell cell = new Cell(brow, col);
 				Numerical v = run2_setCellValue(b, n, cell);
 			}
 		}
 		// error level?
 //		r.getB
+	}
+
+	private Col[] run2_ourCol4importCol(Business b, String[] headers, Time start, Time end) {
+		Col[] ourCol4importCol = new Col[headers.length];
+		TimeParser tp = new TimeParser();
+		int exs=0; int ok=0;
+		for(int i=0; i<headers.length; i++) {
+			try {
+				String hi = headers[i].trim(); // 0=row labels	
+				if (Utils.isBlank(hi)) continue;
+				// NB: don't include plain years, e.g. "2020", which are probably annual sums
+				if (hi.length() < 5) continue;
+				Time time = tp.parseExperimental(hi);
+				ok++;
+				if (time.isBefore(start)) {
+					continue; // leave null
+				} else if (time.isAfter(end)) {
+					continue; // leave null
+				} 
+				Col coli = b.getColForTime(time);
+				if (i>0) {
+					Col prev = ourCol4importCol[i-1];
+					if (prev!=null) {
+						int dt = coli.index - prev.index;
+						if (dt != 1) {									
+							System.out.println("WRONG ");
+							Col coli2 = b.getColForTime(time);
+						}
+					}
+				}
+				ourCol4importCol[i] = coli;
+			} catch(Exception ex) {
+				exs++;
+				// leave null
+			}
+		}
+		return ourCol4importCol;
 	}
 
 	Numerical run2_setCellValue(Business b, double n, Cell cell) {

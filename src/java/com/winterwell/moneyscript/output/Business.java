@@ -629,7 +629,10 @@ public class Business {
 	}
 
 	public Col getColForTime(Time time) {
-		TimeSlicer ts = new TimeSlicer(settings.getStart(), settings.getEnd(), settings.timeStep);		
+		Time start = settings.getStart();
+		Time end = settings.getEnd();
+		Dt dt = settings.timeStep;
+		TimeSlicer ts = new TimeSlicer(start, end, dt);		
 		int i = ts.getBucket(time);
 		Col coli = columns.get(i);
 		assert coli.index == i + 1;

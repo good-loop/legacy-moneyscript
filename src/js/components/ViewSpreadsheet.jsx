@@ -3,7 +3,7 @@ import {ReactDOM} from 'react-dom';
 import _ from 'lodash';
 import {assert} from 'sjtest';
 import {Login} from 'you-again';
-import printer from '../base/utils/printer';
+import printer, { prettyNumber } from '../base/utils/printer';
 import C from '../C';
 import Roles from '../base/Roles';
 import Misc from '../base/components/Misc';
@@ -45,7 +45,7 @@ const fStyle = ({cellValue, item, row, depth, column}) => {
 	// no styling on blank/zero cells
 	let css = cellValue && colVal && colVal.css;
 	if (css) {
-		let kvs = css.split("[\n;]+");
+		let kvs = css.split("/[\n;]+/");
 		kvs.forEach(kv => {
 			// cleanup
 			kv = kv.trim();
@@ -86,6 +86,16 @@ const fStyle = ({cellValue, item, row, depth, column}) => {
 };
 
 
+const renderCell = (v, column, item) => {
+	const colv = item[column.index];
+	let vs = (colv && colv.str) || v || '';
+	vs = vs.replace('-', '‑'); // str value for display, then replace - with a non-breaking hyphen (which looks the same here, but it is different)	
+	if (colv && colv.delta) {
+		return <div>{vs} <span className='small text-info'>delta: {prettyNumber(colv.delta, 3)}</span></div>;
+	}
+	return vs;
+};
+
 
 const ViewSpreadSheet = ({plandoc, scenarios}) => {
 	if ( ! plandoc) return null;
@@ -93,9 +103,11 @@ const ViewSpreadSheet = ({plandoc, scenarios}) => {
 	if ( ! pvrun.resolved) {
 		return <Misc.Loading />;
 	}
-	const runOutput = pvrun.value;
-	if (runOutput.errors) {
-		return <Alert>{runOutput.errors.map(e => <div key={JSON.stringify(e)}>{JSON.stringify(e)}</div>)}</Alert>;
+	const runOutput = pvrun.value;	
+	// eror?
+	if ( ! runOutput || runOutput.errors) {
+		const errors = runOutput.errors || [pvrun.error];
+		return <Alert>{errors.map(e => <div key={JSON.stringify(e)}>{JSON.stringify(e)}</div>)}</Alert>;
 	}
 	// only process the data once (so the Tree is stable)
 	if ( ! runOutput.dataTree) {
@@ -109,7 +121,7 @@ const ViewSpreadSheet = ({plandoc, scenarios}) => {
 			return new Column({
 				index: i,
 				accessor: r => r[i] && (r[i].v || r[i].str), // get the numerical value for csv export
-				Cell: (v, column, item) => ((item[column.index] && item[column.index].str) || v || '').replace('-', '‑'), // str value for display, then replace - with a non-breaking hyphen
+				Cell: renderCell,
 				tooltip: ({cellValue, item, column}) => item && item[i] && item[i].comment,
 				Header: c,
 				style: fStyle

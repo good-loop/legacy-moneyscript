@@ -249,18 +249,21 @@ public class Lang {
 
 		parse4_checkReferences(b, errors);
 		
-		if ( ! errors.isEmpty()) throw new ParseExceptions(errors);
+		if ( ! errors.isEmpty()) {
+			throw new ParseExceptions(errors);
+		}
 		
 		return b;
 	}
 
 
 	private void parse3_addRulesAndGroupRows(Business b, List<Group> groupStack, List<Rule> rules) {
-		for (Rule rule : rules) {			
-			if (rule instanceof DummyRule 
-					|| rule.getClass() == ImportCommand.class) // HACK imports dont have rows per-se 
-			{
-				continue;
+		for (Rule rule : rules) {
+			if (rule instanceof DummyRule || rule instanceof ImportCommand)  {
+				// HACK imports dont have rows per-se. But ImportRowCommand does
+				if ( ! (rule instanceof ImportRowCommand)) {
+					continue;
+				}
 			}
 
 			CellSet selector = rule.getSelector();
