@@ -38,6 +38,7 @@ import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.nlp.simpleparser.Ref;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
+import com.winterwell.utils.containers.Cache;
 import com.winterwell.utils.containers.Slice;
 import com.winterwell.utils.log.Log;
 
@@ -90,6 +91,12 @@ public class Lang {
 	public Parser line;
 	
 	Parser na = lit("na");
+	
+	Parser<Rule> commentRow = new PP<Rule>(LangMisc.comment) {
+		protected Rule process(ParseResult r) {
+			return new DummyRule(null, r.parsed());
+		}
+	}.eg("// foo");
 	
 	/**
 	 * group rows are just a row-name without a formula.
@@ -180,7 +187,7 @@ public class Lang {
 				// core language
 				rule, 
 				groupRow, 
-				LangMisc.comment,
+				commentRow,
 				// settings
 //				langMisc.columnSettings, 
 				langMisc.planSettings,
@@ -189,11 +196,27 @@ public class Lang {
 		line.label("line");
 	}
 
+	private static Cache<String, Object> cache = new Cache(5000);
+	
+	public final static void setCache(Cache<String, Object> cache) {
+		Lang.cache = cache;
+	}
+	
 
 	public Rule parseLine(String scriptLine, Business b) {
-		ParseResult pr = line.parse(scriptLine);
-		if (pr==null) return null;
-		Object r = pr.ast.getX();
+		Object r = null;
+		// HACK cache for speed
+		if (cache != null) {
+			r = cache.get(scriptLine);
+		}
+		if (r==null) {
+			ParseResult pr = line.parse(scriptLine);
+			if (pr==null) return null;
+			r = pr.ast.getX();
+			cache.put(scriptLine, r);
+		} else {
+			// cache hit!
+		}
 		// import?
 		if (r instanceof ImportCommand) {
 			b.addImportCommand((ImportCommand) r);
@@ -211,10 +234,8 @@ public class Lang {
 			b.setSettings(merged);
 			return new DummyRule(null, scriptLine);
 		}		
-		// a comment?
-		AST cn = pr.getNode(LangMisc.comment);
-		assert cn.parsed().equals(scriptLine) : pr;
-		return new DummyRule(null, scriptLine);	
+		// fail (may be analysed for why later)
+		return null;
 	}
 
 	public Business parse(String script) throws ParseExceptions {
@@ -242,7 +263,8 @@ public class Lang {
 		// track the group we're in to group rules
 		List<Group> groupStack = new ArrayList();
 
-		List<ParseFail> errors = new ArrayList<ParseFail>();		
+		List<ParseFail> errors = new ArrayList<ParseFail>();
+		// ...do the actual parse
 		List<Rule> rules = parse2_rulesFromLines(lines, ln, errors, b);
 		// make rows + group
 		parse3_addRulesAndGroupRows(b, groupStack, rules);
