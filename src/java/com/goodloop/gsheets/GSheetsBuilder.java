@@ -1,3 +1,4 @@
+package com.goodloop.gsheets;
 import com.winterwell.bob.BuildTask;
 import com.winterwell.bob.tasks.MavenDependencyTask;
 

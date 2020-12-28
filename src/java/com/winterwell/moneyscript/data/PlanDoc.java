@@ -4,10 +4,22 @@ import java.util.List;
 import java.util.Map;
 
 import com.winterwell.data.AThing;
+import com.winterwell.es.ESKeyword;
 import com.winterwell.es.ESNoIndex;
 
 public class PlanDoc extends AThing {
 
+	@ESKeyword
+	String gsheetId;
+	
+	public void setGsheetId(String gsheetId) {
+		this.gsheetId = gsheetId;
+	}
+	
+	public String getGsheetId() {
+		return gsheetId;
+	}
+	
 	String text;
 	
 	public transient Map parseInfo;

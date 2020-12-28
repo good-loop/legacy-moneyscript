@@ -1,3 +1,4 @@
+package com.goodloop.gsheets;
 
 	import com.google.api.client.auth.oauth2.Credential;
 	import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -10,12 +11,10 @@
 	import com.google.api.client.json.jackson2.JacksonFactory;
 	import com.google.api.client.util.store.FileDataStoreFactory;
 	import com.google.api.services.sheets.v4.Sheets;
-import com.google.api.services.sheets.v4.Sheets.Spreadsheets.Create;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
+import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import com.winterwell.utils.io.FileUtils;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -23,15 +22,42 @@ import java.io.FileNotFoundException;
 	import java.io.InputStream;
 	import java.io.InputStreamReader;
 	import java.security.GeneralSecurityException;
-	import java.util.Collections;
+import java.util.Arrays;
+import java.util.Collections;
 	import java.util.List;
 
-	public class SheetsQuickstart {
-	    private static final String APPLICATION_NAME = "Google Sheets API Java Quickstart";
+	/**
+	 * See
+	 * 
+	 * @author Google, daniel
+	 *
+	 */
+	public class GSheetsClient {
+	    private static final String APPLICATION_NAME = "MoneyScript by Good-Loop";
 	    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 	    private static final String TOKENS_DIRECTORY_PATH = "tokens";
 
-	    /**
+	    public Spreadsheet getSheet(String id) throws Exception {
+	    	Sheets service = getService();
+	    	Spreadsheet ss = service.spreadsheets().get(id).execute();
+	    	return ss;
+	    }
+	    
+	    public Spreadsheet createSheet() throws Exception {
+	    	Sheets service = getService();
+	    	Spreadsheet ss = new Spreadsheet();
+//	    	ss.setSpreadsheetId("canwereallysetit"); // No!
+//	    	List<Sheet> sheets = ss.getSheets(); // null
+//	    	sheets = new ArrayList();
+//	    	Sheet sheet = new Sheet();
+//	    	sheets.add(sheet);	    	
+//	    	ss.setSheets(sheets);
+	    	Spreadsheet s2 = service.spreadsheets().create(ss).execute();
+	    	String sid = s2.getSpreadsheetId();
+	    	return s2;
+		}
+
+		/**
 	     * Global instance of the scopes required by this quickstart.
 	     * If modifying these scopes, delete your previously saved tokens/ folder.
 	     */
@@ -65,15 +91,20 @@ import java.io.FileNotFoundException;
 	    /**
 	     * Prints the names and majors of students in a sample spreadsheet:
 	     * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+	     * @throws Exception 
 	     */
-	    public static void main(String... args) throws IOException, GeneralSecurityException {
+	    public static void main(String... args) throws Exception {
 	        // Build a new authorized API client service.
-	        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+	        Sheets service = getService();
 	        final String spreadsheetId = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms";
+	        
+	        GSheetsClient sq = new GSheetsClient();
+	        Spreadsheet s = sq.getSheet(spreadsheetId);
+	        
+	        Spreadsheet s2 = sq.createSheet();
+	        String sid = s2.getSpreadsheetId();	     	        
+	        
 	        final String range = "Class Data!A2:E";
-	        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-	                .setApplicationName(APPLICATION_NAME)
-	                .build();
 	        ValueRange response = service.spreadsheets().values()
 	                .get(spreadsheetId, range)
 	                .execute();
@@ -93,4 +124,53 @@ import java.io.FileNotFoundException;
 	            }
 	        }
 	    }
+
+		private static Sheets getService() throws GeneralSecurityException, IOException {
+			final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+	        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+	                .setApplicationName(APPLICATION_NAME)
+	                .build();
+			return service;
+		}
+
+		/**
+		 * See https://developers.google.com/sheets/api/guides/batchupdate#java
+		 * @throws IOException 
+		 * @throws GeneralSecurityException 
+		 */
+		public Object updateValues(String spreadsheetId, List<List<Object>> values) throws GeneralSecurityException, IOException {
+			Sheets service = getService();
+			ValueRange body = new ValueRange().setValues(values);
+			
+			String valueInputOption = "USER_ENTERED";
+			int w = values.get(0).size();
+			String c = getBase26(w-1); // w base 26
+			String range = "A1:"+c+values.size();
+			UpdateValuesResponse result =
+			        service.spreadsheets().values().update(spreadsheetId, range, body)
+			                .setValueInputOption(valueInputOption)
+			                .execute();
+			String ps = result.toPrettyString();
+			Integer cnt = result.getUpdatedCells();
+//			System.out.println(ps);
+			return result.toPrettyString();
+		}
+
+		/**
+		 * 
+		 * @param w
+		 * @return 0 = A
+		 */
+		String getBase26(int w) {
+			assert w >= 0 : w;
+			int a = 'A';
+			if (w < 26) {
+				char c = (char) (a+w);
+				return Character.toString(a+w);
+			}
+			int low = w % 26;
+			int high = (w / 26) - 1; // -1 'cos this isnt true base 26 -- there's no proper 0 letter
+			return getBase26(high)+getBase26(low);
+		}
+
 	}
