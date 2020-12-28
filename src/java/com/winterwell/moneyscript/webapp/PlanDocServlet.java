@@ -3,6 +3,7 @@ package com.winterwell.moneyscript.webapp;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -10,11 +11,19 @@ import com.goodloop.gsheets.GSheetsClient;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.winterwell.data.KStatus;
 import com.winterwell.es.ESPath;
+import com.winterwell.es.client.KRefresh;
 import com.winterwell.moneyscript.data.PlanDoc;
+import com.winterwell.moneyscript.lang.GroupRule;
 import com.winterwell.moneyscript.lang.Lang;
+import com.winterwell.moneyscript.lang.Rule;
+import com.winterwell.moneyscript.lang.UncertainNumerical;
+import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
+import com.winterwell.moneyscript.output.Cell;
+import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.nlp.simpleparser.ParseExceptions;
+import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Containers;
@@ -39,38 +48,104 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		super.doBeforeSaveOrPublish(_jthing, stateIgnored);
 		_jthing.java().errors = new ArrayList();
 	}
+
 	
 	@Override
-	public void process(WebRequest state) throws Exception {
-		// TODO a button on the client
-		if (state.actionIs("export-to-google")) {
-			doExportToGoogle(state);
-			return;
-		}
-		super.process(state);
+	protected JThing<PlanDoc> doPublish(WebRequest state, KRefresh forceRefresh, boolean deleteDraft) throws Exception {
+		// normal
+		JThing<PlanDoc> pubd = super.doPublish(state, forceRefresh, deleteDraft);
+		// plus export to google
+		doExportToGoogle(pubd.java(), state, forceRefresh, deleteDraft);
+		return pubd;
 	}
 	
-	private void doExportToGoogle(WebRequest state) throws Exception {
-		PlanDoc pd = getThingStateOrDB(state).java();		
+	private void doExportToGoogle(PlanDoc pd, WebRequest state, KRefresh forceRefresh, boolean deleteDraft) throws Exception {		
 		GSheetsClient sc = new GSheetsClient();
 		// get/create
 		if (pd.getGsheetId() == null) {
+			Log.i("Make G-Sheet...");
 			Spreadsheet s = sc.createSheet();
 			pd.setGsheetId(s.getSpreadsheetId());
-			ESPath path = esRouter.getPath(dataspace,type, pd.getId(), KStatus.DRAFT);
-			AppUtils.doSaveEdit(path, jthing, state);
+			// publish again
+			doPublish(state, forceRefresh, deleteDraft);
 		}
 		
 		Business biz = MoneyServlet.lang.parse(pd.getText());		
 		List<List<Object>> values = new ArrayList();
-		List<Object> headers = Arrays.asList("Row");
+		
+		List<Col> cols = biz.getColumns();		
+		List<Object> headers = new ArrayList();
+		headers.add("Row");
+		for (Col col : cols) {
+			headers.add(col.getTimeDesc());
+		}
 		values.add(headers);
+				
+		// a blank row
+		final List<Object> blanks = new ArrayList();
+		for(int i=0; i<headers.size(); i++) blanks.add("");
+						
 		List<Row> rows = biz.getRows();
+
+		// HACK - space with a blank row?
+		List<Row> spacedRows = new ArrayList();
+		int prevLineNum = 0;
 		for (Row row : rows) {
+			// HACK - space with a blank row?
+			Rule r0 = row.getRules().get(0);
+			int lineNum = r0.getLineNum();
+			if (lineNum > prevLineNum+1) {				
+				spacedRows.add(null);
+			}
+			prevLineNum = lineNum;
+			spacedRows.add(row);
+		}
+		// HACK: put some blanks at the end (to handle a few rows being removed at a time)
+		for(int i=0; i<10; i++) spacedRows.add(null);		
+		
+		// convert		
+		for (Row row : spacedRows) {
+			if (row==null) {
+				values.add(blanks);
+				continue;
+			}
+			Rule r0 = row.getRules().get(0);			
 			List<Object> rowvs = new ArrayList();
 			rowvs.add(row.getName());
+			Collection<Cell> cells = row.getCells();
+			for (Cell cell : cells) {
+				// group rule?
+				if (row.getRules().size()==1) {
+					if (r0 instanceof GroupRule) {
+						GroupRule gr = (GroupRule) r0;
+						List<Row> kids = row.getChildren();
+						if ( ! Utils.isEmpty(kids)) {
+							StringBuilder sb = new StringBuilder("=");							
+							for (Row kid : kids) {
+								int ki = spacedRows.indexOf(kid)+1;
+								sb.append(sc.getBase26(cell.col.index)+ki);
+								sb.append(" + ");
+							}
+							StrUtils.pop(sb, 3);
+//							System.out.println(sb);
+							rowvs.add(sb.toString());
+							continue;
+						}
+					}					
+				} // ./convert rule
+				
+				Numerical v = biz.getCellValue(cell);
+				if (v ==null) {
+					rowvs.add(""); 
+				} else if (v instanceof UncertainNumerical) {
+					rowvs.add(v.doubleValue());	
+				} else {
+					rowvs.add(v.toExportString());
+				}				
+			} // ./cell
 			values.add(rowvs);
 		}
+		
 		// update with data		
 		sc.updateValues(pd.getGsheetId(), values);
 	}

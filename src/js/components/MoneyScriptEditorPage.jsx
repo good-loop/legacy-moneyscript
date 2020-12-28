@@ -18,6 +18,7 @@ import ActionMan from '../plumbing/ActionMan';
 import PropControl, {DSsetValue, standardModelValueFromInput} from '../base/components/PropControl';
 import JSend from '../base/data/JSend';
 import SimpleTable from '../base/components/SimpleTable';
+import LinkOut from '../base/components/LinkOut';
 import {setTaskTags} from '../base/components/TaskList';
 import ServerIO from '../plumbing/ServerIO';
 import SavePublishDeleteEtc from '../base/components/SavePublishDeleteEtc';
@@ -69,10 +70,11 @@ const MoneyScriptEditorPage = () => {
 	return (
 		<BG src='img/bg/data_money_82831320.jpg' fullscreen >
 			<div className="MoneyScriptEditorPage">
-				<Row>				
-					<Col md={6}><PropControl path={path} prop="name" size="lg" /></Col>
-					<Col md={6}><a className='btn btn-light' href={'/#sheet/'+escape(id)}>View SpreadSheet &gt;</a></Col>
-				</Row>
+				<div className='flex-row'>				
+					<div md={6}><PropControl path={path} prop="name" size="lg" /></div>
+					<div md={6}><a className='btn btn-light' href={'/#sheet/'+escape(id)}>View SpreadSheet &gt;</a></div>
+					{item.gsheetId && <LinkOut href={'https://docs.google.com/spreadsheets/d/'+item.gsheetId}>G</LinkOut>}
+				</div>
 				<EditScript id={id} plandoc={item} path={path} option="Text" />
 				{/* <ShareLink /> */}
 				{/* <ShareWidget /> */}
@@ -120,7 +122,6 @@ const EditScript = ({id, plandoc, path}) => {
 	let modelValueFromInput = (iv, type, eventType) => standardModelValueFromInput(iv? iv.replace(/ {4}/g, '\t') : iv, type, eventType);
 	return (<div>
 		<AceCodeEditor path={path} prop='text' annotations={pes.map(markerFromParseFail)} height="calc(100vh - 12em)" />
-		<div>{pes.length? JSON.stringify(pes) : null}</div>
 		<div>&nbsp;</div>
 		<SavePublishDeleteEtc type="PlanDoc" id={id} saveAs />
 	</div>);    

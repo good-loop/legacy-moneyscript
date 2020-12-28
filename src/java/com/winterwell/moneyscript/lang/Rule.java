@@ -22,6 +22,10 @@ public class Rule {
 		return comment;
 	}
 	
+	public int getLineNum() {
+		return lineNum;
+	}
+	
 	/**
 	 * @deprecated usually done in constructor
 	 * @param selector

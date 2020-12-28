@@ -133,6 +133,26 @@ public class Numerical extends Number implements IScalarArithmetic {
 	}
 
 
+	/**
+	 * Suitable for spreadsheets. Avoids human friendly abbreviations e.g. "£10k" 
+	 */
+	public String toExportString() {
+		String sign = doubleValue() < 0? "-" : "";
+		double v = Math.abs(doubleValue());
+		if ("%".equals(unit)) {
+			v *= 100;
+		}
+		// round + to string
+		String num = Double.toString(v);
+		
+		if (unit==null) {
+			return sign+num;	
+		}
+		if ("%".equals(unit)) {
+			return sign+num+'%';
+		}
+		return sign+unit+num;
+	}
 
 	@Override
 	public int intValue() {

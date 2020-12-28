@@ -179,7 +179,9 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 	}
 
 
-
+	/**
+	 * The direct children
+	 */
 	public List<Row> getChildren() {
 		return kids;
 	}

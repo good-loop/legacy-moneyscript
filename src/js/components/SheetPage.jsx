@@ -21,10 +21,11 @@ import ViewCharts from './ViewCharts';
 import ViewSpreadSheet, { doShowMeTheMoney } from './ViewSpreadsheet';
 import _ from 'lodash';
 import { getPlanId } from './MoneyScriptEditorPage';
-import { Alert, Col, Form, Label, Row } from 'reactstrap';
+import { Alert, Col, Form, Label, Row, Button } from 'reactstrap';
 import ErrorAlert from '../base/components/ErrorAlert';
 import LinkOut from '../base/components/LinkOut';
 import CSS from '../base/components/CSS';
+import {crud} from '../base/plumbing/Crud';
 
 const SheetPage = () => {
 	// which plan?
@@ -65,7 +66,10 @@ const SheetPage = () => {
 				<Col md={6}><h2>{item.name || item.id}</h2></Col>
 			</Row>
 			<ScenariosOnOff scenarioMap={scenarioMap} />
-			<ImportsList runOutput={pvrun.value} />
+			<div className='flex-row'>
+				<ImportsList runOutput={pvrun.value} />				
+				{item.gsheetId && <LinkOut href={'https://docs.google.com/spreadsheets/d/'+item.gsheetId}>G</LinkOut>}
+			</div>
 		</div>
 		<div className="sheet">
 			<ViewSpreadSheet plandoc={item} scenarios={scenariosOn} />

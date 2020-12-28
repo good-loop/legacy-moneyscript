@@ -161,7 +161,7 @@ import java.util.Collections;
 		 * @param w
 		 * @return 0 = A
 		 */
-		String getBase26(int w) {
+		public String getBase26(int w) {
 			assert w >= 0 : w;
 			int a = 'A';
 			if (w < 26) {
