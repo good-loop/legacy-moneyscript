@@ -3,9 +3,11 @@ import {ReactDOM} from 'react-dom';
 
 import AceEditor from "react-ace";
 import PropControl, {DSsetValue} from '../base/components/PropControl';
+import CSS from '../base/components/CSS';
 
 import "ace-builds/src-noconflict/ext-prompt";
 import "ace-builds/src-noconflict/ext-searchbox";
+import "ace-builds/src-noconflict/ext-language_tools";
 // import "ace-builds/src-noconflict/theme-tomorrow";
 // import "ace-builds/src-noconflict/theme-tomorrow_night_eighties";
 // import "ace-builds/webpack-resolver";
@@ -20,15 +22,15 @@ import "ace-builds/src-noconflict/mode-python";
 
 // TODO control-f is broken :( It DOES work in the react-ace demo -- something in the webpack setup??
 
-const AceCodeEditor = ({path, prop, markers, ...props}) => {
+const AceCodeEditor = ({path, prop, annotations, markers, ...props}) => {
 	// DEBUG
-	if ( ! markers) markers = [];
-	// markers.push({startRow: 3, startCol: 5, endRow: 4, endCol: 6, className: 'replacement_marker', type: 'text' })	
-	// markers.push({startRow: 1, startCol: 1, endRow: 1, endCol: 6, className: 'bg-warning', type: 'fullLine' })	
-
+	// if ( ! markers) markers = [];
+	// markers.push({startRow: 6, startCol: 1, endRow: 6, endCol: 2, className: 'wibble', type: 'fullLine' })	
 	// markers.push({startRow: 4, startCol: 1, endRow: 4, endCol: 6, className: 'bg-danger', type: 'fullLine' })	
 
-	return <div className='position-relative'><AceEditor
+	return <div className='position-relative'>
+		<CSS css={`.wibble {background:green; position:absolute;}`}/>
+		<AceEditor
 		{...props}
 	width="100%"
 	placeholder=""
@@ -51,6 +53,8 @@ const AceCodeEditor = ({path, prop, markers, ...props}) => {
 		tabSize: 4,
 	}}
 	markers={markers} //Not working ?!
+	annotations={annotations}
+	enableBasicAutocompletion
 	/>
 	{/* {markers.map(m => <div key={JSON.stringify(m)} className='bg-warning' style={{position:"absolute",left:"75%",right:0,top:16*m.startRow}} title={m.text}>{m.text || "!"}</div>)} */}
 	</div>

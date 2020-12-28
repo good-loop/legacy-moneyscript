@@ -45,12 +45,13 @@ const fStyle = ({cellValue, item, row, depth, column}) => {
 	// no styling on blank/zero cells
 	let css = cellValue && colVal && colVal.css;
 	if (css) {
-		let kvs = css.split("/[\n;]+/");
+		let kvs = css.split(/[\n;]+/);
 		kvs.forEach(kv => {
 			// cleanup
 			kv = kv.trim();
+			if ( ! kv) return; // blank
 			if (kv[kv.length-1] === ";") kv = kv.substr(0, kv.length-1); // should be redundant given the split() above
-			// HACK
+			// HACK to handle depth = weaker colour
 			if (kv === ".bg-red") {
 				cellStyle.background = "rgba(255,128,128, "+1/(1+depth)+")";
 				return;
@@ -162,9 +163,7 @@ const ViewSpreadSheet = ({plandoc, scenarios}) => {
 
 	console.log("dataTree", runOutput.dataTree, "allcolumns", runOutput.allcolumns);
 	// The Table
-	return <>
-		<ImportsList runOutput={runOutput} />
-		<SimpleTable 
+	return <SimpleTable 
 			tableName={plandoc.name}
 			dataTree={runOutput.dataTree}
 			columns={runOutput.allcolumns} 			 
@@ -172,18 +171,12 @@ const ViewSpreadSheet = ({plandoc, scenarios}) => {
 			scroller 
 			hasCollapse 
 			hideEmpty={false}
-			hasCsv /></>;
+			hasCsv />;
 };
 
 const InfoPop = ({text}) => {
 	if ( ! text) return null;
 	return <Badge className='ml-1 mr-1' color='info' pill title={text}>i</Badge>;
-};
-
-const ImportsList = ({runOutput}) => {
-	if ( ! runOutput.imports || ! runOutput.imports.length) return null;
-	// NB the import src is usually g-drive gibberish
-	return <div className='ImportsList'>{runOutput.imports.map((imp,i) => <LinkOut key={imp.src} className='mr-2' href={imp.url || imp.src}>[Import {imp.name || i}]</LinkOut>)}</div>
 };
 
 export {doShowMeTheMoney};

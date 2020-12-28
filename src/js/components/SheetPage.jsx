@@ -51,18 +51,35 @@ const SheetPage = () => {
 	let scenarioMap = pvrun.value && pvrun.value.scenarios;
 
 	// TODO use the navbar as the title bar instead of hiding it
+	
+	// CSS layout hack note: Getting the table to sensibly fill the bottom part of the screen using e.g. flex-column is ridiculously temperamental
+	// So instead we fix the size of the above-table "header" info, and  use 100vh - that
 	return <>
-		<CSS css={`nav {display: none !important;}`} />
-		<Row>
-			<Col md={6}><a className='mt-1 btn btn-dark' href={'/#plan/'+escape(id)}>&lt; View Plan</a></Col>
-			<Col md={6}><h2>{item.name || item.id}</h2></Col>
-		</Row>
-		<ScenariosOnOff scenarioMap={scenarioMap} />
-		<div style={{height:"85vh"}}> {/* This % kind of fills the page TODO use flex to set height to fill down to the bottom of the page */}
+		<CSS css={`nav, footer {display: none !important;}
+		.header {height:6em;}
+		.sheet {height:calc(100vh - 6em);}
+		`} />
+		<div className='header'>
+			<Row className="w-100">
+				<Col md={6}><a className='mt-1 btn btn-dark' href={'/#plan/'+escape(id)}>&lt; View Plan</a></Col>
+				<Col md={6}><h2>{item.name || item.id}</h2></Col>
+			</Row>
+			<ScenariosOnOff scenarioMap={scenarioMap} />
+			<ImportsList runOutput={pvrun.value} />
+		</div>
+		<div className="sheet">
 			<ViewSpreadSheet plandoc={item} scenarios={scenariosOn} />
 		</div>
 	</>;
 };
+
+
+const ImportsList = ({runOutput}) => {
+	if ( ! runOutput || ! runOutput.imports || ! runOutput.imports.length) return null;
+	// NB the import src is usually g-drive gibberish
+	return <div className='ImportsList'>{runOutput.imports.map((imp,i) => <LinkOut key={imp.src} className='mr-2' href={imp.url || imp.src}>[Import {imp.name || i}]</LinkOut>)}</div>
+};
+
 
 const ScenariosOnOff = ({scenarioMap}) => {
 	if ( ! scenarioMap) return null;
