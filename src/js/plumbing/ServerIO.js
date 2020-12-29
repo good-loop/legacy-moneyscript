@@ -7,7 +7,6 @@ import $ from 'jquery';
 import {SJTest, assert, assMatch} from 'sjtest';
 import C from '../C';
 import ServerIO from '../base/plumbing/ServerIOBase';
-import Login from 'you-again';
 
 
 // ServerIO.APIBASE = 'https://moneyscript.good-loop.com'; // live data, edited local!

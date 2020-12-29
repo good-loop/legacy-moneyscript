@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import {ReactDOM} from 'react-dom';
-import {SJTest} from 'sjtest';
-import {Login} from 'you-again';
 import printer from '../base/utils/printer';
 import C from '../C';
 import Roles from '../base/Roles';

@@ -1,8 +1,6 @@
 import React, { Component, useState } from 'react';
 import {ReactDOM} from 'react-dom';
 import _ from 'lodash';
-import {assert} from 'sjtest';
-import {Login} from 'you-again';
 import printer, { prettyNumber } from '../base/utils/printer';
 import C from '../C';
 import Roles from '../base/Roles';

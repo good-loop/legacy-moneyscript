@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import {ReactDOM} from 'react-dom';
-import {SJTest} from 'sjtest';
-import {Login} from 'you-again';
 import _ from 'lodash';
 import { Col, Row } from 'reactstrap';
 

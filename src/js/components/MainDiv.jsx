@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import Login from 'you-again';
-import { assert } from 'sjtest';
 
 // Plumbing
 import DataStore from '../base/plumbing/DataStore';
