@@ -81,23 +81,6 @@ public class MoneyScriptMain extends AMain<MoneyScriptConfig> {
 		Class[] dbclasses = new Class[] {PlanDoc.class};
 		AppUtils.initESIndices(KStatus.main(), dbclasses);
 		Map<Class, Map> mappingFromClass = new ArrayMap();
-		try {
-			AppUtils.initESMappings(KStatus.main(), 
-					dbclasses, mappingFromClass);
-		} catch (ESIndexReadOnlyException ex) {
-			// ES being fussy about memory -- if local, poke the index
-			if (AppUtils.getServerType()==KServerType.LOCAL) {
-				ESHttpClient esjc = Dep.get(ESHttpClient.class);
-				ClusterAdminClient cac = new ClusterAdminClient(esjc);
-				ClusterOverridReadOnlyRequest oro = cac.prepareOverrideReadOnly();
-				oro.setDebug(true);
-				IESResponse ok = oro.get().check();
-				// try again
-				AppUtils.initESMappings(KStatus.main(), 
-						dbclasses, mappingFromClass);
-			} else {
-				throw ex;
-			}
-		}
+		AppUtils.initESMappings(KStatus.main(), dbclasses, mappingFromClass);		
 	}
 }
