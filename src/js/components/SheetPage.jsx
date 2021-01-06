@@ -20,7 +20,7 @@ import ViewSpreadSheet, { doShowMeTheMoney } from './ViewSpreadsheet';
 import _ from 'lodash';
 import { getPlanId } from './MoneyScriptEditorPage';
 import { Alert, Col, Form, Label, Row, Button } from 'reactstrap';
-import ErrorAlert from '../base/components/ErrorAlert';
+import ErrAlert from '../base/components/ErrAlert';
 import LinkOut from '../base/components/LinkOut';
 import CSS from '../base/components/CSS';
 import {crud} from '../base/plumbing/Crud';
