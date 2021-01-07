@@ -111,7 +111,7 @@ public class LangNum {
 
 
 	// if then else formulae		
-	PP<Formula> conditionalFormula = new PP<Formula>(
+	Parser<Formula> conditionalFormula = new PP<Formula>(
 			seq(lit("if").label(null), space, LangBool.bool, space, lit("then").label(null), space, num,
 				opt(seq(space, lit("else").label(null), space, num)))) 
 	{
