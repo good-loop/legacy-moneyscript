@@ -86,7 +86,7 @@ const ImportsList = ({runOutput}) => {
 const ScenariosOnOff = ({scenarioMap}) => {
 	if ( ! scenarioMap) return null;
 	return (<Form inline><Label>Scenarios</Label>
-		{Object.keys(scenarioMap).map(s => <PropControl tooltip={"Toggle scenario "+s} type='checkbox' prop='scenarios' value={s} label={s} key={s} className='ml-2 mr-1' />)}
+			<PropControl tooltip={"Toggle scenario "+s} type='checkboxes' prop='scenarios' options={??s} />
 		</Form>);
 };
 
