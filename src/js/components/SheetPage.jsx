@@ -86,7 +86,7 @@ const ImportsList = ({runOutput}) => {
 const ScenariosOnOff = ({scenarioMap}) => {
 	if ( ! scenarioMap) return null;
 	return (<Form inline><Label>Scenarios</Label>
-			<PropControl tooltip={"Toggle scenario "+s} type='checkboxes' prop='scenarios' options={??s} />
+			<PropControl tooltip={"Toggle scenario "+s} type='checkbox-map' prop='scenarios' options={scenarioMap} />
 		</Form>);
 };
 
