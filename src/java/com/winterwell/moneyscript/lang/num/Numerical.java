@@ -92,9 +92,14 @@ public class Numerical extends Number implements IScalarArithmetic {
 			unit = s.contains("%")? "%" : null;
 		}
 	}
-	
+
+	/**
+	 * 
+	 * @param value If a Numerical, then copy value and unit but not comment or delta
+	 */
 	public Numerical(Number value) {
-		this(value.doubleValue(), null);
+		this(value.doubleValue(), 
+			value instanceof Numerical? ((Numerical) value).unit : null); // ugly - pass down the unit
 	}
 
 

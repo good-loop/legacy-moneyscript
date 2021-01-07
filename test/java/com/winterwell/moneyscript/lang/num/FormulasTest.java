@@ -10,11 +10,17 @@ public class FormulasTest {
 	@Test
 	public void testPlusPercentage() {
 		Lang lang = new Lang();
+		
+		ParseResult<Numerical> _p = lang.langNum.plainNumber.parseOut("10%");
+		Numerical p = _p.getX();
+		assert p.getUnit().equals("%") : p;
+		assert p.doubleValue() == 0.1;
+		
 		// 23k + 10%
 		ParseResult<Formula> n = lang.langNum.formula.parseOut("£1000 + 10%");		
 		Formula formula = (Formula) n.getX();		
 		Numerical y = formula.calculate(null);
-		assert y.doubleValue() == 1100 : y;
+		assert y.doubleValue() == 1100 : y.doubleValue();
 	}
 
 	@Test

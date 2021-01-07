@@ -76,7 +76,7 @@ public class BusinessTest {
 			Col col = b.getColForTime(midMar);
 			Time colt = col.getTime();
 			assert col.getTimeDesc().contains("Mar") : col.getTimeDesc();
-			throw new TodoException(col);
+//			throw new TodoException(col);
 		}
 	}
 

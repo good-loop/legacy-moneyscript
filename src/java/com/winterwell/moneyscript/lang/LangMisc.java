@@ -283,7 +283,7 @@ public class LangMisc {
 			}
 			return s;
 		}
-	}.eg("import sum(Net Amount) using {\"Start Date\":month} from file:///home/daniel/winterwell/moneyscript/data/SF-won-report.csv").label("importRow");
+	}.label("importRow");
 	
 
 	
