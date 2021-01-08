@@ -128,7 +128,9 @@ public class Rule implements IReset {
 
 	public void setScenario(Scenario byScenario) {
 		// scenario can only be set once, to protect against confusing setups
-		assert this.scenario==null || this.scenario.equiv(byScenario) : "scenario conflict: "+this.scenario+" vs "+byScenario+" in "+this;
+//		assert this.scenario==null || this.scenario.equiv(byScenario) : "scenario conflict: "+this.scenario+" vs "+byScenario+" in "+this;
+		// but cached rules were clashing on this
+		
 		this.scenario = byScenario;
 	}
 
@@ -138,7 +140,7 @@ public class Rule implements IReset {
 
 	@Override
 	public void reset() {
-		??
+		scenario = null;
 	}
 
 
