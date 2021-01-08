@@ -50,8 +50,15 @@ import com.winterwell.web.ajax.JThing;
  * @author daniel
  * @testedby {@link ImportCommandTest}
  */
-public class ImportCommand extends Rule implements IHasJson {
+public class ImportCommand extends Rule implements IHasJson, IReset {
 
+	@Override
+	public void reset() {
+		super.reset();
+		csv = null;
+		fetched = null;
+	}
+	
 	/**
 	 * If set, there IS a row that provides column times.
 	 * -- and columns which can't beparsed should be skipped.
@@ -246,7 +253,7 @@ public class ImportCommand extends Rule implements IHasJson {
 	String url;
 
 	/**
-	 * map incoming names to our names
+	 * map incoming names to our names -- this can be set by the user in the M$ script
 	 */
 	protected Map<String, String> mappingImportRow2ourRow;
 	

@@ -233,7 +233,7 @@ public class Business {
 //		ContextAlteringList<Row> rows = new ContextAlteringList<Row>(getRows(), Cell.CURRENT_ROW);
 		List<Row> rows = getRows();
 		for(Col col : columns) {
-			for(Row row : rows) {
+			for(Row row : rows) {					
 				Cell cell = new Cell(row, col);
 				run3_evaluate(cell);							
 			}
@@ -273,6 +273,14 @@ public class Business {
 	 * @return 
 	 */
 	public Numerical run3_evaluate(Cell cell) {		
+		// HACK Summary - 1 value only
+		if (cell.row.getName().equals("Summary")) return null;
+		if (cell.col.index != 1 && cell.row.getParent() != null && cell.row.getParent().getName().equals("Summary")) {
+			Numerical v = Business.EMPTY; // no need to recaluclate this if eg its in a sum
+			state.set(cell, v);
+			return v;
+		}
+		
 		Numerical v = state.get(cell);
 		if (v==EVALUATING) {
 			throw new StackOverflowError("This could loop forever: "+cell);

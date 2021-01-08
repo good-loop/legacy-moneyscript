@@ -338,6 +338,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			for (int j=Math.max(0, i-11); j<=i; j++) {
 				Cell cj = cells.get(j);
 				Numerical vj = b.getCellValue(cj);
+				if (vj==null) continue;
 				yearSum = yearSum.plus(vj);
 				if (vj.getDelta()!=null) {
 //					delta += vj.getDelta();

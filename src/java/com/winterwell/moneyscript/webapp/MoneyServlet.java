@@ -21,7 +21,8 @@ import com.winterwell.web.fields.ListField;
 public class MoneyServlet implements IServlet {
 
 	private static final ListField<Scenario> SCENARIOS = new ListField<Scenario>(
-			"scenarios", new AStringField("", Scenario.class));
+			"scenarios", new AStringField("", Scenario.class))
+			.setSplitPattern(",");
 	static Lang lang = new Lang();
 	
 	@Override

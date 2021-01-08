@@ -12,11 +12,13 @@ import {BasicAccountPage} from '../base/components/AccountPageWidgets';
 import TestPage from '../base/components/TestPage';
 import AccountMenu from '../base/components/AccountMenu';
 import MSEditorPage from './MoneyScriptEditorPage';
+
 import SheetPage from './SheetPage';
 import ChartPage from './ChartPage';
 import TaskList from '../base/components/TaskList';
 import Crud from '../base/plumbing/Crud';
 import MainDivBase from '../base/components/MainDivBase';
+import PropControls from '../base/components/PropControls';
 
 C.setupDataStore();
 

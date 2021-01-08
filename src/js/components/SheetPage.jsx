@@ -44,7 +44,7 @@ const SheetPage = () => {
 	if (item.name) window.document.title = "M$: "+item.name;
 
 	let _scenarios = DataStore.getUrlValue("scenarios");
-	let scenariosOn = _scenarios? _scenarios.split(",") : null;
+	let scenariosOn = _.isString(_scenarios)? _scenarios.split(",") : _scenarios; // NB: string if fresh from url, array if modified by PropControl
 
 	const pvrun = doShowMeTheMoney({plandoc:item, scenarios:scenariosOn});
 	let scenarioMap = pvrun.value && pvrun.value.scenarios;
@@ -55,8 +55,8 @@ const SheetPage = () => {
 	// So instead we fix the size of the above-table "header" info, and  use 100vh - that
 	return <>
 		<CSS css={`nav, footer {display: none !important;}
-		.header {height:6em;}
-		.sheet {height:calc(100vh - 6em);}
+		.header {height:7em;}
+		.sheet {height:calc(100vh - 7em);}
 		`} />
 		<div className='header'>
 			<Row className="w-100">
@@ -66,7 +66,7 @@ const SheetPage = () => {
 			<ScenariosOnOff scenarioMap={scenarioMap} />
 			<div className='flex-row'>
 				<ImportsList runOutput={pvrun.value} />				
-				{item.gsheetId && <LinkOut href={'https://docs.google.com/spreadsheets/d/'+item.gsheetId}>G</LinkOut>}
+				{item.gsheetId && <LinkOut tooltip="see in Google Sheets" href={'https://docs.google.com/spreadsheets/d/'+item.gsheetId}>G</LinkOut>}
 			</div>
 		</div>
 		<div className="sheet">
@@ -85,8 +85,8 @@ const ImportsList = ({runOutput}) => {
 
 const ScenariosOnOff = ({scenarioMap}) => {
 	if ( ! scenarioMap) return null;
-	return (<Form inline><Label>Scenarios</Label>
-			<PropControl tooltip={"Toggle scenario "+s} type='checkboxObject' prop='scenarios' options={scenarioMap} />
+	return (<Form>
+			<PropControl inline label="Scenarios" tooltip={"Toggle scenarios on/off"} type='checkboxArray' prop='scenarios' options={Object.keys(scenarioMap)} />
 		</Form>);
 };
 

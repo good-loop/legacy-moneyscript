@@ -13,7 +13,7 @@ import com.winterwell.utils.Utils;
 import com.winterwell.utils.log.Log;
 
 
-public class Rule {
+public class Rule implements IReset {
 
 	private CellSet selector;
 	private String comment;
@@ -128,12 +128,17 @@ public class Rule {
 
 	public void setScenario(Scenario byScenario) {
 		// scenario can only be set once, to protect against confusing setups
-		assert this.scenario==null || this.scenario.equiv(byScenario) : this;
+		assert this.scenario==null || this.scenario.equiv(byScenario) : "scenario conflict: "+this.scenario+" vs "+byScenario+" in "+this;
 		this.scenario = byScenario;
 	}
 
 	public Scenario getScenario() {
 		return scenario;
+	}
+
+	@Override
+	public void reset() {
+		??
 	}
 
 

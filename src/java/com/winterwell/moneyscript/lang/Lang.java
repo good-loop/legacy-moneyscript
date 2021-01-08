@@ -196,6 +196,9 @@ public class Lang {
 		line.label("line");
 	}
 
+	/**
+	 * HACK speed up repeated parsing with a cache
+	 */
 	private static Cache<String, Object> cache = new Cache(5000);
 	
 	public final static void setCache(Cache<String, Object> cache) {
@@ -207,7 +210,7 @@ public class Lang {
 		Object r = null;
 		// HACK cache for speed
 		if (cache != null) {
-			r = cache.get(scriptLine);
+			r = cache.get(scriptLine);			
 		}
 		if (r==null) {
 			ParseResult pr = line.parse(scriptLine);
@@ -217,8 +220,14 @@ public class Lang {
 		} else {
 			// cache hit!
 		}
+		// Parsed lines are not quite immutable :(
+		// So clear stale data
+		if (r instanceof IReset) {
+			((IReset) r).reset();
+		}
+		
 		// import?
-		if (r instanceof ImportCommand) {
+		if (r instanceof ImportCommand) {			
 			b.addImportCommand((ImportCommand) r);
 			return (Rule) r;
 		}
