@@ -15,7 +15,9 @@ import java.util.regex.MatchResult;
 
 import com.winterwell.depot.IInit;
 import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
+import com.winterwell.moneyscript.lang.cells.LangFilter;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.LangNum;
 import com.winterwell.nlp.simpleparser.AST;
@@ -99,7 +101,7 @@ public class LangTime implements IInit {
 	final Parser<TimeDesc> complexTime = new PP<TimeDesc>(
 			first(
 					seq(dt, space, lit(from), space, ref(TIME)),
-					seq(dt, space, lit("ago")))
+					seq(dt, space, lit("ago")))					
 	) {
 		@Override
 		protected TimeDesc process(ParseResult<?> r) throws ParseFail {
@@ -113,6 +115,23 @@ public class LangTime implements IInit {
 			return new RelativeTimeDesc(_dt, from, td);
 		}	
 	}.eg("2 months ago").eg("3 months from start");
+
+
+	/**
+	 * Use "when" to return a time, eg for reporting:
+	 * Success: when Sales > £1m
+	 */
+	public final Parser<TimeDesc> when = new PP<TimeDesc>(
+			seq(lit("when"), space, LangFilter.filter)					
+	) {
+		@Override
+		protected TimeDesc process(ParseResult<?> r) throws ParseFail {
+			List<AST> ls = r.getLeaves();
+			Filter f = r.getNode(LangFilter.filter).getX();
+			ConditionalTimeDesc ctd = new ConditionalTimeDesc(r.parsed(), f);
+			return ctd;
+		}	
+	}.eg("when Sales > 10k");
 
 	/**
 	 * month year

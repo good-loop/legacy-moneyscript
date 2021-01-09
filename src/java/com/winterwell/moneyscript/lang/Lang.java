@@ -125,7 +125,7 @@ public class Lang {
 	Parser ruleBody = first(langNum.numList, LangNum.num, 
 							langNum.compoundingFormula, 						 
 							LangMisc.meta, LangMisc.importRow,
-							LangMisc.css)
+							LangMisc.css, langTime.when)
 					.label("ruleBody")
 					.setDebug(new IDebug<ParseState>() {public void call(ParseState state) {
 							assert state != null;
