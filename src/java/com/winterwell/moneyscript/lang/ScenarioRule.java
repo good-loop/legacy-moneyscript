@@ -10,4 +10,11 @@ public class ScenarioRule extends GroupRule {
 		this.scenario = scenario;
 	}
 
+	@Override
+	public void reset() {
+		// preserve scenario
+		Scenario s = scenario;
+		super.reset();
+		this.scenario = s;
+	}
 }

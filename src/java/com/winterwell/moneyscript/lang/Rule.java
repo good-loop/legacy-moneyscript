@@ -129,9 +129,11 @@ public class Rule implements IReset {
 	public void setScenario(Scenario byScenario) {
 		// scenario can only be set once, to protect against confusing setups
 //		assert this.scenario==null || this.scenario.equiv(byScenario) : "scenario conflict: "+this.scenario+" vs "+byScenario+" in "+this;
-		// but cached rules were clashing on this
-		
+		// but cached rules were clashing on this		
 		this.scenario = byScenario;
+		if (scenario!=null) {
+			scenario.ruleText += src;
+		}
 	}
 
 	public Scenario getScenario() {
@@ -140,6 +142,7 @@ public class Rule implements IReset {
 
 	@Override
 	public void reset() {
+		// clear the scenario. Why? cos a line of script might move between scenarios in an edit, but our parsing cache wouldn't know that.
 		scenario = null;
 	}
 

@@ -189,6 +189,7 @@ public class Business {
 		
 		// scenarios
 		map.put("scenarios", getScenarios());
+		map.put("scenarioTexts", Containers.applyToMap(getScenarios(), (s,on) -> s.ruleText));
 		//done
 		return map;
 	}

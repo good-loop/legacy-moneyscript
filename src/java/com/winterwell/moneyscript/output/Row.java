@@ -103,6 +103,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		if (rs.isEmpty()) return null;
 		Numerical v = null;
 		// Last rule wins in a straight calculation (some rules are modifiers)
+		// Minor efficiency TODO - mark which rules are modifiers, then start with the last absolute rule
 		for (Rule r : rs) {
 //			if (r instanceof ImportRowCommand) {
 //				System.out.println("debug");
@@ -122,6 +123,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			}
 			// comment = rule name
 			if (v != v2) {
+				// ?? How to spot when r is/isn't a modifier, and the earlier comment should be kept/discarded?
 				v2.comment = StrUtils.space(v==null? null : v.comment, r.src);
 			}
 			v = v2;
