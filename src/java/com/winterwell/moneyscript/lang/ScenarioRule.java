@@ -12,9 +12,10 @@ public class ScenarioRule extends GroupRule {
 
 	@Override
 	public void reset() {
-		// preserve scenario
+		// preserve scenario, but clear its text
 		Scenario s = scenario;
 		super.reset();
 		this.scenario = s;
+		this.scenario.ruleText = "";
 	}
 }

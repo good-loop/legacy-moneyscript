@@ -22,6 +22,7 @@ import ServerIO from '../plumbing/ServerIO';
 import SavePublishDeleteEtc from '../base/components/SavePublishDeleteEtc';
 import BG from '../base/components/BG';
 import AceCodeEditor from './AceCodeEditor';
+import Icon from '../base/components/Icon';
 
 /**
  * @returns {?String}
@@ -71,7 +72,7 @@ const MoneyScriptEditorPage = () => {
 				<div className='flex-row'>				
 					<div md={6}><PropControl path={path} prop="name" size="lg" /></div>
 					<div md={6}><a className='btn btn-light' href={'/#sheet/'+escape(id)}>View SpreadSheet &gt;</a></div>
-					{item.gsheetId && <LinkOut href={'https://docs.google.com/spreadsheets/d/'+item.gsheetId}>G</LinkOut>}
+					<GSheetLink item={item} />
 				</div>
 				<EditScript id={id} plandoc={item} path={path} option="Text" />
 				{/* <ShareLink /> */}
@@ -80,6 +81,8 @@ const MoneyScriptEditorPage = () => {
 		</BG>
 	);
 };
+
+export const GSheetLink = ({item}) => item && item.gsheetId && <LinkOut href={'https://docs.google.com/spreadsheets/d/'+item.gsheetId}><Icon size='xs' name="google-sheets" title="Export of published version to Google-Sheets"/></LinkOut>;
 
 // const saveFn = _.debounce(({path}) => {
 // 	console.warn("saveFn", path);

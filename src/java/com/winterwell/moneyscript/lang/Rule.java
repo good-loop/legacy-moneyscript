@@ -131,8 +131,11 @@ public class Rule implements IReset {
 //		assert this.scenario==null || this.scenario.equiv(byScenario) : "scenario conflict: "+this.scenario+" vs "+byScenario+" in "+this;
 		// but cached rules were clashing on this		
 		this.scenario = byScenario;
+		// HACK - track the text for user info
 		if (scenario!=null) {
-			scenario.ruleText += src;
+			if ( ! scenario.ruleText.contains(src)) { // cache => dupe check 
+				scenario.ruleText += src;
+			}
 		}
 	}
 

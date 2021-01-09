@@ -3,13 +3,14 @@ import React from 'react';
 import { Alert, Col, Form, Row } from 'reactstrap';
 import CSS from '../base/components/CSS';
 import ErrAlert from '../base/components/ErrAlert';
+import Icon from '../base/components/Icon';
 import LinkOut from '../base/components/LinkOut';
 import Misc from '../base/components/Misc';
 import PropControl from '../base/components/PropControl';
 import DataStore from '../base/plumbing/DataStore';
 import C from '../C';
 import ActionMan from '../plumbing/ActionMan';
-import { getPlanId } from './MoneyScriptEditorPage';
+import { getPlanId, GSheetLink } from './MoneyScriptEditorPage';
 import ViewSpreadSheet, { doShowMeTheMoney } from './ViewSpreadsheet';
 
 const SheetPage = () => {
@@ -50,10 +51,10 @@ const SheetPage = () => {
 				<Col md={6}><a className='mt-1 btn btn-dark' href={'/#plan/'+escape(id)}>&lt; View Plan</a></Col>
 				<Col md={6}><h2>{item.name || item.id}</h2></Col>
 			</Row>
-			<ScenariosOnOff scenarioMap={scenarioMap} />
+			<ScenariosOnOff scenarioMap={scenarioMap} scenarioTexts={pvrun.value && pvrun.value.scenarioTexts} />
 			<div className='flex-row'>
-				<ImportsList runOutput={pvrun.value} />				
-				{item.gsheetId && <LinkOut tooltip="see in Google Sheets" href={'https://docs.google.com/spreadsheets/d/'+item.gsheetId}>G</LinkOut>}
+				<ImportsList runOutput={pvrun.value} />			
+				<GSheetLink item={item}	/>
 			</div>
 		</div>
 		<div className="sheet">
@@ -70,10 +71,13 @@ const ImportsList = ({runOutput}) => {
 };
 
 
-const ScenariosOnOff = ({scenarioMap}) => {
+const ScenariosOnOff = ({scenarioMap, scenarioTexts}) => {
 	if ( ! scenarioMap) return null;
 	return (<Form>
-			<PropControl inline label="Scenarios" tooltip={"Toggle scenarios on/off"} type='checkboxArray' prop='scenarios' options={Object.keys(scenarioMap)} />
+			<PropControl inline label="Scenarios" tooltip={"Toggle scenarios on/off"} 
+				type='checkboxArray' prop='scenarios' options={Object.keys(scenarioMap)} 
+				tooltips={scenarioTexts}
+			/>
 		</Form>);
 };
 

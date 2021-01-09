@@ -122,7 +122,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 						if ( ! Utils.isEmpty(kids)) {
 							StringBuilder sb = new StringBuilder("=");							
 							for (Row kid : kids) {
-								int ki = spacedRows.indexOf(kid)+1;
+								int ki = spacedRows.indexOf(kid)+2; // +1 for 0 index and +1 for the header row
 								sb.append(sc.getBase26(cell.col.index)+ki);
 								sb.append(" + ");
 							}
