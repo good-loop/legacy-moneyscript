@@ -3,18 +3,22 @@ end: Sep 2022
 
 //samples: 20
 
-// summary:
-//  Runway Ends:
-//  2021 GCV:
-    
-
 // Import actuals from a g-drive spreadsheet
-// Manually copied over by Dan into the `actuals` sheet
-// NB: G-drive is a bit slow to respond, so by default we cache the g-drive response for a minute. Use "import fresh" to switch off caching.
-import: https://docs.google.com/spreadsheets/d/14DOm3ex5FiG9-k11_9JWuhwS-AeTv-eLrXBZjl9nups/gviz/tq?tqx=out:csv&sheet=actuals {name:"actuals", rows:"all"}
+// Manually copied from Pete's reports into the `actuals` sheet
+import: https://docs.google.com/spreadsheets/d/14DOm3ex5FiG9-k11_9JWuhwS-AeTv-eLrXBZjl9nups/gviz/tq?tqx=out:csv&sheet=actuals {name:"actuals", rows:"overlap"}
 
-// compare against spreadsheet
+//import: https://docs.google.com/spreadsheets/d/135rPC8O7K7Sqx0Ay2QC70BX-E_b87gEMvLNpqdQh1MU/  {name:"Marketing Budget Planning", rows:"overlap"}
+
+// compare against previous spreadsheet plan
 compare: https://docs.google.com/spreadsheets/d/19P7GrukxDJhpuQS0BzF62jJC9nSxR8GU4EvB0lCvXPU/gviz/tq?tqx=out:csv&sheet=P%26L {name:"copy Reasonable Estimates PL Petes version"}
+
+Summary:
+    Sales_2020: sum(Sales Revenue from Jan 2020 to Dec 2020)
+    Sales_2021: sum(Sales Revenue from Jan 2021 to Dec 2021)
+    Balance_Close_Jan_2022: Balance at Jan 2022
+    CashAtBank_Close_Jan_2022: Closing CashAtBank at Jan 2022
+    Balance_Close_Mar_2022: Balance at Mar 2022
+    CashAtBank_Close_Mar_2022: Closing CashAtBank at Mar 2022
 
 UK Staff:
     London Staff:
@@ -114,7 +118,7 @@ UK Staff:
             Kickstart Sales Assistant B from Jan 2021 to June 2021: £300 per month
             // Junior Omnicom Sales Person from Jun 2021: £30k per year // Or is this the KickStart person?
         New Account Management Staff:
-            Admin Officer from Jan 2021: £30k per year // full-time so they're heart and soul into the job
+            Admin Officer from Jan 2021: £23k per year // full-time so they're heart and soul into the job
             Kickstart AdOps from Feb 2021: £300 per month
             Kickstart AdOps from July 2021: £25k per year
             Kickstart Social Media Community Manager from Jan 2021:  £300 per month // Initially hired on govt scheme (with some top-up)
@@ -124,12 +128,6 @@ UK Staff:
 //        New Tech Staff:		
 //            AdTech Dev from Apr 2021: £50k per year
 //            AdExchange Partnership Manager from Jan 2021: £50k per year // grant fund for a bit from SE??
-// Charley at Jan 2021: shift to Marketing
-
-
-// scenario Claire_Leaves:
-//     Claire from Mar 2021: £0
-    // model a sales pick-up / dip
 
 scenario Hiring_Delay:
     New Sales Staff from Jun 2021: 0
@@ -146,7 +144,7 @@ Operating Expenses: // costs apart from COS
 		Recruitment from Feb 2021: £0 //£7500 * max(0, Staff Count - previous(Staff Count)) // assumes all staff are recruited
 		Childcare Vouchers: // in the past
 		Freelancer Bonus: // a one-off
-        Profit Share: 3% * (Sales_Revenue - COS) // ?? is this the right definition? was prev Advertising Inventory - Business Donations - Brand_Uplift_Research
+        Profit Share: 3% * (Sales Revenue - COS) // ?? is this the right definition? was prev Advertising Inventory - Business Donations - Brand_Uplift_Research
         Xmas Bonus at Dec 2020: £1k * Staff Count
         Xmas Bonus at Dec 2021: £500 * Staff Count
         Xmas Bonus at Dec 2022: £500 * Staff Count
@@ -157,27 +155,31 @@ Operating Expenses: // costs apart from COS
 		London Club from Jan 2021: £100 * count(London Staff)
         Maintenance: // from the spreadsheet
 
-	Marketing: £6,700 per month // excluding Charley's salary
-//     	Trudi: £3k per month
-// 		Design Consultant Emilia: £1.4k per month
-// 		Misc Marketing: £50 per month // design/editing/IAB/Awards
-// 		Owned Events: £1150 per month
-// 		Industry Events: £2500 per month
-// 		Content Creation from Jan 2021: £1k per month
-//         Other Marketing: // a category in the spreadsheet
-//         Misc design editing IAB Awards: £250 // TODO average(actuals) an ad-hoc category in the actuals spreadsheet
-//         Paid Media: £1k per month
+	Marketing: // £6,833 per month excluding Charley's salary See Amy's planning spreadsheet (which is imported)
+        Design Consultant Emilia: £1.1k per month
+        PR Trudi: £1.3k per month
+        Industry Events: £37k per year
+        Owned Events Content:
+            Good Scoop: £300 
+            Good Insights: £500
+            Good News: £300
+            Purpose Barometer: £2k per year
+        Paid media: 0
+        Outbound marketing: 0
+        SEO: 0
+        Misc Marketing: £50 // design/editing/IAB/Awards:
+        Other Marketing: 0
 
 	Travel_Entertainment:
 		Travel US from May 2021: £1k per month
-		Travel UK: £500 per month // Edinburgh trips + misc
+		Travel UK from Mar 2021: £500 per month // Edinburgh trips + misc
 		Staff Entertainment: £100 * count(London Staff) + £20 * count(Tech Staff) // London are no office + more events
 		Client Entertainment: £500 per month
 
 	Professional Fees: // Not including e.g. Pete, Amanda, Donia
 	    Accountancy:
 		    UK Accountancy: £575			
-		  //  US Accountancy from 2021: £750 per month
+		  //  US Accountancy from 2022: £500 per month
 		Legal:
 		    UK Legal: £500 per month
 		    UK Legal from Oct 2021: £1k per month
@@ -200,21 +202,31 @@ Operating Expenses: {.bg-red}
 
 // Sales
 Income:
-    Sales_Revenue: £3m per year //(Marketing ROI + (Campaign_Size * Num_Campaigns)) * Seasonality
+    Sales Revenue: (Campaign_Size * Num_Campaigns) * Seasonality // This formula gets replaced by the scenarios below
     Revenue Details: na
     	RampedUpStaff: count(Sales Staff from 5 months ago) + count(New Sales Staff from 5 months ago) // This doesn't model churn - e.g. if a new peep comes in and Charley moves over to Marketing
     	CampaignsPerSalesperson: 1+-1 per month // It was about 0.7 in 2019 and 0.9 in 2020 (source: email from Jules re SF data, noting that head-count his blurry). Allowing for covid, it could be higher. This is new and repeat.
     	Num_Campaigns: CampaignsPerSalesperson * RampedUpStaff
     	// Adjustments
-    	Seasonality: 70%,	75%,	90%,	115%,	125%,	115%,	90%,	80%,	100%,	100%,	115%,	125%
-    	Seasonality: Seasonality at 12 months ago // annual loop
-    	Marketing ROI: 20% * (Marketing at 3 months ago) // This is titchy, but because we've really included marketing in sales already
+    	QuarterSalesFraction: 15%, 15%, 15%, 20%, 20%, 20%, 25%, 25%, 25%, 40%, 40%, 40% // What % of the annual sales are in this quarter? (laid out per month so we can use it in calculations)
+    	QuarterSalesFraction: QuarterSalesFraction at 12 months ago // annual loop
+    	Seasonality: QuarterSalesFraction / 25% // the % up/down adjustment
+    	//Marketing ROI: 0% * (Marketing at 3 months ago) // This is titchy, but because we've really included marketing in sales already
 	Grant Income: // Hm - counting grants as income, but perhaps it'd make more sence under financing/investment?
 		SE_Early_Stage at Oct 2020: £300k
 		SE_RnD_Grant from Nov 2020 to Jun 2021: £50k per year 
 		Innovate UK Grant from Nov 2020 to Jun 2021: £10k per month
 		SE_Future_Grants from Jan 2021: £10k per year // Assume we win some - but reducing the amount
-	Other Revenue: £500 // Is this from Winterwell?
+	Other Revenue from Jan 2021: £0 // Was this from Winterwell?
+
+scenario Weak_Sales:
+    Sales Revenue: (£2.6m per year) * Seasonality // 30% growth on 2020
+    
+scenario Medium_Sales:
+    Sales Revenue: £3.2m per year * Seasonality // 60% growth on 2020
+    
+scenario StretchGoal:
+    Sales Revenue: £4m per year * Seasonality // 100% growth on 2020
 
 // SF actuals data
 // last I checked the campaign size was about N(25k, std-dev 25k). Note that from the data: existing clients don't have a different £ profile.
@@ -229,12 +241,12 @@ Campaign_Size: {.bg-green}
 Income: {.bg-green}
 
 COS:
-	Advertising Inventory: 25% * Sales_Revenue // ie we'll get 25% profit margin TODO split self-serve vs managed
+	Advertising Inventory: 24% * Sales Revenue // ie we'll get 25% profit margin TODO split self-serve vs managed
 	// SHould we model the 6% AppNexus fees?
-	Business Donations: 50% * Sales_Revenue
+	Business Donations: 50% * Sales Revenue
 	Brand_Uplift_Research: £4k * Num_Campaigns * 20% // Is it really only 20% who have a brand uplift study??
-	Sales Commission: 4.75% * Sales_Revenue // Calculated from commission calc sheet
-	Agent Commission: 5% * Sales_Revenue * 10% // estimates for average commission (5%), use of agents (10%)
+	Sales Commission: 4.75% * Sales Revenue // 4.75% was calculated from the commission calc sheet
+	Agent Commission: 5% * Sales Revenue * 10% // estimates for average commission (5%), use of agents (10%)
 COS: {.bg-red}
 
 
@@ -262,7 +274,7 @@ Balance: {fontWeight: bold}
 //Closing CashAtBank at Oct 2020: £1m
 Closing CashAtBank: previous(Closing CashAtBank) + Net Profit + Financing + Sales Receipts Delta - DelayedCreditorsDelta // Use deltas to swap which months are counted in the burn rate
 Cashflow Details: na
-    Sales Receipts Delta: (Sales_Revenue at 2 months ago) - Sales_Revenue // we get paid 2 months after the cost-of-sale
+    Sales Receipts Delta: (Sales Revenue at 2 months ago) - Sales Revenue // we get paid 2 months after the cost-of-sale
     Delayed Creditors: Sales Commission + Agent Commission + Business Donations
     DelayedCreditorsDelta: (Delayed Creditors at 3 months ago) - Delayed Creditors // we pay donations and commission after we get paid 
     // TODO VAT     

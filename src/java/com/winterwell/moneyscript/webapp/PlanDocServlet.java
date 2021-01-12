@@ -31,6 +31,7 @@ import com.winterwell.utils.io.FileUtils;
 import com.winterwell.utils.log.Log;
 import com.winterwell.utils.web.IHasJson;
 import com.winterwell.web.WebEx.E403;
+import com.winterwell.web.ajax.AjaxMsg;
 import com.winterwell.web.ajax.JThing;
 import com.winterwell.web.app.AppUtils;
 import com.winterwell.web.app.CrudServlet;
@@ -54,8 +55,12 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	protected JThing<PlanDoc> doPublish(WebRequest state, KRefresh forceRefresh, boolean deleteDraft) throws Exception {
 		// normal
 		JThing<PlanDoc> pubd = super.doPublish(state, forceRefresh, deleteDraft);
-		// plus export to google
-		doExportToGoogle(pubd.java(), state, forceRefresh, deleteDraft);
+		// plus export to google ?? do this async?
+		try {
+			doExportToGoogle(pubd.java(), state, forceRefresh, deleteDraft);
+		} catch(Throwable ex) {
+			state.addMessage(AjaxMsg.error(ex));
+		}
 		return pubd;
 	}
 	
@@ -144,7 +149,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 				} else if (v instanceof UncertainNumerical) {
 					rowvs.add(v.doubleValue());	
 				} else {
-					rowvs.add(v.toExportString());
+					rowvs.add(v.doubleValue()); // toExportString());
 				}				
 			} // ./cell
 			values.add(rowvs);

@@ -77,6 +77,9 @@ public class GSheetsClient {
 	private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
 		// Load client secrets.
 		File credsFile = Logins.getFile(APP, "credentials.json");
+		if (credsFile == null) {
+			throw new FileNotFoundException(Logins.getLoginsDir()+"/"+APP+"/credentials.json");
+		}
 		InputStream in = new FileInputStream(credsFile);
 		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
