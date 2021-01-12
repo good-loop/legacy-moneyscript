@@ -87,11 +87,17 @@ const MoneyScriptEditorPage = () => {
 	);
 };
 
-export const GSheetLink = ({item}) => item && item.gsheetId 
-	&& <LinkOut disabled={getStatus(item) !== KStatus.PUBLISHED} className="btn btn-light btn-sm ml-1 mr-1" 
+export const GSheetLink = ({item}) => {
+	if ( ! item || ! item.gsheetId) {
+		return null;
+	}
+	return (<LinkOut 
+		disabled={getStatus(item) !== KStatus.PUBLISHED} 
+		className="btn btn-light btn-sm ml-1 mr-1" 
 		href={'https://docs.google.com/spreadsheets/d/'+item.gsheetId}
 		title={space(getStatus(item) !== KStatus.PUBLISHED && "(Publish first!)", "Link to published version in Google-Sheets")}
-		><Icon size='xs' name="google-sheets" /></LinkOut>;
+		><Icon size='xs' name="google-sheets" /></LinkOut>);
+};
 
 const DownloadTextLink = ({text, filename}) => {
 	// NB the entity below is the emoji "Inbox Tray" glyph, U+1F4E5
