@@ -9,7 +9,7 @@ import MessageBar from '../base/components/MessageBar';
 import NavBar from '../base/components/NavBar';
 // Pages
 import {BasicAccountPage} from '../base/components/AccountPageWidgets';
-import TestPage from '../base/components/TestPage';
+// import TestPage from '../base/components/TestPage';
 import AccountMenu from '../base/components/AccountMenu';
 import MSEditorPage from './MoneyScriptEditorPage';
 
@@ -27,7 +27,7 @@ const PAGES = {
 	sheet: SheetPage,
 	chart: ChartPage,
 	account: BasicAccountPage,
-	test: TestPage
+	// test: TestPage
 };
 
 /**

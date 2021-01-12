@@ -70,7 +70,11 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 			doPublish(state, forceRefresh, deleteDraft);
 		}
 		
+		// parse
 		Business biz = MoneyServlet.lang.parse(pd.getText());		
+		// run
+		biz.run();
+		
 		List<List<Object>> values = new ArrayList();
 		
 		List<Col> cols = biz.getColumns();		

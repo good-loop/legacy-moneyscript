@@ -7,6 +7,7 @@ import com.winterwell.maths.IScalarArithmetic;
 import com.winterwell.moneyscript.lang.ICalculator;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.utils.MathUtils;
+import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.log.Log;
 
@@ -147,16 +148,19 @@ public class Numerical extends Number implements IScalarArithmetic {
 		if ("%".equals(unit)) {
 			v *= 100;
 		}
-		// round + to string
-		String num = Double.toString(v);
-		
+		// round (a bit) + to string
+		String num = StrUtils.toNSigFigs(v, 8);		
 		if (unit==null) {
 			return sign+num;	
 		}
 		if ("%".equals(unit)) {
 			return sign+num+'%';
 		}
-		return sign+unit+num;
+		if (num.matches("\\.\\d$")) {
+			num += "0";
+		}
+		// No unit :( G-Sheets issue: "Function ADD parameter 1 expects number values. But '£232.91' is a text and cannot be coerced to a number."
+		return sign+num; 
 	}
 
 	@Override

@@ -7,7 +7,7 @@ import printer from '../base/utils/printer';
 import C from '../C';
 import Roles from '../base/Roles';
 import Misc from '../base/components/Misc';
-import {stopEvent, modifyHash} from '../base/utils/miscutils';
+import {stopEvent, modifyHash, encURI, space} from '../base/utils/miscutils';
 import DataStore from '../base/plumbing/DataStore';
 import Settings from '../base/Settings';
 import ShareWidget, {ShareLink} from '../base/components/ShareWidget';
@@ -23,6 +23,8 @@ import SavePublishDeleteEtc from '../base/components/SavePublishDeleteEtc';
 import BG from '../base/components/BG';
 import AceCodeEditor from './AceCodeEditor';
 import Icon from '../base/components/Icon';
+import { getStatus } from '../base/data/DataClass';
+import KStatus from '../base/data/KStatus';
 
 /**
  * @returns {?String}
@@ -69,11 +71,14 @@ const MoneyScriptEditorPage = () => {
 	return (
 		<BG src='img/bg/data_money_82831320.jpg' fullscreen >
 			<div className="MoneyScriptEditorPage">
-				<div className='flex-row'>				
-					<div md={6}><PropControl path={path} prop="name" size="lg" /></div>
-					<div md={6}><a className='btn btn-light' href={'/#sheet/'+escape(id)}>View SpreadSheet &gt;</a></div>
-					<GSheetLink item={item} />
-				</div>
+				<Row>				
+					<Col md={8}><PropControl path={path} prop="name" size="lg" /></Col>
+					<Col md={4}>
+						<a className='btn btn-primary btn-sm ml-2 mr-2' href={'/#sheet/'+escape(id)}>View SpreadSheet &gt;</a>
+						<GSheetLink item={item} />
+						<DownloadTextLink text={item.text} filename={item.name+".txt"} />
+					</Col>
+				</Row>
 				<EditScript id={id} plandoc={item} path={path} option="Text" />
 				{/* <ShareLink /> */}
 				{/* <ShareWidget /> */}
@@ -82,7 +87,19 @@ const MoneyScriptEditorPage = () => {
 	);
 };
 
-export const GSheetLink = ({item}) => item && item.gsheetId && <LinkOut href={'https://docs.google.com/spreadsheets/d/'+item.gsheetId}><Icon size='xs' name="google-sheets" title="Export of published version to Google-Sheets"/></LinkOut>;
+export const GSheetLink = ({item}) => item && item.gsheetId 
+	&& <LinkOut disabled={getStatus(item) !== KStatus.PUBLISHED} className="btn btn-light btn-sm ml-1 mr-1" 
+		href={'https://docs.google.com/spreadsheets/d/'+item.gsheetId}
+		title={space(getStatus(item) !== KStatus.PUBLISHED && "(Publish first!)", "Link to published version in Google-Sheets")}
+		><Icon size='xs' name="google-sheets" /></LinkOut>;
+
+const DownloadTextLink = ({text, filename}) => {
+	// NB the entity below is the emoji "Inbox Tray" glyph, U+1F4E5
+	return (
+		<a title="Download .txt" className="btn btn-light btn-sm ml-1 mr-1" href={'data:text/csv;charset=utf-8,' + encURI(text)} download={(filename || 'business-plan') + '.txt'}>
+			<Icon name='.txt' />
+		</a>);
+};
 
 // const saveFn = _.debounce(({path}) => {
 // 	console.warn("saveFn", path);
