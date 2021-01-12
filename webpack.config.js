@@ -89,10 +89,20 @@ const makeConfig = ({ filename, mode, entry }) => {
 
 const configs = [
 	makeConfig({filename: 'js/bundle-debug.js', mode: 'development' }),
+//	makeConfig({filename: 'js/other-bundle-debug.js', mode: 'development', entry:'./src/js/other.js'}),
 ];
 // Allow debug-only compilation for faster iteration in dev
 if (process.env.NO_PROD !== 'true') {
-	configs.push(makeConfig({filename: 'js/bundle.js', mode: 'production' }));
+	// Add the production configs.
+	// copy, change mode and filename
+	const devconfigs = [...configs];
+	devconfigs.forEach(devc => {
+		let prodc = Object.assign({}, devc);
+		prodc.mode = 'production';
+		prodc.output = Object.assign({}, devc.output);
+		prodc.output.filename = devc.output.filename.replace('-debug','');
+		configs.push(prodc);		
+	});
 }
 
 // Output bundle files for production and dev/debug
