@@ -22,7 +22,7 @@ public class SpeedTest {
 		Parser.DEBUG = false;
 		String txt = FileUtils.read(new File("plans/gl2020-2021.ms"));		
 		Lang lang = new Lang();
-		for(int i=0; i<20; i++) {
+		for(int i=0; i<100; i++) {
 			Business b = lang.parse(txt);
 			b.run();
 			Printer.out(b.toString());
