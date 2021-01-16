@@ -131,7 +131,7 @@ public class LangTime implements IInit {
 			ConditionalTimeDesc ctd = new ConditionalTimeDesc(r.parsed(), f);
 			return ctd;
 		}	
-	}.eg("when Sales > 10k");
+	}; // TODO .eg("when Sales > 10k");
 
 	/**
 	 * month year
