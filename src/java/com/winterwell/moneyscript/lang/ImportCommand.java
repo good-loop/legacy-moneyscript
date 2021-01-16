@@ -26,6 +26,7 @@ import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.containers.Cache;
 import com.winterwell.utils.containers.Containers;
+import com.winterwell.utils.containers.Pair2;
 import com.winterwell.utils.io.CSVReader;
 import com.winterwell.utils.io.CSVSpec;
 import com.winterwell.utils.io.FileUtils;
@@ -56,7 +57,6 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	public void reset() {
 		super.reset();
 		csv = null;
-		fetched = null;
 	}
 	
 	/**
@@ -119,11 +119,18 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		return "ImportCommand[src=" + src + "]";
 	}
 	
-	Dt cacheDt = new Dt(20, TUnit.MINUTE); 
+	private Dt cacheDt = new Dt(20, TUnit.MINUTE);
+	
+	public void setCacheDt(Dt cacheDt) {
+		this.cacheDt = cacheDt;
+	}
 	
 	transient String csv;
 	
-	static Cache<String, String> csvCache = new Cache<>(20);
+	/**
+	 * url to csv,fetch-time
+	 */
+	static Map<String, Pair2<String,Time>> csvCache = new Cache<>(20);
 	
 	public void run(Business b) {		
 		// Is it another m$ file??
@@ -245,9 +252,6 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		return v;
 	}
 
-
-	transient Time fetched;
-
 	String name;
 
 	String url;
@@ -263,16 +267,16 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			return;
 		}
 		// cached?
-		String cached = csvCache.get(src);
-		if ( ! Utils.isBlank(cached) && cacheDt!=null && fetched != null
-				&& fetched.plus(cacheDt).isAfter(new Time())) 
+		Pair2<String, Time> cached = csvCache.get(src);
+		if (cached != null && cacheDt!=null 
+				&& cached.second.plus(cacheDt).isAfter(new Time())) 
 		{
 			// use cache
-			csv = cached;
+			csv = cached.first;
 			Log.d("import", "use cached "+src);
 			return;
 		}
-		fetched = new Time();
+		Time fetched = new Time();
 		// is it a file?
 		if (src.startsWith("file:")) {
 			URI u = WebUtils.URI(src);
@@ -293,7 +297,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		}		
 		// cache
 		if (cacheDt!=null && cacheDt.getValue() > 0) {
-			csvCache.put(src, csv);
+			csvCache.put(src, new Pair2(csv, fetched));
 		}
 		Log.d("import", "fetched "+src);
 	}

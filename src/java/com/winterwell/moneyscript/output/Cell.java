@@ -29,9 +29,8 @@ public final class Cell {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((col == null) ? 0 : col.hashCode());
+		final int prime = 731;
+		int result = col == null? 0 : col.hashCode();
 		result = prime * result + ((row == null) ? 0 : row.hashCode());
 		return result;
 	}

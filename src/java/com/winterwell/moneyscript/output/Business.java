@@ -602,6 +602,8 @@ public class Business {
 	private KPhase phase;
 
 	public String title;
+
+	private TimeSlicer ts;
 	
 	public String getTitle() {
 		return title;
@@ -612,6 +614,9 @@ public class Business {
 		int months = (int) settings.getRunTime().divide(settings.timeStep);
 //		months += 1; // include the end month - done by a hack on end
 		setColumns(months);
+		// reset timeslicer
+		ts=null;
+		getTimeSlicer();
 	}
 
 	public KPhase getPhase() {
@@ -637,11 +642,14 @@ public class Business {
 		return BusinessContext.getBusiness();
 	}
 
+	TimeSlicer getTimeSlicer() {
+		if (ts==null) {
+			ts = new TimeSlicer(settings.getStart(), settings.getEnd(), settings.timeStep);
+		}
+		return ts;
+	}
+	
 	public Col getColForTime(Time time) {
-		Time start = settings.getStart();
-		Time end = settings.getEnd();
-		Dt dt = settings.timeStep;
-		TimeSlicer ts = new TimeSlicer(start, end, dt);		
 		int i = ts.getBucket(time);
 		Col coli = columns.get(i);
 		assert coli.index == i + 1;

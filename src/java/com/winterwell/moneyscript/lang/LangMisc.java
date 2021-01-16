@@ -224,7 +224,7 @@ public class LangMisc {
 			// cache settings?
 			AST<String> isFresh = r.getNode(cache);
 			if (isFresh != null) {
-				s.cacheDt = TimeUtils.NO_TIME_AT_ALL; 
+				s.setCacheDt(TimeUtils.NO_TIME_AT_ALL); 
 			}
 			// extra info
 			AST<Map> _jobj = r.getNode(jsonLike);
@@ -262,7 +262,7 @@ public class LangMisc {
 			// cache settings?
 			AST<String> isFresh = r.getNode(cache);
 			if (isFresh != null) {
-				s.cacheDt = TimeUtils.NO_TIME_AT_ALL; 
+				s.setCacheDt(TimeUtils.NO_TIME_AT_ALL); 
 			}
 			// slicing -- monthly or one-aggregate number?
 			String slicing = (String) r.getNode("slicing").getX();
