@@ -156,7 +156,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 
 
 
-	public int getIndex() {
+	public final int getIndex() {
 		if (index != -1) return index;
 		Business b = Business.get();
 		index = b.getRowIndex(this);

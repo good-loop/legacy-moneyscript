@@ -494,7 +494,7 @@ public class LangTest {
 		assert subs.contains(alice);
 		assert ! subs.contains(overheads);
 		
-		b.state = new BusinessState();
+		b.state = new BusinessState(b);
 		
 		BusinessContext.setActiveRule(oh);
 		Col col = new Col(1);

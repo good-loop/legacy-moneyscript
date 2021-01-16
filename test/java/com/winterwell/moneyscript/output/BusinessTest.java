@@ -216,7 +216,7 @@ public class BusinessTest {
 		
 		Col c2 = new Col(2);
 		Rule rule = balance.getRules().get(0);
-		b.state = new BusinessState();
+		b.state = new BusinessState(b);
 		b.put(new Cell(b.getRow("Invest"), new Col(1)), new Numerical(100));
 		b.put(new Cell(cf, new Col(1)), new Numerical(-10));
 		b.put(new Cell(cf, new Col(2)), new Numerical(-10));
@@ -245,7 +245,7 @@ public class BusinessTest {
 		
 		Col c2 = new Col(2);
 		Rule rule = balance.getRules().get(0);
-		b.state = new BusinessState();
+		b.state = new BusinessState(b);
 		b.put(new Cell(b.getRow("Invest"), new Col(1)), new Numerical(100));
 		b.put(new Cell(cf, new Col(1)), new Numerical(-10));
 		b.put(new Cell(cf, new Col(2)), new Numerical(-10));
@@ -350,7 +350,7 @@ public class BusinessTest {
 		Formula f = sumRule.formula;
 //		Collection<Cell> cells = selector.getCells(b);
 //		System.out.println(cells);
-		b.state = new BusinessState();			
+		b.state = new BusinessState(b);			
 		Numerical b0 = sumRule.calculate(cell);
 		assert b0.doubleValue() == 10 : b0;
 	}
@@ -360,7 +360,7 @@ public class BusinessTest {
 		{
 			Lang lang = new Lang();
 			Business b = lang.parse("columns: 2 months\nAlice: p(0.25) per month");
-			b.state = new BusinessState();
+			b.state = new BusinessState(b);
 			Row alice = b.getRow("Alice");
 			Col col1 = new Col(1);
 			Numerical v1 = alice.calculate(col1, b);

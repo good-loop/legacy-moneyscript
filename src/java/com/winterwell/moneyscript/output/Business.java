@@ -201,22 +201,23 @@ public class Business {
 		// Wot no sampling? USeful for debugging and speed. So this is the default
 		int samples = getSettings().getSamples();
 		if (samples < 2) {
-			state = new BusinessState();
+			state = new BusinessState(this);
 			run2();
 			phase = KPhase.OUTPUT;
 			return;
 		}
 		
+		monteCarloStates = new BusinessState(this);
 		for(int i=0; i<samples; i++) {
 			// A fresh state 
-			state = new BusinessState();
+			state = new BusinessState(this);
 			Log.d("Business", "Sample "+(i+1)+" of "+samples);
 			run2();
 			
 			// add to monteCarlo
 			run2_updateMonteCarlo();
 		}
-		// go stochastic
+		// switch to the stochastic for final outputs
 		state = monteCarloStates;
 		
 		phase = KPhase.OUTPUT;
@@ -451,11 +452,11 @@ public class Business {
 	/**
 	 * Only use Particles1D here!
 	 */
-	BusinessState monteCarloStates = new BusinessState();
+	BusinessState monteCarloStates;
 	
 	// NB: this is reset by run() before each evaluation.
 	// The initial value is only used in tests.
-	public BusinessState state = new BusinessState();
+	public BusinessState state = new BusinessState(this);
 	
 	public Numerical getCellValue(Cell cell) {	
 		Numerical n = state.get(cell);
