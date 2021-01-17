@@ -381,7 +381,7 @@ public class Lang {
 	 */
 	private Group parse4_addRulesAndGroupRows2_group(Rule rule, List<Row> rows) {
 		if (rule instanceof ScenarioRule) {
-			return new Group(rule.scenario, rule.indent);
+			return new Group(rule.getScenario(), rule.indent);
 		}
 		if (rows.size() != 1) {
 			return null;

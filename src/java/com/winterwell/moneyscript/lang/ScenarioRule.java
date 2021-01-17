@@ -7,15 +7,15 @@ public class ScenarioRule extends GroupRule {
 
 	public ScenarioRule(Scenario scenario, int indent) {
 		super(new RowName("scenario "+scenario), indent);
-		this.scenario = scenario;
+		setScenario(scenario);
 	}
 
 	@Override
 	public void reset() {
 		// preserve scenario, but clear its text
-		Scenario s = scenario;
+		Scenario s = getScenario();
 		super.reset();
-		this.scenario = s;
-		this.scenario.ruleText = "";
+		this.setScenario(s);
+		s.ruleText = "";
 	}
 }

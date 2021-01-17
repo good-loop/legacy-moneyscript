@@ -278,7 +278,7 @@ public class LangTest {
 		Lang lang = new Lang();
 		ParseResult<Rule> sa = lang.groupRow.parseOut("scenario A:");
 		GroupRule gr = (GroupRule) sa.getX();
-		assert gr.scenario.equiv("A") : gr.scenario;
+		assert gr.getScenario().equiv("A") : gr.getScenario();
 		{	// scenario off
 			Business b = lang.parse(
 					"start: Jan 2020\nAlice:£1 per month\n" +
@@ -288,7 +288,7 @@ public class LangTest {
 			Row alice = b.getRow("Alice");
 			Row bob = b.getRow("Bob");
 			Rule br = bob.getRules().get(0);
-			assert br.scenario.equiv("Growth") : br;
+			assert br.getScenario().equiv("Growth") : br;
 			Col c3 = new Col(3);
 			Numerical v3 = bob.calculate(c3, b);
 			assert Numerical.isZero(v3) : v3;
@@ -306,7 +306,7 @@ public class LangTest {
 			b.run();
 			Row bob = b.getRow("Bob");
 			Rule br = bob.getRules().get(0);
-			assert br.scenario.equiv("Growth") : br;
+			assert br.getScenario().equiv("Growth") : br;
 			Col c3 = new Col(3);
 			Numerical v3 = bob.calculate(c3, b);
 			assert v3.doubleValue() == 2 : v3;
@@ -325,7 +325,7 @@ public class LangTest {
 			b.run();
 			Row bob = b.getRow("Bob");
 			Rule br = bob.getRules().get(0);
-			assert br.scenario.equiv("Growth") : br;
+			assert br.getScenario().equiv("Growth") : br;
 			Col c3 = new Col(3);
 			Numerical v3 = bob.calculate(c3, b);
 			assert v3.doubleValue() == 2 : v3;
@@ -535,8 +535,8 @@ public class LangTest {
 			Row alice = b.getRow("Alice");
 			List<Rule> rules = alice.getRules();
 			assert rules.size() == 2;
-			assert "A".equals(rules.get(0).scenario) : rules.get(0).scenario;  
-			assert "B".equals(rules.get(1).scenario) : rules.get(1).scenario;
+			assert "A".equals(rules.get(0).getScenario()) : rules.get(0).getScenario();  
+			assert "B".equals(rules.get(1).getScenario()) : rules.get(1).getScenario();
 		}
 	}
 	

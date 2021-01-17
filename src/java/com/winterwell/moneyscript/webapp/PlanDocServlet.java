@@ -17,6 +17,9 @@ import com.winterwell.moneyscript.lang.GroupRule;
 import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
+import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.CurrentRow;
+import com.winterwell.moneyscript.lang.cells.RowName;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
@@ -118,13 +121,14 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 				values.add(blanks);
 				continue;
 			}
-			Rule r0 = row.getRules().get(0);			
+			Rule r0 = row.getRules().get(0);
+			System.out.println(r0);
 			List<Object> rowvs = new ArrayList();
 			rowvs.add(row.getName());
 			Collection<Cell> cells = row.getCells();
 			for (Cell cell : cells) {
 				// group rule?
-				if (row.getRules().size()==1) {
+				if (row.getRules().size()==1 && r0.isActiveScenario(cell)) {
 					if (r0 instanceof GroupRule) {
 						GroupRule gr = (GroupRule) r0;
 						List<Row> kids = row.getChildren();
@@ -132,7 +136,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 							StringBuilder sb = new StringBuilder("=");							
 							for (Row kid : kids) {
 								int ki = spacedRows.indexOf(kid)+2; // +1 for 0 index and +1 for the header row
-								sb.append(sc.getBase26(cell.col.index)+ki);
+								sb.append(GSheetsClient.getBase26(cell.col.index)+ki);
 								sb.append(" + ");
 							}
 							StrUtils.pop(sb, 3);
@@ -140,7 +144,14 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 							rowvs.add(sb.toString());
 							continue;
 						}
-					}					
+					}
+					// TODO can we convert this single rule??
+					if (r0.formula != null) {
+						CellSet cs = r0.getSelector();
+						if (cs instanceof RowName || cs instanceof CurrentRow) {
+							Log.d(LOGTAG(), "??convert for gsheets export: rule:"+r0+" f:"+r0.formula+" cs:"+cs);
+						}
+					}
 				} // ./convert rule
 				
 				Numerical v = biz.getCellValue(cell);

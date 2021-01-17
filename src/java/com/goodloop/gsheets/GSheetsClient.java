@@ -15,6 +15,7 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import com.winterwell.utils.log.Log;
 import com.winterwell.web.app.Logins;
 
 import java.io.File;
@@ -39,6 +40,7 @@ public class GSheetsClient {
 	private static final String APPLICATION_NAME = "MoneyScript by Good-Loop";
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 	private static final String TOKENS_DIRECTORY_PATH = "tokens";
+	private static final String LOGTAG = "GSheetsClient";
 
 	public Spreadsheet getSheet(String id) throws Exception {
 		Sheets service = getService();
@@ -57,6 +59,7 @@ public class GSheetsClient {
 //	    	ss.setSheets(sheets);
 		Spreadsheet s2 = service.spreadsheets().create(ss).execute();
 		String sid = s2.getSpreadsheetId();
+		Log.i(LOGTAG, "created spreadsheet "+sid);
 		return s2;
 	}
 
@@ -75,6 +78,7 @@ public class GSheetsClient {
 	 * @throws IOException If the credentials.json file cannot be found.
 	 */
 	private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+		Log.i(LOGTAG, "get credentials...");
 		// Load client secrets.
 		File credsFile = Logins.getFile(APP, "credentials.json");
 		if (credsFile == null) {
@@ -92,43 +96,8 @@ public class GSheetsClient {
 		return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
 	}
 
-	/**
-	 * Prints the names and majors of students in a sample spreadsheet:
-	 * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-	 * 
-	 * @throws Exception
-	 */
-	public static void main(String... args) throws Exception {
-		// Build a new authorized API client service.
-		Sheets service = getService();
-		final String spreadsheetId = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms";
-
-		GSheetsClient sq = new GSheetsClient();
-		Spreadsheet s = sq.getSheet(spreadsheetId);
-
-		Spreadsheet s2 = sq.createSheet();
-		String sid = s2.getSpreadsheetId();
-
-		final String range = "Class Data!A2:E";
-		ValueRange response = service.spreadsheets().values().get(spreadsheetId, range).execute();
-
-//	        Spreadsheet ss = new Spreadsheet();	        
-//	        https://developers.google.com/sheets/api/guides/values
-//			Create ssr = service.spreadsheets().create(ss);
-
-		List<List<Object>> values = response.getValues();
-		if (values == null || values.isEmpty()) {
-			System.out.println("No data found.");
-		} else {
-			System.out.println("Name, Major");
-			for (List row : values) {
-				// Print columns A and E, which correspond to indices 0 and 4.
-				System.out.printf("%s, %s\n", row.get(0), row.get(4));
-			}
-		}
-	}
-
 	private static Sheets getService() throws GeneralSecurityException, IOException {
+		Log.i(LOGTAG, "getService...");
 		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 		Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
 				.setApplicationName(APPLICATION_NAME).build();
@@ -143,6 +112,7 @@ public class GSheetsClient {
 	 */
 	public Object updateValues(String spreadsheetId, List<List<Object>> values)
 			throws GeneralSecurityException, IOException {
+		Log.i(LOGTAG, "updateValues... spreadsheet: "+spreadsheetId);
 		Sheets service = getService();
 		ValueRange body = new ValueRange().setValues(values);
 
@@ -163,11 +133,11 @@ public class GSheetsClient {
 	 * @param w
 	 * @return 0 = A
 	 */
-	public String getBase26(int w) {
+	public static String getBase26(int w) {
 		assert w >= 0 : w;
 		int a = 'A';
 		if (w < 26) {
-			char c = (char) (a + w);
+//			char c = (char) (a + w);
 			return Character.toString(a + w);
 		}
 		int low = w % 26;

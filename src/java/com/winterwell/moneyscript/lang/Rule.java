@@ -6,6 +6,7 @@ import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.Numerical;
+import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.RuleException;
@@ -58,7 +59,7 @@ public class Rule implements IReset {
 	/**
 	 * If not null, this rule only applies under this scenario
 	 */
-	Scenario scenario;
+	private Scenario scenario;
 	
 	public Rule(CellSet selector, Formula formula, String src, int indent) {
 		super();
@@ -79,27 +80,22 @@ public class Rule implements IReset {
 	
 	/**
 	 *  
-	 * @param b
+	 * @param cell
 	 * @return null if the rule has no effect
 	 */
-	public final Numerical calculate(Cell b) {
+	public final Numerical calculate(Cell cell) {
 		try {
 			BusinessContext.setActiveRule(this);
 			// Are we in a scenario - if so, does this rule apply?
-			if (scenario!=null) {
-				Map<Scenario, Boolean> scs = b.getBusiness().getScenarios();				
-				if ( ! Utils.yes(scs.get(scenario))) {
-					return null;
-				} else { // NB: allow for breakpoints here
-					Object debugActiveScenario = scs;
-					assert debugActiveScenario != null;
-				}
-			}		
-			// Filtered out?
-			if ( ! getSelector().contains(b, b)) {
+			// ?? filter out earlier
+			if ( ! isActiveScenario(cell)) {
 				return null;
 			}
-			Numerical v = calculate2_formula(b);
+			// Filtered out?
+			if ( ! getSelector().contains(cell, cell)) {
+				return null;
+			}
+			Numerical v = calculate2_formula(cell);
 			// Should we allow local distributions -- or force all stochastic work to be done by global samples?
 			// Local distros have the problem that they might be sampled twice with different results!
 			// e.g. Sales: 1 +- 1		Revenue: Sales * £10		CostOfSales: Sales * £2 	<-- Sales must return the same answers
@@ -111,8 +107,15 @@ public class Rule implements IReset {
 			}
 			return v;
 		} catch(Throwable ex) {
-			throw new RuleException(ex+" Cell "+b+" Rule "+this, ex);
+			throw new RuleException(ex+" Cell "+cell+" Rule "+this, ex);
 		}
+	}
+
+	public boolean isActiveScenario(Cell context) {
+		if (scenario==null) return true;
+		Map<Scenario, Boolean> scs = context.getBusiness().getScenarios();				
+		boolean on = Utils.yes(scs.get(scenario));
+		return on;
 	}
 
 	/**
@@ -133,7 +136,7 @@ public class Rule implements IReset {
 		this.scenario = byScenario;
 		// HACK - track the text for user info
 		if (scenario!=null) {
-			if ( ! scenario.ruleText.contains(src)) { // cache => dupe check 
+			if (src!=null && ! scenario.ruleText.contains(src)) { // cache => dupe check 
 				scenario.ruleText += src;
 			}
 		}
