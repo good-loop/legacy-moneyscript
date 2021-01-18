@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -15,16 +16,37 @@ import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInsta
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.batch.BatchRequest;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.Sheets.Spreadsheets.BatchUpdate;
+import com.google.api.services.sheets.v4.Sheets.Spreadsheets.SheetsOperations;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
+import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetResponse;
+import com.google.api.services.sheets.v4.model.CellData;
+import com.google.api.services.sheets.v4.model.CellFormat;
+import com.google.api.services.sheets.v4.model.Color;
+import com.google.api.services.sheets.v4.model.ExtendedValue;
+import com.google.api.services.sheets.v4.model.GridCoordinate;
+import com.google.api.services.sheets.v4.model.GridProperties;
+import com.google.api.services.sheets.v4.model.Request;
+import com.google.api.services.sheets.v4.model.Response;
+import com.google.api.services.sheets.v4.model.RowData;
+import com.google.api.services.sheets.v4.model.SheetProperties;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
+import com.google.api.services.sheets.v4.model.SpreadsheetProperties;
+import com.google.api.services.sheets.v4.model.TextFormat;
+import com.google.api.services.sheets.v4.model.UpdateCellsRequest;
+import com.google.api.services.sheets.v4.model.UpdateSheetPropertiesRequest;
+import com.google.api.services.sheets.v4.model.UpdateSpreadsheetPropertiesRequest;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import com.winterwell.utils.Utils;
 import com.winterwell.utils.log.Log;
 import com.winterwell.web.app.Logins;
 
@@ -47,15 +69,20 @@ public class GSheetsClient {
 		return ss;
 	}
 
-	public Spreadsheet createSheet() throws Exception {
+	/**
+	 * 
+	 * @param title optional
+	 * @return
+	 * @throws Exception
+	 */
+	public Spreadsheet createSheet(String title) throws Exception {
 		Sheets service = getService();
-		Spreadsheet ss = new Spreadsheet();
-//	    	ss.setSpreadsheetId("canwereallysetit"); // No!
-//	    	List<Sheet> sheets = ss.getSheets(); // null
-//	    	sheets = new ArrayList();
-//	    	Sheet sheet = new Sheet();
-//	    	sheets.add(sheet);	    	
-//	    	ss.setSheets(sheets);
+		Spreadsheet ss = new Spreadsheet();	
+		if ( ! Utils.isBlank(title)) {
+			SpreadsheetProperties sps = new SpreadsheetProperties();
+			sps.setTitle(title);
+			ss.setProperties(sps);
+		}
 		Spreadsheet s2 = service.spreadsheets().create(ss).execute();
 		String sid = s2.getSpreadsheetId();
 		Log.i(LOGTAG, "created spreadsheet "+sid);
@@ -95,12 +122,16 @@ public class GSheetsClient {
 		return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
 	}
 
-	private static Sheets getService() throws GeneralSecurityException, IOException {
+	private static Sheets getService() {
 		Log.i(LOGTAG, "getService...");
-		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-		Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-				.setApplicationName(APPLICATION_NAME).build();
-		return service;
+		try {
+			final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+			Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+					.setApplicationName(APPLICATION_NAME).build();
+			return service;
+		} catch(Exception ex) {
+			throw Utils.runtime(ex);
+		}
 	}
 
 	/**
@@ -113,6 +144,7 @@ public class GSheetsClient {
 			throws GeneralSecurityException, IOException {
 		Log.i(LOGTAG, "updateValues... spreadsheet: "+spreadsheetId);
 		Sheets service = getService();
+		
 		ValueRange body = new ValueRange().setValues(values);
 
 		String valueInputOption = "USER_ENTERED";
@@ -126,6 +158,48 @@ public class GSheetsClient {
 //			System.out.println(ps);
 		Log.i(LOGTAG, "updated spreadsheet: "+getUrl(spreadsheetId));
 		return result.toPrettyString();
+	}
+	
+	void todoUpdateSheet(String spreadsheetId) throws IOException, GeneralSecurityException {
+		Sheets service = getService();
+		BatchUpdateSpreadsheetRequest bsr = new BatchUpdateSpreadsheetRequest();
+		List<Request> reqs = new ArrayList();
+		UpdateSheetPropertiesRequest usr = new UpdateSheetPropertiesRequest();
+		usr.setFields("*");
+		SheetProperties sps = new SheetProperties();
+		sps.setSheetId(0);
+		GridProperties gps = new GridProperties();
+		// freeze
+		gps.setFrozenRowCount(1);
+		gps.setFrozenColumnCount(1);
+		sps.setGridProperties(gps);
+		usr.setProperties(sps);
+		reqs.add(new Request().setUpdateSheetProperties(usr));
+		
+		UpdateCellsRequest ucs = new UpdateCellsRequest();
+		ucs.setStart(new GridCoordinate().setRowIndex(1).setColumnIndex(1));
+		List<RowData> rows = new ArrayList();
+		RowData rd = new RowData();
+		List<CellData> cells = new ArrayList();
+		CellData cd = new CellData();		
+		ExtendedValue ev = new ExtendedValue().setFormulaValue("=2+2");
+		cd.setEffectiveValue(ev);
+		TextFormat tf = new TextFormat();
+		tf.setBold(true);
+		tf.setItalic(true);
+		tf.setForegroundColor(new Color().setRed(0.75f).setGreen(0f).setBlue(0f));
+		CellFormat cf = new CellFormat().setTextFormat(tf);
+		cd.setEffectiveFormat(cf);
+		cells.add(cd);
+		rd.setValues(cells);
+		rows.add(rd);
+		ucs.setRows(rows);
+		reqs.add(new Request().setUpdateCells(ucs));
+		
+		bsr.setRequests(reqs);
+		BatchUpdateSpreadsheetResponse br = service.spreadsheets().batchUpdate(spreadsheetId, bsr).execute();		
+		List<Response> reps = br.getReplies();
+		System.out.println(reps);
 	}
 
 	public String getUrl(String spreadsheetId) {

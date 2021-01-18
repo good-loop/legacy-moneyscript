@@ -3,6 +3,7 @@ package com.winterwell.moneyscript.webapp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.goodloop.gsheets.GSheetsClient;
 import com.winterwell.moneyscript.data.PlanDoc;
@@ -52,6 +53,7 @@ public class GSheetFromMS {
 		// run
 		biz.run();
 		
+		
 		List<List<Object>> values = new ArrayList();
 		
 		List<Col> cols = biz.getColumns();		
@@ -83,11 +85,18 @@ public class GSheetFromMS {
 				Numerical v = biz.getCellValue(cell);
 				if (v ==null) {
 					rowvs.add(""); 
-				} else if ( ! Utils.isBlank(v.excel) 
-						&& ! cellRef(cell.row, cell.col).equals(v.excel)) 
-				{
-					rowvs.add("="+v.excel); // a formula	
-				} else if (v instanceof UncertainNumerical) {
+					continue;
+				}
+				if ( ! Utils.isBlank(v.excel)) {
+					// Avoid self-reference which would upset GSheets
+					// NB: "A12" contains "A1"
+					Pattern p = Pattern.compile("\\b"+cellRef(cell.row, cell.col)+"\\b");
+					if ( ! p.matcher(v.excel).find()) {
+						rowvs.add("="+v.excel); // a formula	
+						continue;
+					}
+				}
+				if (v instanceof UncertainNumerical) {
 					rowvs.add(v.doubleValue());	
 				} else {
 					rowvs.add(v.doubleValue()); // toExportString());
@@ -95,6 +104,9 @@ public class GSheetFromMS {
 			} // ./cell
 			values.add(rowvs);
 		}
+		
+		Dep.set(GSheetFromMS.class, null);
+		
 		return values;
 	}
 

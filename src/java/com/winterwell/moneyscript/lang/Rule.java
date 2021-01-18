@@ -110,7 +110,7 @@ public class Rule implements IReset {
 				Numerical vFixed = ((UncertainNumerical) v).sample();
 				v = vFixed;
 			}
-			GSheetFromMS gs = Dep.get(GSheetFromMS.class);
+			GSheetFromMS gs = Dep.getWithDefault(GSheetFromMS.class, null);
 			if (gs!=null && v.excel==null) v.excel = gs.cellRef(cell.row, cell.col);
 			return v;
 		} catch(Throwable ex) {

@@ -1,7 +1,8 @@
 start: Jan 2020
 end: Sep 2022
 
-//samples: 20
+// Comment the "samples" line below in/out to switch on stochastic modelling
+// samples: 50
 
 // Import actuals from a g-drive spreadsheet
 // Manually copied from Pete's reports into the `actuals` sheet
@@ -95,7 +96,7 @@ Pay Rises: na
     Stuart from Dec 2020: + £3k per year
     Roscoe from Dec 2020: + £3k per year
     Daniel Appel from Dec 2020: + £1k per year
-    // TODO in-year joiners like Nick, Ben, Raimah get less of an end-of-year raise
+    // Note: this is slightly over-estimating costs as in-year joiners like Nick, Ben should get less of an end-of-year raise
     UK Staff except(Amy, Dan, Roscoe, Stuart, Charley, DanA) from Dec 2020: * 101.5%
     
     // Students graduate
@@ -106,8 +107,8 @@ Pay Rises: na
     Stuart from Jun 2021: + £2k per year
     Charley from Jun 2021: + £2k per year
     
-    // 2021 pay-rises - 4% in Dec 2021? (inflation is likely to go up)
-    UK Staff from Dec 2021: * 104%
+    // 2021 pay-rises - 4% in Dec 2021? (planning against inflation going up)
+    UK Staff from Dec 2021: * 104%  // TODO break out into inflation and performance based
 
 
 UK Staff:
@@ -127,7 +128,7 @@ UK Staff:
             // Pete from August 2021: 0
 //        New Tech Staff:		
 //            AdTech Dev from Apr 2021: £50k per year
-//            AdExchange Partnership Manager from Jan 2021: £50k per year // grant fund for a bit from SE??
+            // AdExchange Partnership Manager from Jan 2021: £50k per year // grant fund for a bit from SE??
 
 scenario Hiring_Delay:
     New Sales Staff from Jun 2021: 0
@@ -202,7 +203,7 @@ Operating Expenses: {.bg-red}
 
 // Sales
 Income:
-    Sales Revenue: (Campaign_Size * Num_Campaigns) * Seasonality // This formula gets replaced by the scenarios below
+    Sales Revenue: £2.6m per year // (Campaign_Size * Num_Campaigns) * Seasonality // This formula gets replaced by the scenarios below
     Revenue Details: na
     	RampedUpStaff: count(Sales Staff from 5 months ago) + count(New Sales Staff from 5 months ago) // This doesn't model churn - e.g. if a new peep comes in and Charley moves over to Marketing
     	CampaignsPerSalesperson: 1+-1 per month // It was about 0.7 in 2019 and 0.9 in 2020 (source: email from Jules re SF data, noting that head-count his blurry). Allowing for covid, it could be higher. This is new and repeat.
@@ -217,13 +218,13 @@ Income:
 		SE_RnD_Grant from Nov 2020 to Jun 2021: £50k per year 
 		Innovate UK Grant from Nov 2020 to Jun 2021: £10k per month
 		SE_Future_Grants from Jan 2021: £10k per year // Assume we win some - but reducing the amount
-	Other Revenue from Jan 2021: £0 // Was this from Winterwell?
+	Other Revenue from Feb 2021: £0 // Was consultancy revenue from Winterwell
 
-scenario Weak_Sales:
-    Sales Revenue: (£2.6m per year) * Seasonality // 30% growth on 2020
+scenario Low_Sales:
+    Sales Revenue: (£2.6m per year) * Seasonality // 30% growth on 2020 -- use this for OpEx
     
 scenario Medium_Sales:
-    Sales Revenue: £3.2m per year * Seasonality // 60% growth on 2020
+    Sales Revenue: £3.5m per year * Seasonality // 75% higher growth on 2020 (we've got a wide range on sales predictions as 2021 has market uncertainty)
     
 scenario StretchGoal:
     Sales Revenue: £4m per year * Seasonality // 100% growth on 2020
@@ -268,7 +269,7 @@ Financing: {.bg-green}
 
 // Balance
 Balance: previous Balance + Net Profit + Financing
-//Balance at Jan 2020: £1,196,202 
+// Balance at Jan 2020: £1,196,202 
 Balance: {fontWeight: bold}
 
 //Closing CashAtBank at Oct 2020: £1m

@@ -48,7 +48,7 @@ public class GSheetFromMSTest {
 		PlanDoc pd = new PlanDoc();
 
 		GSheetsClient sc = new GSheetsClient();
-		Spreadsheet s = sc.createSheet();
+		Spreadsheet s = sc.createSheet("Test testPublishExcelGPlan");
 		pd.setGsheetId(s.getSpreadsheetId());
 
 		pd.setText(txt);			

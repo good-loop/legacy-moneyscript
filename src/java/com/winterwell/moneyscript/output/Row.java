@@ -237,7 +237,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		}
 		
 		Numerical sum = new Numerical(0);
-		GSheetFromMS gs = Dep.get(GSheetFromMS.class);		
+		GSheetFromMS gs = Dep.getWithDefault(GSheetFromMS.class, null);		
 		// add them up...
 		for (Row kid : kids) {
 			Numerical v = biz.getCellValue(new Cell(kid, col));			

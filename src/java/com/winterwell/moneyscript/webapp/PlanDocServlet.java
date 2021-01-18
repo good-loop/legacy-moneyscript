@@ -73,7 +73,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		// get/create
 		if (pd.getGsheetId() == null) {
 			Log.i("Make G-Sheet...");
-			Spreadsheet s = sc.createSheet();
+			Spreadsheet s = sc.createSheet(pd.getName());
 			pd.setGsheetId(s.getSpreadsheetId());
 			// publish again
 			doPublish(state, forceRefresh, deleteDraft);
