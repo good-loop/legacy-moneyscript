@@ -95,7 +95,6 @@ public final class Settings {
 	}
 	public void setEnd(Time _end) {
 		this._end = _end;
-	}
-	
+	}	
 	
 }

@@ -22,6 +22,7 @@ import com.winterwell.moneyscript.lang.cells.CurrentRow;
 import com.winterwell.moneyscript.lang.cells.RowName;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
+import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
@@ -67,7 +68,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		return pubd;
 	}
 	
-	private void doExportToGoogle(PlanDoc pd, WebRequest state, KRefresh forceRefresh, boolean deleteDraft) throws Exception {		
+	private void doExportToGoogle(PlanDoc pd, WebRequest state, KRefresh forceRefresh, boolean deleteDraft) throws Exception {
 		GSheetsClient sc = new GSheetsClient();
 		// get/create
 		if (pd.getGsheetId() == null) {
@@ -78,96 +79,8 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 			doPublish(state, forceRefresh, deleteDraft);
 		}
 		
-		// parse
-		Business biz = MoneyServlet.lang.parse(pd.getText());		
-		// run
-		biz.run();
-		
-		List<List<Object>> values = new ArrayList();
-		
-		List<Col> cols = biz.getColumns();		
-		List<Object> headers = new ArrayList();
-		headers.add("Row");
-		for (Col col : cols) {
-			headers.add(col.getTimeDesc());
-		}
-		values.add(headers);
-				
-		// a blank row
-		final List<Object> blanks = new ArrayList();
-		for(int i=0; i<headers.size(); i++) blanks.add("");
-						
-		List<Row> rows = biz.getRows();
-
-		// HACK - space with a blank row?
-		List<Row> spacedRows = new ArrayList();
-		int prevLineNum = 0;
-		for (Row row : rows) {
-			// HACK - space with a blank row?
-			Rule r0 = row.getRules().get(0);
-			int lineNum = r0.getLineNum();
-			if (lineNum > prevLineNum+1) {				
-				spacedRows.add(null);
-			}
-			prevLineNum = lineNum;
-			spacedRows.add(row);
-		}
-		// HACK: put some blanks at the end (to handle a few rows being removed at a time)
-		for(int i=0; i<10; i++) spacedRows.add(null);		
-		
-		// convert		
-		for (Row row : spacedRows) {
-			if (row==null) {
-				values.add(blanks);
-				continue;
-			}
-			Rule r0 = row.getRules().get(0);
-			System.out.println(r0);
-			List<Object> rowvs = new ArrayList();
-			rowvs.add(row.getName());
-			Collection<Cell> cells = row.getCells();
-			for (Cell cell : cells) {
-				// group rule?
-				if (row.getRules().size()==1 && r0.isActiveScenario(cell)) {
-					if (r0 instanceof GroupRule) {
-						GroupRule gr = (GroupRule) r0;
-						List<Row> kids = row.getChildren();
-						if ( ! Utils.isEmpty(kids)) {
-							StringBuilder sb = new StringBuilder("=");							
-							for (Row kid : kids) {
-								int ki = spacedRows.indexOf(kid)+2; // +1 for 0 index and +1 for the header row
-								sb.append(GSheetsClient.getBase26(cell.col.index)+ki);
-								sb.append(" + ");
-							}
-							StrUtils.pop(sb, 3);
-//							System.out.println(sb);
-							rowvs.add(sb.toString());
-							continue;
-						}
-					}
-					// TODO can we convert this single rule??
-					if (r0.formula != null) {
-						CellSet cs = r0.getSelector();
-						if (cs instanceof RowName || cs instanceof CurrentRow) {
-							Log.d(LOGTAG(), "??convert for gsheets export: rule:"+r0+" f:"+r0.formula+" cs:"+cs);
-						}
-					}
-				} // ./convert rule
-				
-				Numerical v = biz.getCellValue(cell);
-				if (v ==null) {
-					rowvs.add(""); 
-				} else if (v instanceof UncertainNumerical) {
-					rowvs.add(v.doubleValue());	
-				} else {
-					rowvs.add(v.doubleValue()); // toExportString());
-				}				
-			} // ./cell
-			values.add(rowvs);
-		}
-		
-		// update with data		
-		sc.updateValues(pd.getGsheetId(), values);
+		GSheetFromMS ms2gs = new GSheetFromMS(sc);
+		ms2gs.doExportToGoogle(pd);
 	}
 
 	@Override

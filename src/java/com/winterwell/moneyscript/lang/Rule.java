@@ -10,6 +10,8 @@ import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.RuleException;
+import com.winterwell.moneyscript.webapp.GSheetFromMS;
+import com.winterwell.utils.Dep;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.log.Log;
 
@@ -96,15 +98,20 @@ public class Rule implements IReset {
 				return null;
 			}
 			Numerical v = calculate2_formula(cell);
+			if (v==null) {
+				return v;
+			}
 			// Should we allow local distributions -- or force all stochastic work to be done by global samples?
 			// Local distros have the problem that they might be sampled twice with different results!
 			// e.g. Sales: 1 +- 1		Revenue: Sales * £10		CostOfSales: Sales * £2 	<-- Sales must return the same answers
-			// TODO allow UncertainNumerical to fix its value as it is sampled - but preserve the distro info.
+			// TODO allow UncertainNumerical to fix its value when it is sampled - but preserve the distro info.
 			// For now: convert to number
 			if (v instanceof UncertainNumerical) {
 				Numerical vFixed = ((UncertainNumerical) v).sample();
 				v = vFixed;
 			}
+			GSheetFromMS gs = Dep.get(GSheetFromMS.class);
+			if (gs!=null && v.excel==null) v.excel = gs.cellRef(cell.row, cell.col);
 			return v;
 		} catch(Throwable ex) {
 			throw new RuleException(ex+" Cell "+cell+" Rule "+this, ex);

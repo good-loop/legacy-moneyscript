@@ -125,7 +125,12 @@ public class GSheetsClient {
 		String ps = result.toPrettyString();
 		Integer cnt = result.getUpdatedCells();
 //			System.out.println(ps);
+		Log.i(LOGTAG, "updated spreadsheet: "+getUrl(spreadsheetId));
 		return result.toPrettyString();
+	}
+
+	public String getUrl(String spreadsheetId) {
+		return "https://docs.google.com/spreadsheets/d/"+spreadsheetId;
 	}
 
 	/**

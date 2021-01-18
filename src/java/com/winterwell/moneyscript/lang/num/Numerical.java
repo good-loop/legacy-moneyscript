@@ -51,6 +51,11 @@ public class Numerical extends Number implements IScalarArithmetic {
 	public String comment;
 	
 	/**
+	 * Does not include leading "="
+	 */
+	public String excel;
+	
+	/**
 	 * treat % as a unit - but one that gets over-ridden by anything else
 	 */
 	private final String unit;

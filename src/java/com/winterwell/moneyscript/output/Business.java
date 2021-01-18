@@ -732,6 +732,8 @@ public class Business {
 	
 	List<ImportCommand> importCommands = new ArrayList<>();
 
+	public boolean isExportToGoogle;
+
 	public Map<Scenario, Boolean> getScenarios() {
 		if (scenarios==null) {
 			scenarios = new ArrayMap(); // paranoia

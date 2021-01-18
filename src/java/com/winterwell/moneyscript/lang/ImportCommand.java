@@ -89,7 +89,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 
 	public ImportCommand(String src) {
 		super(null, null, src, 0);
-		// HACK g-drive sources
+		// HACK g-drive sources ??move to GSSHeetsClient
 		if (src.startsWith("https://docs.google.com/spreadsheets/")) {
 			if (src.contains("gviz")) {
 				// remove the gviz bit to get a normal url
@@ -277,6 +277,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			return;
 		}
 		Time fetched = new Time();
+		Log.d("import", "fetch "+src+"...");
 		// is it a file?
 		if (src.startsWith("file:")) {
 			URI u = WebUtils.URI(src);

@@ -6,6 +6,7 @@ import com.winterwell.maths.stats.distributions.d1.UniformDistribution1D;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
+import com.winterwell.moneyscript.webapp.GSheetFromMS;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.containers.Range;
@@ -76,10 +77,14 @@ class BinaryOp extends Formula {
 				Numerical yplus1 = y.plus(1);
 				return x.times(yplus1);	
 			}
-			return x.plus(y);
+			Numerical xny = x.plus(y);
+			xny.excel = GSheetFromMS.excel(x)+" + "+GSheetFromMS.excel(y);
+			return xny;
 		case "*":
 			if (x==Numerical.NULL || y==Numerical.NULL) return null;
-			return x.times(y);
+			Numerical xy = x.times(y);
+			xy.excel = GSheetFromMS.excel(x)+" * "+GSheetFromMS.excel(y);
+			return xy;
 		case "@":	// like *, but preserves the LHS value for access
 			if (x==Numerical.NULL || y==Numerical.NULL) return null;
 			Numerical n = x.times(y);
@@ -87,17 +92,19 @@ class BinaryOp extends Formula {
 		case "/":
 			if (x==Numerical.NULL) return null;
 			// what to do with divide by zero?
-			return x.divide(y);
+			Numerical xdy = x.divide(y);
+			xdy.excel = GSheetFromMS.excel(x)+"/"+GSheetFromMS.excel(y);
+			return xdy;
 		case "+-": case "±":
 			Range range = new Range(x.doubleValue()-y.doubleValue(), x.doubleValue()+y.doubleValue());
 			UniformDistribution1D dist = new UniformDistribution1D(range);
 			return sample(new UncertainNumerical(dist, DefaultCalculator.unit(x, y)));		
 		case"min":
-			double xy = Math.min(x.doubleValue(), y.doubleValue());
-			return new Numerical(xy, DefaultCalculator.unit(x, y));
+			double mxy = Math.min(x.doubleValue(), y.doubleValue());
+			return new Numerical(mxy, DefaultCalculator.unit(x, y));
 		case "max":
-			xy = Math.max(x.doubleValue(), y.doubleValue());
-			return new Numerical(xy, DefaultCalculator.unit(x, y));
+			mxy = Math.max(x.doubleValue(), y.doubleValue());
+			return new Numerical(mxy, DefaultCalculator.unit(x, y));
 		case "power": case "^":
 			if (x==Numerical.NULL) return null;
 			double xtoy = Math.pow(x.doubleValue(), y.doubleValue());

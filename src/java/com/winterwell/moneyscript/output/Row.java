@@ -17,6 +17,8 @@ import com.winterwell.moneyscript.lang.StyleRule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.num.Numerical;
+import com.winterwell.moneyscript.webapp.GSheetFromMS;
+import com.winterwell.utils.Dep;
 import com.winterwell.utils.IFilter;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.containers.ArrayMap;
@@ -235,17 +237,24 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		}
 		
 		Numerical sum = new Numerical(0);
+		GSheetFromMS gs = Dep.get(GSheetFromMS.class);		
+		// add them up...
 		for (Row kid : kids) {
 			Numerical v = biz.getCellValue(new Cell(kid, col));			
 			assert ! (v instanceof UncertainNumerical) : this; // Sampled above
 			if (Numerical.isZero(v)) {
 				continue;
 			}
-			String newComment = StrUtils.joinWithSkip(" + ", sum.comment, 
-					kid.getName()+"("+v+")");
+			Numerical oldSum = sum;
+			// plus
 			sum = sum.plus(v);
-			// what went into the sum?
+			// ...what went into the sum?
+			String newComment = StrUtils.joinWithSkip(" + ", oldSum.comment, kid.getName()+"("+v+")");
 			sum.comment = newComment;
+			if (gs!=null) {
+				String newExcel = (oldSum.excel==null? "" : oldSum.excel+" + ")+gs.cellRef(kid, col);
+				sum.excel = newExcel;
+			}
 		}		
 		return sum;
 	}

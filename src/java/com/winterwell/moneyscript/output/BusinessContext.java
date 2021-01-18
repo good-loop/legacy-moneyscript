@@ -33,6 +33,6 @@ public final class BusinessContext {
 	public static void setActiveRule(Rule rule) {
 		Environment env = Environment.get();
 		env.put(ACTIVE_RULE, rule);
-	}	
+	}
 
 }
