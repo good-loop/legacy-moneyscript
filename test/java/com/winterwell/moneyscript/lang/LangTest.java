@@ -41,6 +41,14 @@ import com.winterwell.utils.io.FileUtils;
 public class LangTest {
 
 	@Test
+	public void testPossibleStuckBug() {
+		Lang lang = new Lang();
+		Business b = new Business();
+		Rule ok = lang.parseLine("	Sales_2021: sum(Sales Revenue from Jan 2021 to Dec 2021)", b);
+		System.out.println(ok);
+	}
+    
+	@Test
 	public void testEgs() {
 		// enable the eg() tests 
 		Parser.DEBUG = true;

@@ -101,7 +101,7 @@ public class Numerical extends Number implements IScalarArithmetic {
 
 	/**
 	 * 
-	 * @param value If a Numerical, then copy value and unit but not comment or delta
+	 * @param value If a Numerical, then copy value and unit but not comment, excel, or delta
 	 */
 	public Numerical(Number value) {
 		this(value.doubleValue(), 

@@ -31,7 +31,7 @@ public class GSheetsClientTest {
 
 	String sid = "19Z5U1DntkWQFLjDCNVrmg2FW3ksOAG7U-Pz-5Z_QJgE";
 	
-	@Test // fills the drive with junk 'cos I can't find the delete option
+//	@Test // fills the drive with junk 'cos I can't find the delete option
 	public void testCreateSheet() throws Exception {
         GSheetsClient sq = new GSheetsClient();        
         Spreadsheet s2 = sq.createSheet("Test testCreateSheet");
@@ -39,7 +39,7 @@ public class GSheetsClientTest {
         System.out.println(sid);
         assert sid != null;
         
-        sq.todoUpdateSheet(sid);
+//        sq.todoUpdateSheet(sid);
 	}
 	
 

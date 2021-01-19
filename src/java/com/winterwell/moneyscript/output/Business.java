@@ -24,7 +24,9 @@ import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.cells.RowName;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.num.Numerical;
+import com.winterwell.moneyscript.webapp.GSheetFromMS;
 import com.winterwell.nlp.dict.Dictionary;
+import com.winterwell.utils.Dep;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
@@ -44,7 +46,7 @@ import com.winterwell.utils.time.Time;
  * @author daniel
  *
  */
-public class Business {
+public final class Business {
 
 	
 	Map<Scenario,Boolean> scenarios = new ArrayMap();
@@ -297,6 +299,9 @@ public class Business {
 		v = cell.row.calculate(cell.col, this);
 		if (v==null) {
 			v = Business.EMPTY; // no need to recaluclate this if eg its in a sum
+		} else if (v.excel==null){
+			GSheetFromMS gs = Dep.getWithDefault(GSheetFromMS.class, null);
+			if (gs!=null) v.excel = gs.cellRef(cell.row, cell.col);
 		}
 		assert state.get(cell)==null || state.get(cell)==EVALUATING 
 				|| state.get(cell)==v : state.get(cell)+" vs "+v;		
@@ -456,13 +461,13 @@ public class Business {
 	
 	// NB: this is reset by run() before each evaluation.
 	// The initial value is only used in tests.
-	public BusinessState state = new BusinessState(this);
+	public BusinessState state = BusinessState.testBS(this);
 	
 	public Numerical getCellValue(Cell cell) {	
 		Numerical n = state.get(cell);
 		if (n==null) {
 			n = run3_evaluate(cell);
-		}
+		}		
 		return n;
 	}
 
@@ -604,8 +609,6 @@ public class Business {
 
 	public String title;
 
-	private TimeSlicer ts;
-	
 	public String getTitle() {
 		return title;
 	}
@@ -615,9 +618,6 @@ public class Business {
 		int months = (int) settings.getRunTime().divide(settings.timeStep);
 //		months += 1; // include the end month - done by a hack on end
 		setColumns(months);
-		// reset timeslicer
-		ts=null;
-		getTimeSlicer();
 	}
 
 	public KPhase getPhase() {
@@ -643,15 +643,9 @@ public class Business {
 		return BusinessContext.getBusiness();
 	}
 
-	TimeSlicer getTimeSlicer() {
-		if (ts==null) {
-			ts = new TimeSlicer(settings.getStart(), settings.getEnd(), settings.timeStep);
-		}
-		return ts;
-	}
 	
 	public Col getColForTime(Time time) {
-		int i = ts.getBucket(time);
+		int i = getSettings().getTimeSlicer().getBucket(time);
 		Col coli = columns.get(i);
 		assert coli.index == i + 1;
 		return coli;

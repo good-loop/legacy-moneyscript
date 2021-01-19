@@ -138,7 +138,20 @@ public class GSheetFromMS {
 	}
 
 	public static String excel(Numerical x) {
-		return x.excel==null? Double.toString(x.doubleValue()) : x.excel;
+		return x.excel==null? 
+				Double.toString(x.doubleValue()) 
+				: x.excel;
+	}
+
+	/**
+	 * Wrap in ()s if needed
+	 * @param x
+	 * @return
+	 */
+	public static String excelb(Numerical x) {
+		String s = excel(x);
+		if (s.contains(" ")) s = "("+s+")";
+		return s;
 	}
 
 }

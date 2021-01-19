@@ -12,6 +12,8 @@ import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
+import com.winterwell.moneyscript.webapp.GSheetFromMS;
+import com.winterwell.utils.Dep;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Containers;
@@ -95,20 +97,31 @@ public class UnaryOp extends Formula {
 
 	private Numerical calculate2_previous(Cell b) {
 		// at the start? 0 then
-		if (b.getColumn().index == 1) return new Numerical(0);			
+		if (b.getColumn().index == 1) {
+			Numerical n = new Numerical(0);
+			// NB: No excel cell reference
+			return n;
+		}
 		// must be a cell set as formula
 		CellSet cellSet = ((BasicFormula)right).sel;
 		assert cellSet != null : right;
 		Set<String> rows = cellSet.getRowNames(b);
 		assert rows.size() == 1 : rows;
-		Row row = b.getBusiness().getRow(Containers.first(rows));
+		Business biz = b.getBusiness();
+		Row row = biz.getRow(Containers.first(rows));
 		assert row != null : rows;
 		Cell prevCell = new Cell(row, new Col(b.getColumn().index-1));
 //		Cell b2 = new Cell(prevCell);
 		if ( ! cellSet.contains(prevCell, b)) {
 			return null;
 		}			
-		return b.getBusiness().getCellValue(prevCell);
+		Numerical pc = biz.getCellValue(prevCell);
+		GSheetFromMS gs = Dep.getWithDefault(GSheetFromMS.class, null);
+		if (gs!=null) {
+			pc = new Numerical(pc);
+			pc.excel = gs.cellRef(prevCell.row, prevCell.col);
+		}
+		return pc;
 	}
 
 	private Numerical calculate2_sum(Cell b) {

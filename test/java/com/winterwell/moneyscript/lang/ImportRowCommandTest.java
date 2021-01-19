@@ -67,17 +67,18 @@ public class ImportRowCommandTest {
 		Business b = lang.parse(ms);
 		b.getSettings().setStart(new Time(2020,1,1));
 		b.getSettings().setEnd(new Time(2020,6,30));
+		
 		ic.run(b);
 		String vs = ic.values.toString();
 		Printer.out(vs);
-		assert vs.equals("[null, 107k, 12.4k, 0, 81.6k, 156k, 83.3k]");
+		assert vs.equals("[null, 107k, 12.4k, 0, 81.6k, 156k, 83.3k]") : vs;
 	}
 	
 	
 	@Test
 	public void testImportRowFromSF() {
-		String ms = "SF Net Amount: import sum(Net Amount) using {\"End Date\":month, name:\"SF exported csv\"}"
-				+ " from file:///home/daniel/winterwell/moneyscript/data/SF-won-report.csv";
+		// This syntax is too fragile -- TODO allow reordering sentence chunks
+		String ms = "SF Net Amount: import by month sum(Net Amount) using {\"End Date\":month, name:\"SF exported csv\"} from file:///home/daniel/winterwell/moneyscript/data/SF-won-report.csv";
 		Lang lang = new Lang();
 		PP<ImportRowCommand> p = lang.langMisc._importRow;
 //		Parser.DEBUG = true;

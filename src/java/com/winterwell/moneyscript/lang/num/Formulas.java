@@ -7,6 +7,7 @@ import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.webapp.GSheetFromMS;
+import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.containers.Range;
@@ -77,13 +78,13 @@ class BinaryOp extends Formula {
 				Numerical yplus1 = y.plus(1);
 				return x.times(yplus1);	
 			}
-			Numerical xny = x.plus(y);
+			Numerical xny = x.plus(y);			
 			xny.excel = GSheetFromMS.excel(x)+" + "+GSheetFromMS.excel(y);
 			return xny;
 		case "*":
 			if (x==Numerical.NULL || y==Numerical.NULL) return null;
 			Numerical xy = x.times(y);
-			xy.excel = GSheetFromMS.excel(x)+" * "+GSheetFromMS.excel(y);
+			xy.excel = GSheetFromMS.excelb(x)+" * "+GSheetFromMS.excelb(y);
 			return xy;
 		case "@":	// like *, but preserves the LHS value for access
 			if (x==Numerical.NULL || y==Numerical.NULL) return null;
@@ -93,7 +94,7 @@ class BinaryOp extends Formula {
 			if (x==Numerical.NULL) return null;
 			// what to do with divide by zero?
 			Numerical xdy = x.divide(y);
-			xdy.excel = GSheetFromMS.excel(x)+"/"+GSheetFromMS.excel(y);
+			xdy.excel = GSheetFromMS.excelb(x)+"/"+GSheetFromMS.excelb(y);
 			return xdy;
 		case "+-": case "±":
 			Range range = new Range(x.doubleValue()-y.doubleValue(), x.doubleValue()+y.doubleValue());

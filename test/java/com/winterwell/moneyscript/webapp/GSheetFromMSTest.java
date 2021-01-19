@@ -29,6 +29,18 @@ public class GSheetFromMSTest {
 		System.out.println(vs);
 	}
 	
+	
+	@Test
+	public void testBrackets() throws Exception {
+		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient());
+		PlanDoc pd = new PlanDoc();
+		pd.setText("Alice: £10 per month\nBob: £5/2 + (2% + 8%) * Alice");
+		Business biz = MoneyServlet.lang.parse(pd.getText());
+		biz.setColumns(3);
+		List<List<Object>> vs = gs4ms.updateValues(biz);
+		System.out.println(vs);
+	}
+	
 	@Test
 	public void testExcelGPlan() throws Exception {
 		Parser.DEBUG = false;

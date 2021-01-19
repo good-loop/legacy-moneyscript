@@ -15,8 +15,11 @@ public final class BusinessState {
 	private final Numerical[][] values;
 	
 	public BusinessState(Business b) {
-		int nrows = b.getRows().size();
-		int ncols = b.getColumns()==null? 37 : b.getColumns().size();
+		this(b.getRows().size(), b.getColumns().size());
+	}
+	
+	BusinessState(int nrows, int ncols) {
+		assert nrows > 0 && ncols > 0;
 		this.values = new Numerical[nrows][ncols+1]; // NB: 1 indexed
 	}
 
@@ -32,6 +35,11 @@ public final class BusinessState {
 	@Override
 	public String toString() {
 		return "BusinessState";
+	}
+
+	public static BusinessState testBS(Business business) {
+		BusinessState bs = new BusinessState(10,24);
+		return bs;
 	}
 
 }

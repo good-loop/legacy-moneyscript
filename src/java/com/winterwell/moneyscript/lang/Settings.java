@@ -2,6 +2,7 @@ package com.winterwell.moneyscript.lang;
 
 import java.lang.reflect.Field;
 
+import com.winterwell.maths.timeseries.TimeSlicer;
 import com.winterwell.utils.ReflectionUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.time.Dt;
@@ -92,9 +93,20 @@ public final class Settings {
 	}
 	public void setStart(Time time) {
 		this._start = time;
+		ts = null;
 	}
 	public void setEnd(Time _end) {
 		this._end = _end;
+		ts = null;
 	}	
 	
+
+	private transient TimeSlicer ts;
+
+	public TimeSlicer getTimeSlicer() {
+		if (ts==null) {
+			ts = new TimeSlicer(getStart(), getEnd(), timeStep);
+		}
+		return ts;
+	}
 }
