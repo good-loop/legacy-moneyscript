@@ -203,7 +203,7 @@ Operating Expenses: {.bg-red}
 
 // Sales
 Income:
-    Sales Revenue: £2.6m per year // (Campaign_Size * Num_Campaigns) * Seasonality // This formula gets replaced by the scenarios below
+    Sales Revenue: (£2.6m per year) * Seasonality // (Campaign_Size * Num_Campaigns) * Seasonality // This formula gets replaced by the scenarios below
     Revenue Details: na
     	RampedUpStaff: count(Sales Staff from 5 months ago) + count(New Sales Staff from 5 months ago) // This doesn't model churn - e.g. if a new peep comes in and Charley moves over to Marketing
     	CampaignsPerSalesperson: 1+-1 per month // It was about 0.7 in 2019 and 0.9 in 2020 (source: email from Jules re SF data, noting that head-count his blurry). Allowing for covid, it could be higher. This is new and repeat.

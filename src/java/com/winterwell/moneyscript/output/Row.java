@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.winterwell.moneyscript.lang.DummyRule;
 import com.winterwell.moneyscript.lang.GroupRule;
+import com.winterwell.moneyscript.lang.ImportCommand;
 import com.winterwell.moneyscript.lang.ImportRowCommand;
 import com.winterwell.moneyscript.lang.MetaRule;
 import com.winterwell.moneyscript.lang.Rule;
@@ -239,6 +240,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		Numerical sum = new Numerical(0);
 		GSheetFromMS gs = Dep.getWithDefault(GSheetFromMS.class, null);		
 		// add them up...
+		boolean allImports = true;
 		for (Row kid : kids) {
 			Numerical v = biz.getCellValue(new Cell(kid, col));			
 			assert ! (v instanceof UncertainNumerical) : this; // Sampled above
@@ -255,7 +257,16 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 				String newExcel = (oldSum.excel==null? "" : oldSum.excel+" + ")+gs.cellRef(kid, col);
 				sum.excel = newExcel;
 			}
-		}		
+			if (allImports && ! ImportCommand.IMPORT_MARKER_COMMENT.equals(v.comment)
+				&& ! (v.comment!=null && v.comment.startsWith("imports"))) 
+			{
+				allImports = false;
+			}
+		}
+		// HACK
+		if ( ! Numerical.isZero(sum) && allImports) {
+			sum.comment = "imports: "+sum.comment; // mark it for display
+		}
 		return sum;
 	}
 

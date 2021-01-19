@@ -71,7 +71,9 @@ const fStyle = ({cellValue, item, row, depth, column}) => {
 	// red -ives
 	if (cellValue && cellValue < 0) cellStyle.color = "red";
 	// actuals
-	if (colVal && colVal.comment==="import") cellStyle.color = "blue"; // cellStyle.backgroundColor = "#ddf"; // blue pastel highlight on actuals
+	if (colVal && colVal.comment && (colVal.comment==="import" || colVal.comment.substr(0, 7)==="imports")) {
+		cellStyle.color = "blue"; // cellStyle.backgroundColor = "#ddf"; // blue pastel highlight on actuals
+	}
 	// column hacks
 	if (column.Header) {
 		if (column.Header.toLowerCase().includes("total")) {
@@ -96,7 +98,7 @@ const renderCell = (v, column, item) => {
 };
 
 
-const ViewSpreadSheet = ({plandoc, scenarios}) => {
+const ViewSpreadSheet = ({plandoc, scenarios, hideMonths}) => {
 	if ( ! plandoc) return null;
 	const pvrun = doShowMeTheMoney({plandoc, scenarios});
 	if ( ! pvrun.resolved) {
@@ -117,7 +119,7 @@ const ViewSpreadSheet = ({plandoc, scenarios}) => {
 		// type: Column[]
 		let columns = runOutput.columns.map((c,i) => {
 			// red -ives (hack string test)
-			return new Column({
+			let column = new Column({
 				index: i,
 				accessor: r => r[i] && (r[i].v || r[i].str), // get the numerical value for csv export
 				Cell: renderCell,
@@ -125,7 +127,8 @@ const ViewSpreadSheet = ({plandoc, scenarios}) => {
 				Header: c,
 				style: fStyle
 			});
-		});	
+			return column;
+		});
 		// The row name TH column
 		let rowCol = new Column({
 			accessor:'row', Header:'Row',
@@ -159,12 +162,18 @@ const ViewSpreadSheet = ({plandoc, scenarios}) => {
 		console.log("MADE dataTree", runOutput.dataTree, "allcolumns", runOutput.allcolumns);
 	} // data prep done
 
+	// HACK - only show year totals
+	let vizcolumns = runOutput.allcolumns;
+	if (hideMonths) {
+		vizcolumns = vizcolumns.filter(col => col.Header==="Row" || col.Header.includes("Total"));
+	}
+
 	console.log("dataTree", runOutput.dataTree, "allcolumns", runOutput.allcolumns);
 	// The Table
 	return <SimpleTable 
 			tableName={plandoc.name}
 			dataTree={runOutput.dataTree}
-			columns={runOutput.allcolumns} 			 
+			columns={vizcolumns} 			 
 			showSortButtons={false} 
 			scroller 
 			hasCollapse 

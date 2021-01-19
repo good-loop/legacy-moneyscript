@@ -54,11 +54,12 @@ const SheetPage = () => {
 			<ScenariosOnOff scenarioMap={scenarioMap} scenarioTexts={pvrun.value && pvrun.value.scenarioTexts} />
 			<div className='flex-row'>
 				<ImportsList runOutput={pvrun.value} />			
+				<PropControl prop='hideMonths' type='checkbox' label='Annual Totals only' saveFn={_ => false && window.location.reload()} />
 				<GSheetLink item={item}	/>
 			</div>
 		</div>
 		<div className="sheet">
-			<ViewSpreadSheet plandoc={item} scenarios={scenariosOn} />
+			<ViewSpreadSheet plandoc={item} scenarios={scenariosOn} hideMonths={DataStore.getUrlValue("hideMonths")} />
 		</div>
 	</>;
 };

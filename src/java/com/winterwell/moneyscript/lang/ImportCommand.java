@@ -82,6 +82,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	private static final String OVERLAP = "overlap";
 
 	private static final String LOGTAG = "import";
+	public static final String IMPORT_MARKER_COMMENT = "import";
 
 	public ImportCommand(String src) {
 		super(null, null, src, 0);
@@ -242,7 +243,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 
 	Numerical run2_setCellValue(Business b, double n, Cell cell) {
 		Numerical v = new Numerical(n);
-		v.comment = "import";
+		v.comment = IMPORT_MARKER_COMMENT;
 		// Set value
 		b.state.set(cell, v);
 		return v;

@@ -290,7 +290,7 @@ public final class Business {
 			throw new StackOverflowError("This could loop forever: "+cell);
 		}
 		if (v!=null) {
-			return v;
+			return v;	// NB: this means imports won't get overwritten
 		}
 		// set flag
 		state.set(cell, EVALUATING);
