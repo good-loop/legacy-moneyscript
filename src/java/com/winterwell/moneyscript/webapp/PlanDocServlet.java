@@ -54,11 +54,35 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		_jthing.java().errors = new ArrayList();
 	}
 
+	@Override
+	protected void doSave(WebRequest state) {
+		// HACK Is it a file??
+		File f = getPlanFile(state);
+		if (f==null) {
+			super.doSave(state);
+			return;
+		} else {
+			File fd = new File(f.getParentFile(), "~"+f.getName());
+			PlanDoc thing = getThing(state);
+			String text = thing.getText();
+			FileUtils.write(fd, text);
+		}
+	}	
 	
 	@Override
 	protected JThing<PlanDoc> doPublish(WebRequest state, KRefresh forceRefresh, boolean deleteDraft) throws Exception {
+		// HACK Is it a file??
+		File f = getPlanFile(state);		
 		// normal
-		JThing<PlanDoc> pubd = super.doPublish(state, forceRefresh, deleteDraft);
+		JThing<PlanDoc> pubd;
+		if (f==null) {
+			pubd = super.doPublish(state, forceRefresh, deleteDraft);
+		} else {
+			pubd = getThingStateOrDB(state);
+			// Save to file??
+			String text = pubd.java().getText();
+			System.out.println(text);
+		}
 		// plus export to google ?? do this async?
 		try {
 			doExportToGoogle(pubd.java(), state, forceRefresh, deleteDraft);
@@ -115,10 +139,8 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	@Override
 	protected JThing<PlanDoc> getThingFromDB(WebRequest state) throws E403 {
 		// HACK file
-		String sbit1 = state.getSlugBits(1);
-		if (sbit1!=null && sbit1.startsWith("file-")) {
-			String sf = FileUtils.safeFilename(sbit1.substring(5), true);
-			File f = new File("plans", sf);
+		File f = getPlanFile(state);
+		if (f != null) {
 			String s = FileUtils.read(f);
 			PlanDoc pd = new PlanDoc();
 			pd.id = state.getSlug();
@@ -127,5 +149,20 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		}
 		// normal - db
 		return super.getThingFromDB(state);
+	}
+
+	/**
+	 * 
+	 * @param state
+	 * @return file or null
+	 */
+	private File getPlanFile(WebRequest state) {
+		String sbit1 = state.getSlugBits(1);
+		if (sbit1!=null && sbit1.startsWith("file-")) {
+			String sf = FileUtils.safeFilename(sbit1.substring(5), true);
+			File f = new File("plans", sf);
+			return f;
+		}
+		return null;
 	}
 }

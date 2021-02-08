@@ -120,9 +120,10 @@ UK Staff:
             // Junior Omnicom Sales Person from Jun 2021: £30k per year // Or is this the KickStart person?
         New Account Management Staff:
             Admin Officer from Jan 2021: £23k per year // full-time so they're heart and soul into the job
+            Tom2 AdOps Officer from Mar 2021: £30k per year
             Kickstart AdOps from Feb 2021: £300 per month
             Kickstart AdOps from July 2021: £25k per year
-            Kickstart Social Media Community Manager from Jan 2021:  £300 per month // Initially hired on govt scheme (with some top-up)
+            Kickstart Social Media Community Manager from Feb 2021:  £300 per month // Initially hired on govt scheme (with some top-up)
             Kickstart Social Media Community Manager from June 2021: £0 //£25k per year
 //            CFO from June 2021: 20% * £70k per year // start part-time
             // Pete from August 2021: 0
@@ -134,6 +135,9 @@ scenario Hiring_Delay:
     New Sales Staff from Jun 2021: 0
     Kickstart AdOps from Jun 2021: 0
     Kickstart Social Media Community Manager from Jun 2021: 0
+
+//scenario Hire_Tom2_March: Doing it
+//    Tom2 AdOps Officer from Mar 2021: £40k per year
 
 Operating Expenses: // costs apart from COS
 	People:
@@ -203,7 +207,7 @@ Operating Expenses: {.bg-red}
 
 // Sales
 Income:
-    Sales Revenue: (£2.6m per year) * Seasonality // (Campaign_Size * Num_Campaigns) * Seasonality // This formula gets replaced by the scenarios below
+	Sales Revenue: £2.6m // (Campaign_Size * Num_Campaigns) * Seasonality // This formula gets replaced by the scenarios below
     Revenue Details: na
     	RampedUpStaff: count(Sales Staff from 5 months ago) + count(New Sales Staff from 5 months ago) // This doesn't model churn - e.g. if a new peep comes in and Charley moves over to Marketing
     	CampaignsPerSalesperson: 1+-1 per month // It was about 0.7 in 2019 and 0.9 in 2020 (source: email from Jules re SF data, noting that head-count his blurry). Allowing for covid, it could be higher. This is new and repeat.
@@ -224,7 +228,8 @@ scenario Low_Sales:
     Sales Revenue: (£2.6m per year) * Seasonality // 30% growth on 2020 -- use this for OpEx
     
 scenario Medium_Sales:
-    Sales Revenue: £3.5m per year * Seasonality // 75% higher growth on 2020 (we've got a wide range on sales predictions as 2021 has market uncertainty)
+    Sales Revenue: £3.75m per year * Seasonality // 75% higher growth on 2020 (we've got a wide range on sales predictions as 2021 has market uncertainty)
+    Tom2 AdOps Officer from Oct 2021: £40k per year
     
 scenario StretchGoal:
     Sales Revenue: £4m per year * Seasonality // 100% growth on 2020
@@ -247,7 +252,7 @@ COS:
 	Business Donations: 50% * Sales Revenue
 	Brand_Uplift_Research: £4k * Num_Campaigns * 20% // Is it really only 20% who have a brand uplift study??
 	Sales Commission: 4.75% * Sales Revenue // 4.75% was calculated from the commission calc sheet
-	Agent Commission: 5% * Sales Revenue * 10% // estimates for average commission (5%), use of agents (10%)
+	Agent Commission: 5% * Sales Revenue * 5% // estimates for average commission (5%), use of agents (10%)
 COS: {.bg-red}
 
 
