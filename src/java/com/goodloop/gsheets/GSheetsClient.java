@@ -130,6 +130,7 @@ public class GSheetsClient {
 					.setApplicationName(APPLICATION_NAME).build();
 			return service;
 		} catch(Exception ex) {
+			Log.i(LOGTAG, "getService :( "+ex); // make sure its logged
 			throw Utils.runtime(ex);
 		}
 	}

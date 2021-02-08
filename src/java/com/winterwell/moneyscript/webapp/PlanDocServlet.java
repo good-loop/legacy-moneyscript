@@ -38,6 +38,7 @@ import com.winterwell.web.WebEx.E403;
 import com.winterwell.web.ajax.AjaxMsg;
 import com.winterwell.web.ajax.JThing;
 import com.winterwell.web.app.AppUtils;
+import com.winterwell.web.app.CommonFields;
 import com.winterwell.web.app.CrudServlet;
 import com.winterwell.web.app.WebRequest;
 
@@ -79,9 +80,9 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 			pubd = super.doPublish(state, forceRefresh, deleteDraft);
 		} else {
 			pubd = getThingStateOrDB(state);
-			// Save to file??
+			// Save to file
 			String text = pubd.java().getText();
-			System.out.println(text);
+			FileUtils.write(f, text);
 		}
 		// plus export to google ?? do this async?
 		try {
@@ -141,9 +142,19 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		// HACK file
 		File f = getPlanFile(state);
 		if (f != null) {
+			KStatus status = state.get(CommonFields.STATUS);
+			File fd = new File(f.getParentFile(), "~"+f.getName());
+			if (status==KStatus.DRAFT 
+					&& fd.isFile() 
+					&& fd.lastModified() > f.lastModified()) 
+			{
+				f = fd; // load from draft
+			}
 			String s = FileUtils.read(f);
 			PlanDoc pd = new PlanDoc();
-			pd.id = state.getSlug();
+			String slug = state.getSlug();
+			String id = state.getSlugBits(1);
+			pd.id = id;
 			pd.setText(s);
 			return new JThing().setType(PlanDoc.class).setJava(pd);
 		}
