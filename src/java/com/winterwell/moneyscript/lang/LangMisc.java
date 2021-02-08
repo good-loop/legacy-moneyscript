@@ -285,6 +285,18 @@ public class LangMisc {
 		}
 	}.label("importRow");
 	
+	
+
+	PP<ExportCommand> _exportRow = (PP<ExportCommand>) new PP<ExportCommand>(
+			seq(lit("export:"), optSpace, LangMisc.urlOrFile)
+			) {
+		protected ExportCommand process(ParseResult<?> r) {			
+			AST<MatchResult> psrc = r.getNode(LangMisc.urlOrFile);
+			ExportCommand s = new ExportCommand(psrc.parsed());
+			return s;
+		}
+	}.label("exportRow");
+	public static Parser<ExportCommand> exportRow = new Ref("exportRow"); // is this needed??
 
 	
 	/**

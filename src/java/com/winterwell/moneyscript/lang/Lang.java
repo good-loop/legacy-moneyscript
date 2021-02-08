@@ -124,7 +124,8 @@ public class Lang {
 	
 	Parser ruleBody = first(langNum.numList, LangNum.num, 
 							langNum.compoundingFormula, 						 
-							LangMisc.meta, LangMisc.importRow,
+							LangMisc.meta, 
+							LangMisc.importRow, LangMisc.exportRow, 
 							LangMisc.css, langTime.when)
 					.label("ruleBody")
 					.setDebug(new IDebug<ParseState>() {public void call(ParseState state) {
@@ -230,6 +231,11 @@ public class Lang {
 		if (r instanceof ImportCommand) {			
 			b.addImportCommand((ImportCommand) r);
 			return (Rule) r;
+		}
+		// export?
+		if (r instanceof ExportCommand) {			
+			b.addExportCommand((ExportCommand) r);
+			return new DummyRule(null, scriptLine);
 		}
 		// A rule (the normal case)
 		if (r instanceof Rule) {

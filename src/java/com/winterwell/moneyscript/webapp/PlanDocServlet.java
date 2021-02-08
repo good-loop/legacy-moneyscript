@@ -13,8 +13,10 @@ import com.winterwell.data.KStatus;
 import com.winterwell.es.ESPath;
 import com.winterwell.es.client.KRefresh;
 import com.winterwell.moneyscript.data.PlanDoc;
+import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.GroupRule;
 import com.winterwell.moneyscript.lang.Lang;
+import com.winterwell.moneyscript.lang.LangMisc;
 import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.cells.CellSet;
@@ -27,6 +29,7 @@ import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.nlp.simpleparser.ParseExceptions;
+import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
@@ -94,7 +97,21 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	}
 	
 	private void doExportToGoogle(PlanDoc pd, WebRequest state, KRefresh forceRefresh, boolean deleteDraft) throws Exception {
-		GSheetsClient sc = new GSheetsClient();
+		GSheetsClient sc = new GSheetsClient(); 	
+		// HACK gsheet export id?
+		if (pd.getText().contains("export:")) {
+			String[] lines = StrUtils.splitLines(pd.getText());
+			for (String line : lines) {
+				if ( ! line.startsWith("export")) continue;
+				try {
+					ParseResult<ExportCommand> pr = LangMisc.exportRow.parse(line);
+					ExportCommand ec = pr.getX();
+					pd.setGsheetId(ec.spreadsheetId);					
+				} catch (Exception ex) {
+					// whatevs
+				}
+			}						
+		}
 		// get/create
 		if (pd.getGsheetId() == null) {
 			Log.i("Make G-Sheet...");
@@ -115,7 +132,11 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		try {
 			Lang lang = MoneyServlet.lang;			
 			String text = plandoc.getText();
-			Business biz = lang.parse(text);			
+			Business biz = lang.parse(text);		
+			// HACK gsheet export id
+			if (biz.export != null) {
+				plandoc.setGsheetId(biz.export.spreadsheetId);
+			}
 			Map pi = biz.getParseInfoJson();
 			if ( ! Utils.isEmpty(plandoc.errors)) {
 				plandoc.errors = null;

@@ -14,6 +14,7 @@ import com.winterwell.gson.Gson;
 import com.winterwell.maths.stats.distributions.d1.UniformDistribution1D;
 import com.winterwell.maths.timeseries.TimeSlicer;
 import com.winterwell.moneyscript.lang.CompareCommand;
+import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.ImportCommand;
 import com.winterwell.moneyscript.lang.MetaRule;
 import com.winterwell.moneyscript.lang.Rule;
@@ -728,6 +729,8 @@ public final class Business {
 
 	public boolean isExportToGoogle;
 
+	public ExportCommand export;
+
 	public Map<Scenario, Boolean> getScenarios() {
 		if (scenarios==null) {
 			scenarios = new ArrayMap(); // paranoia
@@ -737,6 +740,10 @@ public final class Business {
 
 	public void setScenarios(Map<Scenario, Boolean> map) {
 		this.scenarios = map;
+	}
+
+	public void addExportCommand(ExportCommand r) {
+		this.export = r;
 	}
 	
 }

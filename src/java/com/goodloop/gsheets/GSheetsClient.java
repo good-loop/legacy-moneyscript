@@ -10,6 +10,8 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -205,6 +207,18 @@ public class GSheetsClient {
 
 	public String getUrl(String spreadsheetId) {
 		return "https://docs.google.com/spreadsheets/d/"+spreadsheetId;
+	}
+	
+	static Pattern gsu = Pattern.compile("^https://docs.google.com/spreadsheets/d/([^/]+)");
+	
+	static public String getSpreadsheetId(String url) {
+		// convert a normal url to a gviz
+		Matcher m = gsu.matcher(url);
+		if ( ! m.find()) {
+			return null;			
+		}
+		String docid = m.group(1);
+		return docid;
 	}
 
 	/**

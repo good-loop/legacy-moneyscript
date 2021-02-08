@@ -38,6 +38,9 @@ import com.winterwell.utils.time.TimeUtils;
 
 /**
  * 
+ * ImportCommand pulls in lots of rows. This only imports a single row.
+ * 
+ * 
  * @testedby ImportRowCommandTest
  * @author daniel
  *
