@@ -126,7 +126,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	}
 
 	@Override
-	protected void augment(JThing<PlanDoc> jThing, WebRequest state) {
+	protected JThing<PlanDoc> augment(JThing<PlanDoc> jThing, WebRequest state) {
 		// parse and add parse-info
 		PlanDoc plandoc = jThing.java();
 		try {
@@ -155,6 +155,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 			));
 			jThing.setJava(plandoc);
 		}
+		return jThing;
 	}
 	
 	
