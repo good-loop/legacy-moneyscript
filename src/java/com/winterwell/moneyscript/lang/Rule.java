@@ -112,6 +112,10 @@ public class Rule implements IReset {
 			}
 			GSheetFromMS gs = Dep.getWithDefault(GSheetFromMS.class, null);
 			if (gs!=null && v.excel==null) v.excel = gs.cellRef(cell.row, cell.col);
+			// No NaN or infinity
+			if ( ! Double.isFinite(v.doubleValue())) {
+				throw new IllegalArgumentException(v+" for "+this+" on "+cell);
+			}
 			return v;
 		} catch(Throwable ex) {
 			throw new RuleException(ex+" Cell "+cell+" Rule "+this, ex);

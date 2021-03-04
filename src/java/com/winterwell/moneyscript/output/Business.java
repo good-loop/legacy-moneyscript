@@ -14,6 +14,7 @@ import com.winterwell.gson.Gson;
 import com.winterwell.maths.stats.distributions.d1.UniformDistribution1D;
 import com.winterwell.maths.timeseries.TimeSlicer;
 import com.winterwell.moneyscript.lang.CompareCommand;
+import com.winterwell.moneyscript.lang.ErrorNumerical;
 import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.ImportCommand;
 import com.winterwell.moneyscript.lang.MetaRule;
@@ -56,7 +57,7 @@ public final class Business {
 	 * Constant used to mark cells that are being evaluated.
 	 */
 	public static final Numerical EVALUATING = new UncertainNumerical(
-			new UniformDistribution1D(new Range(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY)), null) {
+			new UniformDistribution1D(new Range(-Double.MAX_VALUE, Double.MAX_VALUE)), null) {
 		public String toString() {
 			return "EVALUATING";
 		};		
@@ -297,7 +298,12 @@ public final class Business {
 		state.set(cell, EVALUATING);
 
 		// calculate!
-		v = cell.row.calculate(cell.col, this);
+		try {
+			v = cell.row.calculate(cell.col, this);
+		} catch(Throwable ex) {
+			// allow errors to carry on - note that they propagate
+			v = new ErrorNumerical(ex);
+		}
 		if (v==null) {
 			v = Business.EMPTY; // no need to recaluclate this if eg its in a sum
 		} else if (v.excel==null){

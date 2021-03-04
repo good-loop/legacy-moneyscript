@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
 import com.winterwell.moneyscript.lang.DummyRule;
 import com.winterwell.moneyscript.lang.GroupRule;
 import com.winterwell.moneyscript.lang.ImportCommand;
@@ -272,14 +273,17 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 
 	private Numerical getGroupValue2_dist(Col col, Business b) {
 		List<Row> kids = getChildren();
-		UncertainNumerical dummy = (UncertainNumerical) b.getCellValue(new Cell(kids.get(0), col));
-		Particles1D dps = (Particles1D) dummy.getDist();		
-		Particles1D ps = new Particles1D(new double[dps.pts.length]);
+		int numParticles = 20; // a low default??
+		UncertainNumerical kid0Value = (UncertainNumerical) b.getCellValue(new Cell(kids.get(0), col));
+		if (kid0Value.getDist() instanceof Particles1D) {
+			numParticles = ((Particles1D) kid0Value.getDist()).pts.length;
+		}
+		Particles1D ps = new Particles1D(numParticles);
 		String unit = null;
 		for (Row kid : kids) {
 			UncertainNumerical v = (UncertainNumerical) b.getCellValue(new Cell(kid, col));
 			if (v==null) continue;
-			Particles1D dist = (Particles1D) ((UncertainNumerical) v).getDist();
+			Particles1D dist = new Particles1D(numParticles, ((UncertainNumerical) v).getDist());
 			assert ps.pts.length == dist.pts.length;			
 			for(int i=0; i<dist.pts.length; i++) {
 				ps.pts[i] += dist.pts[i];
@@ -386,8 +390,9 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 					"str", ""
 				);
 		}
+		double dv = v.doubleValue();
 		ArrayMap map = new ArrayMap(
-			"v", v.doubleValue(),
+			"v", Double.isFinite(dv)? dv : null,
 			"str", v.toString(),
 			"unit", v.getUnit(),
 			"comment", v.comment,			

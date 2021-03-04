@@ -9,6 +9,7 @@ import java.util.Collections;
 import com.winterwell.maths.IScalarArithmetic;
 import com.winterwell.maths.stats.StatsUtils;
 import com.winterwell.maths.stats.distributions.d1.ADistribution1D;
+import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.Range;
@@ -44,6 +45,29 @@ public class Particles1D extends ADistribution1D implements IScalarArithmetic {
 		this.pts = pts;
 	}	
 	
+	public Particles1D(int numParticles) {
+		this(new double[numParticles]);
+	}
+
+	public Particles1D(int numParticles, IDistribution1D dist) {
+		// exact copy?
+		if (dist instanceof Particles1D) {
+			if (numParticles == ((Particles1D) dist).pts.length) {
+				this.pts = Arrays.copyOf(pts, numParticles);
+				return;
+			}
+		}
+		// sample
+		this.pts = new double[numParticles];
+		for(int i=0; i<numParticles; i++) {
+			Double v = dist.sample();
+			if ( ! Double.isFinite(v)) {
+				throw new IllegalArgumentException(v+" in "+dist);
+			}
+			pts[i] = v;
+		}
+	}
+
 	public synchronized void add(double pt) {
 		pts = Arrays.copyOf(pts, pts.length+1);
 		pts[pts.length-1] = pt;

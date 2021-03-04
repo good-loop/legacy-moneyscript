@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.winterwell.maths.IScalarArithmetic;
+import com.winterwell.moneyscript.lang.ErrorNumerical;
 import com.winterwell.moneyscript.lang.ICalculator;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.utils.MathUtils;
@@ -246,17 +247,23 @@ final class DefaultCalculator implements ICalculator {
 
 	@Override
 	public Numerical divide(Numerical x, Numerical y) {
+		if (x instanceof ErrorNumerical) return x;
+		if (y instanceof ErrorNumerical) return y;
 		return new Numerical(x.doubleValue() / y.doubleValue(), unit(x, y));
 	}
 
 	@Override
 	public Numerical plus(Numerical x, Numerical y) {
+		if (x instanceof ErrorNumerical) return x;
+		if (y instanceof ErrorNumerical) return y;
 		return new Numerical(x.doubleValue() + y.doubleValue(), unit(x, y));
 	}
 
 	@Override
 	public Numerical times(Numerical x, Numerical y) {
 		assert x != null && y != null : x+" "+y;
+		if (x instanceof ErrorNumerical) return x;
+		if (y instanceof ErrorNumerical) return y;
 		return new Numerical(x.doubleValue() * y.doubleValue(), unit(x, y));
 	}
 
@@ -279,6 +286,8 @@ final class DefaultCalculator implements ICalculator {
 
 	@Override
 	public Numerical minus(Numerical x, Numerical y) {
+		if (x instanceof ErrorNumerical) return x;
+		if (y instanceof ErrorNumerical) return y;
 		return new Numerical(x.doubleValue() - y.doubleValue(), unit(x, y));
 	}
 

@@ -21,11 +21,11 @@ public abstract class CellSet implements Comparable<CellSet> {
 	/**
 	 * Can be null
 	 */
-	private String src;
+	private transient String src;
 	
 	@Override
 	public String toString() {
-		return "CellSet["+src+"]";
+		return getClass().getSimpleName()+"["+src+"]";
 	}
 	
 	public CellSet(String src) {
