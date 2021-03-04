@@ -17,6 +17,10 @@ import com.winterwell.moneyscript.output.Row;
  */
 public class AllCellSet extends CellSet {
 
+	public AllCellSet(String src) {
+		super(src);
+	}
+
 	@Override
 	public boolean contains(Cell cell, Cell context) {
 		return true;

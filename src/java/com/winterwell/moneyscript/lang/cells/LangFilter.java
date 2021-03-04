@@ -55,9 +55,9 @@ public class LangFilter {
 					rowNames.add(ast.parsed());
 				}
 			}
-			CellSet sel = new RowListCellSet(rowNames);
+			CellSet sel = new RowListCellSet(rowNames, r.parsed()); // NB: not quite the right src but whatever
 			Formula list = new BasicFormula(sel);
-			Formula row = new BasicFormula(new CurrentRow());
+			Formula row = new BasicFormula(new CurrentRow(null));
 			Condition condition = Condition.not(new Comparison(row, "in", list));
 			
 			return new ConditionalFilter("if", condition);			

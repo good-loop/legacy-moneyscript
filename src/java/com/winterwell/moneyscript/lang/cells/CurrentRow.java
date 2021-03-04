@@ -9,6 +9,10 @@ import com.winterwell.moneyscript.output.Row;
 
 public final class CurrentRow extends CellSet {
 
+	public CurrentRow(String src) {
+		super(src);
+	}
+
 	@Override
 	public String toString() {
 		return "CurrentRow";

@@ -18,7 +18,18 @@ import com.winterwell.moneyscript.output.Row;
  */
 public abstract class CellSet implements Comparable<CellSet> {
 
-	public CellSet() {
+	/**
+	 * Can be null
+	 */
+	private String src;
+	
+	@Override
+	public String toString() {
+		return "CellSet["+src+"]";
+	}
+	
+	public CellSet(String src) {
+		this.src = src;
 	}		
 	
 	/** 
@@ -74,5 +85,9 @@ public abstract class CellSet implements Comparable<CellSet> {
 	static List<Class> sortOrder = Arrays.asList(
 			(Class)AllCellSet.class, Union.class, RowName.class, FilteredCellSet.class
 	);
+
+	public String getSrc() {
+		return src;
+	}
 
 }

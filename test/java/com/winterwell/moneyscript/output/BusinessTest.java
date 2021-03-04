@@ -25,6 +25,40 @@ import com.winterwell.utils.time.Time;
 public class BusinessTest {
 
 	@Test
+	public void testNoDuplicateRows() {
+		try {
+			String s = "Sales Manager: £40k\nSales Manager: £42k\n";
+			Lang lang = new Lang();
+			Business b = lang.parse(s);
+//			b.getSettings().setStart(new Time(2020,1,1));
+//			b.getSettings().setEnd(new Time(2020,3,31));
+//			b.run(); 
+			assert false;
+		} catch (Exception ex) {
+			// good
+			System.out.println(ex);
+		}
+		{	// two rules for one row is OK
+			String s = "Sales Manager: £40k\nSales Manager from month 2: £45k";
+			Lang lang = new Lang();
+			Business b = lang.parse(s);
+			b.getSettings().setStart(new Time(2020,1,1));
+			b.getSettings().setEnd(new Time(2020,3,31));
+			b.run(); 
+			System.out.println(b.toCSV());
+		}
+		{	// two rules for two scenarios is OK
+			String s = "Sales Manager: £40k\nscenario Happy:\n\tSales Manager: £45k";
+			Lang lang = new Lang();
+			Business b = lang.parse(s);
+			b.getSettings().setStart(new Time(2020,1,1));
+			b.getSettings().setEnd(new Time(2020,3,31));
+			b.run(); 
+			System.out.println(b.toCSV());
+		}
+	}
+	
+	@Test
 	public void testDoubleNestedSum() {
 		{	// binary salaries so we can see what's in the sums
 			String s = "Staff:\n\tAlice: £1\n\tUK:\n\t\tBob:£2\n\t\tCarol:£4\n\tUS:\n\t\tDinah:£8\n\t\tEd:£16";
@@ -392,7 +426,7 @@ public class BusinessTest {
 		{	// bug with zero handling
 			Lang lang = new Lang();
 			Business b = lang.parse("columns: 2 months\n\nAlice: p(0.25)");
-			int n = 100;
+			int n = 200;
 			b.setSamples(n);
 			b.run();
 			Row alice = b.getRow("Alice");

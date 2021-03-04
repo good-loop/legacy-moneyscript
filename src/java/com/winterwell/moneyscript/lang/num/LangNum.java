@@ -299,7 +299,7 @@ public class LangNum {
 		protected Formula process(ParseResult<?> r) {
 			AST<?> o = (AST) r.ast.getLeaves().get(0);
 			Formula f = (Formula) r.getNode(formula).getX();
-			Formula left = new BasicFormula(new CurrentRow());
+			Formula left = new BasicFormula(new CurrentRow(null));
 			return new BinaryOp(o.parsed(), left, f);
 		}			
 	}.eg("+ 20%");

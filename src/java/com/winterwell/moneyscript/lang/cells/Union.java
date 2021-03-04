@@ -18,7 +18,8 @@ public class Union extends CellSet {
 	private CellSet b;
 	
 
-	public Union(CellSet a, CellSet b) {
+	public Union(CellSet a, CellSet b, String src) {
+		super(src);
 		this.a = a;
 		this.b = b;
 		assert a != null && b != null;

@@ -11,7 +11,8 @@ import com.winterwell.utils.containers.ArraySet;
 public class RowListCellSet extends CellSet {
 	private final List<String> rowName;
 	
-	public RowListCellSet(List<String> rowName) {
+	public RowListCellSet(List<String> rowName, String src) {
+		super(src);
 		assert rowName != null;
 //		assert LangCellSet.rowName.parse(rowName) != null : rowName;
 		this.rowName = rowName;

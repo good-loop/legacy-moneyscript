@@ -14,6 +14,7 @@ public final class RowName extends CellSet {
 	private final String rowName;
 	
 	public RowName(String rowName) {
+		super(rowName);
 		assert rowName != null;
 //		assert LangCellSet.rowName.parse(rowName) != null : rowName;
 		this.rowName = rowName;

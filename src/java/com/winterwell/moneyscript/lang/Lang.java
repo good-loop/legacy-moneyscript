@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.winterwell.maths.NoDupes;
 import com.winterwell.moneyscript.lang.bool.LangBool;
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.CurrentRow;
@@ -41,6 +42,7 @@ import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Cache;
 import com.winterwell.utils.containers.Slice;
 import com.winterwell.utils.log.Log;
+import com.winterwell.utils.web.XStreamUtils;
 
 
 /**
@@ -280,17 +282,56 @@ public class Lang {
 
 		List<ParseFail> errors = new ArrayList<ParseFail>();
 		// ...do the actual parse
-		List<Rule> rules = parse2_rulesFromLines(lines, ln, errors, b);
+		List<Rule> rules = parse2_rulesFromLines(lines, ln, errors, b);		
 		// make rows + group
 		parse3_addRulesAndGroupRows(b, groupStack, rules);
 
-		parse4_checkReferences(b, errors);
+		List<ParseFail> unref = parse4_checkReferences(b);
+		errors.addAll(unref);
+		
+		List<ParseFail> dupes = parse5_checkDuplicates(b);
+		errors.addAll(dupes);
 		
 		if ( ! errors.isEmpty()) {
 			throw new ParseExceptions(errors);
 		}
 		
 		return b;
+	}
+
+	/**
+	 * In a spreadsheet you can have two identical rows. That would be a mistake here.
+	 * Use e.g. Sales Person A, Sales Person B to distinguish them
+	 * @param b
+	 * @return
+	 */
+	private List<ParseFail> parse5_checkDuplicates(Business b) {
+		List<ParseFail> dupes = new ArrayList();
+		Set<Rule> rules = b.getAllRules();
+		NoDupes<String> cellsets = new NoDupes<>();
+		for (Rule r : rules) {
+			if (r instanceof ImportRowCommand || r instanceof StyleRule) {
+				continue;
+			}
+			if (r.formula==null) {
+				// what is this??
+				System.out.println(r);
+				continue;
+			}
+			if (r.getSelector()==null) {
+				System.out.println(r);
+				continue;
+			}
+			CellSet cellset = r.getSelector();
+			// NB: overlaps between scenarios are fine
+			String cs = r.getScenario()+XStreamUtils.serialiseToXml(cellset);
+			if ( ! cellsets.isDuplicate(cs)) continue;
+			ParseFail pf = new ParseFail(new Slice(r.src), 
+				"This rule overlaps with another rule for: "+cellset.getSrc());
+			pf.lineNum = r.lineNum;
+			dupes.add(pf);
+		}
+		return dupes;
 	}
 
 
@@ -305,7 +346,7 @@ public class Lang {
 
 			CellSet selector = rule.getSelector();
 			if (selector==null) {
-				selector = new CurrentRow(); // is this always OK?? How do grouping rules behave??
+				selector = new CurrentRow(null); // is this always OK?? How do grouping rules behave??
 			}
 			Set<String> rowNames = selector.getRowNames(null);
 			if (rule instanceof ScenarioRule) {
@@ -481,8 +522,10 @@ public class Lang {
 	 * Check the references in a formula against the row names in the business
 	 * @param b
 	 * @param unref
+	 * @return 
 	 */
-	private void parse4_checkReferences(Business b, List<ParseFail> unref) {
+	private List<ParseFail> parse4_checkReferences(Business b) {
+		List<ParseFail> unref = new ArrayList();
 		// row names
 		HashSet<String> names = new HashSet<String>();
 		// To handle case typos - name for strongly-canonicalised name - e.g. {danw: "Dan W"}
@@ -494,7 +537,7 @@ public class Lang {
 			similarNames.put(n2,name);
 		}
 		
-		Set<Rule> rules = b.getAllRules();				
+		Set<Rule> rules = b.getAllRules();		
 		for (Rule r : rules) {
 			if (r.formula == null) continue;
 			if (r instanceof ImportRowCommand) {
@@ -529,6 +572,7 @@ public class Lang {
 				}
 			}
 		}
+		return unref;
 	}
 
 	private String parse4_checkReferences2_stripNameDown(String name) {

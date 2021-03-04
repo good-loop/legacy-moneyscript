@@ -87,7 +87,7 @@ public class LangCellSet {
 	Parser<CellSet> all = new PP<CellSet>(word("all")) {
 		@Override
 		protected CellSet process(ParseResult<?> r) throws ParseFail {
-			return new AllCellSet();
+			return new AllCellSet(r.parsed());
 		}		
 	};
 	
@@ -104,7 +104,7 @@ public class LangCellSet {
 			}
 			assert ls.size() == 2;
 			Object f = ls.get(1).getX();
-			return new FilteredCellSet(rns, (Filter) f);
+			return new FilteredCellSet(rns, (Filter) f, pr.parsed());
 		}
 	}.label(CELLSET_SINGLE_ROW);
 	
@@ -113,8 +113,8 @@ public class LangCellSet {
 		@Override
 		protected CellSet process(ParseResult<?> r) throws ParseFail {
 			Object filter = r.getX();	
-			AllCellSet base = new AllCellSet();
-			return new FilteredCellSet(base, (Filter) filter);
+			AllCellSet base = new AllCellSet(null);
+			return new FilteredCellSet(base, (Filter) filter, r.parsed());
 		}		
 	}.label("CellSetFilter");
 	
@@ -131,7 +131,7 @@ public class LangCellSet {
 			AST b = (AST) ab.get(1);
 			CellSet ax = (CellSet) a.getX();					
 			CellSet bx = (CellSet) b.getX();
-			return new Union(ax, bx);
+			return new Union(ax, bx, r.parsed());
 		}			
 	}.label(CELLSET);
 }
