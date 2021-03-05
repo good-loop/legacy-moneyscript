@@ -476,6 +476,42 @@ public class LangTest {
 			else Printer.out("	as "+rule);
 		}				
 	}
+
+	@Test
+	public void testGroupRowsIgnoringComments() {
+		{	// no comment
+			Lang lang = new Lang();
+			Business b = lang.parse("Staff:\n\tAlice:£1 per month\n\tBob:£2 per month\n");
+			BusinessContext.setBusiness(b);
+			Row row = b.getRow("Staff");
+			assert row.isGroup();
+			GroupRule gr = (GroupRule) row.getRules().get(0);
+			assert gr.indent == 0;
+			
+			Row alice = b.getRow("Alice");
+			Rule ar = alice.getRules().get(0);
+			assert ar.indent == 1;
+			
+			Row bob = b.getRow("Bob");
+			assert bob.getParent() == row : bob.getParent();
+		}
+		{	// unaligned comment
+			Lang lang = new Lang();
+			Business b = lang.parse("Staff:\n\tAlice:£1 per month\n//Ignore me\n\tBob:£2 per month\n");
+			BusinessContext.setBusiness(b);
+			Row row = b.getRow("Staff");
+			assert row.isGroup();
+			GroupRule gr = (GroupRule) row.getRules().get(0);
+			assert gr.indent == 0;
+			
+			Row alice = b.getRow("Alice");
+			Rule ar = alice.getRules().get(0);
+			assert ar.indent == 1;
+			
+			Row bob = b.getRow("Bob");
+			assert bob.getParent() == row : bob.getParent();
+		}
+	}
 	
 	@Test
 	public void testGroupRows() {
