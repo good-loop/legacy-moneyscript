@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.goodloop.gsheets.GSheetsClient;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
+import com.winterwell.bob.tasks.GitTask;
 import com.winterwell.data.KStatus;
 import com.winterwell.es.ESPath;
 import com.winterwell.es.client.KRefresh;
@@ -39,6 +40,7 @@ import com.winterwell.utils.log.Log;
 import com.winterwell.utils.web.IHasJson;
 import com.winterwell.web.WebEx.E403;
 import com.winterwell.web.ajax.AjaxMsg;
+import com.winterwell.web.ajax.AjaxMsg.KNoteType;
 import com.winterwell.web.ajax.JThing;
 import com.winterwell.web.app.AppUtils;
 import com.winterwell.web.app.CommonFields;
@@ -46,6 +48,8 @@ import com.winterwell.web.app.CrudServlet;
 import com.winterwell.web.app.WebRequest;
 
 public class PlanDocServlet extends CrudServlet<PlanDoc> {
+
+	static File plansDir = new File(FileUtils.getWinterwellDir(), "moneyscript-plans");
 
 	public PlanDocServlet() {
 		super(PlanDoc.class);
@@ -60,19 +64,38 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 
 	@Override
 	protected void doSave(WebRequest state) {
+		super.doSave(state); // db
 		// HACK Is it a file??
 		File f = getPlanFile(state);
-		if (f==null) {
-			super.doSave(state);
-			return;
-		} else {
+		if (f!=null) {
 			File fd = new File(f.getParentFile(), "~"+f.getName());
 			PlanDoc thing = getThing(state);
-			String text = thing.getText();
-			FileUtils.write(fd, text);
+			doSave2_file_and_git(state, thing, fd);
 		}
 	}	
 	
+	private void doSave2_file_and_git(WebRequest state, PlanDoc thing, File fd) {
+		try {			
+			String text = thing.getText();
+			if (text==null) return; // paranoia
+			String old = fd.isFile()? FileUtils.read(fd) : "";
+			if (text.equals(old)) {
+				return;
+			}
+			FileUtils.write(fd, text);
+//			Git commit and push!
+			GitTask gt1 = new GitTask(GitTask.ADD, fd);
+			gt1.run();
+			GitTask gt2 = new GitTask(GitTask.COMMIT, fd);
+			gt2.setMessage(state.getUserId().name);
+			gt2.run();
+			GitTask gt3 = new GitTask(GitTask.PUSH, fd);
+			gt3.run();
+		} catch(Throwable ex) {
+			state.addMessage(new AjaxMsg(KNoteType.warning, "Error while saving to Git", ex.getMessage()));
+		}
+	}
+
 	@Override
 	protected JThing<PlanDoc> doPublish(WebRequest state, KRefresh forceRefresh, boolean deleteDraft) throws Exception {
 		// HACK Is it a file??
@@ -84,8 +107,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		} else {
 			pubd = getThingStateOrDB(state);
 			// Save to file
-			String text = pubd.java().getText();
-			FileUtils.write(f, text);
+			doSave2_file_and_git(state, pubd.java(), f);
 		}
 		// plus export to google ?? do this async?
 		try {
@@ -161,9 +183,14 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	
 	@Override
 	protected JThing<PlanDoc> getThingFromDB(WebRequest state) throws E403 {
+		// normal - db
+		JThing<PlanDoc> jpd = super.getThingFromDB(state);
+		if (jpd==null) {
+			return null;
+		}
 		// HACK file
 		File f = getPlanFile(state);
-		if (f != null) {
+		if (f != null && f.isFile()) {
 			KStatus status = state.get(CommonFields.STATUS);
 			File fd = new File(f.getParentFile(), "~"+f.getName());
 			if (status==KStatus.DRAFT 
@@ -173,15 +200,15 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 				f = fd; // load from draft
 			}
 			String s = FileUtils.read(f);
-			PlanDoc pd = new PlanDoc();
-			String slug = state.getSlug();
-			String id = state.getSlugBits(1);
-			pd.id = id;
+			PlanDoc pd = jpd.java();
+//			String slug = state.getSlug();
+//			String id = state.getSlugBits(1);
+//			pd.id = id;
 			pd.setText(s);
-			return new JThing().setType(PlanDoc.class).setJava(pd);
+			jpd.setJava(pd);
+//			return new JThing().setType(PlanDoc.class).setJava(pd);
 		}
-		// normal - db
-		return super.getThingFromDB(state);
+		return jpd;
 	}
 
 	/**
@@ -191,9 +218,11 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	 */
 	private File getPlanFile(WebRequest state) {
 		String sbit1 = state.getSlugBits(1);
-		if (sbit1!=null && sbit1.startsWith("file-")) {
-			String sf = FileUtils.safeFilename(sbit1.substring(5), true);
-			File f = new File("plans", sf);
+		if (sbit1!=null
+//				&& sbit1.startsWith("file-")
+				) {
+			String sf = FileUtils.safeFilename(sbit1, true);
+			File f = new File(plansDir, sf);
 			return f;
 		}
 		return null;
