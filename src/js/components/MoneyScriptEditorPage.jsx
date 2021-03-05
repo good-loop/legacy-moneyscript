@@ -76,6 +76,7 @@ const MoneyScriptEditorPage = () => {
 					<Col md={4}>
 						<a className='btn btn-primary btn-sm ml-2 mr-2' href={'/#sheet/'+escape(id)}>View SpreadSheet &gt;</a>
 						<GSheetLink item={item} />
+						<GitHubLink item={item} />
 						<DownloadTextLink text={item.text} filename={item.name+".txt"} />
 					</Col>
 				</Row>
@@ -98,6 +99,18 @@ export const GSheetLink = ({item}) => {
 		title={space(getStatus(item) !== KStatus.PUBLISHED && "(Publish first!)", "Link to published version in Google-Sheets")}
 		><Icon size='xs' name="google-sheets" /></LinkOut>);
 };
+
+export const GitHubLink = ({item}) => {
+	if ( ! item) {
+		return null;
+	}
+	return (<LinkOut 
+		className="btn btn-light btn-sm ml-1 mr-1" 
+		href={'https://github.com/good-loop/moneyscript-plans/blame/master/~'+item.id}
+		title={"Link to version control in GitHub"}
+		><Icon size='xs' name="github" /></LinkOut>);
+};
+
 
 const DownloadTextLink = ({text, filename}) => {
 	// NB the entity below is the emoji "Inbox Tray" glyph, U+1F4E5
