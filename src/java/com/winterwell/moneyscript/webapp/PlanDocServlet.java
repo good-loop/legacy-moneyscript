@@ -12,6 +12,7 @@ import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.winterwell.bob.tasks.GitTask;
 import com.winterwell.data.KStatus;
 import com.winterwell.es.ESPath;
+import com.winterwell.es.client.ESHit;
 import com.winterwell.es.client.KRefresh;
 import com.winterwell.moneyscript.data.PlanDoc;
 import com.winterwell.moneyscript.lang.ExportCommand;
@@ -46,6 +47,8 @@ import com.winterwell.web.app.AppUtils;
 import com.winterwell.web.app.CommonFields;
 import com.winterwell.web.app.CrudServlet;
 import com.winterwell.web.app.WebRequest;
+import com.winterwell.youagain.client.AuthToken;
+import com.winterwell.youagain.client.YouAgainClient;
 
 public class PlanDocServlet extends CrudServlet<PlanDoc> {
 
@@ -73,6 +76,13 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 			doSave2_file_and_git(state, thing, fd);
 		}
 	}	
+	
+	@Override
+	protected List<ESHit<PlanDoc>> doList2_securityFilter(List<ESHit<PlanDoc>> hits2, WebRequest state,
+			List<AuthToken> tokens, YouAgainClient yac) 
+	{
+		return super.doList2_securityFilter2_teamGoodLoop(hits2, state, tokens, yac);
+	}
 	
 	private void doSave2_file_and_git(WebRequest state, PlanDoc thing, File fd) {
 		try {			
