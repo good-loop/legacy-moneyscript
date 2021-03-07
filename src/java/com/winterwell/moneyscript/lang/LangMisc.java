@@ -57,6 +57,8 @@ public class LangMisc {
 	
 	public static final Parser comment = regex("\\s*//.*").label("comment").setCanBeZeroLength(false);	
 
+	public static final Parser header = regex("^#+.+").label("h1").setCanBeZeroLength(false);
+	
 	/**
 	 * always matches and returns 0+
 	 */

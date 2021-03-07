@@ -476,6 +476,35 @@ public class LangTest {
 			else Printer.out("	as "+rule);
 		}				
 	}
+	
+	
+	@Test
+	public void testSheets() {
+		{	// main + tab (no direct overlap)
+			Lang lang = new Lang();
+			Business b = lang.parse("Staff Costs: Staff\n\n# Peeps\n\nStaff:\n\tAlice:£1 per month\n\tBob:£2 per month\n");
+			BusinessContext.setBusiness(b);
+			b.run();
+			String csv = b.toCSV();
+			System.out.println(csv);
+		}
+		{	// main + tab with direct grouped overlap
+			Lang lang = new Lang();
+			Business b = lang.parse("Costs:\n\tStaff:\n\n# Peeps\n\nStaff:\n\tAlice:£1 per month\n\tBob:£2 per month\n");
+			BusinessContext.setBusiness(b);
+			b.run();
+			String csv = b.toCSV();
+			System.out.println(csv);
+			Row alice = b.getRow("Alice");
+			Row staff = b.getRow("Staff");
+			Row costs = b.getRow("Costs");
+			assert alice.isLeaf();
+			assert staff.isGroup();
+			assert costs.isGroup();
+			assert alice.getParent() == staff;
+			assert staff.getParent() == costs;
+		}
+	}
 
 	@Test
 	public void testGroupRowsIgnoringComments() {

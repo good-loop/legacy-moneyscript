@@ -101,6 +101,15 @@ public class Lang {
 	}.eg("// foo");
 	
 	/**
+	 * Headers do not affect calculations, but can be used to create sheets in the UI
+	 */
+	Parser<Rule> headerRow = new PP<Rule>(LangMisc.header) {
+		protected Rule process(ParseResult r) {
+			return new DummyRule(null, r.parsed());
+		}
+	}.eg("# foo");
+	
+	/**
 	 * group rows are just a row-name without a formula.
 	 * Scenarios are groups created with the keyword `scenario`
 	 */
@@ -191,6 +200,7 @@ public class Lang {
 				rule, 
 				groupRow, 
 				commentRow,
+				headerRow,
 				// settings
 //				langMisc.columnSettings, 
 				langMisc.planSettings,
