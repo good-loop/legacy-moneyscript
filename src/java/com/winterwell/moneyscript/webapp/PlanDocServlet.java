@@ -144,8 +144,8 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		PlanDoc plandoc = jThing.java();
 		try {
 			Lang lang = MoneyServlet.lang;			
-			String text = plandoc.getText();
-			Business biz = lang.parse(text);		
+			Map<String, String> texts = plandoc.getTexts();
+			Business biz = lang.parse(texts);		
 			// HACK gsheet export id
 			if (biz.export != null) {
 				plandoc.setGsheetId(biz.export.spreadsheetId);

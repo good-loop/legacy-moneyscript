@@ -408,7 +408,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 
 	public Business runImportMS(Lang lang) {
 		fetch();		
-		Business b2 = lang.parse(csv);
+		Business b2 = lang.parse(new ArrayMap(name, csv));
 		return b2;
 	}
 

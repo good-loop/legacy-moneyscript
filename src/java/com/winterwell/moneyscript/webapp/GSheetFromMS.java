@@ -36,7 +36,7 @@ public class GSheetFromMS {
 		assert pd.getGsheetId()!=null : pd;
 		
 		// parse
-		Business biz = MoneyServlet.lang.parse(pd.getText());
+		Business biz = MoneyServlet.lang.parse(pd.getTexts());
 		List<List<Object>> values = updateValues(biz);
 		
 		// update with data		
@@ -119,7 +119,7 @@ public class GSheetFromMS {
 		for (Row row : rows) {
 			// HACK - space with a blank row?
 			Rule r0 = row.getRules().get(0);
-			int lineNum = r0.getLineNum();
+			int lineNum = r0.getLineNum().lineNum;
 			if (lineNum > prevLineNum+1) {				
 				spacedRows.add(null);
 			}

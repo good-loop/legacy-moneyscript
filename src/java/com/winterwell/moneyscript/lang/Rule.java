@@ -11,6 +11,7 @@ import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.RuleException;
 import com.winterwell.moneyscript.webapp.GSheetFromMS;
+import com.winterwell.nlp.simpleparser.LineRef;
 import com.winterwell.utils.Dep;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.log.Log;
@@ -25,7 +26,7 @@ public class Rule implements IReset {
 		return comment;
 	}
 	
-	public int getLineNum() {
+	public LineRef getLineNum() {
 		return lineNum;
 	}
 	
@@ -73,7 +74,7 @@ public class Rule implements IReset {
 	
 	public final String src;
 	
-	int lineNum;
+	LineRef lineNum;
 	
 	@Override
 	public String toString() {

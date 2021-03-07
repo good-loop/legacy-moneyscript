@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.winterwell.maths.NoDupes;
@@ -30,6 +31,7 @@ import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.nlp.simpleparser.AST;
 import com.winterwell.nlp.simpleparser.IDebug;
+import com.winterwell.nlp.simpleparser.LineRef;
 import com.winterwell.nlp.simpleparser.PP;
 import com.winterwell.nlp.simpleparser.ParseExceptions;
 import com.winterwell.nlp.simpleparser.ParseFail;
@@ -39,6 +41,7 @@ import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.nlp.simpleparser.Ref;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
+import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Cache;
 import com.winterwell.utils.containers.Slice;
 import com.winterwell.utils.log.Log;
@@ -265,25 +268,26 @@ public class Lang {
 		return null;
 	}
 
-	public Business parse(String script) throws ParseExceptions {
-		assert script != null;
+	public Business parse(Map<String, String> script4name) throws ParseExceptions {
+		assert script4name != null;
 		Business b = new Business();
 		BusinessContext.setBusiness(b);
-		if (Utils.isBlank(script)) {
+		if (script4name==null || script4name.isEmpty()) {
 			return b;
 		}
+		
 		String[] lines = StrUtils.splitLines(script);
-		int ln = 0;
+		int li = 0;
 		// get title? (any other header stuff?)
-		while(ln<lines.length) {
-			String line = lines[ln];
+		while(li<lines.length) {
+			String line = lines[li];
 			if (Utils.isBlank(line)) {
-				ln++;
+				li++;
 				continue;
 			}
 			if (line.indexOf(':') == -1 || line.startsWith("title:")) {
 				b.title = line;
-				ln++;
+				li++;
 			}
 			break;
 		}
@@ -292,6 +296,7 @@ public class Lang {
 
 		List<ParseFail> errors = new ArrayList<ParseFail>();
 		// ...do the actual parse
+		LineRef ln = new LineRef(name,li);
 		List<Rule> rules = parse2_rulesFromLines(lines, ln, errors, b);		
 		// make rows + group
 		parse3_addRulesAndGroupRows(b, groupStack, rules);
@@ -472,10 +477,11 @@ public class Lang {
 	 * @param errors
 	 * @return
 	 */
-	private List<Rule> parse2_rulesFromLines(String[] lines, int ln, List<ParseFail> errors, Business b) {
+	private List<Rule> parse2_rulesFromLines(String[] lines, LineRef ln, List<ParseFail> errors, Business b) {
 		List<Rule> rules = new ArrayList();
-		for (; ln<lines.length; ln++) {
-			String lineln = lines[ln];
+		int li = ln.lineNum;
+		for (; li<lines.length; li++) {
+			String lineln = lines[li];
 			if (Utils.isBlank(lineln)) {
 				continue;			
 			}
@@ -489,12 +495,12 @@ public class Lang {
 				Log.w("Lang.parse", ex);
 			}
 			if (rule == null) {	// error :(
-				ParseFail pf = parse2_rulesFromLines2_fail(lineln, ln);
+				ParseFail pf = parse2_rulesFromLines2_fail(lineln, new LineRef(ln.name, li));
 				errors.add(pf);
 				continue;
 			}
 			
-			rule.lineNum = ln;
+			rule.lineNum = new LineRef(ln.name, li);
 			rules.add(rule);
 
 			// HACK: Process import of m$
@@ -513,7 +519,7 @@ public class Lang {
 	}
 
 
-	private ParseFail parse2_rulesFromLines2_fail(String text, int lineNum) {
+	private ParseFail parse2_rulesFromLines2_fail(String text, LineRef lineNum) {
 		ParseFail e = ParseFail.getParseFail();
 		if (e == null) {
 			e = new ParseFail(new Slice(text), null);
@@ -587,6 +593,11 @@ public class Lang {
 
 	private String parse4_checkReferences2_stripNameDown(String name) {
 		return StrUtils.toCanonical(name).replaceAll("\\W", "");
+	}
+
+
+	public Business parse(String string) {
+		return parse(new ArrayMap("main", string));
 	}
 	
 }

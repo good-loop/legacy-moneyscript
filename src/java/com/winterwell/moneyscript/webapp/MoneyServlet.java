@@ -16,6 +16,7 @@ import com.winterwell.web.ajax.JThing;
 import com.winterwell.web.ajax.KAjaxStatus;
 import com.winterwell.web.app.IServlet;
 import com.winterwell.web.app.WebRequest;
+import com.winterwell.web.fields.JsonField;
 import com.winterwell.web.fields.ListField;
 
 public class MoneyServlet implements IServlet {
@@ -28,11 +29,13 @@ public class MoneyServlet implements IServlet {
 	@Override
 	public void process(WebRequest state) throws Exception {		
 		String text = state.get("text");
-		if (text==null) {
+		Map<String,String> texts = (Map) state.get(new JsonField("texts"));
+		if (text==null && texts==null) {
 			return;
 		}
+		if (texts==null) texts = new ArrayMap("main", text);
 		try {
-			Business biz = lang.parse(text);
+			Business biz = lang.parse(texts);
 			
 			// scenarios?
 			List<Scenario> scs = state.get(SCENARIOS);

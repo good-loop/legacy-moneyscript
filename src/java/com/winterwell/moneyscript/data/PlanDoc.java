@@ -63,4 +63,8 @@ public class PlanDoc extends AThing {
 	public void setImportCommands(List<ImportCommand> importCommands2) {
 		this.importCommands = importCommands2;
 	}
+
+	public Map<String, String> getTexts() {
+		return texts;
+	}
 }
