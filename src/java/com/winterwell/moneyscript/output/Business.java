@@ -751,5 +751,9 @@ public final class Business {
 	public void addExportCommand(ExportCommand r) {
 		this.export = r;
 	}
+
+	public List<ImportCommand> getImportCommands() {
+		return importCommands;
+	}
 	
 }

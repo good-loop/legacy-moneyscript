@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.goodloop.gsheets.GSheetsClient;
+import com.winterwell.es.ESNoIndex;
 import com.winterwell.moneyscript.data.PlanDoc;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
@@ -62,6 +63,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	 *  
 	 * 1-indexed to match spreadsheets
 	 */
+	@ESNoIndex
 	Integer timeRow;
 
 	/**
@@ -105,11 +107,13 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		}
 	}	
 	
+	@ESNoIndex
 	private List<String> rows = Arrays.asList(OVERLAP);
 	
 	/**
 	 * TODO
 	 */
+	@ESNoIndex
 	protected boolean overwrite = true;
 
 	@Override
@@ -257,6 +261,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	/**
 	 * map incoming names to our names -- this can be set by the user in the M$ script
 	 */
+	@ESNoIndex
 	protected Map<String, String> mappingImportRow2ourRow;
 	
 	protected void fetch() {
