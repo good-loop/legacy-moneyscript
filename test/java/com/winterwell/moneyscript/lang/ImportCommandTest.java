@@ -35,6 +35,39 @@ public class ImportCommandTest {
 		assert rows.size() == 2 : rows;
 	}			
 
+
+	
+	@Test
+	public void testImportBadUrl() {
+		String ms = "import: https://bbc.co.uk/foobar.nope\n"
+					+"Balance: 100 per month\n"
+					+"Amy: £100 per month\n";
+		Lang lang = new Lang();
+		Business b = lang.parse(ms);
+		try {
+			b.run();
+			assert false;
+		} catch (Exception ex) {
+			assert ex != null;	
+		}				
+		ImportCommand ic = b.getImportCommands().get(0);
+		assert ic.getError() != null;
+	}			
+	
+	@Test
+	public void testImportTooComplex() {
+		String ms = "import: https://docs.google.com/spreadsheets/d/1Z1iDN77Zugmn9P_nOgarjPeMyuHdG0iX08MfuIqTS5M/edit#gid=1505120226 {rows:all}\n"
+					+"Balance: 100 per month\n"
+					+"Amy: £100 per month\n";
+		Lang lang = new Lang();
+		Business b = lang.parse(ms);
+		b.run();
+		Dictionary rows = b.getRowNames();
+		assert rows.contains("Balance");
+		assert rows.contains("Amy");
+		assert rows.size() == 2 : rows;
+	}			
+	
 	@Test
 	public void testBusinessRun() {
 		ImportCommand ic = new ImportCommand(new File("test/test-input.csv").toURI().toString());

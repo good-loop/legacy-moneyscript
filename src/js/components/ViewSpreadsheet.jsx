@@ -18,6 +18,7 @@ import ServerIO from '../plumbing/ServerIO';
 import md5 from 'md5';
 import { Alert, Badge } from 'reactstrap';
 import LinkOut from '../base/components/LinkOut';
+import { yessy } from '../base/utils/miscutils';
 
 /**
  * @param {?string[]} scenarios
@@ -106,9 +107,9 @@ const ViewSpreadSheet = ({plandoc, scenarios, hideMonths}) => {
 	}
 	const runOutput = pvrun.value;	
 	// eror?
-	if ( ! runOutput || runOutput.errors) {
-		const errors = runOutput.errors || [pvrun.error];
-		return <Alert>{errors.map(e => <div key={JSON.stringify(e)}>{JSON.stringify(e)}</div>)}</Alert>;
+	if ( ! runOutput || yessy(runOutput.errors)) {
+		const errors = (runOutput && runOutput.errors) || [pvrun.error];
+		return errors.map(e => <Alert color="danger" key={JSON.stringify(e)}>{JSON.stringify(e)}</Alert>);
 	}
 	// only process the data once (so the Tree is stable)
 	if ( ! runOutput.dataTree) {

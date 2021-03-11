@@ -10,7 +10,7 @@ import PropControl from '../base/components/PropControl';
 import DataStore from '../base/plumbing/DataStore';
 import C from '../C';
 import ActionMan from '../plumbing/ActionMan';
-import { getPlanId, GSheetLink } from './MoneyScriptEditorPage';
+import { getPlanId, GSheetLink, ImportsList } from './MoneyScriptEditorPage';
 import ViewSpreadSheet, { doShowMeTheMoney } from './ViewSpreadsheet';
 
 const SheetPage = () => {
@@ -53,7 +53,7 @@ const SheetPage = () => {
 			</Row>
 			<ScenariosOnOff scenarioMap={scenarioMap} scenarioTexts={pvrun.value && pvrun.value.scenarioTexts} />
 			<div className='flex-row'>
-				<ImportsList runOutput={pvrun.value} />			
+				<ImportsList cargo={pvrun.value} />			
 				<PropControl prop='hideMonths' type='checkbox' label='Annual Totals only' saveFn={_ => false && window.location.reload()} />
 				<GSheetLink item={item}	/>
 			</div>
@@ -62,13 +62,6 @@ const SheetPage = () => {
 			<ViewSpreadSheet plandoc={item} scenarios={scenariosOn} hideMonths={DataStore.getUrlValue("hideMonths")} />
 		</div>
 	</>;
-};
-
-
-const ImportsList = ({runOutput}) => {
-	if ( ! runOutput || ! runOutput.imports || ! runOutput.imports.length) return null;
-	// NB the import src is usually g-drive gibberish
-	return <div className='ImportsList'>{runOutput.imports.map((imp,i) => <LinkOut key={imp.src} className='mr-2' href={imp.url || imp.src}>[Import {imp.name || i}]</LinkOut>)}</div>
 };
 
 

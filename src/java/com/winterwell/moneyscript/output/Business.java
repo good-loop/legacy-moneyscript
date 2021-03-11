@@ -189,7 +189,7 @@ public final class Business {
 			}
 		}
 		importMaps = im4src.values();
-		map.put("imports", importMaps);
+		map.put("importCommands", importMaps);
 		
 		// scenarios
 		map.put("scenarios", getScenarios());

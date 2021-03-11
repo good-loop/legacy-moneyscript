@@ -10,13 +10,14 @@ import com.winterwell.es.ESNoIndex;
 import com.winterwell.moneyscript.lang.ImportCommand;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.containers.ArrayMap;
+import com.winterwell.utils.containers.Containers;
 
 public class PlanDoc extends AThing {
 
 	/**
 	 * This copies the info in Business for save purposes.
 	 */
-	List<ImportCommand> importCommands = new ArrayList<>();
+	List<Map> importCommands = new ArrayList<>();
 	
 	@ESKeyword
 	String gsheetId;
@@ -45,6 +46,10 @@ public class PlanDoc extends AThing {
 	}
 	
 	public void setImportCommands(List<ImportCommand> importCommands2) {
-		this.importCommands = importCommands2;
+		if (importCommands2==null) {
+			importCommands = null;
+			return;
+		}
+		importCommands = Containers.apply(importCommands2, ImportCommand::toJson2);
 	}
 }

@@ -15,8 +15,11 @@ import com.winterwell.es.ESPath;
 import com.winterwell.es.client.ESHit;
 import com.winterwell.es.client.KRefresh;
 import com.winterwell.moneyscript.data.PlanDoc;
+import com.winterwell.moneyscript.lang.CompareCommand;
 import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.GroupRule;
+import com.winterwell.moneyscript.lang.ImportCommand;
+import com.winterwell.moneyscript.lang.ImportRowCommand;
 import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.lang.LangMisc;
 import com.winterwell.moneyscript.lang.Rule;
@@ -154,6 +157,23 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 			if ( ! Utils.isEmpty(plandoc.errors)) {
 				plandoc.errors = null;				
 			}
+			// test out the import commands
+			if (biz.getImportCommands() != null) {
+				for(ImportCommand ic : biz.getImportCommands()) {					
+					try {
+						if (ic instanceof ImportRowCommand || ic instanceof CompareCommand) {
+							ic.fetch();
+						} else {
+							ic.run2_importRows(biz);
+						}
+					} catch(Exception ex) {
+						ic.setError(ex);
+						Log.d(ex);
+						// oh well -- error should get passed on below
+					}
+				}
+			}
+			plandoc.setImportCommands(biz.getImportCommands());
 			// make sure the json gets updated
 			jThing.setJava(plandoc);			
 		} catch(ParseExceptions exs) {
