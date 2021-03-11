@@ -3,13 +3,16 @@ package com.winterwell.moneyscript.lang;
 import java.io.File;
 import java.io.StringReader;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.goodloop.gsheets.GSheetsClient;
+import com.winterwell.es.ESNoIndex;
 import com.winterwell.moneyscript.data.PlanDoc;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
@@ -17,6 +20,7 @@ import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.nlp.dict.Dictionary;
+import com.winterwell.utils.FailureException;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
@@ -35,7 +39,9 @@ import com.winterwell.utils.time.Time;
 import com.winterwell.utils.time.TimeParser;
 import com.winterwell.utils.web.IHasJson;
 import com.winterwell.utils.web.WebUtils;
+import com.winterwell.utils.web.WebUtils2;
 import com.winterwell.web.FakeBrowser;
+import com.winterwell.web.WebEx;
 import com.winterwell.web.ajax.JSend;
 import com.winterwell.web.ajax.JThing;
 
@@ -54,6 +60,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	public void reset() {
 		super.reset();
 		csv = null;
+		error = null;
 	}
 	
 	/**
@@ -62,6 +69,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	 *  
 	 * 1-indexed to match spreadsheets
 	 */
+	@ESNoIndex
 	Integer timeRow;
 
 	/**
@@ -78,38 +86,34 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	}
 
 	/**
-	 * magic-string value for rows = "import the ones which overlap with our rules"
+	 * magic-string value for rows = "import the ones which overlap with our rules".
+	 * This _is_ set by default. Removing it switches to "all"
 	 */
-	private static final String OVERLAP = "overlap";
+	public static final String OVERLAP = "overlap";
 
 	private static final String LOGTAG = "import";
 	public static final String IMPORT_MARKER_COMMENT = "import";
 
+	/**
+	 * @param src spreadsheet url
+	 */
 	public ImportCommand(String src) {
 		super(null, null, src, 0);
+		this.url = src;
 		// HACK g-drive sources ??move to GSSHeetsClient
-		if (src.startsWith("https://docs.google.com/spreadsheets/")) {
-			if (src.contains("gviz")) {
-				// remove the gviz bit to get a normal url
-				url = src.substring(0, src.indexOf("/gviz"));
-			} else {	
-				// convert a normal url to a gviz
-				Pattern gsu = Pattern.compile("^https://docs.google.com/spreadsheets/d/([^/]+)");
-				Matcher m = gsu.matcher(src);
-				if (m.find()) {
-					String docid = m.group(1);
-					url = src;
-					src = url.substring(0, m.end())+"/gviz/tq?tqx=out:csv";					
-				}
-			}
+		if ( ! src.startsWith("https://docs.google.com/spreadsheets/")) return;
+		if (src.contains("gviz")) {
+			// remove the gviz bit to get a normal url
+			url = src.substring(0, src.indexOf("/gviz"));
 		}
 	}	
 	
+	@ESNoIndex
 	private List<String> rows = Arrays.asList(OVERLAP);
 	
 	/**
-	 * TODO
 	 */
+	@ESNoIndex
 	protected boolean overwrite = true;
 
 	@Override
@@ -124,13 +128,23 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	}
 	
 	transient String csv;
+
+	private Throwable error;
+
+	private transient boolean importRowsFlag;
+
+	private transient Col[] ourCol4importCol;
 	
 	/**
 	 * url to csv,fetch-time
 	 */
 	static Map<String, Pair2<String,Time>> csvCache = new Cache<>(20);
 	
-	public void run(Business b) {		
+	/**
+	 * NB: Run before run(), as the row names are needed earlier to setup the BusinessState
+	 * @param b
+	 */
+	public void run2_importRows(Business b) {		
 		// Is it another m$ file??
 		if (src.endsWith(".m$") || src.endsWith(".ms")) {			
 			return; // Should be done already during parse!
@@ -138,8 +152,9 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		// fetch
 		fetch();
 		// not a csv?
-		if (csv.startsWith("<!doctype ") || csv.startsWith("<html")) {
-			throw new IllegalArgumentException("Import fail: Url "+src+" returned a web page NOT a csv");
+		if (csv.startsWith("<!doctype ") || csv.startsWith("<html")
+			|| csv.startsWith("<!DOCTYPE ") || csv.startsWith("<HTML")) {
+			throw new IllegalArgumentException("Import fail: Url "+src+" returned a web page NOT a csv. Check the url is publicly shared.");
 		}
 		// CSV
 		CSVSpec spec = new CSVSpec();
@@ -156,10 +171,8 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		
 		Dictionary rowNames = b.getRowNames(); // do this now, so we can support fuzzy matching but not give a fuzzy
 												// match against the csv's own rows		
-		// match headers to columns
-		// NB: 1-indexed, so [0] = null
-		Col[] ourCol4importCol = run2_ourCol4importCol(b, headers, b.getSettings().getStart(), b.getSettings().getEnd());
-
+		
+		HashMap ourRowNames4csvRowName = new HashMap(); 
 		for (String[] row : r) {
 			if (row.length == 0)
 				continue;
@@ -169,6 +182,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			// match row name
 			String ourRowName = run2_ourRowName(rowName, rowNames);
 			if (ourRowName==null) ourRowName = StrUtils.toTitleCase(rowName);
+			ourRowNames4csvRowName.put(rowName, ourRowName);
 			// get/make the row
 			Row brow = b.getRow(ourRowName);
 			if (brow == null) {
@@ -182,40 +196,115 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 				brow = new Row(ourRowName);
 				b.addRow(brow);
 			}
-			// add in the data
-			for (int i = 1; i < row.length; i++) {
-				if (i >= ourCol4importCol.length) {
-					Log.e(LOGTAG, "Overlong row? "+i+" from "+rowName);
-					break;
-				}
-				Col col = ourCol4importCol[i];
-				if (col==null) {
-					continue; // skip e.g. not in the sheet's time window
-				}
-				String ri = row[i];
-				double n = MathUtils.getNumber(ri);
-				if (n == 0 && (ri==null || ! "0".equals(ri.trim()))) {
-					continue; // skip blanks and non-numbers but not "true" 0s
-				}
-				Cell cell = new Cell(brow, col);
-				Numerical v = run2_setCellValue(b, n, cell);
-			}
+		}		
+		if (mappingImportRow2ourRow==null) mappingImportRow2ourRow = new HashMap();
+		mappingImportRow2ourRow.putAll(ourRowNames4csvRowName);
+		
+		// match headers to columns
+		// NB: 1-indexed, so [0] = null
+		ourCol4importCol = run2_importRows2_ourCol4importCol(b, headers, b.getSettings().getStart(), b.getSettings().getEnd());
+		// check we found something
+		int colsFound = 0;
+		for (Col col : ourCol4importCol) {
+			if (col!=null) colsFound++;
+		}		
+		if (colsFound==0) {
+			throw new FailureException("No columns identified from "+StrUtils.join(headers, ", "));
 		}
-		// error level?
-//		r.getB
+		
+		// done
+		importRowsFlag = true;
+	}
+	
+	public void run(Business b) {
+		try {
+			// Is it another m$ file??
+			if (src.endsWith(".m$") || src.endsWith(".ms")) {			
+				return; // Should be done already during parse!
+			}
+			fetch();
+			if ( ! importRowsFlag) {
+				run2_importRows(b);
+			}
+			if (mappingImportRow2ourRow.isEmpty()) {
+				throw new IllegalStateException("No rows to import from "+src+" with rows: "+rows);
+			}
+			// CSV			
+			CSVSpec spec = new CSVSpec();
+			CSVReader r = new CSVReader(new StringReader(csv), spec);
+	
+			// headers
+			int hrow = timeRow!=null? timeRow : 1; // 1-indexed
+			for(int i=1; i<hrow; i++) {
+				r.next();
+			}
+			String[] headers = r.next();
+			r.setHeaders(headers);	
+			r.setNumFields(-1); // flex
+			
+			// cols -- done already
+			
+			for (String[] row : r) {
+				if (row.length == 0)
+					continue;
+				String rowName = row[0];
+				if (Utils.isBlank(rowName))
+					continue;
+				// match row name
+				String ourRowName = mappingImportRow2ourRow.get(rowName);
+				assert ourRowName != null : rowName;
+				// get/make the row
+				Row brow = b.getRow(ourRowName);
+				if (brow == null) {
+					if (isEmptyRow(row)) {
+						continue;
+					}
+					if (rows.contains(OVERLAP)) {
+						Log.d("import", "Skip non-overlap row "+rowName);
+						continue; // don't import this row
+					}
+					assert false;
+				}
+				// add in the data
+				for (int i = 1; i < row.length; i++) {
+					if (i >= ourCol4importCol.length) {
+						Log.e(LOGTAG, "Overlong row? "+i+" from "+rowName);
+						break;
+					}
+					Col col = ourCol4importCol[i];
+					if (col==null) {
+						continue; // skip e.g. not in the sheet's time window
+					}
+					String ri = row[i];
+					double n = MathUtils.getNumber(ri);
+					if (n == 0 && (ri==null || ! "0".equals(ri.trim()))) {
+						continue; // skip blanks and non-numbers but not "true" 0s
+					}
+					Cell cell = new Cell(brow, col);
+					Numerical v = run2_setCellValue(b, n, cell);
+				}
+			}
+			// all good
+			error = null;
+		} catch (Throwable ex) {
+			error = ex;
+			throw Utils.runtime(ex);
+		}
 	}
 
-	private Col[] run2_ourCol4importCol(Business b, String[] headers, Time start, Time end) {
-		Col[] ourCol4importCol = new Col[headers.length];
+	private Col[] run2_importRows2_ourCol4importCol(Business b, String[] headers, Time start, Time end) {
+		Col[] _ourCol4importCol = new Col[headers.length];
 		TimeParser tp = new TimeParser();
 		int exs=0; int ok=0;
 		for(int i=0; i<headers.length; i++) {
 			try {
 				String hi = headers[i].trim(); // 0=row labels	
 				if (Utils.isBlank(hi)) continue;
-				// NB: don't include plain years, e.g. "2020", which are probably annual sums
-				if (hi.length() < 5) continue;
 				Time time = tp.parseExperimental(hi);
+				// NB: don't include plain years, e.g. "2020", which are probably annual sums
+				if (hi.matches("\\d{4}")) {
+					continue;
+				}
 				ok++;
 				if (time.isBefore(start)) {
 					continue; // leave null
@@ -224,7 +313,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 				} 
 				Col coli = b.getColForTime(time);
 				if (i>0) {
-					Col prev = ourCol4importCol[i-1];
+					Col prev = _ourCol4importCol[i-1];
 					if (prev!=null) {
 						int dt = coli.index - prev.index;
 						if (dt != 1) {									
@@ -233,13 +322,13 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 						}
 					}
 				}
-				ourCol4importCol[i] = coli;
+				_ourCol4importCol[i] = coli;
 			} catch(Exception ex) {
 				exs++;
 				// leave null
 			}
 		}
-		return ourCol4importCol;
+		return _ourCol4importCol;
 	}
 
 	Numerical run2_setCellValue(Business b, double n, Cell cell) {
@@ -252,53 +341,85 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 
 	String name;
 
+	/**
+	 * The url if someone wishes to visit the spreadsheet
+	 */
 	String url;
 
 	/**
 	 * map incoming names to our names -- this can be set by the user in the M$ script
 	 */
+	@ESNoIndex
 	protected Map<String, String> mappingImportRow2ourRow;
 	
-	protected void fetch() {
+	public void fetch() {
 		// Always use in memory if set (e.g. if doing samples: 20))
 		if (csv !=null) {
+			if (csv.startsWith("ERROR:")) {	// HACK - not used yet
+				throw new WebEx.E400(csv.substring(6));
+			}
 			return;
 		}
 		// cached?
-		Pair2<String, Time> cached = csvCache.get(src);
+		String csvUrl = getCsvUrl();
+		Pair2<String, Time> cached = csvCache.get(csvUrl);
 		if (cached != null && cacheDt!=null 
 				&& cached.second.plus(cacheDt).isAfter(new Time())) 
 		{
 			// use cache
 			csv = cached.first;
-			Log.d("import", "use cached "+src);
+			Log.d("import", "use cached "+csvUrl);
 			return;
 		}
 		Time fetched = new Time();
-		Log.d("import", "fetch "+src+"...");
-		// is it a file?
-		if (src.startsWith("file:")) {
-			URI u = WebUtils.URI(src);
-			String fpath = u.getPath();
-			csv = FileUtils.read(new File(fpath));
-		} else { // fetch (TODO with some cache)
-			FakeBrowser fb = new FakeBrowser();
-			fb.setFollowRedirects(true);
-			csv = fb.getPage(src);
+		Log.d("import", "fetch "+csvUrl+"...");
+		try {
+			// is it a file?
+			if (csvUrl.startsWith("file:")) {
+				URI u = WebUtils.URI(csvUrl);
+				String fpath = u.getPath();
+				csv = FileUtils.read(new File(fpath));
+			} else { // fetch (TODO with some cache)
+				FakeBrowser fb = new FakeBrowser();
+				fb.setFollowRedirects(true);
+				csv = fb.getPage(csvUrl);
+			}
+			// HACK Is it a JSend wrapper?
+			if (csvUrl.endsWith(".ms") || csvUrl.endsWith(".m$") || csvUrl.endsWith(".json")) {
+				JSend jsend = JSend.parse(csv);
+				JThing<PlanDoc> data = jsend.getData().setType(PlanDoc.class);
+				PlanDoc pd = data.java();
+				csv = pd.getText();
+				name = Utils.or(pd.getName(), pd.getId());
+			}	
+		} catch(Exception ex) {
+			// ??cache the error as "ERROR:"+message No - allow the user to make quick edits if theres an error.
+			throw Utils.runtime(ex);
 		}
-		// HACK Is it a JSend wrapper?
-		if (src.endsWith(".ms") || src.endsWith(".m$") || src.endsWith(".json")) {
-			JSend jsend = JSend.parse(csv);
-			JThing<PlanDoc> data = jsend.getData().setType(PlanDoc.class);
-			PlanDoc pd = data.java();
-			csv = pd.getText();
-			name = Utils.or(pd.getName(), pd.getId());
-		}		
-		// cache
+		// cache		
 		if (cacheDt!=null && cacheDt.getValue() > 0) {
-			csvCache.put(src, new Pair2(csv, fetched));
+			csvCache.put(csvUrl, new Pair2(csv, fetched));
 		}
-		Log.d("import", "fetched "+src);
+		Log.d("import", "fetched "+csvUrl);
+	}
+
+	private String getCsvUrl() {
+		if (src.contains("gviz") || src.contains(".csv")) {
+			return src;
+		}
+		// convert a normal g-sheet url to a gviz
+		String docId = GSheetsClient.getSpreadsheetId(src);
+		if (docId==null) {
+			return src;
+		}
+		String csrc = "https://docs.google.com/spreadsheets/d/"+docId+"/gviz/tq?tqx=out:csv";
+		// gid? NB: G-sheets doesn't use proper url parameters
+		Pattern GID = Pattern.compile("gid=(\\d+)");
+		Matcher m = GID.matcher(src);
+		if (m.find()) {
+			csrc += "&gid="+m.group(1);
+		}
+		return csrc;
 	}
 
 	/**
@@ -397,7 +518,8 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		return new ArrayMap(
 			"src", src,
 			"name", name,
-			"url", url
+			"url", url,
+			"error", error
 		);
 	}
 
@@ -421,5 +543,13 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 
 	public void setMapping(Map<String,String> mappingImportRow2ourRow) {
 		this.mappingImportRow2ourRow = mappingImportRow2ourRow;
+	}
+
+	public Throwable getError() {
+		return error;
+	}
+
+	public void setError(Exception ex) {
+		this.error = ex;
 	}
 }

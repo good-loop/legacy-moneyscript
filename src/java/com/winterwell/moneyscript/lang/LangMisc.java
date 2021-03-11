@@ -237,6 +237,7 @@ public class LangMisc {
 					s.url = (String) jobj.get("url");
 				}
 				if (jobj.containsKey("rows")) {
+					// e.g. specific rows, or "overlap", or "all"
 					s.setRows((String)jobj.get("rows"));
 				}
 			}

@@ -1,25 +1,26 @@
 import React, { Component } from 'react';
-import {ReactDOM} from 'react-dom';
+import { ReactDOM } from 'react-dom';
 import _ from 'lodash';
-import { Col, Row } from 'reactstrap';
+import { Col, Row, Card as BSCard, Alert, Badge } from 'reactstrap';
 
 import printer from '../base/utils/printer';
 import C from '../C';
 import Roles from '../base/Roles';
 import Misc from '../base/components/Misc';
-import {stopEvent, modifyHash, encURI, space} from '../base/utils/miscutils';
+import { stopEvent, modifyHash, encURI, space } from '../base/utils/miscutils';
 import DataStore from '../base/plumbing/DataStore';
 import Settings from '../base/Settings';
-import ShareWidget, {ShareLink} from '../base/components/ShareWidget';
-import ListLoad, {CreateButton} from '../base/components/ListLoad';
+import ShareWidget, { ShareLink } from '../base/components/ShareWidget';
+import ListLoad, { CreateButton } from '../base/components/ListLoad';
 import ActionMan from '../plumbing/ActionMan';
-import PropControl, {DSsetValue, standardModelValueFromInput} from '../base/components/PropControl';
+import PropControl, { DSsetValue, standardModelValueFromInput } from '../base/components/PropControl';
 import JSend from '../base/data/JSend';
 import SimpleTable from '../base/components/SimpleTable';
 import LinkOut from '../base/components/LinkOut';
-import {setTaskTags} from '../base/components/TaskList';
+import { setTaskTags } from '../base/components/TaskList';
 import ServerIO from '../plumbing/ServerIO';
 import SavePublishDeleteEtc from '../base/components/SavePublishDeleteEtc';
+import Editor3ColLayout, { MainPane, RightSidebar } from '../base/components/Editor3ColLayout';
 import BG from '../base/components/BG';
 import AceCodeEditor from './AceCodeEditor';
 import Icon from '../base/components/Icon';
@@ -31,88 +32,101 @@ import KStatus from '../base/data/KStatus';
  */
 const getPlanId = () => {
 	// which plan?
-	const upath = DataStore.getValue(['location','path']);
+	const upath = DataStore.getValue(['location', 'path']);
 	const type = 'PlanDoc';
 	let id = upath[1];
-	if ( ! id) {
+	if (!id) {
 		// id = DataStore.getFocus(type);
 		// if ( ! id) {
-			window.title = 'MoneyScript Planning Tool';
-			return null;
+		window.title = 'MoneyScript Planning Tool';
+		return null;
 		// }
 		// let page = upath[0];
 		// modifyHash([page,id]);
-	} 
+	}
 	// else {
 	// 	// set this id as focal, so it survives page switching (which strips down the url)
 	// 	DataStore.setFocus(C.TYPES.PlanDoc, id);
 	// }
-	const item = DataStore.getData({type, id, status:C.KStatus.DRAFT});
+	const item = DataStore.getData({ type, id, status: C.KStatus.DRAFT });
 	let name = (item && item.name) || id;
-	window.title = 'M$ plan: '+name;
+	window.title = 'M$ plan: ' + name;
 	setTaskTags(type, id);
 	return id;
 };
 
-const MoneyScriptEditorPage = () => {	
+const MoneyScriptEditorPage = () => {
 	let id = getPlanId();
 	const type = C.TYPES.PlanDoc;
-	if ( ! id) {		
+	if (!id) {
 		return <ListLoad type={type} status={C.KStatus.ALL_BAR_TRASH} canDelete canCreate />;
 	}
 
-	const path = DataStore.getDataPath({status:C.KStatus.DRAFT, type, id});
-	const pvItem = ActionMan.getDataItem({type, id, status:C.KStatus.DRAFT});
-	if ( ! pvItem.value) {
+	const path = DataStore.getDataPath({ status: C.KStatus.DRAFT, type, id });
+	const pvItem = ActionMan.getDataItem({ type, id, status: C.KStatus.DRAFT });
+	if (!pvItem.value) {
 		return (<div><h1>{type}: {id}</h1><Misc.Loading /></div>);
 	}
 	const item = pvItem.value;
-	if (item.name) window.document.title = "M$: "+item.name;
+	if (item.name) window.document.title = "M$: " + item.name;
 	return (
 		<BG src='img/bg/data_money_82831320.jpg' fullscreen >
-			<div className="MoneyScriptEditorPage">
-				<Row>				
+			<Editor3ColLayout showAll >
+				<MainPane>
 					<Col md={8}><PropControl path={path} prop="name" size="lg" /></Col>
-					<Col md={4}>
-						<a className='btn btn-primary btn-sm ml-2 mr-2' href={'/#sheet/'+escape(id)}>View SpreadSheet &gt;</a>
-						<GSheetLink item={item} />
-						<GitHubLink item={item} />
-						<DownloadTextLink text={item.text} filename={item.name+".txt"} />
-					</Col>
-				</Row>
-				<EditScript id={id} plandoc={item} path={path} option="Text" />
-				{/* <ShareLink /> */}
-				{/* <ShareWidget /> */}
-			</div>
+					<EditScript id={id} plandoc={item} path={path} option="Text" />
+				</MainPane>
+				<RightSidebar height="" overflowY="auto" >
+					<a className='btn btn-primary btn-sm ml-2 mr-2' href={'/#sheet/' + escape(id)}>View SpreadSheet &gt;</a>
+					<GSheetLink item={item} />
+					<GitHubLink item={item} />
+					<DownloadTextLink text={item.text} filename={item.name + ".txt"} />
+					<BSCard className="mt-2">
+						<h3>Imports</h3>
+						<ImportsList cargo={item} />
+						<h3>Errors</h3>
+						<ErrorsList errors={item.errors} />
+					</BSCard>
+					{/* <ShareLink /> */}
+					{/* <ShareWidget /> */}
+				</RightSidebar>
+			</Editor3ColLayout>
 		</BG>
 	);
 };
 
-export const GSheetLink = ({item}) => {
-	if ( ! item || ! item.gsheetId) {
+const ErrorsList = ({errors}) => {
+	if ( ! errors || ! errors.length) {
+		return "None :)";
+	}
+	return errors.map((err,i) => <Alert color='danger' key={i}>Line: {err.line} {err.message}</Alert>);
+};
+
+export const GSheetLink = ({ item }) => {
+	if (!item || !item.gsheetId) {
 		return null;
 	}
-	return (<LinkOut 
-		disabled={getStatus(item) !== KStatus.PUBLISHED} 
-		className="btn btn-light btn-sm ml-1 mr-1" 
-		href={'https://docs.google.com/spreadsheets/d/'+item.gsheetId}
+	return (<LinkOut
+		disabled={getStatus(item) !== KStatus.PUBLISHED}
+		className="btn btn-light btn-sm ml-1 mr-1"
+		href={'https://docs.google.com/spreadsheets/d/' + item.gsheetId}
 		title={space(getStatus(item) !== KStatus.PUBLISHED && "(Publish first!)", "Link to published version in Google-Sheets")}
-		><Icon size='xs' name="google-sheets" /></LinkOut>);
+	><Icon size='xs' name="google-sheets" /></LinkOut>);
 };
 
-export const GitHubLink = ({item}) => {
-	if ( ! item) {
+export const GitHubLink = ({ item }) => {
+	if (!item) {
 		return null;
 	}
-	return (<LinkOut 
-		className="btn btn-light btn-sm ml-1 mr-1" 
-		href={'https://github.com/good-loop/moneyscript-plans/blame/master/~'+item.id}
+	return (<LinkOut
+		className="btn btn-light btn-sm ml-1 mr-1"
+		href={'https://github.com/good-loop/moneyscript-plans/blame/master/~' + item.id}
 		title={"Link to version control in GitHub"}
-		><Icon size='xs' name="github" /></LinkOut>);
+	><Icon size='xs' name="github" /></LinkOut>);
 };
 
 
-const DownloadTextLink = ({text, filename}) => {
+const DownloadTextLink = ({ text, filename }) => {
 	// NB the entity below is the emoji "Inbox Tray" glyph, U+1F4E5
 	return (
 		<a title="Download .txt" className="btn btn-light btn-sm ml-1 mr-1" href={'data:text/csv;charset=utf-8,' + encURI(text)} download={(filename || 'business-plan') + '.txt'}>
@@ -141,32 +155,49 @@ const DownloadTextLink = ({text, filename}) => {
 const markerFromParseFail = pf => {
 	// markers.push({startRow: 4, startCol: 1, endRow: 4, endCol: 6, className: 'bg-danger', type: 'fullLine' })	
 	// see https://github.com/securingsincity/react-ace/pull/123
-	let line = pf.line	
+	let line = pf.line
 	return {
 		column: 1,
 		row: line,
 		text: pf.message,
 		type: 'error'
-	  };
+	};
 	// return {startRow:line, startCol:1, endRow:line, endCol:2, className:'bg-warning', type: 'fullLine', text:pf.message };
 };
 
-const EditScript = ({id, plandoc, path}) => {
+const EditScript = ({ id, plandoc, path }) => {
 	// syntax errors?
 	let parsed = plandoc; // NB: parse info is added server-side by augment
 	let pes = (parsed && parsed.errors) || []; //[{line:3,message:"Boo"}]; // TODO immortal error bug - as we don't reset value on return -- FIX use diffs (parsed && parsed.errors) || [];
 	// standardise on tabs, with 4 spaces = 1 tab
-	let modelValueFromInput = (iv, type, eventType) => standardModelValueFromInput(iv? iv.replace(/ {4}/g, '\t') : iv, type, eventType);
+	let modelValueFromInput = (iv, type, eventType) => standardModelValueFromInput(iv ? iv.replace(/ {4}/g, '\t') : iv, type, eventType);
 	return (<div>
 		<AceCodeEditor path={path} prop='text' annotations={pes.map(markerFromParseFail)} height="calc(100vh - 12em)" />
 		<div>&nbsp;</div>
 		<SavePublishDeleteEtc type="PlanDoc" id={id} saveAs />
-	</div>);    
+	</div>);
 
 };
+
+/**
+ * 
+ * @param {PlanDoc|Business} p.cargo can be from MoneyServlet or PlanDocServlet
+ */
+const ImportsList = ({cargo}) => {
+	if ( ! cargo) return null;
+	let imports = cargo.importCommands;
+	if ( ! imports || ! imports.length) return null;
+	// NB the import src is usually g-drive gibberish
+	return <div className='ImportsList'>{imports.map((imp,i) => 
+		<LinkOut key={imp.src} className='mr-2' href={imp.url || imp.src}>[Import {imp.name || (i+1)}]		
+			{imp.error && <Badge color="danger" title={imp.error.detailMessage || imp.error.message || JSON.stringify(imp.error)}>!</Badge>}</LinkOut>)}
+	</div>
+};
+
 
 MoneyScriptEditorPage.fullWidth = true;
 export default MoneyScriptEditorPage;
 export {
-	getPlanId
+	getPlanId,
+	ImportsList
 };

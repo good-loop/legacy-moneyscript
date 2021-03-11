@@ -15,8 +15,11 @@ import com.winterwell.es.ESPath;
 import com.winterwell.es.client.ESHit;
 import com.winterwell.es.client.KRefresh;
 import com.winterwell.moneyscript.data.PlanDoc;
+import com.winterwell.moneyscript.lang.CompareCommand;
 import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.GroupRule;
+import com.winterwell.moneyscript.lang.ImportCommand;
+import com.winterwell.moneyscript.lang.ImportRowCommand;
 import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.lang.LangMisc;
 import com.winterwell.moneyscript.lang.Rule;
@@ -62,6 +65,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	@Override
 	protected void doBeforeSaveOrPublish(JThing<PlanDoc> _jthing, WebRequest stateIgnored) {
 		super.doBeforeSaveOrPublish(_jthing, stateIgnored);
+		// clear away parse errors - they are freshly set each time
 		_jthing.java().errors = new ArrayList();
 	}
 
@@ -73,7 +77,8 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		if (f!=null) {
 			File fd = new File(f.getParentFile(), "~"+f.getName());
 			PlanDoc thing = getThing(state);
-			doSave2_file_and_git(state, thing, fd);
+			String text = thing.getText();
+			doSave2_file_and_git(state, text, fd);
 		}
 	}	
 	
@@ -82,28 +87,6 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 			List<AuthToken> tokens, YouAgainClient yac) 
 	{
 		return super.doList2_securityFilter2_teamGoodLoop(hits2, state, tokens, yac);
-	}
-	
-	private void doSave2_file_and_git(WebRequest state, PlanDoc thing, File fd) {
-		try {			
-			String text = thing.getText();
-			if (text==null) return; // paranoia
-			String old = fd.isFile()? FileUtils.read(fd) : "";
-			if (text.equals(old)) {
-				return;
-			}
-			FileUtils.write(fd, text);
-//			Git commit and push!
-			GitTask gt1 = new GitTask(GitTask.ADD, fd);
-			gt1.run();
-			GitTask gt2 = new GitTask(GitTask.COMMIT, fd);
-			gt2.setMessage(state.getUserId().name);
-			gt2.run();
-			GitTask gt3 = new GitTask(GitTask.PUSH, fd);
-			gt3.run();
-		} catch(Throwable ex) {
-			state.addMessage(new AjaxMsg(KNoteType.warning, "Error while saving to Git", ex.getMessage()));
-		}
 	}
 
 	@Override
@@ -117,7 +100,8 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		} else {
 			pubd = getThingStateOrDB(state);
 			// Save to file
-			doSave2_file_and_git(state, pubd.java(), f);
+			String text = pubd.java().getText();
+			doSave2_file_and_git(state, text, f);
 		}
 		// plus export to google ?? do this async?
 		try {
@@ -171,9 +155,27 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 			}
 			Map pi = biz.getParseInfoJson();
 			if ( ! Utils.isEmpty(plandoc.errors)) {
-				plandoc.errors = null;
-				jThing.setJava(plandoc);
+				plandoc.errors = null;				
 			}
+			// test out the import commands
+			if (biz.getImportCommands() != null) {
+				for(ImportCommand ic : biz.getImportCommands()) {					
+					try {
+						if (ic instanceof ImportRowCommand || ic instanceof CompareCommand) {
+							ic.fetch();
+						} else {
+							ic.run2_importRows(biz);
+						}
+					} catch(Exception ex) {
+						ic.setError(ex);
+						Log.d(ex);
+						// oh well -- error should get passed on below
+					}
+				}
+			}
+			plandoc.setImportCommands(biz.getImportCommands());
+			// make sure the json gets updated
+			jThing.setJava(plandoc);			
 		} catch(ParseExceptions exs) {
 			plandoc.errors = Containers.apply(exs.getErrors(), IHasJson::toJson2);
 			Log.d("parse.error", exs);

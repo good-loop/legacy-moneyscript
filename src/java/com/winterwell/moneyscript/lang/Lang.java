@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.winterwell.maths.NoDupes;
@@ -325,7 +326,9 @@ public class Lang {
 			CellSet cellset = r.getSelector();
 			// NB: overlaps between scenarios are fine
 			String cs = r.getScenario()+XStreamUtils.serialiseToXml(cellset);
-			if ( ! cellsets.isDuplicate(cs)) continue;
+			if ( ! cellsets.isDuplicate(cs)) {
+				continue; // all good
+			}
 			ParseFail pf = new ParseFail(new Slice(r.src), 
 				"This rule overlaps with another rule for: "+cellset.getSrc());
 			pf.lineNum = r.lineNum;
