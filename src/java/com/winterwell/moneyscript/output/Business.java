@@ -200,11 +200,19 @@ public final class Business {
 
 	public void run() {
 		BusinessContext.setBusiness(this);
+		
+		// HACK: Add in rows from csv imports (needed before making a BusinessState)
+		phase = KPhase.IMPORT;
+		for(ImportCommand ic : importCommands) {
+			if (ic instanceof CompareCommand) continue; // later
+			ic.run(this);
+		}
+		
 		run2_removeOffRows();
 
 		// Wot no sampling? USeful for debugging and speed. So this is the default
 		int samples = getSettings().getSamples();
-		if (samples < 2) {
+		if (samples < 2) {			
 			state = new BusinessState(this);
 			run2();
 			phase = KPhase.OUTPUT;

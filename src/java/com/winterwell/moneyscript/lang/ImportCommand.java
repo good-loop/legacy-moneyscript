@@ -3,7 +3,9 @@ package com.winterwell.moneyscript.lang;
 import java.io.File;
 import java.io.StringReader;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -80,7 +82,8 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	}
 
 	/**
-	 * magic-string value for rows = "import the ones which overlap with our rules"
+	 * magic-string value for rows = "import the ones which overlap with our rules".
+	 * This _is_ set by default. Removing it switches to "all"
 	 */
 	private static final String OVERLAP = "overlap";
 
@@ -111,7 +114,6 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	private List<String> rows = Arrays.asList(OVERLAP);
 	
 	/**
-	 * TODO
 	 */
 	@ESNoIndex
 	protected boolean overwrite = true;
@@ -128,13 +130,19 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	}
 	
 	transient String csv;
+
+	private transient HashMap<String,String> ourRowNames4csvRowName;
 	
 	/**
 	 * url to csv,fetch-time
 	 */
 	static Map<String, Pair2<String,Time>> csvCache = new Cache<>(20);
 	
-	public void run(Business b) {		
+	/**
+	 * NB: Run before run(), as the row names are needed earlier to setup the BusinessState
+	 * @param b
+	 */
+	public void importRows(Business b) {
 		// Is it another m$ file??
 		if (src.endsWith(".m$") || src.endsWith(".ms")) {			
 			return; // Should be done already during parse!
@@ -160,10 +168,8 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		
 		Dictionary rowNames = b.getRowNames(); // do this now, so we can support fuzzy matching but not give a fuzzy
 												// match against the csv's own rows		
-		// match headers to columns
-		// NB: 1-indexed, so [0] = null
-		Col[] ourCol4importCol = run2_ourCol4importCol(b, headers, b.getSettings().getStart(), b.getSettings().getEnd());
-
+		
+		ourRowNames4csvRowName = new HashMap(); 
 		for (String[] row : r) {
 			if (row.length == 0)
 				continue;
@@ -173,6 +179,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			// match row name
 			String ourRowName = run2_ourRowName(rowName, rowNames);
 			if (ourRowName==null) ourRowName = StrUtils.toTitleCase(rowName);
+			ourRowNames4csvRowName.put(rowName, ourRowName);
 			// get/make the row
 			Row brow = b.getRow(ourRowName);
 			if (brow == null) {
@@ -185,6 +192,56 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 				}
 				brow = new Row(ourRowName);
 				b.addRow(brow);
+			}
+		}		
+	}
+	
+	public void run(Business b) {
+		if (ourRowNames4csvRowName == null) {
+			importRows(b);
+		}
+		// Is it another m$ file??
+		if (src.endsWith(".m$") || src.endsWith(".ms")) {			
+			return; // Should be done already during parse!
+		}
+		// CSV
+		fetch();
+		CSVSpec spec = new CSVSpec();
+		CSVReader r = new CSVReader(new StringReader(csv), spec);
+
+		// headers
+		int hrow = timeRow!=null? timeRow : 1; // 1-indexed
+		for(int i=1; i<hrow; i++) {
+			r.next();
+		}
+		String[] headers = r.next();
+		r.setHeaders(headers);	
+		r.setNumFields(-1); // flex
+		
+		// match headers to columns
+		// NB: 1-indexed, so [0] = null
+		Col[] ourCol4importCol = run2_ourCol4importCol(b, headers, b.getSettings().getStart(), b.getSettings().getEnd());
+
+		for (String[] row : r) {
+			if (row.length == 0)
+				continue;
+			String rowName = row[0];
+			if (Utils.isBlank(rowName))
+				continue;
+			// match row name
+			String ourRowName = ourRowNames4csvRowName.get(rowName);
+			assert ourRowName != null : rowName;
+			// get/make the row
+			Row brow = b.getRow(ourRowName);
+			if (brow == null) {
+				if (isEmptyRow(row)) {
+					continue;
+				}
+				if (rows.contains(OVERLAP)) {
+					Log.d("import", "Skip non-overlap row "+rowName);
+					continue; // don't import this row
+				}
+				assert false;
 			}
 			// add in the data
 			for (int i = 1; i < row.length; i++) {
@@ -217,9 +274,11 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			try {
 				String hi = headers[i].trim(); // 0=row labels	
 				if (Utils.isBlank(hi)) continue;
-				// NB: don't include plain years, e.g. "2020", which are probably annual sums
-				if (hi.length() < 5) continue;
 				Time time = tp.parseExperimental(hi);
+				// NB: don't include plain years, e.g. "2020", which are probably annual sums
+				if (hi.matches("\\d{4}")) {
+					continue;
+				}
 				ok++;
 				if (time.isBefore(start)) {
 					continue; // leave null

@@ -39,7 +39,9 @@ public class ImportCommandTest {
 	public void testBusinessRun() {
 		ImportCommand ic = new ImportCommand(new File("test/test-input.csv").toURI().toString());
 		ic.overwrite = true;
+		ic.setRows("all");
 		Business bs = new Business();
+		bs.addRow(new Row("Dummy"));
 		bs.getSettings().setStart(new Time(new Time().getYear(), 1, 1));
 		bs.getSettings().setEnd(new Time(new Time().getYear(), 12, 31));
 		bs.addImportCommand(ic);

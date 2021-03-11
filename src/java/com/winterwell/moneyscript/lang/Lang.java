@@ -326,7 +326,9 @@ public class Lang {
 			CellSet cellset = r.getSelector();
 			// NB: overlaps between scenarios are fine
 			String cs = r.getScenario()+XStreamUtils.serialiseToXml(cellset);
-			if ( ! cellsets.isDuplicate(cs)) continue;
+			if ( ! cellsets.isDuplicate(cs)) {
+				continue; // all good
+			}
 			ParseFail pf = new ParseFail(new Slice(r.src), 
 				"This rule overlaps with another rule for: "+cellset.getSrc());
 			pf.lineNum = r.lineNum;

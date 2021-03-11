@@ -411,7 +411,7 @@ public class LangCellSetTest {
 		}
 		{
 			Lang lang = new Lang();
-			Business b = lang.parse("Alice: £1\nAlice: * 2\nBob: £1");
+			Business b = lang.parse("Alice: £1\nAlice from month 2: * 2\nBob: £1");
 			Row alice = b.getRow("Alice");
 			Row bob = b.getRow("Bob");
 			Rule rule1 = alice.getRules().get(0);

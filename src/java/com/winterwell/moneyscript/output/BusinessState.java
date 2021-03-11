@@ -29,7 +29,8 @@ public final class BusinessState {
 	}
 
 	public void set(Cell cell, Numerical v) {
-		values[cell.row.getIndex()][cell.col.index] = v;
+		Numerical[] r = values[cell.row.getIndex()];
+		r[cell.col.index] = v;
 	}
 
 	@Override
