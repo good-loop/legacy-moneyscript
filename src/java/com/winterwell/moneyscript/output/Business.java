@@ -205,34 +205,37 @@ public final class Business {
 		phase = KPhase.IMPORT;
 		for(ImportCommand ic : importCommands) {
 			if (ic instanceof CompareCommand) continue; // later
-			ic.run(this);
+			ic.run2_importRows(this);
 		}
 		
 		run2_removeOffRows();
 
 		// Wot no sampling? USeful for debugging and speed. So this is the default
 		int samples = getSettings().getSamples();
-		if (samples < 2) {			
-			state = new BusinessState(this);
-			run2();
-			phase = KPhase.OUTPUT;
-			return;
+		if (samples < 2) {
+			setState(new BusinessState(this));
+			run2();		
+		} else {	
+			//
+			monteCarloStates = new BusinessState(this);
+			for(int i=0; i<samples; i++) {
+				// A fresh state 
+				setState(new BusinessState(this));
+				Log.d("Business", "Sample "+(i+1)+" of "+samples);
+				run2();
+				
+				// add to monteCarlo
+				run2_updateMonteCarlo();
+			}
+			// switch to the stochastic for final outputs
+			setState(monteCarloStates);
 		}
-		
-		monteCarloStates = new BusinessState(this);
-		for(int i=0; i<samples; i++) {
-			// A fresh state 
-			state = new BusinessState(this);
-			Log.d("Business", "Sample "+(i+1)+" of "+samples);
-			run2();
-			
-			// add to monteCarlo
-			run2_updateMonteCarlo();
-		}
-		// switch to the stochastic for final outputs
-		state = monteCarloStates;
 		
 		phase = KPhase.OUTPUT;
+	}
+
+	private void setState(BusinessState businessState) {
+		this.state = businessState;
 	}
 
 	private void run2() {
@@ -476,7 +479,9 @@ public final class Business {
 	
 	// NB: this is reset by run() before each evaluation.
 	// The initial value is only used in tests.
-	public BusinessState state = BusinessState.testBS(this);
+	public BusinessState state 
+		//= BusinessState.testBS(this)
+	;
 	
 	public Numerical getCellValue(Cell cell) {	
 		Numerical n = state.get(cell);
@@ -523,6 +528,10 @@ public final class Business {
 	public void addRow(Row row) {
 		assert _rows.indexOf(row) == -1 : row;
 		_rows.add(row);
+		// change state
+		if (state!=null) {
+			state.resize(_rows.size(), columns.size());
+		}
 	}
 
 	public Dt getTimeStep() {

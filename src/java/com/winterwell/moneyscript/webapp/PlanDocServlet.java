@@ -196,14 +196,11 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	@Override
 	protected JThing<PlanDoc> getThingFromDB(WebRequest state) throws E403 {
 		// normal - db
-		JThing<PlanDoc> jpd = super.getThingFromDB(state);
-		if (jpd==null) {
-			return null;
-		}
+		JThing<PlanDoc> jpd = super.getThingFromDB(state);		
 		// HACK file
 		File f = getPlanFile(state);
-		if (f != null && f.isFile()) {
-			KStatus status = state.get(CommonFields.STATUS);
+		if (f != null) {
+			KStatus status = state.get(CommonFields.STATUS);		
 			File fd = new File(f.getParentFile(), "~"+f.getName());
 			if (status==KStatus.DRAFT 
 					&& fd.isFile() 
@@ -211,14 +208,20 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 			{
 				f = fd; // load from draft
 			}
-			String s = FileUtils.read(f);
-			PlanDoc pd = jpd.java();
-//			String slug = state.getSlug();
-//			String id = state.getSlugBits(1);
-//			pd.id = id;
-			pd.setText(s);
-			jpd.setJava(pd);
-//			return new JThing().setType(PlanDoc.class).setJava(pd);
+			if (f.isFile()) {
+				String s = FileUtils.read(f);
+				if (jpd==null) {
+					// e.g. using local to look at a remote file, pulled in via github
+					PlanDoc pd = new PlanDoc();
+					String id = getId(state);
+					pd.setId(id);
+					Log.w(LOGTAG(),"Creating local PlanDoc for "+id);
+					jpd = new JThing(pd);
+				}
+				PlanDoc pd = jpd.java();
+				pd.setText(s);
+				jpd.setJava(pd);
+			}
 		}
 		return jpd;
 	}

@@ -1,5 +1,6 @@
 package com.winterwell.moneyscript.output;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,6 +42,20 @@ public final class BusinessState {
 	public static BusinessState testBS(Business business) {
 		BusinessState bs = new BusinessState(10,24);
 		return bs;
+	}
+
+	public void resize(int nrows, int ncols) {
+		Numerical[][] newValues = new Numerical[nrows][ncols+1]; // NB: 1 indexed on cols
+		int nr = Math.min(nrows, values.length);
+		for (int ri = 0; ri < nr; ri++) {
+			Numerical[] oldvri = values[ri];
+			if (oldvri==null) continue;
+			if (oldvri.length==ncols) {
+				newValues[ri] = oldvri;
+				continue;
+			}
+			newValues[ri] = Arrays.copyOf(oldvri, ncols);
+		}
 	}
 
 }

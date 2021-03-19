@@ -131,8 +131,6 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 
 	private Throwable error;
 
-	private transient boolean importRowsFlag;
-
 	private transient Col[] ourCol4importCol;
 	
 	/**
@@ -142,6 +140,8 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	
 	/**
 	 * NB: Run before run(), as the row names are needed earlier to setup the BusinessState
+	 * 
+	 * This should be idempotent
 	 * @param b
 	 */
 	public void run2_importRows(Business b) {		
@@ -210,10 +210,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		}		
 		if (colsFound==0) {
 			throw new FailureException("No columns identified from "+StrUtils.join(headers, ", "));
-		}
-		
-		// done
-		importRowsFlag = true;
+		}		
 	}
 	
 	public void run(Business b) {
@@ -223,9 +220,8 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 				return; // Should be done already during parse!
 			}
 			fetch();
-			if ( ! importRowsFlag) {
-				run2_importRows(b);
-			}
+			// import rows and setup b-state
+			run2_importRows(b);
 			if (mappingImportRow2ourRow.isEmpty()) {
 				throw new IllegalStateException("No rows to import from "+src+" with rows: "+rows);
 			}
@@ -245,8 +241,9 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			// cols -- done already
 			
 			for (String[] row : r) {
-				if (row.length == 0)
+				if (isEmptyRow(row)) {
 					continue;
+				}
 				String rowName = row[0];
 				if (Utils.isBlank(rowName))
 					continue;
