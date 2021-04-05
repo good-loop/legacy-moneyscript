@@ -74,6 +74,7 @@ public class Rule implements IReset {
 	public final String src;
 	
 	int lineNum;
+	private String unit;
 	
 	@Override
 	public String toString() {
@@ -111,10 +112,16 @@ public class Rule implements IReset {
 				v = vFixed;
 			}
 			GSheetFromMS gs = Dep.getWithDefault(GSheetFromMS.class, null);
-			if (gs!=null && v.excel==null) v.excel = gs.cellRef(cell.row, cell.col);
+			if (gs!=null && v.excel==null) {
+				v.excel = gs.cellRef(cell.row, cell.col);
+			}
 			// No NaN or infinity
 			if ( ! Double.isFinite(v.doubleValue())) {
 				throw new IllegalArgumentException(v+" for "+this+" on "+cell);
+			}
+			// allow the script to override and set what the unit is, e.g. "Margin (%): Profit / Income" 
+			if (unit != null) {
+				v.setUnit(unit);
 			}
 			return v;
 		} catch(Throwable ex) {
@@ -161,6 +168,10 @@ public class Rule implements IReset {
 	public void reset() {
 		// clear the scenario. Why? cos a line of script might move between scenarios in an edit, but our parsing cache wouldn't know that.
 		scenario = null;
+	}
+
+	public void setUnit(String unit) {
+		this.unit = unit;
 	}
 
 

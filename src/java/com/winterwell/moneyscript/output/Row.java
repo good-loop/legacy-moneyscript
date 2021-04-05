@@ -18,6 +18,7 @@ import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.StyleRule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.webapp.GSheetFromMS;
 import com.winterwell.utils.Dep;
@@ -26,6 +27,7 @@ import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.ITree;
+import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Time;
 
 /**
@@ -40,6 +42,7 @@ public final class Row
 implements ITree // NB: we don't use Row ITree anywhere (yet) 
 {
 
+	private static final String LOGTAG = "Row";
 	String name;
 	
 	public Row getParent() {
@@ -354,6 +357,17 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 				list.add(new ArrayMap());
 				continue;
 			}
+			// HACK: also treat %s as noTotal
+			if ("%".equals(v.getUnit())) {
+				// NB: We can't average as it's not clear if/how to weight the entries
+				// TODO Can we port the formula from per-month to per-year??
+				// No - formulas work on Cells and BusinessState
+				// So we want to include year-total columns in the BusinessState (bleurgh)
+				noTotal = true;
+				list.add(new ArrayMap());
+				continue;
+			}			
+			
 			// sum the year
 			Numerical yearSum = new Numerical(0);
 //			double delta = 0;

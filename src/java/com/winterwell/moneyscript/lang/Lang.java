@@ -135,10 +135,16 @@ public class Lang {
 							assert state != null;
 						}});
 	
+	/**
+	 * What unit is this row?
+	 */
+	public static Parser<String> unit = seq(lit("("), lit("%","£","$").label("unit"), lit(")"))
+			.eg("(%)");
 	
 	Parser<Rule> rule = new PP<Rule>(seq( 
 			LangMisc.indent,
-			LangCellSet.cellSet, 
+			LangCellSet.cellSet,
+			opt(unit),
 			lit(":"), optSpace, 
 			ruleBody,
 			opt(LangMisc.comment),
@@ -153,14 +159,23 @@ public class Lang {
 			// record the comment if there was one
 			AST astComment = r.getNode(LangMisc.comment);
 			String comment = astComment==null? null : ""+astComment.getValue();
+			AST<String> u = r.getNode("unit");
 			// a formula?
 			Object rbx = rb.getX();			
 			if (rbx instanceof Formula) {
-				return new Rule(sel, (Formula) rbx, r.parsed(), ind).setComment(comment);
+				Rule _rule = new Rule(sel, (Formula) rbx, r.parsed(), ind).setComment(comment);
+				if (u != null) {
+					_rule.setUnit(u.getX());
+				}
+				return _rule;
 			}
 			// a list of values
 			if (rbx instanceof List) {
-				return new ListValuesRule(sel, (List<Formula>) rbx, r.parsed(), ind).setComment(comment);
+				Rule _rule = new ListValuesRule(sel, (List<Formula>) rbx, r.parsed(), ind).setComment(comment);
+				if (u != null) {
+					_rule.setUnit(u.getX());
+				}
+				return _rule;
 			}
 			// a rule? (importRow does this -- it probably should return a formula instead)
 			if (rbx instanceof Rule) {

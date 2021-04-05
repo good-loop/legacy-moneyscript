@@ -59,7 +59,7 @@ public class Numerical extends Number implements IScalarArithmetic {
 	/**
 	 * treat % as a unit - but one that gets over-ridden by anything else
 	 */
-	private final String unit;
+	private String unit;
 
 	/**
 	 * For comparing against another set of values
@@ -237,6 +237,10 @@ public class Numerical extends Number implements IScalarArithmetic {
 
 	public void setDelta(Double d) {
 		this.delta = d;
+	}
+
+	public void setUnit(String unit) {
+		this.unit = unit;
 	}
 		
 

@@ -11,6 +11,7 @@ import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.utils.Printer;
+import com.winterwell.utils.web.SimpleJson;
 
 public class RuleTest {
 
@@ -90,6 +91,33 @@ public class RuleTest {
 			Printer.out(row.getValues());
 			row = b.getRow("Bob");
 			Printer.out(row.getValues());
+		}
+	}
+	
+	
+	@Test
+	public void testRowUnit() {
+		Parser.DEBUG = false;
+		Parser.clearGrammar();
+		Lang lang = new Lang();
+//		LangTime lt = new LangTime();
+//		// weird "time" ref not set bug!
+//		LangTime.time.parse("dahjdahdasuyyuy");
+		{			
+			Business b = lang.parse("Income: £10 per month\nProfit: £1 per month\nMargin (%): Profit / Income\n");
+			b.setColumns(24);
+			b.run();
+			Row rowp = b.getRow("Profit");
+			Row rowm = b.getRow("Margin");
+//			Printer.out(rowm.getValues());
+//			Printer.out(rowm.getValuesJSON(true));
+			
+			// Margin gets the % from its row
+			String v0 = SimpleJson.get(rowm.getValuesJSON(true), 0, "unit");
+			assert "%".equals(v0);
+			// profit gets the £ from its formula
+			String p0 = SimpleJson.get(rowp.getValuesJSON(false), 0, "unit");
+			assert "£".equals(p0);
 		}
 	}
 	
