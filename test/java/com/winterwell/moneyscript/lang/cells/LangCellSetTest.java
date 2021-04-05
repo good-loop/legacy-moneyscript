@@ -17,6 +17,7 @@ import com.winterwell.moneyscript.lang.num.UnaryOp;
 import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
+import com.winterwell.moneyscript.output.BusinessState;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
@@ -106,7 +107,7 @@ public class LangCellSetTest {
 		}
 		{
 			Lang lang = new Lang();
-			Business b = lang.parse("A at month 1: 2\nA: 1\nA: 3");
+			Business b = lang.parse("A at month 1: 2\nA: 1\nA at month 2: 3");
 			Row a = b.getRow("A");
 			List<Rule> rules = a.getRules();
 			assert rules.size() == 3;
@@ -118,7 +119,7 @@ public class LangCellSetTest {
 			b.run();
 			assert a.getValues()[0] == 2;
 			assert a.getValues()[1] == 3;
-			assert a.getValues()[2] == 3;
+			assert a.getValues()[2] == 1;
 		}
 	}
 
@@ -333,6 +334,7 @@ public class LangCellSetTest {
 		// e.g. row(Alice)
 		{
 			Business b = lang.parse("Alice: 1, 2, 3, 4");
+			b.state = new BusinessState(b);
 			BusinessContext.setBusiness(b);
 			ParseResult<CellSet> pr = LangCellSet.cellSet.parseOut("Alice from start of Alice to now");
 			CellSet cells = pr.getX();

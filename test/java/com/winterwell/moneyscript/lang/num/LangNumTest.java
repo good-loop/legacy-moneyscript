@@ -16,6 +16,7 @@ import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
+import com.winterwell.moneyscript.output.BusinessState;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
@@ -51,6 +52,7 @@ public class LangNumTest {
 		Formula f = n.getX();
 		
 		Business b = lang.parse("Staff:\n\tAlice: £1k\n\tBob from month 3: £2k");
+		b.state = new BusinessState(b);
 		// just alice
 		Numerical c = f.calculate(new Cell(b.getRow("Staff"), new Col(1)));
 		assert c.doubleValue() == 1 : c;
@@ -67,7 +69,8 @@ public class LangNumTest {
 			Formula f = n.getX();
 			
 			Business b = lang.parse("Staff:\n\tAlice: £1k\n\tBob from month 3: £2k");
-	
+			b.state = new BusinessState(b);
+			
 			Numerical c = f.calculate(new Cell(b.getRow("Bob"), new Col(6)));
 			assert c.doubleValue() == 4 : c; // Note: from - to is INCLUSIVE, so this count picks up 3,4,5,6
 		}

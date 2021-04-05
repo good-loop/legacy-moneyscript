@@ -391,6 +391,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			}	
 		} catch(Exception ex) {
 			// ??cache the error as "ERROR:"+message No - allow the user to make quick edits if theres an error.
+			setError(ex);
 			throw Utils.runtime(ex);
 		}
 		// cache		

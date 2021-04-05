@@ -167,7 +167,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 							ic.run2_importRows(biz);
 						}
 					} catch(Exception ex) {
-						ic.setError(ex);
+						ic.setError(ex); // NB: this set is probably not needed, as ImportCommand will already have done it for most cases. But its safe.
 						Log.d(ex);
 						// oh well -- error should get passed on below
 					}

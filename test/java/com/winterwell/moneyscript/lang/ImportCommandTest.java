@@ -48,7 +48,7 @@ public class ImportCommandTest {
 			b.run();
 			assert false;
 		} catch (Exception ex) {
-			assert ex != null;	
+			assert ex != null; // an E404
 		}				
 		ImportCommand ic = b.getImportCommands().get(0);
 		assert ic.getError() != null;
