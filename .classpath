@@ -8,16 +8,7 @@
 	<classpathentry kind="src" path="test/java"/>
 	<classpathentry kind="src" path="src/java"/>
 	<classpathentry kind="src" path="builder"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.maths"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.utils"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.web"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.webappbase"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/youagain-java-client"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.bob"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.nlp"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/elasticsearch-java-client"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.depot"/>
 	<classpathentry kind="lib" path="dependencies/animal-sniffer-annotations.jar"/>
 	<classpathentry kind="lib" path="dependencies/checker-compat-qual.jar"/>
 	<classpathentry kind="lib" path="dependencies/commons-codec.jar"/>
@@ -41,5 +32,15 @@
 	<classpathentry kind="lib" path="dependencies/listenablefuture.jar"/>
 	<classpathentry kind="lib" path="dependencies/opencensus-api.jar"/>
 	<classpathentry kind="lib" path="dependencies/opencensus-contrib-http-util.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.depot"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elasticsearch-java-client"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.nlp"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.bob"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/youagain-java-client"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.webappbase"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.web"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.utils"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.maths"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/goodloop.google"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
