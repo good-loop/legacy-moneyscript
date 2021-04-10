@@ -28,14 +28,21 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.Sheets.Spreadsheets.BatchUpdate;
 import com.google.api.services.sheets.v4.Sheets.Spreadsheets.SheetsOperations;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.AddConditionalFormatRuleRequest;
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetResponse;
+import com.google.api.services.sheets.v4.model.BooleanCondition;
+import com.google.api.services.sheets.v4.model.BooleanRule;
+import com.google.api.services.sheets.v4.model.Border;
 import com.google.api.services.sheets.v4.model.CellData;
 import com.google.api.services.sheets.v4.model.CellFormat;
 import com.google.api.services.sheets.v4.model.Color;
+import com.google.api.services.sheets.v4.model.ConditionValue;
+import com.google.api.services.sheets.v4.model.ConditionalFormatRule;
 import com.google.api.services.sheets.v4.model.ExtendedValue;
 import com.google.api.services.sheets.v4.model.GridCoordinate;
 import com.google.api.services.sheets.v4.model.GridProperties;
+import com.google.api.services.sheets.v4.model.GridRange;
 import com.google.api.services.sheets.v4.model.Request;
 import com.google.api.services.sheets.v4.model.Response;
 import com.google.api.services.sheets.v4.model.RowData;
@@ -43,6 +50,7 @@ import com.google.api.services.sheets.v4.model.SheetProperties;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.google.api.services.sheets.v4.model.SpreadsheetProperties;
 import com.google.api.services.sheets.v4.model.TextFormat;
+import com.google.api.services.sheets.v4.model.UpdateBordersRequest;
 import com.google.api.services.sheets.v4.model.UpdateCellsRequest;
 import com.google.api.services.sheets.v4.model.UpdateSheetPropertiesRequest;
 import com.google.api.services.sheets.v4.model.UpdateSpreadsheetPropertiesRequest;
@@ -236,6 +244,69 @@ public class GSheetsClient {
 		int low = w % 26;
 		int high = (w / 26) - 1; // -1 'cos this isnt true base 26 -- there's no proper 0 letter
 		return getBase26(high) + getBase26(low);
+	}
+
+	public void setBorder(String sid, int startRow, int endRow, int startColumn, int endColumn) throws IOException{
+		Sheets service = getService();
+		List<Request> requests = new ArrayList<>();
+		
+		GridRange gr = new GridRange();
+		gr.setStartRowIndex(startRow);
+		gr.setEndRowIndex(endRow);
+		gr.setStartColumnIndex(startColumn);
+		gr.setEndColumnIndex(endColumn);
+		
+		Border b1 = new Border();
+		b1.setStyle("SOLID_MEDIUM");
+
+		requests.add(new Request()
+				.setUpdateBorders(new UpdateBordersRequest()
+						.setRange(gr)
+						.setTop(b1)
+						.setBottom(b1)
+						.setInnerVertical(b1)
+						.setRight(b1)));
+		
+		BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
+		BatchUpdateSpreadsheetResponse response = service.spreadsheets().batchUpdate(sid, body).execute();
+	}
+	
+	/**
+	 * Set cell to bold if it contains a specific string
+	 * 
+	 * @param sid Spreadsheet ID
+	 * @param text If contains text, the cell is bold
+	 */
+	public void setBoldIfContainString(String sid, String text) throws IOException {
+		Sheets service = getService();
+		List<Request> requests = new ArrayList<>();
+		
+		List<GridRange> ranges = Collections.singletonList(new GridRange()
+		        .setSheetId(0)
+		);
+		
+		requests.add(new Request()
+				.setAddConditionalFormatRule(new AddConditionalFormatRuleRequest()
+						.setRule(new ConditionalFormatRule()
+								.setRanges(ranges)
+								.setBooleanRule(new BooleanRule()
+										.setCondition(new BooleanCondition()
+												.setType("TEXT_CONTAINS")
+												.setValues(Collections.singletonList(
+														new ConditionValue().setUserEnteredValue(text))
+												)
+										)
+										.setFormat(new CellFormat()
+												.setTextFormat(new TextFormat()
+														.setBold(true))
+										)
+								)
+						)
+				)
+		);
+		
+		BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
+		BatchUpdateSpreadsheetResponse response = service.spreadsheets().batchUpdate(sid, body).execute();	
 	}
 
 }
