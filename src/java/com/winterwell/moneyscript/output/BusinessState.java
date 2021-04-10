@@ -18,7 +18,7 @@ public final class BusinessState {
 	}
 	
 	BusinessState(int nrows, int ncols) {
-		assert nrows > 0 && ncols > 0;
+		assert nrows > 0 && ncols > 0 : "No rows or cols?! rows:"+nrows+" cols:"+ncols;
 		this.values = new Numerical[nrows][ncols+1]; // NB: 1 indexed
 	}
 

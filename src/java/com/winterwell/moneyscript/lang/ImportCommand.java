@@ -130,6 +130,12 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	private Throwable error;
 
 	private transient Col[] ourCol4importCol;
+
+	private int importCol_exs;
+
+	private int importCol_ok;
+
+	private int importCol_outsideTimeWindow;
 	
 	/**
 	 * url to csv,fetch-time
@@ -207,7 +213,9 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			if (col!=null) colsFound++;
 		}		
 		if (colsFound==0) {
-			throw new FailureException("No columns identified from "+StrUtils.join(headers, ", "));
+			throw new FailureException(
+					"No columns identified from "+StrUtils.join(headers, ", ")
+					+" Errors: "+importCol_exs+" Outside Time Window: "+importCol_outsideTimeWindow);
 		}		
 	}
 	
@@ -290,7 +298,9 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	private Col[] run2_importRows2_ourCol4importCol(Business b, String[] headers, Time start, Time end) {
 		Col[] _ourCol4importCol = new Col[headers.length];
 		TimeParser tp = new TimeParser();
-		int exs=0; int ok=0;
+		importCol_exs=0; 
+		importCol_ok=0; 
+		importCol_outsideTimeWindow=0;
 		for(int i=0; i<headers.length; i++) {
 			try {
 				String hi = headers[i].trim(); // 0=row labels	
@@ -300,10 +310,12 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 				if (hi.matches("\\d{4}")) {
 					continue;
 				}
-				ok++;
+				importCol_ok++;
 				if (time.isBefore(start)) {
+					importCol_outsideTimeWindow++;
 					continue; // leave null
 				} else if (time.isAfter(end)) {
+					importCol_outsideTimeWindow++;
 					continue; // leave null
 				} 
 				Col coli = b.getColForTime(time);
@@ -319,7 +331,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 				}
 				_ourCol4importCol[i] = coli;
 			} catch(Exception ex) {
-				exs++;
+				importCol_exs++;
 				// leave null
 			}
 		}
