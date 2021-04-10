@@ -1,20 +1,12 @@
 package com.winterwell.moneyscript.lang;
 
 import java.io.File;
-import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 
-import com.winterwell.moneyscript.lang.num.Formula;
-import com.winterwell.moneyscript.lang.num.LangNum;
-import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.nlp.dict.Dictionary;
-import com.winterwell.nlp.simpleparser.ParseResult;
-import com.winterwell.utils.Printer;
-import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.time.Time;
 
 public class ImportCommandTest {

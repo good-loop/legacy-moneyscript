@@ -1,7 +1,5 @@
 package com.winterwell.moneyscript.output;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
 
 import org.junit.Test;

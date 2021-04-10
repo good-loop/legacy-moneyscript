@@ -32,6 +32,8 @@
 	<classpathentry kind="lib" path="dependencies/listenablefuture.jar"/>
 	<classpathentry kind="lib" path="dependencies/opencensus-api.jar"/>
 	<classpathentry kind="lib" path="dependencies/opencensus-contrib-http-util.jar"/>
+	<classpathentry kind="lib" path="dependencies/jackson-annotations.jar"/>
+	<classpathentry kind="lib" path="dependencies/jackson-databind.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.depot"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/elasticsearch-java-client"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.nlp"/>

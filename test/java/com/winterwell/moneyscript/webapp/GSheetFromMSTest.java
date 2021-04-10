@@ -1,7 +1,5 @@
 package com.winterwell.moneyscript.webapp;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
 import java.util.List;
 
@@ -13,7 +11,6 @@ import com.winterwell.moneyscript.data.PlanDoc;
 import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.nlp.simpleparser.Parser;
-import com.winterwell.utils.Printer;
 import com.winterwell.utils.io.FileUtils;
 
 public class GSheetFromMSTest {

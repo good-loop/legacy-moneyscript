@@ -1,7 +1,5 @@
 package com.goodloop.gsheets;
 
-import static org.junit.Assert.*;
-
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
@@ -9,7 +7,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 
 /**

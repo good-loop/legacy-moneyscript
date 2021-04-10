@@ -1,8 +1,6 @@
 package com.winterwell.moneyscript.output;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.winterwell.moneyscript.lang.num.Numerical;
 

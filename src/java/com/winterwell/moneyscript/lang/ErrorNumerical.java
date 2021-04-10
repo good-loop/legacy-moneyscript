@@ -1,12 +1,6 @@
 package com.winterwell.moneyscript.lang;
 
-import com.winterwell.maths.stats.distributions.d1.Gaussian1D;
-import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
 import com.winterwell.moneyscript.lang.num.Numerical;
-import com.winterwell.moneyscript.output.Business;
-import com.winterwell.moneyscript.output.Particles1D;
-import com.winterwell.utils.MathUtils;
-import com.winterwell.utils.StrUtils;
 
 /**
  * Marks an error in the spreadsheet. Like a NaN with a comment
