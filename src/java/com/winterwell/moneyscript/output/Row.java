@@ -205,6 +205,10 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		return kids.size() != 0;
 	}
 
+	/**
+	 * ?? Is thi 0 or 1 indexed
+	 * @return
+	 */
 	public double[] getValues() {
 		Business b = Business.get();
 		List<Cell> cells = Containers.getList(getCells());

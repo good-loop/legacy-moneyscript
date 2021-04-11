@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.MatchResult;
 
+import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.LangCellSet;
+import com.winterwell.moneyscript.lang.num.BasicFormula;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.LangNum;
 import com.winterwell.moneyscript.lang.time.DtDesc;
@@ -256,10 +259,13 @@ public class LangMisc {
 
 	public static Parser<ImportRowCommand> importRow = new Ref("importRow");
 	
-	PP<ImportRowCommand> _importRow = (PP<ImportRowCommand>) new PP<ImportRowCommand>(
+	/**
+	 * E.g. import count of sales by month from SalesForce
+	 */
+	PP<ImportRowCommand> _importRow1 = (PP<ImportRowCommand>) new PP<ImportRowCommand>(
 			seq(lit("import"), opt(cache), 
 					space, lit("by month","aggregate").label("slicing"), 
-					space, LangNum.num, 
+					space, LangNum.num, // the formula, applied to the csv being imported, e.g. count(Amount)
 					opt(seq(lit(" using "), jsonLike)), 
 					lit(" from "), LangMisc.urlOrFile)
 			) {
@@ -293,10 +299,39 @@ public class LangMisc {
 			}
 			return s;
 		}
-	}.label("importRow");
-	
-	
+	};
 
+	
+	/**
+	 * E.g. import count of sales by month from SalesForce
+	 */
+	PP<ImportRowCommand> _importRow2 = (PP<ImportRowCommand>) new PP<ImportRowCommand>(
+			seq(lit("import"), 
+//					opt(cache), 
+					space, LangCellSet.cellSet1Row, 
+					// NB: for some reason cellSet1Row is grabbing the space, so put optSpace here for flex
+					optSpace, lit("from "), LangMisc.urlOrFile)
+			) {
+		protected ImportRowCommand process(ParseResult<?> r) {			
+			AST<MatchResult> psrc = r.getNode(LangMisc.urlOrFile);
+			ImportRowCommand s = new ImportRowCommand(psrc.parsed());
+			// the formula
+			AST<CellSet> fNode = r.getNode(LangCellSet.cellSet1Row);
+			CellSet sel= (CellSet) fNode.getX();
+			s.formula = new BasicFormula(sel);
+			s.setSlicing("none");
+			// cache settings?
+			AST<String> isFresh = r.getNode(cache);
+			if (isFresh != null) {
+				s.setCacheDt(TimeUtils.NO_TIME_AT_ALL); 
+			}
+			return s;
+		}
+	};
+
+	Parser<ImportRowCommand> _importRowEither = first(_importRow1, _importRow2).label("importRow");
+
+	
 	PP<ExportCommand> _exportRow = (PP<ExportCommand>) new PP<ExportCommand>(
 			seq(lit("export:"), optSpace, LangMisc.urlOrFile)
 			) {

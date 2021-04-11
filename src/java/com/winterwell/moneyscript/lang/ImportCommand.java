@@ -89,7 +89,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	 */
 	public static final String OVERLAP = "overlap";
 
-	private static final String LOGTAG = "import";
+	protected static final String LOGTAG = "import";
 	public static final String IMPORT_MARKER_COMMENT = "import";
 
 	/**
@@ -129,13 +129,13 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 
 	private Throwable error;
 
-	private transient Col[] ourCol4importCol;
+	protected transient Col[] ourCol4importCol;
 
-	private int importCol_exs;
+	protected int importCol_exs;
 
 	private int importCol_ok;
 
-	private int importCol_outsideTimeWindow;
+	protected int importCol_outsideTimeWindow;
 	
 	/**
 	 * url to csv,fetch-time
@@ -299,7 +299,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		}
 	}
 
-	private Col[] run2_importRows2_ourCol4importCol(Business b, String[] headers, Time start, Time end) {
+	protected Col[] run2_importRows2_ourCol4importCol(Business b, String[] headers, Time start, Time end) {
 		Col[] _ourCol4importCol = new Col[headers.length];
 		TimeParser tp = new TimeParser();
 		importCol_exs=0; 

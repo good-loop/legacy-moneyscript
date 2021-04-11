@@ -16,6 +16,7 @@ import com.winterwell.moneyscript.lang.num.UnaryOp;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
+import com.winterwell.utils.FailureException;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.TodoException;
@@ -71,6 +72,13 @@ public class ImportRowCommand extends ImportCommand {
 		r.setNumFields(-1); // flex
 		List<String> headers = r.getHeaders();		
 
+		// Is this a SalesForce style sheet (which we analyse)
+		// Or a financial columns=dates sheet?
+		if ("none".equals(slicing)) {
+			values = run2_financeSheet(b, r, headers);
+			return;
+		}
+		
 		Iterable<Map> items = (Iterable) r.asListOfMaps();
 		values = new ArrayList();
 		
@@ -126,9 +134,67 @@ public class ImportRowCommand extends ImportCommand {
 		for(Col col : col2items.keySet()) {
 			List<Map> citems = col2items.get(col);
 			Numerical n = run2_numForItems(op, citems);
-			getCreateCol(col);			
+			getCreateCol(col);	
 			values.set(col.index, n);			
 		}
+	}
+
+	private List<Numerical> run2_financeSheet(Business b, CSVReader r, List<String> headers) {
+
+		String importRowName = ((BasicFormula)formula).getCellSetSelector().getSrc();
+
+		ourCol4importCol = run2_importRows2_ourCol4importCol(b, headers.toArray(new String[0]), b.getSettings().getStart(), b.getSettings().getEnd());
+		// check we found something
+		int colsFound = 0;
+		for (Col col : ourCol4importCol) {
+			if (col!=null) colsFound++;
+		}		
+		if (colsFound==0) {
+			throw new FailureException(
+					"No columns identified from "+StrUtils.join(headers, ", ")
+					+" Errors: "+importCol_exs+" Outside Time Window: "+importCol_outsideTimeWindow);
+		}		
+		// find our row
+		for (String[] row : r) {
+			if (row.length==0) continue;
+			String rName = row[0];
+			if ( ! run2_financeSheet2_matchNames(importRowName, rName)) {
+				continue;
+			}
+			String[] theRow = row;
+			List<Numerical> vs = new ArrayList();
+			vs.add(null); // 1 indexed
+			// TODO convert rows
+			// TODO manage time alignment
+			// NB: copy pasta from ImportCommand
+			// add in the data
+			for (int i = 1; i < row.length; i++) {
+				if (i >= ourCol4importCol.length) {
+					Log.e(LOGTAG, "Overlong row? "+i+" from "+importRowName);
+					break;
+				}
+				Col col = ourCol4importCol[i];				
+				if (col==null) {
+					vs.add(null);
+					continue; // skip e.g. not in the sheet's time window
+				}
+				String ri = row[i];
+				double n = MathUtils.getNumber(ri);
+				if (n == 0 && (ri==null || ! "0".equals(ri.trim()))) {
+					vs.add(null);
+					continue; // skip blanks and non-numbers but not "true" 0s
+				}
+				Numerical v = new Numerical(n);
+				vs.add(v);
+			}
+
+			return vs;	
+		}
+		throw new FailureException("Row "+importRowName+" not found");
+	}
+
+	private boolean run2_financeSheet2_matchNames(String importRowName, String rName) {
+		return StrUtils.toCanonical(importRowName).equals(StrUtils.toCanonical(rName));
 	}
 
 	private Time getTimeForItem(String timeCol, Map<String, String> map) {
@@ -197,13 +263,16 @@ public class ImportRowCommand extends ImportCommand {
 	}
 
 	private Numerical getCreateCol(Col col) {
-		// pad with 0s if needed
+		// pad with nulls if needed
 		for(int j=values.size(); j<=col.index; j++) {
-			values.add(new Numerical(0));
+			values.add(null); //new Numerical(0));
 		}
 		return values.get(col.index);		
 	}
 
+	/**
+	 * 1 Indexed!
+	 */
 	List<Numerical> values;
 	private String slicing;
 
@@ -223,7 +292,8 @@ public class ImportRowCommand extends ImportCommand {
 	}
 
 	public void setSlicing(String slicing) {
-		assert slicing.equals("by month") || slicing.equals("aggregate");
+		slicing = slicing.trim();
+		assert "by month aggregate none".contains(slicing);
 		this.slicing = slicing;
 	}
 }

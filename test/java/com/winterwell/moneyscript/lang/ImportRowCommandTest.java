@@ -31,6 +31,46 @@ public class ImportRowCommandTest {
 			assert MathUtils.equalish(vs[9], 9) : vs[9]; // Oct
 		}	
 	}
+
+	@Test
+	public void testParse_ImportRowFromSF() {
+		Lang lang = new Lang();
+		ParseResult<Formula> f = LangNum.num.parseOut("TotalBank");
+		System.out.println(f);
+		ParseResult<ImportRowCommand> r = lang.langMisc.importRow.parseOut(
+				"import by month count(Amount) using {\"End Date\": month} from https://docs.google.com/spreadsheets/d/1FR8Y8LBgMF_aFxTXNPWl9Rc6WQZkdLBckwE61lMLJOw/gviz/tq?tqx=out:csv");
+	}
+
+	@Test
+	public void testParse_ImportRowBankBalance() {
+		Lang lang = new Lang();	
+		PP<ImportRowCommand> p = lang.langMisc._importRow2;
+//		p.DEBUG = true;
+		ParseResult<ImportRowCommand> r = p.parseOut(
+				"import Total Bank from https://docs.google.com/spreadsheets/d/1dPDjhUJyjDLIAy2n_dk9XLP4K6w0dIeQWotyJAJQMBk");
+	}
+
+	@Test
+	public void testImportRowBankBalance() {
+		Lang lang = new Lang();
+//		{
+//			ParseResult<Formula> f = LangNum.num.parseOut("TotalBank");		
+//			System.out.println(f);
+//			ParseResult<ImportRowCommand> r = lang.langMisc.importRow.parseOut("import Total Bank from https://docs.google.com/spreadsheets/d/1dPDjhUJyjDLIAy2n_dk9XLP4K6w0dIeQWotyJAJQMBk");
+//		}
+		{
+			String ms = "CashAtBank: import Total Bank from https://docs.google.com/spreadsheets/d/1dPDjhUJyjDLIAy2n_dk9XLP4K6w0dIeQWotyJAJQMBk";
+			Business b = lang.parse(ms);
+			// 2020
+			b.getSettings().setStart(new Time(2020,1,1));
+			b.getSettings().setEnd(new Time(2020,12,31));
+			b.run();
+			Row sfna = b.getRow("CashAtBank");						
+			double[] vs = sfna.getValues();
+			System.out.println(b.toCSV());
+			assert MathUtils.equalish(vs[10], 829829.78) : vs[10]; // Nov 2020
+		}	
+	}
 	
 	@Test
 	public void testImportRowTimeCap() {
@@ -76,7 +116,7 @@ public class ImportRowCommandTest {
 		// This syntax is too fragile -- TODO allow reordering sentence chunks
 		String ms = "SF Net Amount: import by month sum(Net Amount) using {\"End Date\":month, name:\"SF exported csv\"} from file:///home/daniel/winterwell/moneyscript/data/SF-won-report.csv";
 		Lang lang = new Lang();
-		PP<ImportRowCommand> p = lang.langMisc._importRow;
+		PP<ImportRowCommand> p = lang.langMisc._importRow1;
 //		Parser.DEBUG = true;
 		Business b = lang.parse(ms);
 		b.getSettings().setStart(new Time(2020,1,1));
@@ -95,13 +135,13 @@ public class ImportRowCommandTest {
 		{
 			String ms = "import aggregate mean(Net Amount) from https://docs.google.com/spreadsheets/d/e/2PACX-1vRy.csv";
 			Lang lang = new Lang();
-			PP<ImportRowCommand> p = lang.langMisc._importRow;
+			PP<ImportRowCommand> p = lang.langMisc._importRow1;
 			p.parseOut(ms);
 		}
 		{
 			String ms = "import aggregate mean(Net Amount) from https://docs.google.com/spreadsheets/d/e/2PACX-1vRyHr0yWj22C_2Q_DiS_eC3z0IRdRslHRXn3yy68cdIbW3If_DzwNnIyTWH-PQTrF4BDa1S_WsanH00/pub?output=csv";
 			Lang lang = new Lang();
-			PP<ImportRowCommand> p = lang.langMisc._importRow;
+			PP<ImportRowCommand> p = lang.langMisc._importRow1;
 			p.parseOut(ms);
 		}
 		{
@@ -117,7 +157,7 @@ public class ImportRowCommandTest {
 			String ms = "SF Net Amount: import by month count(Amount) using {\"End Date\":month, name:\"SF exported csv\"}"
 					+ " from file:///home/daniel/winterwell/moneyscript/data/SF-won-report.csv";
 			Lang lang = new Lang();
-			PP<ImportRowCommand> p = lang.langMisc._importRow;
+			PP<ImportRowCommand> p = lang.langMisc._importRow1;
 //			Parser.DEBUG = true;
 			Business b = lang.parse(ms);
 			b.getSettings().setStart(new Time(2020,1,1));
@@ -132,7 +172,7 @@ public class ImportRowCommandTest {
 			String ms = "SF Net Amount: import by month count(Opportunity Name) using {\"End Date\":month, name:\"SF exported csv\"}"
 					+ " from file:///home/daniel/winterwell/moneyscript/data/SF-won-report.csv";
 			Lang lang = new Lang();
-			PP<ImportRowCommand> p = lang.langMisc._importRow;
+			PP<ImportRowCommand> p = lang.langMisc._importRow1;
 //			Parser.DEBUG = true;
 			Business b = lang.parse(ms);
 			b.getSettings().setStart(new Time(2020,1,1));
