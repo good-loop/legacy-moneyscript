@@ -184,6 +184,7 @@ public class ImportRowCommand extends ImportCommand {
 					continue; // skip blanks and non-numbers but not "true" 0s
 				}
 				Numerical v = new Numerical(n);
+				v.comment = IMPORT_MARKER_COMMENT;
 				getCreateCol(col);
 				values.set(col.index, v);
 			}
