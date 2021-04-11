@@ -210,7 +210,7 @@ public class LangMisc {
 	 * TODO other blend modes?
 	 */
 	PP<ImportCommand> importCommand = new PP<ImportCommand>(
-			seq(lit("import", "compare"), opt(cache), lit(":"), optSpace, LangMisc.urlOrFile, optSpace, opt(jsonLike))
+			seq(lit("import", "compare"), opt(cache), opt(lit(" all"," overlap").label("whichRows")), lit(":"), optSpace, LangMisc.urlOrFile, optSpace, opt(jsonLike))
 			) {
 		protected ImportCommand process(ParseResult<?> r) {						
 			AST<MatchResult> psrc = r.getNode(LangMisc.urlOrFile);
@@ -226,6 +226,11 @@ public class LangMisc {
 			if (isFresh != null) {
 				s.setCacheDt(TimeUtils.NO_TIME_AT_ALL); 
 			}
+			// rows: all / overlap? (can also be set in the json key:value)
+			AST<String> whichRows = r.getNode("whichRows");
+			if (whichRows != null) {
+				s.setRows(whichRows.getX()); 
+			}			
 			// extra info
 			AST<Map> _jobj = r.getNode(jsonLike);
 			if (_jobj!=null) {
@@ -240,6 +245,10 @@ public class LangMisc {
 					// e.g. specific rows, or "overlap", or "all"
 					s.setRows((String)jobj.get("rows"));
 				}
+				// mapping
+				Map rowMapping = new ArrayMap(jobj);
+				rowMapping.remove("name"); rowMapping.remove("url"); rowMapping.remove("rows");
+				s.setMapping(rowMapping);
 			}
 			return s;
 		}

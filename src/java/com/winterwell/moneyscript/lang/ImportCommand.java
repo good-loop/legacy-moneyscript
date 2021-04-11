@@ -185,7 +185,11 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 				continue;
 			// match row name
 			String ourRowName = run2_ourRowName(rowName, rowNames);
-			if (ourRowName==null) ourRowName = StrUtils.toTitleCase(rowName);
+			if (ourRowName==null) {
+				ourRowName = StrUtils.toTitleCase(rowName);
+				Log.d(LOGTAG, "Unmapped row: "+rowName);
+				run2_ourRowName(rowName, rowNames); // for debug
+			}
 			ourRowNames4csvRowName.put(rowName, ourRowName);
 			// get/make the row
 			Row brow = b.getRow(ourRowName);
@@ -458,10 +462,26 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		if (mappingImportRow2ourRow != null) {
 			String mappedName = Containers.getLenient(mappingImportRow2ourRow, rowName);
 			if (mappedName!=null) {
-				// TODO try correcting for slight mismatches?? e.g. using this method recursively??
-				return mappedName;
+				// try correcting for slight mismatches
+				String mn2 = run2_ourRowName2_noLookup(rowName, rowNames);
+				if (mn2==null) {
+					return mappedName;
+				}
+				if ( ! mappedName.equals(mn2)) {
+					Log.w(LOGTAG, "Mapped name changed from "+mappedName+" to "+mn2);
+				}
+				return mn2;
 			}
 		}
+		// no set mapping -- work it out if we can
+		String mappedName = run2_ourRowName2_noLookup(rowName, rowNames);
+		if (mappedName==null) {
+			Log.d(LOGTAG, "Unmapped row: "+mappedName);
+		}
+		return mappedName;
+	}
+	
+	String run2_ourRowName2_noLookup(String rowName, Dictionary rowNames) {
 		// exact match
 		if (rowNames.contains(rowName)) {
 			return rowNames.getMeaning(rowName);
@@ -478,7 +498,10 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		}
 		// try removing "total" since MS group rows are totals
 		if (rowNameCanon.contains("total")) {			
-			String rn2 = rowNameCanon.replace("total", "");
+			String rn2 = rowNameCanon.replace("total", "").trim();
+			// Xero exports hack for e.g. "Total 01 Property"
+			rn2 = rn2.replaceFirst("^\\d+", "").trim();
+			
 			assert rn2.length() < rowNameCanon.length();
 			if ( ! rn2.isBlank()) {
 				String found = run2_ourRowName(rn2, rowNames);
@@ -486,6 +509,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 					return found;
 				}
 			}
+			Log.d(LOGTAG, "Unmatched total: "+rn2);
 		}
 		// Allow a first-word or starts-with match if it is unambiguous e.g. Alice = Alice Smith
 		ArraySet<String> matches = new ArraySet();
@@ -549,6 +573,10 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		setRows(Arrays.asList(row));
 	}
 
+	/**
+	 * You can specify this in the script, by {sheet row: our row} in the json-like settings
+	 * @param mappingImportRow2ourRow
+	 */
 	public void setMapping(Map<String,String> mappingImportRow2ourRow) {
 		this.mappingImportRow2ourRow = mappingImportRow2ourRow;
 	}

@@ -34,7 +34,7 @@ const PAGES = {
 		Top-level: tabs
 */
 const MainDiv = () => {
-	return <MainDivBase loginRequired navbarPages={['plan']} defaultPage='plan' pageForPath={PAGES} fullWidthPages={['sheet']} />;
+	return <MainDivBase loginRequired navbarPages={['plan']} defaultPage='plan' pageForPath={PAGES} fullWidthPages={['plan', 'sheet']} />;
 };
 
 export default MainDiv;

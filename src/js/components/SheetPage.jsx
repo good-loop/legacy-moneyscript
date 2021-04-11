@@ -43,21 +43,22 @@ const SheetPage = () => {
 	// So instead we fix the size of the above-table "header" info, and  use 100vh - that
 	return <>
 		<CSS css={`nav, footer {display: none !important;}
-		.header {height:7em;}
-		.sheet {height:calc(100vh - 7em);}
+		.header {height:8em;}
+		.sheet {height:calc(100vh - 8em);}
 		`} />
 		<div className='header'>
 			<Row className="w-100">
 				<Col md={6}><a className='mt-1 btn btn-dark' href={'/#plan/'+escape(id)}>&lt; View Plan</a></Col>
 				<Col md={6}><h2>{item.name || item.id}</h2></Col>
-			</Row>
-			<ScenariosOnOff scenarioMap={scenarioMap} scenarioTexts={pvrun.value && pvrun.value.scenarioTexts} />
+			</Row>			
 			<div className='flex-row'>
-				<ImportsList cargo={pvrun.value} />			
+				<ScenariosOnOff scenarioMap={scenarioMap} scenarioTexts={pvrun.value && pvrun.value.scenarioTexts} />
+				{/* <ImportsList cargo={pvrun.value} />			 */}
 				<PropControl prop='hideMonths' type='checkbox' label='Annual Totals only' saveFn={_ => false && window.location.reload()} />
 				<GSheetLink item={item}	/>
 			</div>
 		</div>
+		<div className="clearfix"></div>
 		<div className="sheet">
 			<ViewSpreadSheet plandoc={item} scenarios={scenariosOn} hideMonths={DataStore.getUrlValue("hideMonths")} />
 		</div>

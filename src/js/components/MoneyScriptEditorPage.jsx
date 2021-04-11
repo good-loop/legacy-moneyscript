@@ -81,7 +81,7 @@ const MoneyScriptEditorPage = () => {
 					<GSheetLink item={item} />
 					<GitHubLink item={item} />
 					<DownloadTextLink text={item.text} filename={item.name + ".txt"} />
-					<BSCard className="mt-2">
+					<BSCard className="mt-2" style={{maxWidth:"300px"}}>
 						<h3>Imports</h3>
 						<ImportsList cargo={item} />
 						<h3>Errors</h3>
