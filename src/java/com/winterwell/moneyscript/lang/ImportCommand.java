@@ -328,7 +328,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 					if (prev!=null) {
 						int dt = coli.index - prev.index;
 						if (dt != 1) {									
-							System.out.println("WRONG ");
+							Log.w(LOGTAG, "WRONG col alignment probably d: "+dt);
 							Col coli2 = b.getColForTime(time);
 						}
 					}

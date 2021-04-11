@@ -213,7 +213,9 @@ public class LangMisc {
 	 * TODO other blend modes?
 	 */
 	PP<ImportCommand> importCommand = new PP<ImportCommand>(
-			seq(lit("import", "compare"), opt(cache), opt(lit(" all"," overlap").label("whichRows")), lit(":"), optSpace, LangMisc.urlOrFile, optSpace, opt(jsonLike))
+			seq(lit("import", "compare"), opt(cache), opt(lit(" all"," overlap").label("whichRows")), lit(":"), 
+					optSpace, LangMisc.urlOrFile, 
+					optSpace, opt(jsonLike))
 			) {
 		protected ImportCommand process(ParseResult<?> r) {						
 			AST<MatchResult> psrc = r.getNode(LangMisc.urlOrFile);
@@ -310,7 +312,9 @@ public class LangMisc {
 //					opt(cache), 
 					space, LangCellSet.cellSet1Row, 
 					// NB: for some reason cellSet1Row is grabbing the space, so put optSpace here for flex
-					optSpace, lit("from "), LangMisc.urlOrFile)
+					optSpace, lit("from "), LangMisc.urlOrFile,
+					optSpace, opt(jsonLike)
+					)
 			) {
 		protected ImportRowCommand process(ParseResult<?> r) {			
 			AST<MatchResult> psrc = r.getNode(LangMisc.urlOrFile);
@@ -324,6 +328,17 @@ public class LangMisc {
 			AST<String> isFresh = r.getNode(cache);
 			if (isFresh != null) {
 				s.setCacheDt(TimeUtils.NO_TIME_AT_ALL); 
+			}
+			// extra info
+			AST<Map> _jobj = r.getNode(jsonLike);
+			if (_jobj!=null) {
+				Map jobj = _jobj.getX();
+				if (jobj.containsKey("name")) {
+					s.name = (String) jobj.get("name");
+				}
+				if (jobj.containsKey("url")) {
+					s.url = (String) jobj.get("url");
+				}
 			}
 			return s;
 		}

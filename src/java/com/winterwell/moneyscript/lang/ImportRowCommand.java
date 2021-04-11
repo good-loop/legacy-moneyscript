@@ -75,7 +75,7 @@ public class ImportRowCommand extends ImportCommand {
 		// Is this a SalesForce style sheet (which we analyse)
 		// Or a financial columns=dates sheet?
 		if ("none".equals(slicing)) {
-			values = run2_financeSheet(b, r, headers);
+			run2_financeSheet(b, r, headers);
 			return;
 		}
 		
@@ -139,7 +139,7 @@ public class ImportRowCommand extends ImportCommand {
 		}
 	}
 
-	private List<Numerical> run2_financeSheet(Business b, CSVReader r, List<String> headers) {
+	private void run2_financeSheet(Business b, CSVReader r, List<String> headers) {
 
 		String importRowName = ((BasicFormula)formula).getCellSetSelector().getSrc();
 
@@ -158,14 +158,13 @@ public class ImportRowCommand extends ImportCommand {
 		for (String[] row : r) {
 			if (row.length==0) continue;
 			String rName = row[0];
-			if ( ! run2_financeSheet2_matchNames(importRowName, rName)) {
+			if ( ! run3_financeSheet2_matchNames(importRowName, rName)) {
 				continue;
 			}
 			String[] theRow = row;
-			List<Numerical> vs = new ArrayList();
-			vs.add(null); // 1 indexed
-			// TODO convert rows
-			// TODO manage time alignment
+			values = new ArrayList();
+			values.add(null); // 1 indexed
+			// manage time alignment
 			// NB: copy pasta from ImportCommand
 			// add in the data
 			for (int i = 1; i < row.length; i++) {
@@ -175,25 +174,26 @@ public class ImportRowCommand extends ImportCommand {
 				}
 				Col col = ourCol4importCol[i];				
 				if (col==null) {
-					vs.add(null);
+//					vs.add(null);
 					continue; // skip e.g. not in the sheet's time window
 				}
 				String ri = row[i];
 				double n = MathUtils.getNumber(ri);
 				if (n == 0 && (ri==null || ! "0".equals(ri.trim()))) {
-					vs.add(null);
+//					vs.add(null);
 					continue; // skip blanks and non-numbers but not "true" 0s
 				}
 				Numerical v = new Numerical(n);
-				vs.add(v);
+				getCreateCol(col);
+				values.set(col.index, v);
 			}
 
-			return vs;	
+			return;	
 		}
 		throw new FailureException("Row "+importRowName+" not found");
 	}
 
-	private boolean run2_financeSheet2_matchNames(String importRowName, String rName) {
+	private boolean run3_financeSheet2_matchNames(String importRowName, String rName) {
 		return StrUtils.toCanonical(importRowName).equals(StrUtils.toCanonical(rName));
 	}
 

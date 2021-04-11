@@ -48,6 +48,9 @@ public class ImportRowCommandTest {
 //		p.DEBUG = true;
 		ParseResult<ImportRowCommand> r = p.parseOut(
 				"import Total Bank from https://docs.google.com/spreadsheets/d/1dPDjhUJyjDLIAy2n_dk9XLP4K6w0dIeQWotyJAJQMBk");
+		
+		ParseResult<ImportRowCommand> r2 = p.parseOut(
+				"import Total Bank from https://docs.google.com/spreadsheets/d/1dPDjhUJyjDLIAy2n_dk9XLP4K6w0dIeQWotyJAJQMBk {name: \"Foo\"}");
 	}
 
 	@Test
