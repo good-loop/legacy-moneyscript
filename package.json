@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "ace-builds": "^1.4.12",
-    "chart.js": "^2.9.3",
+    "chart.js": "^2.9.4",
     "data-pivot": "^1.0.2",
     "easy-enums": "^1.1.8",
     "fast-json-patch": "^3.0.0-1",
@@ -24,10 +24,10 @@
     "react-chartjs2": "^1.2.1",
     "react-dom": "^16.13.1",
     "react-dropzone": "^11.1.0",
-    "react-markdown": "^4.3.1",
-    "reactstrap": "^8.5.1",
-    "sjtest": "^0.4.9",
-    "papaparse": "^5.0.1"
+    "react-markdown": "^5.0.3",
+    "reactstrap": "^8.8.1",
+    "papaparse": "^5.0.1",
+    "remark-gfm": "^1.0.0"
   },
   "scripts": {
     "compile": "webpack --config $PWD/webpack.config.js --progress --colors && ./gitstamp.sh && cp src/js/components/mode-ms.src.js node_modules/ace-builds/src-noconflict/mode-python.js",
@@ -81,6 +81,6 @@
     "globals": {
       "window": {}
     },
-    "testTimeout":20000
+    "testTimeout": 20000
   }
 }
