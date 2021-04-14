@@ -4,7 +4,6 @@
  */
 import _ from 'lodash';
 import $ from 'jquery';
-import {SJTest, assert, assMatch} from 'sjtest';
 import C from '../C';
 import ServerIO from '../base/plumbing/ServerIOBase';
 
