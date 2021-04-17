@@ -56,13 +56,13 @@ public class Lang {
 			// filters
 			("from to above below at £ $ except "
 			// times
-			+"start end now for "
-			+"per sum over "
+			+"start end now for at "
+			+"per over "
 			+"year quarter month day hour minute years quarters months days hours minutes "
 			// finance
 			+""
 			// maths
-			+"min max "
+			+"min max average sum "
 			// prob
 			+"or "
 			// logic
@@ -73,10 +73,13 @@ public class Lang {
 			+"import fresh "
 			// global variables
 			+"row column previous "
+			// structural
+			+"annual "
 			// future use: 
 //			+"depreciated vat tax "
 			+"sheet scenario "
-			+"number filter on at all in once every each unit when row column rows columns time Time timestep grow linear exponential with").split("\\s+");			
+			+"number filter on all in once every each unit when row column rows columns time Time timestep grow linear exponential"
+			).split("\\s+");			
 	
 	
 	final LangMisc langMisc = new LangMisc();
@@ -206,6 +209,7 @@ public class Lang {
 				groupRow, 
 				commentRow,
 				// settings
+				langMisc.annual,
 //				langMisc.columnSettings, 
 				langMisc.planSettings,
 				langMisc.importCommand

@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import com.winterwell.moneyscript.lang.AnnualRule;
 import com.winterwell.moneyscript.lang.DummyRule;
 import com.winterwell.moneyscript.lang.GroupRule;
 import com.winterwell.moneyscript.lang.ImportCommand;
@@ -16,6 +17,7 @@ import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.StyleRule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.RowName;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.webapp.GSheetFromMS;
 import com.winterwell.utils.Dep;
@@ -339,52 +341,21 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		List<Cell> cells = Containers.getList(getCells());
 		Business b = Business.get();
 		List<Map> list = new ArrayList<Map>();
+		String unit = null;
 		for (int i = 0; i < cells.size(); i++) {
 			Cell c = cells.get(i);
-			Numerical v = b.getCellValue(c);
+			Numerical v = b.getCellValue(c);			
 			// cell json
 			ArrayMap map = getValuesJSON2_cell(b, c, v);
 			list.add(map);	
 			
-			// year total?
+			// year total?			
 			if ( ! yearTotals) continue;
-			Time t = c.getColumn().getTime();
-			if (t.getMonth()!=12) {
+			if (v.getUnit()!=null) unit = v.getUnit();
+			Numerical yearSum = getValuesJSON_calculateYearTotal(b, c, cells, i, unit);
+			if (yearSum==null) {
+				list.add(new ArrayMap()); // add a blank for column balance
 				continue;
-			}
-			// ...avoid for e.g. balance
-			if (noTotal) {
-				list.add(new ArrayMap());
-				continue;
-			}
-			// HACK: also treat %s as noTotal
-			if ("%".equals(v.getUnit())) {
-				// NB: We can't average as it's not clear if/how to weight the entries
-				// TODO Can we port the formula from per-month to per-year??
-				// No - formulas work on Cells and BusinessState
-				// So we want to include year-total columns in the BusinessState (bleurgh)
-				noTotal = true;
-				list.add(new ArrayMap());
-				continue;
-			}			
-			
-			// sum the year
-			Numerical yearSum = new Numerical(0);
-//			double delta = 0;
-			boolean hasDelta = false;
-			for (int j=Math.max(0, i-11); j<=i; j++) {
-				Cell cj = cells.get(j);
-				Numerical vj = b.getCellValue(cj);
-				if (vj==null) continue;
-				yearSum = yearSum.plus(vj);
-				if (vj.getDelta()!=null) {
-//					delta += vj.getDelta();
-					hasDelta = true;
-				}
-			}
-			yearSum.comment = "total for year "+t.getYear();
-			if (hasDelta) {
-//				yearSum.setDelta(delta); TODO
 			}
 			// ... into json
 			ArrayMap ymap = getValuesJSON2_cell(b, null, yearSum);
@@ -396,6 +367,46 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		return list;
 	}
 
+	/**
+	 * 
+	 * @param b
+	 * @param c The end of year cell
+	 * @param cells
+	 * @param i c = cells[i]
+	 * @param unit 
+	 * @return
+	 */
+	private Numerical getValuesJSON_calculateYearTotal(Business b, Cell c, List<Cell> cells, int i, String unit) {
+		Time t = c.getColumn().getTime();
+		if (t.getMonth()!=12) {
+			return null;
+		}
+		// Is there an annual rule?
+		AnnualRule ar = Containers.firstClass(getRules(), AnnualRule.class);
+		if (ar == null) {
+			// avoid by default for some rows e.g. balance
+			if (noTotal) {
+				return null;
+			}
+			// HACK: also treat %s as noTotal
+			if ("%".equals(unit)) {
+				// NB: We can't average as it's not clear if/how to weight the entries
+				// TODO Can we port the formula from per-month to per-year??
+				// No - formulas work on Cells and BusinessState
+				// So we want to include year-total columns in the BusinessState (bleurgh)
+				noTotal = true;
+				return null;
+			}
+			// default to sum
+			ar = new AnnualRule(new RowName(getName()), "sum", "");
+		}
+		
+		// Apply!
+		Numerical yearSum = ar.calculateAnnual(b, cells, i);
+		return yearSum;
+	}
+
+	
 	ArrayMap getValuesJSON2_cell(Business b, Cell c, Numerical v) {
 		// empty?
 		if (v==null || v==Business.EMPTY) {

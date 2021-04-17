@@ -18,6 +18,7 @@ import java.util.regex.MatchResult;
 
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
+import com.winterwell.moneyscript.lang.cells.RowName;
 import com.winterwell.moneyscript.lang.num.BasicFormula;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.LangNum;
@@ -32,6 +33,7 @@ import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.nlp.simpleparser.Parsers;
 import com.winterwell.nlp.simpleparser.Ref;
+import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
@@ -347,7 +349,7 @@ public class LangMisc {
 	Parser<ImportRowCommand> _importRowEither = first(_importRow1, _importRow2).label("importRow");
 
 	
-	PP<ExportCommand> _exportRow = (PP<ExportCommand>) new PP<ExportCommand>(
+	PP<ExportCommand> _exportRow = new PP<ExportCommand>(
 			seq(lit("export:"), optSpace, LangMisc.urlOrFile)
 			) {
 		protected ExportCommand process(ParseResult<?> r) {			
@@ -366,5 +368,23 @@ public class LangMisc {
 			first(startEndSetting, samplesSetting, columnSettings),			
 			opt(comment)
 			);
+
+	public PP<AnnualRule> annual = new PP<AnnualRule>(seq(
+			lit("annual "), LangCellSet.cellSet1Row, lit(":"),optSpace,
+			lit("average","sum","previous","off").label("op"),
+			opt(seq(lit(" weighted by "), LangCellSet.cellSet1Row)),
+			opt(comment)
+			)) {
+		protected AnnualRule process(ParseResult<?> r) {			
+			AST<CellSet> _rn = r.getNode(LangCellSet.cellSet1Row);
+			CellSet rn = _rn.getX();
+			String op = (String) r.getNode("op").getX();
+			AnnualRule ar = new AnnualRule((RowName) rn, op, r.toString());
+			if (r.toString().contains("weighted")) {
+				throw new TodoException();
+			}
+			return ar;
+		}
+	}.label("annual");
 	
 }
