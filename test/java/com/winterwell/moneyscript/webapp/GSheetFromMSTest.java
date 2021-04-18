@@ -8,6 +8,7 @@ import org.junit.Test;
 import com.goodloop.gsheets.GSheetsClient;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.winterwell.moneyscript.data.PlanDoc;
+import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.nlp.simpleparser.Parser;
@@ -58,11 +59,11 @@ public class GSheetFromMSTest {
 
 		GSheetsClient sc = new GSheetsClient();
 		Spreadsheet s = sc.createSheet("Test testPublishExcelGPlan");
-		pd.setGsheetId(s.getSpreadsheetId());
+		ExportCommand ec = new ExportCommand(s.getSpreadsheetId());
 
 		pd.setText(txt);			
 		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient());
-		gs4ms.doExportToGoogle(pd);
+		gs4ms.doExportToGoogle(ec, pd.getBusiness());
 		
 	}
 

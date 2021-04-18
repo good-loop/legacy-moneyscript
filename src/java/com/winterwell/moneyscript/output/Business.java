@@ -174,9 +174,10 @@ public final class Business {
 		}
 		
 		// imports
-		Collection<Map> importMaps = Containers.apply(importCommands, ImportCommand::toJson2);
+		Collection<Map> importMaps = Containers.apply(getImportCommands(), ImportCommand::toJson2);
 		// merge if same src
 		Map<String,Map> im4src = new ArrayMap();
+		Map<String,Map> ex4src = new ArrayMap();
 		for (Map im : importMaps) {
 			String s = ""+im.get("src");
 			Map im2 = im4src.get(s);
@@ -188,6 +189,8 @@ public final class Business {
 		}
 		importMaps = im4src.values();
 		map.put("importCommands", importMaps);
+		Collection<Map> exportMaps = Containers.apply(getExportCommands(), ExportCommand::toJson2);
+		map.put("exportCommands", exportMaps);
 		
 		// scenarios
 		map.put("scenarios", getScenarios());
@@ -196,12 +199,13 @@ public final class Business {
 		return map;
 	}
 
+
 	public void run() {
 		BusinessContext.setBusiness(this);
 		
 		// HACK: Add in rows from csv imports (needed before making a BusinessState)
 		phase = KPhase.IMPORT;
-		for(ImportCommand ic : importCommands) {
+		for(ImportCommand ic : getImportCommands()) {
 			if (ic instanceof CompareCommand) continue; // later
 			ic.run2_importRows(this);
 		}
@@ -238,7 +242,7 @@ public final class Business {
 
 	private void run2() {
 		phase = KPhase.IMPORT;
-		for(ImportCommand ic : importCommands) {
+		for(ImportCommand ic : getImportCommands()) {
 			if (ic instanceof CompareCommand) continue; // later
 			ic.run(this);
 		}
@@ -254,7 +258,7 @@ public final class Business {
 			}
 		}
 		
-		for(ImportCommand ic : importCommands) {
+		for(ImportCommand ic : getImportCommands()) {
 			if (ic instanceof CompareCommand) {
 				ic.run(this);
 			}
@@ -743,15 +747,30 @@ public final class Business {
 	}
 
 	public void addImportCommand(ImportCommand ic) {
+		assert ! (ic instanceof ExportCommand);
+		if (importCommands.contains(ic)) return;
 		importCommands.add(ic); 
 	}
 	
-	List<ImportCommand> importCommands = new ArrayList<>();
 
-	public boolean isExportToGoogle;
+	public void addExportCommand(ExportCommand ic) {
+		assert ! (ic instanceof ExportCommand);
+		if (exportCommands.contains(ic)) return;
+		exportCommands.add(ic); 
+	}
+	
+	private List<ImportCommand> importCommands = new ArrayList<>();
+	private List<ExportCommand> exportCommands = new ArrayList<>();
 
-	public ExportCommand export;
+	/**
+	 * Flag to control whether excel formulae are constructed during a run
+	 */
+	public transient boolean isExportToGoogle;
 
+	public List<ExportCommand> getExportCommands() {
+		return exportCommands;
+	}
+	
 	public Map<Scenario, Boolean> getScenarios() {
 		if (scenarios==null) {
 			scenarios = new ArrayMap(); // paranoia
@@ -761,10 +780,6 @@ public final class Business {
 
 	public void setScenarios(Map<Scenario, Boolean> map) {
 		this.scenarios = map;
-	}
-
-	public void addExportCommand(ExportCommand r) {
-		this.export = r;
 	}
 
 	public List<ImportCommand> getImportCommands() {

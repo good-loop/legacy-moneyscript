@@ -263,6 +263,14 @@ public class ImportRowCommand extends ImportCommand {
 		return null;
 	}
 
+	/**
+	 * @deprecated Not needed here - the row is given by the rule
+	 */
+	@Override
+	public void run2_importRows(Business b) {
+		Log.d(LOGTAG, "run2_importRows() no-op for ImportRowCommand");
+	}
+	
 	private Numerical getCreateCol(Col col) {
 		// pad with nulls if needed
 		for(int j=values.size(); j<=col.index; j++) {

@@ -1,6 +1,7 @@
 package com.winterwell.moneyscript.lang;
 
 import java.util.Map;
+import java.util.Objects;
 
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.Scenario;
@@ -28,6 +29,23 @@ public class Rule implements IReset {
 		return lineNum;
 	}
 	
+	@Override
+	public int hashCode() {
+		return Objects.hash(lineNum, scenario, src);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Rule other = (Rule) obj;
+		return lineNum == other.lineNum && Objects.equals(scenario, other.scenario) && Objects.equals(src, other.src);
+	}
+
 	/**
 	 * @deprecated usually done in constructor
 	 * @param selector

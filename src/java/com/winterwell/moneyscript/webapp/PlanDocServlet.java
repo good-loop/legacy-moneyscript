@@ -97,46 +97,18 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	}
 	
 	private void doExportToGoogle(PlanDoc pd, WebRequest state, KRefresh forceRefresh, boolean deleteDraft) throws Exception {
-		GSheetsClient sc = new GSheetsClient(); 	
-		// HACK gsheet export id?
-		if (pd.getText().contains("export:")) {
-			String[] lines = StrUtils.splitLines(pd.getText());
-			for (String line : lines) {
-				if ( ! line.startsWith("export")) continue;
-				try {
-					ParseResult<ExportCommand> pr = LangMisc.exportRow.parse(line);
-					ExportCommand ec = pr.getX();
-					pd.setGsheetId(ec.spreadsheetId);					
-				} catch (Exception ex) {
-					// whatevs
-				}
-			}						
+		List<ExportCommand> exports = Containers.filterByClass(pd.getBusiness().getAllRules(), ExportCommand.class);
+		for (ExportCommand exportCommand : exports) {
+			exportCommand.runExport(pd);
 		}
-		// get/create
-		if (pd.getGsheetId() == null) {
-			Log.i("Make G-Sheet...");
-			Spreadsheet s = sc.createSheet(pd.getName());
-			pd.setGsheetId(s.getSpreadsheetId());
-			// publish again
-			doPublish(state, forceRefresh, deleteDraft);
-		}
-		
-		GSheetFromMS ms2gs = new GSheetFromMS(sc);
-		ms2gs.doExportToGoogle(pd);
 	}
 
 	@Override
 	protected JThing<PlanDoc> augment(JThing<PlanDoc> jThing, WebRequest state) {
 		// parse and add parse-info
 		PlanDoc plandoc = jThing.java();
-		try {
-			Lang lang = MoneyServlet.lang;			
-			String text = plandoc.getText();
-			Business biz = lang.parse(text);		
-			// HACK gsheet export id
-			if (biz.export != null) {
-				plandoc.setGsheetId(biz.export.spreadsheetId);
-			}
+		try {			
+			Business biz = plandoc.getBusiness();
 			Map pi = biz.getParseInfoJson();
 			if ( ! Utils.isEmpty(plandoc.errors)) {
 				plandoc.errors = null;				
@@ -158,6 +130,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 				}
 			}
 			plandoc.setImportCommands(biz.getImportCommands());
+			plandoc.setExportCommands(biz.getExportCommands());
 			// make sure the json gets updated
 			jThing.setJava(plandoc);			
 		} catch(ParseExceptions exs) {

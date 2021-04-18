@@ -348,17 +348,51 @@ public class LangMisc {
 
 	Parser<ImportRowCommand> _importRowEither = first(_importRow1, _importRow2).label("importRow");
 
-	
-	PP<ExportCommand> _exportRow = new PP<ExportCommand>(
-			seq(lit("export:"), optSpace, LangMisc.urlOrFile)
+	/**
+	 * @see #importCommand
+	 */
+	PP<ExportCommand> _exportCommand = new PP<ExportCommand>(
+			seq(lit("export"), 
+					opt(lit(" all"," overlap").label("whichRows")), 					
+					lit(":"), 
+					optSpace, LangMisc.urlOrFile, 
+					optSpace, opt(jsonLike))
 			) {
 		protected ExportCommand process(ParseResult<?> r) {			
 			AST<MatchResult> psrc = r.getNode(LangMisc.urlOrFile);
 			ExportCommand s = new ExportCommand(psrc.parsed());
+			s.overwrite = true;						
+			// rows: all / overlap? (can also be set in the json key:value)
+			AST<String> whichRows = r.getNode("whichRows");
+			if (whichRows != null) {
+				s.setRows(whichRows.getX()); 
+			}			
+			// extra info
+			AST<Map> _jobj = r.getNode(jsonLike);
+			if (_jobj!=null) {
+				Map jobj = _jobj.getX();
+				if (jobj.containsKey("name")) {
+					s.name = (String) jobj.get("name");
+				}
+				if (jobj.containsKey("format")) {
+					s.format = (String) jobj.get("format");
+				}
+				if (jobj.containsKey("url")) {
+					s.url = (String) jobj.get("url");
+				}
+				if (jobj.containsKey("rows")) {
+					// e.g. specific rows, or "overlap", or "all"
+					s.setRows((String)jobj.get("rows"));
+				}
+				// mapping
+				Map rowMapping = new ArrayMap(jobj);
+				rowMapping.remove("name"); rowMapping.remove("url"); rowMapping.remove("rows");
+				s.setMapping(rowMapping);
+			}
 			return s;
 		}
 	}.label("exportRow");
-	public static Parser<ExportCommand> exportRow = new Ref("exportRow"); // is this needed??
+	public static Parser<ExportCommand> exportCommand = new Ref("exportCommand"); // is this needed??
 
 	
 	/**
