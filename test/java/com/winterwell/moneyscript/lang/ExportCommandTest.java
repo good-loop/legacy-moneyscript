@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.goodloop.gsheets.GSheetsClientTest;
+import com.winterwell.moneyscript.data.PlanDoc;
 import com.winterwell.moneyscript.output.Business;
 
 public class ExportCommandTest {
@@ -23,7 +24,7 @@ public class ExportCommandTest {
 		List<ExportCommand> ex = biz.getExportCommands();
 		assert ex.size() == 1 : ex;
 		ExportCommand ex0 = ex.get(0);
-		ex0.runExport(biz);
+		ex0.runExport(new PlanDoc(), biz);
 	}
 
 }

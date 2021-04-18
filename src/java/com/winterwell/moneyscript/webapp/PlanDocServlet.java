@@ -100,7 +100,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		Business biz = pd.getBusiness();
 		List<ExportCommand> exports = Containers.filterByClass(biz.getAllRules(), ExportCommand.class);
 		for (ExportCommand exportCommand : exports) {
-			exportCommand.runExport(biz);
+			exportCommand.runExport(pd, biz);
 		}
 	}
 

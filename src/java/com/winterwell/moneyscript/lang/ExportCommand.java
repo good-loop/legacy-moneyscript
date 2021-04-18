@@ -54,10 +54,10 @@ extends ImportCommand // Hack! but they are pretty similar
 		throw new TodoException(this);
 	}
 
-	public void runExport(Business biz) throws Exception {		 
+	public void runExport(PlanDoc pd, Business biz) throws Exception {		 
 		if (rows.contains("annual")) {
 			// just export the annuals
-			runExport2_annualOnly(biz);
+			runExport2_annualOnly(pd, biz);
 			return;
 		}
 //		// get/create
@@ -81,7 +81,7 @@ extends ImportCommand // Hack! but they are pretty similar
 		return new GSheetsClient();
 	}
 
-	void runExport2_annualOnly(Business biz) throws IOException, GeneralSecurityException {
+	void runExport2_annualOnly(PlanDoc pd, Business biz) throws IOException, GeneralSecurityException {
 		ArrayMap jobj = biz.toJSON();
 		List<String> cols = (List<String>) jobj.get("columns");
 		List<Map> brows = (List) jobj.get("rows");
@@ -90,7 +90,11 @@ extends ImportCommand // Hack! but they are pretty similar
 		List<List<Object>> annualValues = new ArrayList();		
 		// headers
 		ArrayList headers = new ArrayList();
-		headers.add(" ");
+		if (pd!=null) {
+			headers.add("From "+pd.name+" ("+pd.id+") "+pd.getLastModified()); // squeeze in our source data! 
+		} else {
+			headers.add(" ");
+		}
 		for(String col : cols) {
 			if (isAnnualCol(col)) {
 				headers.add(col);
