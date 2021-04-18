@@ -10,6 +10,7 @@ import java.util.Set;
 import org.eclipse.jetty.util.ajax.JSON;
 
 import com.winterwell.gson.Gson;
+import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
 import com.winterwell.maths.stats.distributions.d1.UniformDistribution1D;
 import com.winterwell.moneyscript.lang.CompareCommand;
 import com.winterwell.moneyscript.lang.ErrorNumerical;
@@ -62,6 +63,12 @@ public final class Business {
 		public double doubleValue() throws IllegalStateException {
 			throw new IllegalStateException("EVALUATING");
 		};
+		public IDistribution1D getDist() {
+			throw new IllegalStateException("EVALUATING");
+		}
+		public Numerical sample() {
+			throw new IllegalStateException("EVALUATING");
+		}
 	};
 	
 	/**

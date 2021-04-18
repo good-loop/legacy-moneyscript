@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
+import com.winterwell.moneyscript.lang.ErrorNumerical;
 import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
@@ -217,15 +218,19 @@ public class BusinessTest {
 		Printer.out(balance.getValues());		
 	}
 	
-	@Test(expected=Throwable.class)
+	@Test
 	public void testEvalSeqnBad() {
 		Lang lang = new Lang();
 		{
 			Business b = lang.parse("Alice: Bob*2\nBob:Alice");
 			b.setColumns(3);
 			b.setSamples(1);
-			b.run();
+			b.run();			
 			Printer.out(b.toCSV());
+			Numerical a1 = b.getCell(0, 1);
+			assert a1 instanceof ErrorNumerical;
+			double a1v = a1.doubleValue();
+			assert a1v != 0;
 		}
 	}
 
