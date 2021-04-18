@@ -59,8 +59,7 @@ public class GSheetFromMS {
 		setupRows(biz);
 		
 		// run
-		biz.run();
-		
+		biz.run();		
 		
 		List<List<Object>> values = new ArrayList();
 		

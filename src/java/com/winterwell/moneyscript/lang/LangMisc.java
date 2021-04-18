@@ -353,7 +353,7 @@ public class LangMisc {
 	 */
 	PP<ExportCommand> _exportCommand = new PP<ExportCommand>(
 			seq(lit("export"), 
-					opt(lit(" all"," overlap").label("whichRows")), 					
+					opt(lit(" all"," overlap", " annual").label("whichRows")), 					
 					lit(":"), 
 					optSpace, LangMisc.urlOrFile, 
 					optSpace, opt(jsonLike))

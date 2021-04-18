@@ -12,6 +12,7 @@ import org.eclipse.jetty.util.ajax.JSON;
 import com.winterwell.gson.Gson;
 import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
 import com.winterwell.maths.stats.distributions.d1.UniformDistribution1D;
+import com.winterwell.maths.timeseries.TimeSlicer;
 import com.winterwell.moneyscript.lang.CompareCommand;
 import com.winterwell.moneyscript.lang.ErrorNumerical;
 import com.winterwell.moneyscript.lang.ExportCommand;
@@ -100,10 +101,20 @@ public final class Business {
 	}
 	
 	public String toCSV() {
+		runOnce();
 		
-		run();
-		
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder();		
+		// times
+		sb.append(", "); // blank 1st cell
+		List<Col> cols = getColumns();
+		for (Col col : cols) {
+			Time colt = col.getTime();
+			sb.append(colt.toISOStringDateOnly());
+			sb.append(", ");
+		}
+		StrUtils.pop(sb, 2);
+		sb.append(StrUtils.LINEEND);
+		// values
 		for(Row row : getRows()) {
 			if ( ! row.isOn()) {
 				continue;
@@ -115,11 +126,22 @@ public final class Business {
 				sb.append(v==null? "" : v.toString());
 				sb.append(", ");
 			}
+			StrUtils.pop(sb, 2);
 			sb.append(StrUtils.LINEEND);
 		}
 		return sb.toString();
 	}
-	
+
+	/**
+	 * Run if it hasn't been run already. Otherwise a no-op
+	 */
+	private void runOnce() {
+		if (phase==KPhase.OUTPUT) {
+			return;
+		}
+		run();
+	}
+
 	/**
 	 * @return an map of name:rows, where each row is an array.
 	 * Map starts columns:column-names
@@ -760,7 +782,6 @@ public final class Business {
 	
 
 	public void addExportCommand(ExportCommand ic) {
-		assert ! (ic instanceof ExportCommand);
 		if (exportCommands.contains(ic)) return;
 		exportCommands.add(ic); 
 	}

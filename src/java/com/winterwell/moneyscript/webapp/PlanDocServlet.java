@@ -97,9 +97,10 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	}
 	
 	private void doExportToGoogle(PlanDoc pd, WebRequest state, KRefresh forceRefresh, boolean deleteDraft) throws Exception {
-		List<ExportCommand> exports = Containers.filterByClass(pd.getBusiness().getAllRules(), ExportCommand.class);
+		Business biz = pd.getBusiness();
+		List<ExportCommand> exports = Containers.filterByClass(biz.getAllRules(), ExportCommand.class);
 		for (ExportCommand exportCommand : exports) {
-			exportCommand.runExport(pd);
+			exportCommand.runExport(biz);
 		}
 	}
 

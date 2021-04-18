@@ -107,7 +107,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	}	
 	
 	@ESNoIndex
-	private List<String> rows = Arrays.asList(OVERLAP);
+	protected List<String> rows = Arrays.asList(OVERLAP);
 	
 	/**
 	 */
@@ -570,7 +570,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	 * @param rows e.g. "overlap"
 	 */
 	public void setRows(String row) {
-		setRows(Arrays.asList(row));
+		setRows(Arrays.asList(row.trim()));
 	}
 
 	/**
