@@ -22,13 +22,13 @@
 
 <jsonLike> ::= "{" {<jsonLike1KeyVal>, ["\s+"] "," ["\s+"]}+ "}"
 
-<CellSet> ::= {<__gqiily178e48cc2f6>|<CellSet1Row>, "," ["\s+"]}+
+<CellSet> ::= {<__qyqvbo178e4918507>|<CellSet1Row>, "," ["\s+"]}+
 
 <numList> ::= {<num>, ",\s*"}+
 
 <opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
 
-<num> ::= {<__iqxyvy178e48cc2f6>|<fPer>, <opAny>}+
+<num> ::= {<__wweyhk178e4918507>|<fPer>, <opAny>}+
 
 <meta> ::= "hide"|"show"|"plot distribution"|"plot"|"off"
 
@@ -44,11 +44,11 @@
 
 <exportCommand> ::= "export" [<whichRows>] ":" ["\s+"] <url> ["\s+"] [<jsonLike>]
 
-<__gqiily178e48cc2f6> ::= "(" <CellSet1Row>|<__gqiily178e48cc2f6> ")"
+<__qyqvbo178e4918507> ::= "(" <CellSet1Row>|<__qyqvbo178e4918507> ")"
 
 <CellSet1Row> ::= <row-name>|"all" ["\s+"] [<filter>]
 
-<__iqxyvy178e48cc2f6> ::= "(" <fPer>|<__iqxyvy178e48cc2f6> ")"
+<__wweyhk178e4918507> ::= "(" <fPer>|<__wweyhk178e4918507> ")"
 
 <fPer> ::= <fPlus> ["\s+" "per" "\s+" <dt>]
 
@@ -72,11 +72,11 @@
 
 <slicing> ::= "by month"|"aggregate"
 
-<filter0> ::= <__putsng178e48cc2f6>|<cond_dirn_period_periodic_text_except>
+<filter0> ::= <__bqrpfy178e4918508>|<cond_dirn_period_periodic_text_except>
 
 <fTimes> ::= <fTight> ["\s+"] "*"|"/"|"@" ["\s+"] <fTimes>|<fTight>
 
-<__putsng178e48cc2f6> ::= "(" <cond_dirn_period_periodic_text_except>|<__putsng178e48cc2f6> ")"
+<__bqrpfy178e4918508> ::= "(" <cond_dirn_period_periodic_text_except>|<__bqrpfy178e4918508> ")"
 
 <cond_dirn_period_periodic_text_except> ::= <conditionalFilter>|<dirnFilter>|<periodFilter>|"each" "\s+" <dt> ["\s+" "from" "\s+" <time>]|<textMatchFilter>|<exceptFilter>
 
