@@ -3,6 +3,7 @@ package com.winterwell.moneyscript.lang;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -11,13 +12,16 @@ import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.winterwell.maths.datastorage.DataTable;
 import com.winterwell.moneyscript.data.PlanDoc;
 import com.winterwell.moneyscript.output.Business;
+import com.winterwell.moneyscript.output.Row;
 import com.winterwell.moneyscript.webapp.GSheetFromMS;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.TodoException;
+import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.io.CSVReader;
 import com.winterwell.utils.log.Log;
+import com.winterwell.utils.time.Time;
 import com.winterwell.utils.web.IHasJson;
 
 /**
@@ -29,6 +33,14 @@ public class ExportCommand
 extends ImportCommand // Hack! but they are pretty similar 
 {
 
+	@Override
+	public Map toJson2() throws UnsupportedOperationException {
+		Map jobj = super.toJson2();
+		jobj.put("format", format);
+		jobj.put("lastGoodRun", lastGoodRun);
+		return jobj;
+	}
+	
 	public String spreadsheetId;
 	
 	/**
@@ -36,10 +48,13 @@ extends ImportCommand // Hack! but they are pretty similar
 	 */
 	protected String format;
 
+	private Time lastGoodRun;
+
 	public ExportCommand(String gSheetUrlOrId) {
 		super(gSheetUrlOrId);
 		spreadsheetId = GSheetsClient.getSpreadsheetId(gSheetUrlOrId);
 		if (spreadsheetId==null) spreadsheetId = gSheetUrlOrId;
+		setRows(ALL_ROWS);
 	}
 
 	@Override
@@ -54,27 +69,38 @@ extends ImportCommand // Hack! but they are pretty similar
 		throw new TodoException(this);
 	}
 
-	public void runExport(PlanDoc pd, Business biz) throws Exception {		 
-		if (rows.contains("annual")) {
-			// just export the annuals
-			runExport2_annualOnly(pd, biz);
-			return;
+	public void runExport(PlanDoc pd, Business biz) throws Exception {
+		try {
+			Time time = new Time();
+			if (rows.contains("annual")) {
+				// just export the annuals
+				runExport2_annualOnly(pd, biz);
+				// success
+				error = null;
+				lastGoodRun = time;				
+				return;
+			}
+	//		// get/create
+	//		if (pd.getGsheetId() == null) {
+	//			Log.i("Make G-Sheet...");
+	//			Spreadsheet s = sc.createSheet(pd.getName());
+	//			pd.setGsheetId(s.getSpreadsheetId());
+	//			// publish again
+	//			doPublish(state, forceRefresh, deleteDraft);
+	//		}
+	//		pd.setGsheetId(spreadsheetId);					
+			
+			// TODO Export all or overlap??
+			GSheetsClient sc = sc();
+			GSheetFromMS ms2gs = new GSheetFromMS(sc);
+			ms2gs.doExportToGoogle(this, biz);
+			// success
+			error = null;
+			lastGoodRun = time;
+		} catch (Throwable ex) {
+			error = ex;
+			throw Utils.runtime(ex);
 		}
-//		// get/create
-//		if (pd.getGsheetId() == null) {
-//			Log.i("Make G-Sheet...");
-//			Spreadsheet s = sc.createSheet(pd.getName());
-//			pd.setGsheetId(s.getSpreadsheetId());
-//			// publish again
-//			doPublish(state, forceRefresh, deleteDraft);
-//		}
-//		pd.setGsheetId(spreadsheetId);					
-		
-		// Export all or some?
-		GSheetsClient sc = sc();
-		GSheetFromMS ms2gs = new GSheetFromMS(sc);
-		ms2gs.doExportToGoogle(this, biz);
-
 	}
 
 	private GSheetsClient sc() {
@@ -102,9 +128,14 @@ extends ImportCommand // Hack! but they are pretty similar
 		}
 		annualValues.add(headers);
 		// rows
-		for(Map row : brows) {
-			String rn = (String) row.get("name");
+		for(Map row : brows) {			
+			String rn = (String) row.get("name");			
 			assert rn != null;
+			Row pojorow = biz.getRow(rn);
+			if (pojorow.getParent() != null) {
+				// skip anything but top level!?
+				continue;
+			}
 			ArrayList rowvs = new ArrayList();
 			rowvs.add(rn);
 			List<Map> data = dataForRow.get(rn);

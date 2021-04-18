@@ -10,8 +10,8 @@ var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
 var PythonHighlightRules = function() {
 
     var keywords = (
-		"from|to|per|year|month|at|sum|count|mean|months|ago|previous|fresh|" +
-        "if|import|aggregate|using|in|start|end|columns|na|samples|scenario"
+		"from|to|per|year|month|annual|at|sum|count|mean|months|ago|previous|fresh|" +
+        "if|import|export|all|overlap|off|aggregate|using|in|start|end|columns|na|samples|scenario"
     );
 
     var builtinConstants = (

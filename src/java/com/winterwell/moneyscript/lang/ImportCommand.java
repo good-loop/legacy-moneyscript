@@ -89,6 +89,9 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	 */
 	public static final String OVERLAP = "overlap";
 
+	public static final String ALL_ROWS = "all";
+
+
 	protected static final String LOGTAG = "import";
 	public static final String IMPORT_MARKER_COMMENT = "import";
 
@@ -116,7 +119,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 
 	@Override
 	public String toString() {
-		return "ImportCommand[src=" + src + "]";
+		return getClass().getSimpleName()+"[src=" + src + "]";
 	}
 	
 	private Dt cacheDt = new Dt(20, TUnit.MINUTE);
@@ -127,7 +130,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	
 	transient String csv;
 
-	private Throwable error;
+	protected Throwable error;
 
 	protected transient Col[] ourCol4importCol;
 

@@ -9,6 +9,7 @@ import java.util.Map;
 import com.goodloop.gsheets.GSheetsClient;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.winterwell.data.KStatus;
+import com.winterwell.es.ESPath;
 import com.winterwell.es.client.ESHit;
 import com.winterwell.es.client.KRefresh;
 import com.winterwell.moneyscript.data.PlanDoc;
@@ -31,6 +32,7 @@ import com.winterwell.utils.web.IHasJson;
 import com.winterwell.web.WebEx.E403;
 import com.winterwell.web.ajax.AjaxMsg;
 import com.winterwell.web.ajax.JThing;
+import com.winterwell.web.app.AppUtils;
 import com.winterwell.web.app.CommonFields;
 import com.winterwell.web.app.CrudServlet;
 import com.winterwell.web.app.WebRequest;
@@ -78,30 +80,35 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		// HACK Is it a file??
 		File f = getPlanFile(state);		
 		// normal
-		JThing<PlanDoc> pubd;
-		if (f==null) {
-			pubd = super.doPublish(state, forceRefresh, deleteDraft);
-		} else {
-			pubd = getThingStateOrDB(state);
-			// Save to file
+		JThing<PlanDoc> pubd = super.doPublish(state, forceRefresh, deleteDraft);
+		if (f != null) {
+			// Save to file also
 			String text = pubd.java().getText();
 			doSave2_file_and_git(state, text, f);
 		}
 		// plus export to google ?? do this async?
-		try {
-			doExportToGoogle(pubd.java(), state, forceRefresh, deleteDraft);
-		} catch(Throwable ex) {
-			state.addMessage(AjaxMsg.error(ex));
-		}
+		PlanDoc pd = pubd.java();
+		doExportToGoogle(pd, state, forceRefresh, deleteDraft);
+		// re-save the draft with export status (for display in the editor)
+		pubd.setJava(pd);
+		ESPath path = esRouter.getPath(dataspace, type, pubd.java().getId(), KStatus.DRAFT);		
+		AppUtils.doSaveEdit(path, pubd, state);		
 		return pubd;
 	}
 	
 	private void doExportToGoogle(PlanDoc pd, WebRequest state, KRefresh forceRefresh, boolean deleteDraft) throws Exception {
 		Business biz = pd.getBusiness();
-		List<ExportCommand> exports = Containers.filterByClass(biz.getAllRules(), ExportCommand.class);
+		List<ExportCommand> exports = biz.getExportCommands(); //biz.filterByClass(biz.getAllRules(), ExportCommand.class);
 		for (ExportCommand exportCommand : exports) {
-			exportCommand.runExport(pd, biz);
+			try {				
+				exportCommand.runExport(pd, biz);
+			} catch(Throwable ex) {
+				state.addMessage(AjaxMsg.error(ex));				
+			}
 		}
+		// update PlanDoc with the export status
+		// NB: export is only done on publish -- so allow old status (esp errors) to stick around
+		pd.setExportCommands(biz.getExportCommands());
 	}
 
 	@Override
@@ -131,7 +138,10 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 				}
 			}
 			plandoc.setImportCommands(biz.getImportCommands());
-			plandoc.setExportCommands(biz.getExportCommands());
+//			if (state.actionIs(ACTION_PUBLISH)) {
+//				// NB: export is only done on publish -- so allow old status (esp errors) to stick around
+//				plandoc.setExportCommands(biz.getExportCommands());
+//			}
 			// make sure the json gets updated
 			jThing.setJava(plandoc);			
 		} catch(ParseExceptions exs) {

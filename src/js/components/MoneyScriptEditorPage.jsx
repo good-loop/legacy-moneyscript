@@ -86,6 +86,8 @@ const MoneyScriptEditorPage = () => {
 						<ImportsList cargo={item} />
 						<h3>Errors</h3>
 						<ErrorsList errors={item.errors} />
+						<h3>Exports</h3>
+						<ExportsList cargo={item} />
 					</BSCard>
 					{/* <ShareLink /> */}
 					{/* <ShareWidget /> */}
@@ -185,13 +187,31 @@ const EditScript = ({ id, plandoc, path }) => {
  */
 const ImportsList = ({cargo}) => {
 	if ( ! cargo) return null;
-	let imports = cargo.importCommands;
+	let imports = cargo.importCommands;	
+	return <ImportsList2 verb="Import" imports={imports} />;
+};
+
+const ImportsList2 = ({verb, imports}) => {
 	if ( ! imports || ! imports.length) return null;
 	// NB the import src is usually g-drive gibberish
-	return <div className='ImportsList'>{imports.map((imp,i) => 
-		<LinkOut key={imp.src} className='mr-2' href={imp.url || imp.src}>[Import {imp.name || (i+1)}]		
-			{imp.error && <Badge color="danger" title={imp.error.detailMessage || imp.error.message || JSON.stringify(imp.error)}>!</Badge>}</LinkOut>)}
-	</div>
+	return (<ul>
+		{imports.map((imp,i) => 
+			<li key={imp.src} ><LinkOut className='mr-2' href={imp.url || imp.src}>[{imp.name || verb+" "+(i+1)}]		
+				{imp.error && <Badge color="danger" title={imp.error.detailMessage || imp.error.message || JSON.stringify(imp.error)}>!</Badge>}
+			</LinkOut></li>
+		)}
+	</ul>);
+};
+
+
+/**
+ * 
+ * @param {PlanDoc|Business} p.cargo can be from MoneyServlet or PlanDocServlet
+ */
+const ExportsList = ({cargo}) => {
+	if ( ! cargo) return null;
+	let imports = cargo.exportCommands;
+	return <ImportsList2 verb="Export" imports={imports} />;
 };
 
 

@@ -24,6 +24,11 @@ public class PlanDoc extends AThing {
 	 */
 	List<Map> exportCommands = new ArrayList<>();
 
+	/**
+	 * If this was a copy - keep the link for info
+	 */
+	@ESKeyword
+	String originalId;
 	
 	String text;	
 	
