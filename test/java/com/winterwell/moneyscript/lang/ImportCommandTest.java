@@ -4,16 +4,20 @@ import java.io.File;
 
 import org.junit.Test;
 
+import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
+import com.winterwell.moneyscript.output.Cell;
+import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.nlp.dict.Dictionary;
+import com.winterwell.utils.Printer;
 import com.winterwell.utils.time.Time;
 
 public class ImportCommandTest {
 
 
 	
-	@Test
+//	@Test old url
 	public void testImportGL() {
 		String ms = "import: https://docs.google.com/spreadsheets/d/e/2PACX-1vRvLd73E4kTwaoV3PRzQeDnJT7A1VZGzj6DjQty4sPckoikUEdqsuR0lkRCjVLFSWReywOfX5vtgif5/pub?output=csv {url: https://docs.google.com/spreadsheets/d/1qDa7ZuGr3g7OvVycUaE2WiwL8diZ0YRBPYrNi8TYrIU, name:\"actuals taken from NEW Reasonable Estimate PLUS SE Funding_INC Revised Spending_15.09.20\", rows:\"overlap\"}\n"
 					+"Balance: 100 per month\n"
@@ -46,9 +50,10 @@ public class ImportCommandTest {
 		assert ic.getError() != null;
 	}			
 	
-	@Test
+	@Test // the date columns were 2 cells which is hard for a computer. solution - nicer inputs
 	public void testImportTooComplex() {
-		String ms = "import: https://docs.google.com/spreadsheets/d/1Z1iDN77Zugmn9P_nOgarjPeMyuHdG0iX08MfuIqTS5M/edit#gid=1505120226 {rows:all}\n"
+		String ms = "start: Jan 2021\n"
+					+"import: https://docs.google.com/spreadsheets/d/1Z1iDN77Zugmn9P_nOgarjPeMyuHdG0iX08MfuIqTS5M/edit#gid=1505120226 {rows:all}\n"
 					+"Balance: 100 per month\n"
 					+"Amy: £100 per month\n";
 		Lang lang = new Lang();
@@ -57,7 +62,16 @@ public class ImportCommandTest {
 		Dictionary rows = b.getRowNames();
 		assert rows.contains("Balance");
 		assert rows.contains("Amy");
-		assert rows.size() == 2 : rows;
+		Printer.out(rows);
+		assert rows.size() > 2 : rows;
+		
+		Row gmr = b.getRow("Group M");
+		double[] vs = gmr.getValues();
+		Printer.out(vs);
+		Col col = new Col(7);
+		Cell cell = new Cell(gmr, col);
+		Numerical cv = b.getCellValue(cell);
+		assert cv.doubleValue() == 62500 : cv;
 	}			
 	
 	@Test

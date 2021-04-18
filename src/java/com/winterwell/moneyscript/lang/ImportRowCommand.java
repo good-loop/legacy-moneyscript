@@ -72,12 +72,12 @@ public class ImportRowCommand extends ImportCommand {
 		r.setNumFields(-1); // flex
 		List<String> headers = r.getHeaders();		
 
-		// Is this a SalesForce style sheet (which we analyse)
-		// Or a financial columns=dates sheet?
+		// Is this a financial columns=dates sheet?
 		if ("none".equals(slicing)) {
 			run2_financeSheet(b, r, headers);
 			return;
 		}
+		// It is a SalesForce style sheet (which we analyse)
 		
 		Iterable<Map> items = (Iterable) r.asListOfMaps();
 		values = new ArrayList();
@@ -134,7 +134,10 @@ public class ImportRowCommand extends ImportCommand {
 		for(Col col : col2items.keySet()) {
 			List<Map> citems = col2items.get(col);
 			Numerical n = run2_numForItems(op, citems);
-			getCreateCol(col);	
+			// If we have no data for a column -- 0 sales! Don't let the predictive formulae fill in a number later on
+			Numerical zero = new Numerical(0);
+			zero.comment = IMPORT_MARKER_COMMENT;
+			getCreateCol(col, zero);	
 			values.set(col.index, n);			
 		}
 	}
@@ -184,8 +187,8 @@ public class ImportRowCommand extends ImportCommand {
 					continue; // skip blanks and non-numbers but not "true" 0s
 				}
 				Numerical v = new Numerical(n);
-				v.comment = IMPORT_MARKER_COMMENT;
-				getCreateCol(col);
+				v.comment = IMPORT_MARKER_COMMENT;				
+				getCreateCol(col, null);
 				values.set(col.index, v);
 			}
 
@@ -263,10 +266,24 @@ public class ImportRowCommand extends ImportCommand {
 		return null;
 	}
 
-	private Numerical getCreateCol(Col col) {
+	/**
+	 * @deprecated Not needed here - the row is given by the rule
+	 */
+	@Override
+	public void run2_importRows(Business b) {
+		Log.d(LOGTAG, "run2_importRows() no-op for ImportRowCommand");
+	}
+	
+	/**
+	 * 
+	 * @param col
+	 * @param padding Pad with nulls (if you want M$ calculations to fill-in) or 0s (if you want 0s)
+	 * @return
+	 */
+	private Numerical getCreateCol(Col col, Numerical padding) {
 		// pad with nulls if needed
 		for(int j=values.size(); j<=col.index; j++) {
-			values.add(null); //new Numerical(0));
+			values.add(padding);
 		}
 		return values.get(col.index);		
 	}

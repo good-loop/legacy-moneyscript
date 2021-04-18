@@ -351,6 +351,10 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			
 			// year total?			
 			if ( ! yearTotals) continue;
+			Time t = c.getColumn().getTime();
+			if (t.getMonth() != 12) {
+				continue; // not time for a year end
+			}
 			if (v.getUnit()!=null) unit = v.getUnit();
 			Numerical yearSum = getValuesJSON_calculateYearTotal(b, c, cells, i, unit);
 			if (yearSum==null) {
@@ -378,9 +382,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 	 */
 	private Numerical getValuesJSON_calculateYearTotal(Business b, Cell c, List<Cell> cells, int i, String unit) {
 		Time t = c.getColumn().getTime();
-		if (t.getMonth()!=12) {
-			return null;
-		}
+		assert t.getMonth()==12 : t;
 		// Is there an annual rule?
 		AnnualRule ar = Containers.firstClass(getRules(), AnnualRule.class);
 		if (ar == null) {

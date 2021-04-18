@@ -1,11 +1,13 @@
 package com.winterwell.moneyscript.lang;
 
 import java.util.Map;
+import java.util.Objects;
 
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.Numerical;
+import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.RuleException;
@@ -28,6 +30,23 @@ public class Rule implements IReset {
 		return lineNum;
 	}
 	
+	@Override
+	public int hashCode() {
+		return Objects.hash(lineNum, scenario, src);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Rule other = (Rule) obj;
+		return lineNum == other.lineNum && Objects.equals(scenario, other.scenario) && Objects.equals(src, other.src);
+	}
+
 	/**
 	 * @deprecated usually done in constructor
 	 * @param selector
@@ -101,6 +120,7 @@ public class Rule implements IReset {
 			if (v==null) {
 				return v;
 			}
+			assert v != Business.EVALUATING : cell+" "+this;
 			// Should we allow local distributions -- or force all stochastic work to be done by global samples?
 			// Local distros have the problem that they might be sampled twice with different results!
 			// e.g. Sales: 1 +- 1		Revenue: Sales * £10		CostOfSales: Sales * £2 	<-- Sales must return the same answers

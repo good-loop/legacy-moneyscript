@@ -1,30 +1,34 @@
-<line> ::= <indent> <CellSet> ["(" <unit> ")"] ":" ["\s+"] <ruleBody> [<comment>] ["\s+"]|<indent> [<scenario>] <row-name> ":" ["\s+"] ["na"] [<comment>]|"comment"|"start"|"end" ":" ["\s+"] <time>|"samples:" ["\s+"] <n>|"columns" ":" ["\s+"] [<columnMultiSettings>] [<comment>] ["\s+"] [<comment>]|"import"|"compare" [" fresh"] ":" ["\s+"] <url> ["\s+"] [<jsonLike>]
+<line> ::= <indent> <CellSet> ["(" <unit> ")"] ":" ["\s+"] <ruleBody> [<comment>] ["\s+"]|<indent> [<scenario>] <row-name> ":" ["\s+"] ["na"] [<comment>]|"comment"|<annual>|"start"|"end" ":" ["\s+"] <time>|"samples:" ["\s+"] <n>|"columns" ":" ["\s+"] [<columnMultiSettings>] [<comment>] ["\s+"] [<comment>]|"import"|"compare" [" fresh"] [<whichRows>] ":" ["\s+"] <url> ["\s+"] [<jsonLike>]|<exportCommand>
 
 <indent> ::= ["\s+"]
 
 <unit> ::= "%"|"£"|"$"
 
-<ruleBody> ::= <numList>|<num>|<opAny> <num>|<meta>|<importRow>|<exportRow>|<css>|"when" "\s+" <filter>
+<ruleBody> ::= <numList>|<num>|<opAny> <num>|<meta>|<importRow>|<css>|"when" "\s+" <filter>
 
 <comment> ::= "comment"
 
 <scenario> ::= "scenario "
 
+<annual> ::= "annual " <CellSet1Row> ":" ["\s+"] <op> [" weighted by " <CellSet1Row>] [<comment>]
+
 <n> ::= "-?\d+(\.\d+)?"
 
 <columnMultiSettings> ::= {<dt> ["\s+" "from" "\s+" <time>]|"\{([^\}]*)\}", ",\s+"}+
+
+<whichRows> ::= " all"|" overlap"
 
 <url> ::= "url"
 
 <jsonLike> ::= "{" {<jsonLike1KeyVal>, ["\s+"] "," ["\s+"]}+ "}"
 
-<CellSet> ::= {<__aiqfya178a3bcc545>|<CellSet1Row>, "," ["\s+"]}+
+<CellSet> ::= {<__aojmfd178e49ba4c3>|<CellSet1Row>, "," ["\s+"]}+
 
 <numList> ::= {<num>, ",\s*"}+
 
 <opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
 
-<num> ::= {<__ovccai178a3bcc545>|<fPer>, <opAny>}+
+<num> ::= {<__ljcfrt178e49ba4c3>|<fPer>, <opAny>}+
 
 <meta> ::= "hide"|"show"|"plot distribution"|"plot"|"off"
 
@@ -32,21 +36,23 @@
 
 <row-name> ::= row-name-Parser
 
+<op> ::= "average"|"sum"|"previous"|"off"
+
 <time> ::= <__r207>|"start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"
 
 <jsonLike1KeyVal> ::= ""?[a-zA-Z0-9 \-_]+"?:\s*[^},]+"
 
-<__aiqfya178a3bcc545> ::= "(" <CellSet1Row>|<__aiqfya178a3bcc545> ")"
+<exportCommand> ::= "export" [<whichRows>] ":" ["\s+"] <url> ["\s+"] [<jsonLike>]
+
+<__aojmfd178e49ba4c3> ::= "(" <CellSet1Row>|<__aojmfd178e49ba4c3> ")"
 
 <CellSet1Row> ::= <row-name>|"all" ["\s+"] [<filter>]
 
-<__ovccai178a3bcc545> ::= "(" <fPer>|<__ovccai178a3bcc545> ")"
+<__ljcfrt178e49ba4c3> ::= "(" <fPer>|<__ljcfrt178e49ba4c3> ")"
 
 <fPer> ::= <fPlus> ["\s+" "per" "\s+" <dt>]
 
-<importRow> ::= "import" [" fresh"] "\s+" <slicing> "\s+" <num> [" using " <jsonLike>] " from " <url>
-
-<exportRow> ::= "export:" ["\s+"] <url>
+<importRow> ::= "import" [" fresh"] "\s+" <slicing> "\s+" <num> [" using " <jsonLike>] " from " <url>|"import" "\s+" <CellSet1Row> ["\s+"] "from " <url> ["\s+"] [<jsonLike>]
 
 <filter> ::= {<filter0>, "\s+"}+
 
@@ -60,15 +66,17 @@
 
 <dt> ::= <num> "\s+" <tunit>|<tunit>
 
+<whichRows> ::= " all"|" overlap"
+
 <fPlus> ::= <fTimes> ["\s+"] "+"|"-" ["\s+"] <fPlus>|<fTimes>
 
 <slicing> ::= "by month"|"aggregate"
 
-<filter0> ::= <__ajbhlu178a3bcc546>|<cond_dirn_period_periodic_text_except>
+<filter0> ::= <__amyuem178e49ba4c4>|<cond_dirn_period_periodic_text_except>
 
 <fTimes> ::= <fTight> ["\s+"] "*"|"/"|"@" ["\s+"] <fTimes>|<fTight>
 
-<__ajbhlu178a3bcc546> ::= "(" <cond_dirn_period_periodic_text_except>|<__ajbhlu178a3bcc546> ")"
+<__amyuem178e49ba4c4> ::= "(" <cond_dirn_period_periodic_text_except>|<__amyuem178e49ba4c4> ")"
 
 <cond_dirn_period_periodic_text_except> ::= <conditionalFilter>|<dirnFilter>|<periodFilter>|"each" "\s+" <dt> ["\s+" "from" "\s+" <time>]|<textMatchFilter>|<exceptFilter>
 

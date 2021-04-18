@@ -129,7 +129,7 @@ public class Lang {
 	Parser ruleBody = first(langNum.numList, LangNum.num, 
 							langNum.compoundingFormula, 						 
 							LangMisc.meta, 
-							LangMisc.importRow, LangMisc.exportRow, 
+							LangMisc.importRow, 
 							LangMisc.css, langTime.when)
 					.label("ruleBody")
 					.setDebug(new IDebug<ParseState>() {public void call(ParseState state) {
@@ -202,6 +202,9 @@ public class Lang {
 	};		
 
 	
+	/**
+	 * The standard language - This is a cheap operation 
+	 */
 	public Lang() {
 		line = first(
 				// core language
@@ -212,7 +215,7 @@ public class Lang {
 				langMisc.annual,
 //				langMisc.columnSettings, 
 				langMisc.planSettings,
-				langMisc.importCommand
+				langMisc.importCommand, langMisc.exportCommand
 				);
 		line.label("line");
 	}
@@ -247,15 +250,14 @@ public class Lang {
 			((IReset) r).reset();
 		}
 		
-		// import?
+		// import / export?
+		if (r instanceof ExportCommand) {			
+			b.addExportCommand((ExportCommand) r);
+			return (Rule) r;
+		}
 		if (r instanceof ImportCommand) {			
 			b.addImportCommand((ImportCommand) r);
 			return (Rule) r;
-		}
-		// export?
-		if (r instanceof ExportCommand) {			
-			b.addExportCommand((ExportCommand) r);
-			return new DummyRule(null, scriptLine);
 		}
 		// A rule (the normal case)
 		if (r instanceof Rule) {

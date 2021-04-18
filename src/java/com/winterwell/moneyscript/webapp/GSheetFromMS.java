@@ -2,11 +2,13 @@ package com.winterwell.moneyscript.webapp;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import com.goodloop.gsheets.GSheetsClient;
 import com.winterwell.moneyscript.data.PlanDoc;
+import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.num.Numerical;
@@ -16,6 +18,7 @@ import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.utils.Dep;
 import com.winterwell.utils.Utils;
+import com.winterwell.utils.log.Log;
 
 /**
  * @testedby GSheetFromMSTest
@@ -32,15 +35,20 @@ public class GSheetFromMS {
 		this.sc = sc;
 	}
 
-	public void doExportToGoogle(PlanDoc pd) throws Exception {
-		assert pd.getGsheetId()!=null : pd;
+	public void doExportToGoogle(ExportCommand ec, Business biz) throws Exception {
+		assert ec.spreadsheetId !=null : ec;
 		
-		// parse
-		Business biz = MoneyServlet.lang.parse(pd.getText());
 		List<List<Object>> values = updateValues(biz);
 		
-		// update with data		
-		sc.updateValues(pd.getGsheetId(), values);
+		// update with data
+		values = sc.replaceNulls(values);
+				
+		// Always clear out the data in GoogleSheets before rewriting
+		// to avoid old data leaking through in odd places
+		sc.clearSpreadsheet(ec.spreadsheetId);
+		
+		// update
+		sc.updateValues(ec.spreadsheetId, values);
 
 	}
 
@@ -51,8 +59,7 @@ public class GSheetFromMS {
 		setupRows(biz);
 		
 		// run
-		biz.run();
-		
+		biz.run();		
 		
 		List<List<Object>> values = new ArrayList();
 		
