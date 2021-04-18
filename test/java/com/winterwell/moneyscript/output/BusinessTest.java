@@ -225,12 +225,7 @@ public class BusinessTest {
 			b.setColumns(3);
 			b.setSamples(1);
 			b.run();
-		}
-		{
-			Business b = lang.parse("Alice: Bob*2\nBob:Alice");
-			b.setColumns(3);
-			b.setSamples(3);
-			b.run();
+			Printer.out(b.toCSV());
 		}
 	}
 

@@ -215,7 +215,7 @@ public class Lang {
 				langMisc.annual,
 //				langMisc.columnSettings, 
 				langMisc.planSettings,
-				langMisc.importCommand, LangMisc.exportCommand
+				langMisc.importCommand, langMisc.exportCommand
 				);
 		line.label("line");
 	}

@@ -391,7 +391,7 @@ public class LangMisc {
 			}
 			return s;
 		}
-	}.label("exportRow");
+	}.label("exportCommand");
 	public static Parser<ExportCommand> exportCommand = new Ref("exportCommand"); // is this needed??
 
 	

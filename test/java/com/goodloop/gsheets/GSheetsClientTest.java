@@ -25,8 +25,12 @@ public class GSheetsClientTest {
         assert s != null;
 
 	}
-
-	String sid = "19Z5U1DntkWQFLjDCNVrmg2FW3ksOAG7U-Pz-5Z_QJgE";
+	
+	/**
+	 * Just a test sheet on Google
+	 * https://docs.google.com/spreadsheets/d/1vksonmI0OWqshxPb7rNd5cKAMUbXZDwc1E0U6unSGw0/edit#gid=0
+	 */
+	String sid = "1vksonmI0OWqshxPb7rNd5cKAMUbXZDwc1E0U6unSGw0";
 	
 //	@Test // fills the drive with junk 'cos I can't find the delete option
 	public void testCreateSheet() throws Exception {

@@ -79,7 +79,7 @@ public class LangNumTest {
 			Formula f = n.getX();
 			
 			Business b = lang.parse("Staff:\n\tAlice: £1k\n\tBob from month 3: £2k");
-	
+			b.state = new BusinessState(b);
 			Cell b6 = new Cell(b.getRow("Bob"), new Col(6));
 			Numerical c = f.calculate(b6);
 			assert c.doubleValue() == 4 : c; // Note: from - to is INCLUSIVE, so this count picks up 3,4,5,6

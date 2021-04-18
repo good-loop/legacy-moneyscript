@@ -105,15 +105,16 @@ public class LangCellSetTest {
 			assert a.getValues()[1] == 1;
 			assert a.getValues()[2] == 1;
 		}
-		{
+		{	// follow the order
+			// TODO detect unused rules during a run, and flag them for the user
 			Lang lang = new Lang();
 			Business b = lang.parse("A at month 1: 2\nA: 1\nA at month 2: 3");
 			Row a = b.getRow("A");
 			List<Rule> rules = a.getRules();
 			assert rules.size() == 3;
-			assert rules.get(0).getSelector() instanceof RowName;
-			assert rules.get(1).getSelector() instanceof RowName;
-			assert rules.get(2).getSelector() instanceof FilteredCellSet;
+			assert rules.get(0).getSelector() instanceof RowName : rules;
+			assert rules.get(1).getSelector() instanceof RowName : rules;
+			assert rules.get(2).getSelector() instanceof FilteredCellSet : rules;
 			b.setSamples(1);
 			b.setColumns(3);
 			b.run();

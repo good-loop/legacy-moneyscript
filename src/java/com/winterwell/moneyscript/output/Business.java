@@ -479,11 +479,10 @@ public final class Business {
 	 */
 	BusinessState monteCarloStates;
 	
-	// NB: this is reset by run() before each evaluation.
-	// The initial value is only used in tests.
-	public BusinessState state 
-		//= BusinessState.testBS(this)
-	;
+	/** NB: this is reset by run() before each evaluation.
+	Tests may poke it directly.
+	 */
+	public BusinessState state ;
 	
 	public Numerical getCellValue(Cell cell) {	
 		Numerical n = state.get(cell);
