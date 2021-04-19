@@ -208,11 +208,11 @@ public class Lang {
 	public Lang() {
 		line = first(
 				// core language
+				langMisc.annual,
 				rule, 
 				groupRow, 
 				commentRow,
-				// settings
-				langMisc.annual,
+				// settings				
 //				langMisc.columnSettings, 
 				langMisc.planSettings,
 				langMisc.importCommand, langMisc.exportCommand

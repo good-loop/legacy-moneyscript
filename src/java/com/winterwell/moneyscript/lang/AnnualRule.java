@@ -45,6 +45,7 @@ public class AnnualRule extends MetaRule {
 			Numerical vj = b.getCellValue(cj);
 			Numerical yearEnd = new Numerical(vj);
 			yearEnd.comment = "end of year";
+			return yearEnd;
 		}
 		// average
 		if ("average".equals(op)) {
@@ -57,6 +58,7 @@ public class AnnualRule extends MetaRule {
 			}
 			yearSum = yearSum.divide(new Numerical(12));
 			yearSum.comment = "average for year";
+			return yearSum;
 		}
 		throw new TodoException(this);
 	}

@@ -201,7 +201,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 					continue;
 				}
 				if (rows.contains(OVERLAP)) {
-					Log.d("import", "Skip non-overlap row "+rowName);
+//					Log.d("import", "Skip non-overlap row "+rowName);
 					continue; // don't import this row
 				}
 				brow = new Row(ourRowName);
@@ -270,7 +270,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 						continue;
 					}
 					if (rows.contains(OVERLAP)) {
-						Log.d("import", "Skip non-overlap row "+rowName);
+//						Log.d("import", "Skip non-overlap row "+rowName);
 						continue; // don't import this row
 					}
 					assert false;

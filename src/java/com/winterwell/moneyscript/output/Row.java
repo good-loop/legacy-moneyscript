@@ -355,7 +355,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			if (t.getMonth() != 12) {
 				continue; // not time for a year end
 			}
-			if (v.getUnit()!=null) unit = v.getUnit();
+			if (v != null && v.getUnit()!=null) unit = v.getUnit();
 			Numerical yearSum = getValuesJSON_calculateYearTotal(b, c, cells, i, unit);
 			if (yearSum==null) {
 				list.add(new ArrayMap()); // add a blank for column balance
