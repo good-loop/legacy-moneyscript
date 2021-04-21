@@ -187,6 +187,9 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			if (Utils.isBlank(rowName))
 				continue;
 			// match row name
+			if (rowName.contains("Advertising")) { // TEMP DEBUG
+				System.out.println(""+rowName);
+			}
 			String ourRowName = run2_ourRowName(rowName, rowNames);
 			if (ourRowName==null) {
 				ourRowName = StrUtils.toTitleCase(rowName);
@@ -524,6 +527,9 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			}
 		}
 		if (matches.size() == 1) {
+			// So there is only one possible match from our script
+			// FIXME BUT we also need to do an ambiguity check against the row names in the import!
+			// To avoid 2 similar import rows conflicting 
 			return matches.first();
 		}
 		if (matches.size() > 1) {

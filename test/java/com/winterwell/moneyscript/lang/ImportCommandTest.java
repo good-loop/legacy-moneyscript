@@ -16,6 +16,30 @@ import com.winterwell.utils.time.Time;
 public class ImportCommandTest {
 
 
+	@Test
+	public void testRowMatchingBug_Advertising() {
+
+//		Mostly works!
+//		But with a row matching error
+//		Advertising Inventory << which is in our plan
+//		picks up the values for
+//		Advertising & Marketing - excluding AdOps << which is not in our plan!!
+//		How can we make the first-word match just a little more careful?
+//		Why isn't the matches.size() == 1 anti-ambiguity safety check working?
+//		
+		String ms = "import: https://docs.google.com/spreadsheets/d/1LmTaxqLu9fZFlz10G6XOgzHaGNXUu6xoD-fisrOxBRs\n"
+				+"Advertising Inventory: £100 per month\n";
+		Lang lang = new Lang();
+		Business b = lang.parse(ms);
+		b.run();
+		Dictionary rows = b.getRowNames();		
+		assert rows.contains("Amy");
+		assert rows.size() == 2 : rows;		
+		Row ai = b.getRow("Advertising Inventory");
+		double[] vs = ai.getValues();
+		assert vs[0] == 29527.07; // NB might be vs[1]
+	}
+	
 	
 //	@Test old url
 	public void testImportGL() {

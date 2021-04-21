@@ -208,7 +208,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 	}
 
 	/**
-	 * ?? Is thi 0 or 1 indexed
+	 * ?? Is this 0 or 1 indexed
 	 * @return
 	 */
 	public double[] getValues() {
