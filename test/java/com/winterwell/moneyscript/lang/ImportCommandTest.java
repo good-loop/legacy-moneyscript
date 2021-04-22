@@ -27,14 +27,14 @@ public class ImportCommandTest {
 //		How can we make the first-word match just a little more careful?
 //		Why isn't the matches.size() == 1 anti-ambiguity safety check working?
 //		
-		String ms = "import: https://docs.google.com/spreadsheets/d/1LmTaxqLu9fZFlz10G6XOgzHaGNXUu6xoD-fisrOxBRs\n"
+		String ms = "start: Jan 2019\n"
+				+"import: https://docs.google.com/spreadsheets/d/1LmTaxqLu9fZFlz10G6XOgzHaGNXUu6xoD-fisrOxBRs\n"
 				+"Advertising Inventory: £100 per month\n";
 		Lang lang = new Lang();
 		Business b = lang.parse(ms);
 		b.run();
 		Dictionary rows = b.getRowNames();		
-		assert rows.contains("Amy");
-		assert rows.size() == 2 : rows;		
+		assert rows.contains("Advertising Inventory");	
 		Row ai = b.getRow("Advertising Inventory");
 		double[] vs = ai.getValues();
 		assert vs[0] == 29527.07; // NB might be vs[1]
