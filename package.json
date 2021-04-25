@@ -4,8 +4,10 @@
   "description": "MoneyScript business plan tool",
   "author": "Daniel Winterstein",
   "repository": {
+    "url": "https://github.com/good-loop/moneyscript",
     "type": "git"
   },
+  "homepage": "https://github.com/good-loop/moneyscript/#readme",
   "dependencies": {
     "ace-builds": "^1.4.12",
     "chart.js": "^2.9.4",
@@ -17,7 +19,8 @@
     "js-cookie": "^2.2.1",
     "lodash": "^4.17.20",
     "md5": "^2.3.0",
-    "promise-value": "^1.2.9",
+    "papaparse": "^5.3.0",
+    "promise-value": "^1.2.10",
     "react": "^16.13.1",
     "react-ace": "^9.2.1",
     "react-autocomplete": "^1.8.1",
@@ -26,7 +29,6 @@
     "react-dropzone": "^11.1.0",
     "react-markdown": "^5.0.3",
     "reactstrap": "^8.8.1",
-    "papaparse": "^5.0.1",
     "remark-gfm": "^1.0.0"
   },
   "scripts": {

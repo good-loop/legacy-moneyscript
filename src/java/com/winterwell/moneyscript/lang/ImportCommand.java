@@ -187,9 +187,6 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			if (Utils.isBlank(rowName))
 				continue;
 			// match row name
-			if (rowName.contains("Advertising")) { // TEMP DEBUG
-				System.out.println(""+rowName);
-			}
 			String ourRowName = run2_ourRowName(rowName, rowNames);
 			if (ourRowName==null) {
 				ourRowName = StrUtils.toTitleCase(rowName);
