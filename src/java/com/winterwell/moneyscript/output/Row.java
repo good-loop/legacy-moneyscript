@@ -23,6 +23,7 @@ import com.winterwell.moneyscript.webapp.GSheetFromMS;
 import com.winterwell.utils.Dep;
 import com.winterwell.utils.IFilter;
 import com.winterwell.utils.StrUtils;
+import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.ITree;
@@ -95,7 +96,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 	 * @return value or null for a group cell
 	 */
 	public Numerical calculate(Col col, Business b) {	
-//		if ("Kate Ho".equals(getName())) {
+//		if ((""+getName()+" "+this).toLowerCase().contains("profit")) {	// debug!
 //			assert true;
 //		}
 		Cell cell = new Cell(this, col);
@@ -135,7 +136,8 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 					// its an import, leave it alone
 				} else {
 					// combine comments
-					v2.comment = StrUtils.space(v==null? null : v.comment, v2.comment);
+					String v2c = Utils.or(v2.comment, r.src);
+					v2.comment = StrUtils.space(v==null? null : v.comment, v2c);
 				}
 			}
 			v = v2;

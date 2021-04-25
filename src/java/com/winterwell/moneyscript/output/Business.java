@@ -322,7 +322,9 @@ public final class Business {
 	 */
 	public Numerical run3_evaluate(Cell cell) {		
 		// HACK Summary - 1 value only
-		if (cell.row.getName().equals("Summary")) return null;
+		if (cell.row.getName().equals("Summary")) {
+			return null;
+		}
 		if (cell.col.index != 1 && cell.row.getParent() != null && cell.row.getParent().getName().equals("Summary")) {
 			Numerical v = Business.EMPTY; // no need to recaluclate this if eg its in a sum
 			state.set(cell, v);
