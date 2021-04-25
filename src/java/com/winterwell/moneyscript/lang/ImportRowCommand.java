@@ -107,7 +107,7 @@ public class ImportRowCommand extends ImportCommand {
 			Time t = getTimeForItem(timeCol, map);
 			// count [start, end) so we can't double-count
 			if (t.isBefore(period.first) || t.isAfterOrEqualTo(period.second)) {
-				Log.d("import", "...skip (time window) "+t+" "+map);
+				Log.d(LOGTAG, "...skip (time window) "+t+" "+map);
 				return false; // skip, outside time window
 			}
 			return true;

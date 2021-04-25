@@ -110,6 +110,11 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		// Last rule wins in a straight calculation (some rules are modifiers)
 		// Minor efficiency TODO - mark which rules are modifiers, then start with the last absolute rule
 		for (Rule r : rs) {
+			// imports win
+			if (v != null && ImportCommand.IMPORT_MARKER_COMMENT.equals(v.comment)) {
+				continue;
+			}
+			// skip non calc rules
 			if (r instanceof MetaRule) continue;
 			if (r instanceof StyleRule) continue;
 			if (r instanceof DummyRule) continue;
@@ -126,7 +131,12 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			// comment = rule name
 			if (v != v2) {
 				// ?? How to spot when r is/isn't a modifier, and the earlier comment should be kept/discarded?
-				v2.comment = StrUtils.space(v==null? null : v.comment, r.src);
+				if (ImportCommand.IMPORT_MARKER_COMMENT.equals(v2.comment)) {
+					// its an import, leave it alone
+				} else {
+					// combine comments
+					v2.comment = StrUtils.space(v==null? null : v.comment, v2.comment);
+				}
 			}
 			v = v2;
 			// sum the rules?

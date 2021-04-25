@@ -201,7 +201,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 					continue;
 				}
 				if (rows.contains(OVERLAP)) {
-//					Log.d("import", "Skip non-overlap row "+rowName);
+//					Log.d(LOGTAG, "Skip non-overlap row "+rowName);
 					continue; // don't import this row
 				}
 				brow = new Row(ourRowName);
@@ -270,7 +270,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 						continue;
 					}
 					if (rows.contains(OVERLAP)) {
-//						Log.d("import", "Skip non-overlap row "+rowName);
+//						Log.d(LOGTAG, "Skip non-overlap row "+rowName);
 						continue; // don't import this row
 					}
 					assert false;
@@ -382,11 +382,11 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		{
 			// use cache
 			csv = cached.first;
-			Log.d("import", "use cached "+csvUrl);
+			Log.d(LOGTAG, "use cached "+csvUrl);
 			return;
 		}
 		Time fetched = new Time();
-		Log.d("import", "fetch "+csvUrl+"...");
+		Log.d(LOGTAG, "fetch "+csvUrl+"...");
 		try {
 			// is it a file?
 			if (csvUrl.startsWith("file:")) {
@@ -415,7 +415,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		if (cacheDt!=null && cacheDt.getValue() > 0) {
 			csvCache.put(csvUrl, new Pair2(csv, fetched));
 		}
-		Log.d("import", "fetched "+csvUrl);
+		Log.d(LOGTAG, "fetched "+csvUrl);
 	}
 
 	private String getCsvUrl() {
@@ -530,7 +530,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			return matches.first();
 		}
 		if (matches.size() > 1) {
-			Log.d("import", "(skip match) Ambiguous 1st word matches for "+rowName+" to "+matches);
+			Log.d(LOGTAG, "(skip match) Ambiguous 1st word matches for "+rowName+" to "+matches);
 		}
 		// starts-with?
 		matches.clear();
@@ -545,7 +545,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			return matches.first();
 		}
 		if (matches.size() > 1) {
-			Log.d("import", "(skip match) Ambiguous startsWith matches for "+rowName+" to "+matches);
+			Log.d(LOGTAG, "(skip match) Ambiguous startsWith matches for "+rowName+" to "+matches);
 		}
 		// Nothing left but "Nope"
 		return null;
