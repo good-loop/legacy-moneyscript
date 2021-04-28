@@ -3,8 +3,10 @@ package com.winterwell.moneyscript.lang;
 import java.io.File;
 import java.io.StringReader;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -145,6 +147,8 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	 */
 	static Map<String, Pair2<String,Time>> csvCache = new Cache<>(20);
 	
+	private List<String> exempt = new ArrayList<String>();
+	
 	/**
 	 * NB: Run before run(), as the row names are needed earlier to setup the BusinessState
 	 * 
@@ -186,14 +190,36 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			String rowName = row[0];
 			if (Utils.isBlank(rowName))
 				continue;
+			
+			// if a row is empty, it is a header row and can be ignored safely
+			if (isEmptyRow(row))
+				continue;
+			
 			// match row name
 			String ourRowName = run2_ourRowName(rowName, rowNames);
 			if (ourRowName==null) {
 				ourRowName = StrUtils.toTitleCase(rowName);
 				Log.d(LOGTAG, "Unmapped row: "+rowName);
 				run2_ourRowName(rowName, rowNames); // for debug
+			} 
+			
+			// we want to prevent more than 1 rowName which corresponds to the same ourRowName
+			// if ourRowName is already added previously, do an ambiguity check
+			if (ourRowNames4csvRowName.values().contains(ourRowName)) {
+				Iterator it = ourRowNames4csvRowName.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry pair = (Map.Entry) it.next();
+					// if there is already an exact match previously, ignore this entry
+					if (pair.getValue().equals(ourRowName) && rowNames.contains((String) pair.getKey())) {	
+						exempt.add(rowName); // this entry should not be added to mapping
+						rowName = (String) pair.getKey();
+						break;
+					}
+				}
 			}
+			
 			ourRowNames4csvRowName.put(rowName, ourRowName);
+			
 			// get/make the row
 			Row brow = b.getRow(ourRowName);
 			if (brow == null) {
@@ -207,7 +233,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 				brow = new Row(ourRowName);
 				b.addRow(brow);
 			}
-		}		
+		}	
 		if (mappingImportRow2ourRow==null) mappingImportRow2ourRow = new HashMap();
 		mappingImportRow2ourRow.putAll(ourRowNames4csvRowName);
 		
@@ -223,7 +249,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			throw new FailureException(
 					"No columns identified from "+StrUtils.join(headers, ", ")
 					+" Errors: "+importCol_exs+" Outside Time Window: "+importCol_outsideTimeWindow);
-		}		
+		}
 	}
 	
 	public void run(Business b) {
@@ -260,6 +286,11 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 				String rowName = row[0];
 				if (Utils.isBlank(rowName))
 					continue;
+				
+				// Hack to prevent null pointer exception for ambiguous rows
+				if (exempt.contains(rowName))
+					continue;
+				
 				// match row name
 				String ourRowName = mappingImportRow2ourRow.get(rowName);
 				assert ourRowName != null : rowName;
@@ -524,9 +555,6 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			}
 		}
 		if (matches.size() == 1) {
-			// So there is only one possible match from our script
-			// FIXME BUT we also need to do an ambiguity check against the row names in the import!
-			// To avoid 2 similar import rows conflicting 
 			return matches.first();
 		}
 		if (matches.size() > 1) {
@@ -594,4 +622,5 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	public void setError(Exception ex) {
 		this.error = ex;
 	}
+	
 }
