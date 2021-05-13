@@ -42,6 +42,7 @@ import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
+import com.winterwell.utils.web.WebUtils2;
 
 /**
  * Top-level state object
@@ -733,7 +734,7 @@ public final class Business {
 			}
 		}
 		// chart rules, in json safe format
-		Object crules = JSON.parse(Gson.toJSON(getChartRules()));
+		Object crules = WebUtils2.parseJSON(Gson.toJSON(getChartRules()));
 		return new ArrayMap("parse", new ArrayMap(
 				"rows", Containers.apply(rows, Row::getName), 
 				"rowtree", rowtree.toJson2(),
