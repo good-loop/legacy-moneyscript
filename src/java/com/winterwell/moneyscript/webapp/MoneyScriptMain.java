@@ -43,20 +43,11 @@ public class MoneyScriptMain extends AMain<MoneyScriptConfig> {
 	/**
 	 * Add in Slice handling
 	 */
-	protected void init3_gson() {
-		Gson gson = new GsonBuilder()
-		.setLenientReader(true)
-		.registerTypeAdapter(Time.class, new StandardAdapters.TimeTypeAdapter())
+	protected @Override
+	GsonBuilder init4_gsonBuilder() {
+		return super.init4_gsonBuilder()
 		// Slice as String (loses column position info, oh well)
-		.registerTypeAdapter(Slice.class, new StandardAdapters.CharSequenceTypeAdapter(Slice.class))
-		.registerTypeAdapter(XId.class, new XIdTypeAdapter())
-		.registerTypeHierarchyAdapter(AString.class, new StandardAdapters.ToStringSerialiser())
-		.serializeSpecialFloatingPointValues()
-		.setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-//		.setClassProperty(null)
-		.setLoopPolicy(KLoopPolicy.QUIET_NULL)
-		.create();
-		Dep.set(Gson.class, gson);
+		.registerTypeAdapter(Slice.class, new StandardAdapters.CharSequenceTypeAdapter(Slice.class));
 	}
 
 	
