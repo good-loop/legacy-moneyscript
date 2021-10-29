@@ -92,7 +92,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		// re-save the draft with export status (for display in the editor)
 		pubd.setJava(pd);
 		ESPath path = esRouter.getPath(dataspace, type, pubd.java().getId(), KStatus.DRAFT);		
-		AppUtils.doSaveEdit(path, pubd, state);		
+		AppUtils.doSaveEdit(path, pubd, null, state);		
 		return pubd;
 	}
 	
