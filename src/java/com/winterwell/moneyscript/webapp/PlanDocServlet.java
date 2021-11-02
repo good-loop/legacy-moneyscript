@@ -201,13 +201,11 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	 */
 	private File getPlanFile(WebRequest state) {
 		String sbit1 = state.getSlugBits(1);
-		if (sbit1!=null
-//				&& sbit1.startsWith("file-")
-				) {
-			String sf = FileUtils.safeFilename(sbit1, true);
-			File f = new File(plansDir, sf);
-			return f;
+		if (Utils.isBlank(sbit1)) {
+			return null;
 		}
-		return null;
+		String sf = FileUtils.safeFilename(sbit1, true);
+		File f = new File(plansDir, sf);
+		return f;
 	}
 }
