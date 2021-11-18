@@ -4,8 +4,13 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.LangCellSet;
+import com.winterwell.moneyscript.lang.time.LangTime;
+import com.winterwell.moneyscript.lang.time.TimeDesc;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.nlp.simpleparser.ParseResult;
+import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
@@ -30,6 +35,21 @@ public class LangMiscTest {
 		
 	}
 	
+	
+
+
+	@Test
+	public void testExportFrom() {
+		Lang lang = new Lang();
+		// ??how should we init the time ref?? hack: This seems to do the trick
+		CellSet cs = LangCellSet.cellSet.parseOut("Staff from month 3").getX();
+		
+		Parser<TimeDesc> langTime = LangTime.time;
+		LangMisc lm = lang.langMisc;
+		ExportCommand r1 = lm._exportCommand.parseOut("export overlap: https://foobar.com/123").getX();
+		
+		ExportCommand r2 = lm._exportCommand.parseOut("export overlap from June 2021: https://foobar.com/123").getX();		
+	}
 
 
 	@Test

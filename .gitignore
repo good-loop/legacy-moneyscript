@@ -17,3 +17,5 @@ com.winterwell.web.app.build.PublishProjectTask.log
 tokens
 pom.bob.xml
 /bin/
+config/version.properties
+com.winterwell.moneyscript.output.SpeedTest.log

@@ -7,6 +7,11 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import com.goodloop.gsheets.GSheetsClient;
+import com.google.api.services.sheets.v4.model.CellData;
+import com.google.api.services.sheets.v4.model.GridData;
+import com.google.api.services.sheets.v4.model.RowData;
+import com.google.api.services.sheets.v4.model.Sheet;
+import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.winterwell.moneyscript.data.PlanDoc;
 import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.Rule;
@@ -16,11 +21,19 @@ import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
+import com.winterwell.nlp.dict.Dictionary;
 import com.winterwell.utils.Dep;
+import com.winterwell.utils.Printer;
+import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
+import com.winterwell.utils.containers.Containers;
+import com.winterwell.utils.containers.IntRange;
 import com.winterwell.utils.log.Log;
 
 /**
+ * 
+ * NB: Don't merge with ExportCommand 'cos it makes sense to keep google-drive specific code separate
+ * 
  * @testedby GSheetFromMSTest
  * @author daniel
  *
@@ -29,51 +42,75 @@ public class GSheetFromMS {
 
 	private static final String LOGTAG = "GSheetFromMS";
 	private GSheetsClient sc;
+	/**
+	 * The rows in the GSheet
+	 */
 	private List<Row> spacedRows;
+	private Business biz;
+	private ExportCommand ec;
+	private ArrayList unmatched;
 
-	public GSheetFromMS(GSheetsClient sc) {
+	public GSheetFromMS(GSheetsClient sc, ExportCommand exportCommand, Business biz) {
 		this.sc = sc;
+		this.ec = exportCommand;
+		this.biz = biz;
 	}
 
-	public void doExportToGoogle(ExportCommand ec, Business biz) throws Exception {
-		assert ec.spreadsheetId !=null : ec;
+	public void doExportToGoogle() throws Exception {
+		assert ec.spreadsheetId !=null && true : ec;
+
+		setupRows(ec, biz);
 		
-		List<List<Object>> values = updateValues(biz);
+		List<List<Object>> values = calcValues(biz);
 		
 		// update with data
-		values = sc.replaceNulls(values);
+		if ( ! ec.isOverlap()) {
+			values = sc.replaceNulls(values);
+		}
 				
-		// Always clear out the data in GoogleSheets before rewriting
+		// Clear out the data in GoogleSheets before rewriting
 		// to avoid old data leaking through in odd places
-		sc.clearSpreadsheet(ec.spreadsheetId);
+		if ( ! ec.isOverlap()) {
+			sc.clearSpreadsheet(ec.spreadsheetId);
+		}
 		
 		// update
 		sc.updateValues(ec.spreadsheetId, values);
 
 	}
 
-	List<List<Object>> updateValues(Business biz) {
+	List<List<Object>> calcValues(Business biz) {
 		biz.isExportToGoogle = true;
 		Dep.set(GSheetFromMS.class, this); // for cell refs
-		
-		setupRows(biz);
 		
 		// run
 		biz.run();		
 		
 		List<List<Object>> values = new ArrayList();
+		// add date row
+		List<Col> cols = biz.getColumns();	
+		// filter the columns?
+		IntRange incCols = new IntRange(0, Integer.MAX_VALUE); // no filter!
+		if (ec.from!=null) {
+			Cell context = null;
+			Col scol = ec.from.getCol(context);
+			incCols = new IntRange(scol.index, Integer.MAX_VALUE); // probably correct: cols.size() - 1);
+		}
 		
-		List<Col> cols = biz.getColumns();		
 		List<Object> headers = new ArrayList();
-		headers.add("Row");
+		headers.add(""); 
 		for (Col col : cols) {
+			if ( ! incCols.contains(col.index)) {
+				continue;
+			}
 			headers.add(col.getTimeDesc());
 		}
 		values.add(headers);
 				
-		// a blank row
+		// make a blank row object
 		final List<Object> blanks = new ArrayList();
-		for(int i=0; i<headers.size(); i++) blanks.add("");
+		// ...overwrite or not depending on export=overlap
+		for(int i=0; i<headers.size(); i++) blanks.add(ec.isOverlap()? null : "");
 								
 		// convert		
 		for (Row row : spacedRows) {
@@ -89,12 +126,15 @@ public class GSheetFromMS {
 			rowvs.add(row.getName());
 			Collection<Cell> cells = row.getCells();
 			for (Cell cell : cells) {
+				if ( ! incCols.contains(cell.col.index)) {
+					continue;
+				}
 				Numerical v = biz.getCellValue(cell);
 				if (v ==null) {
 					rowvs.add(""); 
 					continue;
 				}
-				if ( ! Utils.isBlank(v.excel)) {
+				if (ec.preferFormulae && ! Utils.isBlank(v.excel)) {
 					// Avoid self-reference which would upset GSheets
 					// NB: "A12" contains "A1"
 					Pattern p = Pattern.compile("\\b"+cellRef(cell.row, cell.col)+"\\b");
@@ -112,14 +152,18 @@ public class GSheetFromMS {
 			values.add(rowvs);
 		}
 		
-		Dep.set(GSheetFromMS.class, null);
+		Dep.set(GSheetFromMS.class, null); // clear earlier set
 		
 		return values;
 	}
 
-	private void setupRows(Business biz) {
+	
+	void setupRows(ExportCommand ec, Business biz) throws Exception {
 		List<Row> rows = biz.getRows();
-
+		if (ec.isOverlap()) {
+			setupRows2_overlap(ec, biz, rows);
+			return;
+		}		
 		// HACK - space with a blank row?
 		spacedRows = new ArrayList();
 		int prevLineNum = 0;
@@ -133,10 +177,45 @@ public class GSheetFromMS {
 			prevLineNum = lineNum;
 			spacedRows.add(row);
 		}
-//		// HACK: put some blanks at the end (to handle a few rows being removed at a time)
-//		for(int i=0; i<10; i++) {
-//			spacedRows.add(null);		
-//		}
+	}
+
+	private void setupRows2_overlap(ExportCommand ec, Business biz, List<Row> rows) throws Exception {
+		ArrayList<String> sheetRows = new ArrayList();
+		// get the 1st column as rows
+		List<List<Object>> sdata = sc.getData(ec.spreadsheetId, "A:A", ec.sheetName);
+		for (List rd : sdata) {
+			if (rd.isEmpty()) {
+				sheetRows.add(null);
+				continue;
+			}
+			Object v = rd.get(0);
+			sheetRows.add(""+v);
+		}
+		// convert TODO refactor out the map rows-to-rows code for -reuse
+		List<String> ourROwNames = Containers.apply(rows, Row::getName);
+		spacedRows = new ArrayList();
+		unmatched = new ArrayList();
+		Dictionary rowNames = biz.getRowNames();
+		for(String sr : sheetRows) {
+			if (Utils.isBlank(sr)) {
+				spacedRows.add(null);
+				continue;
+			}
+			String ourRowName = ec.run2_ourRowName(sr, rowNames);
+			if (ourRowName==null) {
+				unmatched.add(sr);
+				spacedRows.add(null);
+				continue;
+			}
+			int i = ourROwNames.indexOf(ourRowName);
+			assert i != -1 : ourRowName+" vs "+ourROwNames;
+			Row row = rows.get(i);
+			spacedRows.add(row);			
+		}
+		// remove the 1st dates row, which is always reset
+		spacedRows.remove(0);
+		Log.i(LOGTAG, "Unmatched: "+unmatched);
+		Log.d(LOGTAG, sheetRows+" --> "+spacedRows);
 	}
 
 	public String cellRef(Row row, Col col) {

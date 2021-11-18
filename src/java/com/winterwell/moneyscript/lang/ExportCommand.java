@@ -11,6 +11,7 @@ import com.goodloop.gsheets.GSheetsClient;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.winterwell.maths.datastorage.DataTable;
 import com.winterwell.moneyscript.data.PlanDoc;
+import com.winterwell.moneyscript.lang.time.TimeDesc;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.moneyscript.webapp.GSheetFromMS;
@@ -33,6 +34,8 @@ public class ExportCommand
 extends ImportCommand // Hack! but they are pretty similar 
 {
 
+	public String sheetName;
+	
 	@Override
 	public Map toJson2() throws UnsupportedOperationException {
 		Map jobj = super.toJson2();
@@ -49,6 +52,13 @@ extends ImportCommand // Hack! but they are pretty similar
 	protected String format;
 
 	private Time lastGoodRun;
+
+	/**
+	 * If true, try to create excel formulae in the export
+	 */
+	public boolean preferFormulae;
+
+	public TimeDesc from;
 
 	public ExportCommand(String gSheetUrlOrId) {
 		super(gSheetUrlOrId);
@@ -79,21 +89,11 @@ extends ImportCommand // Hack! but they are pretty similar
 				error = null;
 				lastGoodRun = time;				
 				return;
-			}
-	//		// get/create
-	//		if (pd.getGsheetId() == null) {
-	//			Log.i("Make G-Sheet...");
-	//			Spreadsheet s = sc.createSheet(pd.getName());
-	//			pd.setGsheetId(s.getSpreadsheetId());
-	//			// publish again
-	//			doPublish(state, forceRefresh, deleteDraft);
-	//		}
-	//		pd.setGsheetId(spreadsheetId);					
-			
-			// TODO Export all or overlap??
+			}			
+			// Export all or overlap
 			GSheetsClient sc = sc();
-			GSheetFromMS ms2gs = new GSheetFromMS(sc);
-			ms2gs.doExportToGoogle(this, biz);
+			GSheetFromMS ms2gs = new GSheetFromMS(sc, this, biz);
+			ms2gs.doExportToGoogle();
 			// success
 			error = null;
 			lastGoodRun = time;
@@ -108,6 +108,7 @@ extends ImportCommand // Hack! but they are pretty similar
 	}
 
 	void runExport2_annualOnly(PlanDoc pd, Business biz) throws IOException, GeneralSecurityException {
+		assert from==null : "TODO from";
 		ArrayMap jobj = biz.toJSON();
 		List<String> cols = (List<String>) jobj.get("columns");
 		List<Map> brows = (List) jobj.get("rows");
@@ -162,4 +163,9 @@ extends ImportCommand // Hack! but they are pretty similar
 		// NB: exclude the final "Total" (of all time)
 		return col.contains("total") && col.length() > 5;
 	}
+
+	public void setFrom(TimeDesc from) {
+		this.from = from;
+	}
+
 }

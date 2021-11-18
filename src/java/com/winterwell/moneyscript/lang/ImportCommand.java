@@ -226,7 +226,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 				if (isEmptyRow(row)) {
 					continue;
 				}
-				if (rows.contains(OVERLAP)) {
+				if (isOverlap()) {
 //					Log.d(LOGTAG, "Skip non-overlap row "+rowName);
 					continue; // don't import this row
 				}
@@ -250,6 +250,11 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 					"No columns identified from "+StrUtils.join(headers, ", ")
 					+" Errors: "+importCol_exs+" Outside Time Window: "+importCol_outsideTimeWindow);
 		}
+	}
+	
+
+	public boolean isOverlap() {
+		return rows.contains(OVERLAP);
 	}
 	
 	public void run(Business b) {
@@ -300,7 +305,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 					if (isEmptyRow(row)) {
 						continue;
 					}
-					if (rows.contains(OVERLAP)) {
+					if (isOverlap()) {
 //						Log.d(LOGTAG, "Skip non-overlap row "+rowName);
 						continue; // don't import this row
 					}
@@ -491,7 +496,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	 * @param rowNames
 	 * @return
 	 */
-	String run2_ourRowName(String rowName, Dictionary rowNames) {
+	public String run2_ourRowName(String rowName, Dictionary rowNames) {
 		// mapping?
 		if (mappingImportRow2ourRow != null) {
 			String mappedName = Containers.getLenient(mappingImportRow2ourRow, rowName);

@@ -35,6 +35,7 @@ import com.winterwell.nlp.simpleparser.Parsers;
 import com.winterwell.nlp.simpleparser.Ref;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.ArrayMap;
+import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
 import com.winterwell.utils.time.TimeUtils;
@@ -353,7 +354,8 @@ public class LangMisc {
 	 */
 	PP<ExportCommand> _exportCommand = new PP<ExportCommand>(
 			seq(lit("export"), 
-					opt(lit(" all"," overlap", " annual").label("whichRows")), 					
+					opt(lit(" all"," overlap", " annual").label("whichRows")), 	
+					opt(seq(word(" from"), space, LangTime.time)),
 					lit(":"), 
 					optSpace, LangMisc.urlOrFile, 
 					optSpace, opt(jsonLike))
@@ -367,6 +369,13 @@ public class LangMisc {
 			if (whichRows != null) {
 				s.setRows(whichRows.getX()); 
 			}			
+			AST<TimeDesc> ft = r.getNode(LangTime.time);
+			if (ft!=null) {
+				TimeDesc from = ft.getX();
+				s.setFrom(from);
+				Log.e(ft);
+//				s.setFrom(ft);
+			}
 			// extra info
 			AST<Map> _jobj = r.getNode(jsonLike);
 			if (_jobj!=null) {

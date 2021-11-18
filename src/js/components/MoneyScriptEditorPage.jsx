@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { ReactDOM } from 'react-dom';
-import _ from 'lodash';
+import _, { uniqBy } from 'lodash';
 import { Col, Row, Card as BSCard, Alert, Badge } from 'reactstrap';
 
 import printer from '../base/utils/printer';
 import C from '../C';
 import Roles from '../base/Roles';
 import Misc from '../base/components/Misc';
-import { stopEvent, modifyHash, encURI, space } from '../base/utils/miscutils';
+import { stopEvent, modifyHash, encURI, space, uniq } from '../base/utils/miscutils';
 import DataStore from '../base/plumbing/DataStore';
 import Settings from '../base/Settings';
 import ShareWidget, { ShareLink } from '../base/components/ShareWidget';
@@ -88,6 +88,9 @@ const MoneyScriptEditorPage = () => {
 						<ErrorsList errors={item.errors} />
 						<h3>Exports</h3>
 						<ExportsList cargo={item} />
+					</BSCard>
+					<BSCard className="mt-2" style={{maxWidth:"300px"}} >
+						<SavePublishDeleteEtc size="md" type="PlanDoc" id={id} saveAs className="light" position="relative" />
 					</BSCard>
 					{/* <ShareLink /> */}
 					{/* <ShareWidget /> */}
@@ -174,9 +177,7 @@ const EditScript = ({ id, plandoc, path }) => {
 	// standardise on tabs, with 4 spaces = 1 tab
 	let modelValueFromInput = (iv, type, eventType) => standardModelValueFromInput(iv ? iv.replace(/ {4}/g, '\t') : iv, type, eventType);
 	return (<div>
-		<AceCodeEditor path={path} prop='text' annotations={pes.map(markerFromParseFail)} height="calc(100vh - 12em)" />
-		<div>&nbsp;</div>
-		<SavePublishDeleteEtc type="PlanDoc" id={id} saveAs />
+		<AceCodeEditor path={path} prop='text' annotations={pes.map(markerFromParseFail)} height="calc(100vh - 10em)" />
 	</div>);
 
 };
@@ -193,6 +194,8 @@ const ImportsList = ({cargo}) => {
 
 const ImportsList2 = ({verb, imports}) => {
 	if ( ! imports || ! imports.length) return null;
+	// filter dupes ??do this server side
+	imports = uniqBy(imports, imp => imp.src);
 	// NB the import src is usually g-drive gibberish
 	return (<ul>
 		{imports.map((imp,i) => 

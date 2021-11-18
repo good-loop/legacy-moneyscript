@@ -18,24 +18,27 @@ public class GSheetFromMSTest {
 
 	@Test
 	public void testExcel() throws Exception {
-		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient());
 		PlanDoc pd = new PlanDoc();
 		pd.setText("Staff:\n\tAlice: £1 per month\n\tBob: Alice + £1");
 		Business biz = MoneyServlet.lang.parse(pd.getText());
 		biz.setColumns(3);
-		List<List<Object>> vs = gs4ms.updateValues(biz);
+		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(), new ExportCommand(""), biz);
+		gs4ms.setupRows(new ExportCommand(""), biz);
+		List<List<Object>> vs = gs4ms.calcValues(biz);
 		System.out.println(vs);
 	}
 	
 	
 	@Test
 	public void testBrackets() throws Exception {
-		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient());
 		PlanDoc pd = new PlanDoc();
 		pd.setText("Alice: £10 per month\nBob: £5/2 + (2% + 8%) * Alice");
 		Business biz = MoneyServlet.lang.parse(pd.getText());
 		biz.setColumns(3);
-		List<List<Object>> vs = gs4ms.updateValues(biz);
+		
+		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),null,biz);
+		gs4ms.setupRows(new ExportCommand(""), biz);
+		List<List<Object>> vs = gs4ms.calcValues(biz);
 		System.out.println(vs);
 	}
 	
@@ -46,8 +49,10 @@ public class GSheetFromMSTest {
 		Lang lang = new Lang();
 		Business b = lang.parse(txt);
 
-		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient());
-		List<List<Object>> vs = gs4ms.updateValues(b);
+		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),null,b);
+		gs4ms.setupRows(new ExportCommand(""), b);
+		
+		List<List<Object>> vs = gs4ms.calcValues(b);
 		System.out.println(vs);
 	}
 	
@@ -62,8 +67,8 @@ public class GSheetFromMSTest {
 		ExportCommand ec = new ExportCommand(s.getSpreadsheetId());
 
 		pd.setText(txt);			
-		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient());
-		gs4ms.doExportToGoogle(ec, pd.getBusiness());
+		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),ec,pd.getBusiness());
+		gs4ms.doExportToGoogle();
 		
 	}
 

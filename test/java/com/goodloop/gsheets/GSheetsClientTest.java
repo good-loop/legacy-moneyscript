@@ -26,6 +26,16 @@ public class GSheetsClientTest {
 
 	}
 	
+
+	@Test
+	public void testGetData() throws Exception {        
+        final String spreadsheetId = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms";        
+        GSheetsClient sq = new GSheetsClient();
+        List<List<Object>> data = sq.getData(spreadsheetId, "A:A", null);
+        assert ! data.isEmpty();
+
+	}
+	
 	/**
 	 * Just a test sheet on Google
 	 * https://docs.google.com/spreadsheets/d/1vksonmI0OWqshxPb7rNd5cKAMUbXZDwc1E0U6unSGw0/edit#gid=0
