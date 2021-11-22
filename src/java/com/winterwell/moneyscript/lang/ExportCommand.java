@@ -34,6 +34,9 @@ public class ExportCommand
 extends ImportCommand // Hack! but they are pretty similar 
 {
 
+	// NB: some code will use "import" from the parent
+	public static final String LOGTAG = "export";
+	
 	public String sheetName;
 	
 	@Override
@@ -99,6 +102,7 @@ extends ImportCommand // Hack! but they are pretty similar
 			lastGoodRun = time;
 		} catch (Throwable ex) {
 			error = ex;
+			Log.e(LOGTAG, ex);
 			throw Utils.runtime(ex);
 		}
 	}
