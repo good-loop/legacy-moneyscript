@@ -1,14 +1,18 @@
 package com.winterwell.moneyscript.webapp;
 
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.goodloop.gsheets.GSheetsClient;
 import com.google.api.services.sheets.v4.model.CellData;
 import com.google.api.services.sheets.v4.model.GridData;
+import com.google.api.services.sheets.v4.model.Request;
 import com.google.api.services.sheets.v4.model.RowData;
 import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
@@ -26,6 +30,7 @@ import com.winterwell.utils.Dep;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
+import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.IntRange;
 import com.winterwell.utils.log.Log;
@@ -76,7 +81,27 @@ public class GSheetFromMS {
 		
 		// update
 		sc.updateValues(ec.spreadsheetId, values);
-
+		
+		// actuals in blue
+		ArrayList reqs = new ArrayList();
+		Request reqblack = sc.setStyleRequest(0, null, null, Color.black, null);
+		reqs.add(reqblack);
+		List<List<Map>> styles = calcStyles();
+		for(int r=0; r<styles.size(); r++) {
+			List<Map> row = styles.get(r);
+			if (row==null) continue;
+			for(int c=0; c<row.size(); c++) {
+				Map cell = row.get(c);
+				if (cell==null) continue;
+				if (r>999 || c>33) {
+					continue; // API limits?!
+				}
+				Request reqblu = sc.setStyleRequest(0, new IntRange(r,r), new IntRange(c,c), Color.blue, null);
+				reqs.add(reqblu);
+			}
+		}
+		sc.doBatchUpdate(ec.spreadsheetId, reqs);
+		Log.i(LOGTAG, "Exported to "+sc.getUrl(ec.spreadsheetId));
 	}
 
 	List<List<Object>> calcValues(Business biz) {
@@ -154,6 +179,69 @@ public class GSheetFromMS {
 		
 		Dep.set(GSheetFromMS.class, null); // clear earlier set
 		
+		return values;
+	}
+
+
+	List<List<Map>> calcStyles() {
+		// assume calcValues has run!
+		
+		List<List<Map>> values = new ArrayList();
+		// add date row
+		List<Col> cols = biz.getColumns();	
+		// filter the columns?
+		IntRange incCols = new IntRange(0, Integer.MAX_VALUE); // no filter!
+		if (ec.from!=null) {
+			Cell context = null;
+			Col scol = ec.from.getCol(context);
+			incCols = new IntRange(scol.index, Integer.MAX_VALUE); // probably correct: cols.size() - 1);
+		}
+		
+		List<Map> headers = new ArrayList();
+		headers.add(null); 
+		for (Col col : cols) {
+			if ( ! incCols.contains(col.index)) {
+				continue;
+			}
+			headers.add(null);
+		}
+		values.add(headers);
+				
+		// make a blank row object
+		final List<Map> blanks = new ArrayList();
+		// ...overwrite or not depending on export=overlap
+		for(int i=0; i<headers.size(); i++) blanks.add(null);
+								
+		// convert		
+		for (Row row : spacedRows) {
+			if (row==null) {
+				values.add(blanks);
+				continue;
+			}
+			Rule r0 = row.getRules().get(0);
+			List<Map> rowvs = new ArrayList();
+			rowvs.add(null);
+			List<Map> cells = row.getValuesJSON(true); // ??
+			for (int coli0=0; coli0<cells.size(); coli0++) {
+				if ( ! incCols.contains(coli0+1)) {
+					continue;
+				}
+				Map cell = cells.get(coli0);
+				String css = cell==null? null : (String) cell.get("css");
+				if (Utils.isBlank(css)) {
+					rowvs.add(null); 
+					continue;
+				}
+				if (css.contains("blue")) {	// HACK
+					rowvs.add(new ArrayMap(
+							"color", "blue"
+							)); // toExportString());
+				} else {
+					rowvs.add(null);
+				}
+			} // ./cell
+			values.add(rowvs);
+		}		
 		return values;
 	}
 

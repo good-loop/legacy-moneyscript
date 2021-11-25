@@ -1,5 +1,6 @@
 package com.goodloop.gsheets;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
@@ -7,7 +8,10 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.google.api.services.sheets.v4.model.Request;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
+import com.winterwell.maths.GridInfo;
+import com.winterwell.utils.containers.IntRange;
 
 /**
  * @tested {@link GSheetsClient}
@@ -74,6 +78,13 @@ public class GSheetsClientTest {
 		sq.updateValues(sid, vs);
 	}
 
+
+	@Test
+	public void testUpdateStyle() throws GeneralSecurityException, IOException {
+		GSheetsClient sq = new GSheetsClient();
+		Request req = sq.setStyleRequest(0, new IntRange(2, 3),null, Color.green, (Color)null);
+		sq.doBatchUpdate(sid, Arrays.asList(req));
+	}
 	
 
 	@Test
