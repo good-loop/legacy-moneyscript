@@ -251,8 +251,9 @@ public class Lang {
 		}
 		
 		// import / export?
-		if (r instanceof ExportCommand) {			
-			b.addExportCommand((ExportCommand) r);
+		if (r instanceof ExportCommand) {
+			Log.e("Lang", "ExportCommand should be in PlanDoc now");
+//			b.addExportCommand((ExportCommand) r);
 			return (Rule) r;
 		}
 		if (r instanceof ImportCommand) {			

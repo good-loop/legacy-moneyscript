@@ -25,6 +25,7 @@ import com.winterwell.nlp.simpleparser.PP;
 import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
+import com.winterwell.nlp.simpleparser.Ref;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
 
@@ -66,7 +67,7 @@ public class LangTime implements IInit {
 	/**
 	 * a point in time
 	 */
-	public static final Parser<TimeDesc> time = ref(TIME);
+	public static final Ref<TimeDesc> time = ref(TIME);
 	/**
 	 * a period of time
 	 */
@@ -218,6 +219,9 @@ public class LangTime implements IInit {
 
 	@Override
 	public void init() {
+		assert _time != null;
+		assert time != null;
+		assert time.lookup() != null;
 		// TODO label mappings??
 	}
 

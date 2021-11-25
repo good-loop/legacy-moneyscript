@@ -82,7 +82,7 @@ public class GSheetsClientTest {
 	@Test
 	public void testUpdateStyle() throws GeneralSecurityException, IOException {
 		GSheetsClient sq = new GSheetsClient();
-		Request req = sq.setStyleRequest(0, new IntRange(2, 3),null, Color.green, (Color)null);
+		Request req = sq.setStyleRequest(new IntRange(2, 3),null, Color.green, (Color)null);
 		sq.doBatchUpdate(sid, Arrays.asList(req));
 	}
 	

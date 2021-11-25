@@ -49,7 +49,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	}
 
 	@Override
-	protected void doBeforeSaveOrPublish(JThing<PlanDoc> _jthing, WebRequest stateIgnored) {
+	protected void doBeforeSaveOrPublish(JThing<PlanDoc> _jthing, WebRequest stateIgnored) {		
 		super.doBeforeSaveOrPublish(_jthing, stateIgnored);
 		// clear away parse errors - they are freshly set each time
 		_jthing.java().errors = new ArrayList();
@@ -98,8 +98,9 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	
 	private void doExportToGoogle(PlanDoc pd, WebRequest state, KRefresh forceRefresh, boolean deleteDraft) throws Exception {
 		Business biz = pd.getBusiness();
-		List<ExportCommand> exports = biz.getExportCommands(); //biz.filterByClass(biz.getAllRules(), ExportCommand.class);
+		List<ExportCommand> exports = pd.getExportCommands(); //biz.filterByClass(biz.getAllRules(), ExportCommand.class);
 		for (ExportCommand exportCommand : exports) {
+			if ( ! exportCommand.isActive()) continue;
 			try {				
 				exportCommand.runExport(pd, biz);
 			} catch(Throwable ex) {
@@ -108,7 +109,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		}
 		// update PlanDoc with the export status
 		// NB: export is only done on publish -- so allow old status (esp errors) to stick around
-		pd.setExportCommands(biz.getExportCommands());
+//		pd.setExportCommands(biz.getExportCommands());
 	}
 
 	@Override
@@ -164,7 +165,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	@Override
 	protected JThing<PlanDoc> getThingFromDB(WebRequest state) throws E403 {
 		// normal - db
-		JThing<PlanDoc> jpd = super.getThingFromDB(state);		
+		JThing<PlanDoc> jpd = super.getThingFromDB(state);
 		// HACK file
 		File f = getPlanFile(state);
 		if (f != null) {
@@ -194,6 +195,19 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		return jpd;
 	}
 
+	
+	@Override
+	protected PlanDoc getThing(WebRequest state) {
+		if (jthing!=null) {
+			return jthing.java();
+		}
+		PlanDoc pd = super.getThing(state);
+		if (pd != null) {
+			pd.business = null; // fresh from json, force a re-parse
+		}
+		return pd;
+	}
+	
 	/**
 	 * 
 	 * @param state

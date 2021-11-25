@@ -23,7 +23,7 @@ public class GSheetFromMSTest {
 		Business biz = MoneyServlet.lang.parse(pd.getText());
 		biz.setColumns(3);
 		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(), new ExportCommand(""), biz);
-		gs4ms.setupRows(new ExportCommand(""), biz);
+		gs4ms.setupRows();
 		List<List<Object>> vs = gs4ms.calcValues(biz);
 		System.out.println(vs);
 	}
@@ -36,8 +36,8 @@ public class GSheetFromMSTest {
 		Business biz = MoneyServlet.lang.parse(pd.getText());
 		biz.setColumns(3);
 		
-		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),null,biz);
-		gs4ms.setupRows(new ExportCommand(""), biz);
+		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),new ExportCommand(""),biz);
+		gs4ms.setupRows();
 		List<List<Object>> vs = gs4ms.calcValues(biz);
 		System.out.println(vs);
 	}
@@ -49,8 +49,8 @@ public class GSheetFromMSTest {
 		Lang lang = new Lang();
 		Business b = lang.parse(txt);
 
-		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),null,b);
-		gs4ms.setupRows(new ExportCommand(""), b);
+		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),new ExportCommand(""),b);
+		gs4ms.setupRows();
 		
 		List<List<Object>> vs = gs4ms.calcValues(b);
 		System.out.println(vs);

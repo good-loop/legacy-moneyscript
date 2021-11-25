@@ -9,21 +9,27 @@ import java.util.Map;
 
 import com.goodloop.gsheets.GSheetsClient;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
+import com.winterwell.gson.FlexiGson;
+import com.winterwell.gson.Gson;
 import com.winterwell.maths.datastorage.DataTable;
 import com.winterwell.moneyscript.data.PlanDoc;
+import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.time.TimeDesc;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.moneyscript.webapp.GSheetFromMS;
 import com.winterwell.nlp.simpleparser.ParseResult;
+import com.winterwell.utils.Dep;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
+import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.io.CSVReader;
 import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Time;
 import com.winterwell.utils.web.IHasJson;
+import com.winterwell.utils.web.WebUtils;
 
 /**
  * 
@@ -31,61 +37,90 @@ import com.winterwell.utils.web.IHasJson;
  * @testedby ExportCommandTest
  */
 public class ExportCommand 
-extends ImportCommand // Hack! but they are pretty similar 
 {
-
+	
 	// NB: some code will use "import" from the parent
 	public static final String LOGTAG = "export";
+
+	boolean active = true;
 	
-	public String sheetName;
+	boolean annual;
 	
-	@Override
-	public Map toJson2() throws UnsupportedOperationException {
-		Map jobj = super.toJson2();
-		jobj.put("format", format);
-		jobj.put("lastGoodRun", lastGoodRun);
-		return jobj;
-	}
-	
-	public String spreadsheetId;
+	protected Throwable error;
 	
 	/**
 	 * csv or google or ??
 	 */
 	protected String format;
 
+	public TimeDesc from;
+
 	private Time lastGoodRun;
 
+	protected String name;
+
+	boolean overlap;
+	
+	protected boolean overwrite;
+	
 	/**
 	 * If true, try to create excel formulae in the export
 	 */
 	public boolean preferFormulae;
 
-	public TimeDesc from;
+	List<String> scenarios;
+	public String sheetName;
+
+	public String spreadsheetId;
+
+	protected String url;
 
 	public ExportCommand(String gSheetUrlOrId) {
-		super(gSheetUrlOrId);
-		spreadsheetId = GSheetsClient.getSpreadsheetId(gSheetUrlOrId);
-		if (spreadsheetId==null) spreadsheetId = gSheetUrlOrId;
-		setRows(ALL_ROWS);
+		if (WebUtils.URL_REGEX.matcher(gSheetUrlOrId).matches()) {
+			url = gSheetUrlOrId;
+			spreadsheetId = GSheetsClient.getSpreadsheetId(url);			
+		} else {
+			spreadsheetId = gSheetUrlOrId;
+			url = GSheetsClient.getUrl(spreadsheetId);
+		}
+	}
+	public List<String> getScenarios() {
+		return scenarios;
 	}
 
-	@Override
-	public void run(Business b) {		
-		super.run(b);
-		throw new TodoException(this);
+	public String getSpreadsheetId() {
+		if (spreadsheetId==null) {
+			spreadsheetId = GSheetsClient.getSpreadsheetId(url);
+		}
+		return spreadsheetId;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public boolean isAnnual() {
+		return annual;
+	}
+
+	private boolean isAnnualCol(String col) {
+		col = col.toLowerCase().trim();
+		// NB: exclude the final "Total" (of all time)
+		return col.contains("total") && col.length() > 5;
 	}
 	
-	@Override
-	public void run2_importRows(Business b) {		
-		super.run2_importRows(b);
-		throw new TodoException(this);
+	public boolean isOverlap() {
+		return overlap;
 	}
 
 	public void runExport(PlanDoc pd, Business biz) throws Exception {
 		try {
+			if (getScenarios() != null) {
+				biz.setScenarios(getScenarios());
+			}
+
 			Time time = new Time();
-			if (rows.contains("annual")) {
+			if (isAnnual()) {
 				// just export the annuals
 				runExport2_annualOnly(pd, biz);
 				// success
@@ -105,10 +140,6 @@ extends ImportCommand // Hack! but they are pretty similar
 			Log.e(LOGTAG, ex);
 			throw Utils.runtime(ex);
 		}
-	}
-
-	private GSheetsClient sc() {
-		return new GSheetsClient();
 	}
 
 	void runExport2_annualOnly(PlanDoc pd, Business biz) throws IOException, GeneralSecurityException {
@@ -162,14 +193,15 @@ extends ImportCommand // Hack! but they are pretty similar
 		sc.updateValues(spreadsheetId, cleanVs);
 	}
 
-	private boolean isAnnualCol(String col) {
-		col = col.toLowerCase().trim();
-		// NB: exclude the final "Total" (of all time)
-		return col.contains("total") && col.length() > 5;
+	private GSheetsClient sc() {
+		return new GSheetsClient();
 	}
 
 	public void setFrom(TimeDesc from) {
 		this.from = from;
+	}
+	public void setScenarios(List<String> scenarios) {
+		this.scenarios = scenarios;
 	}
 
 }

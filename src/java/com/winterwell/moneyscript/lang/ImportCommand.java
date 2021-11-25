@@ -149,6 +149,8 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	
 	private List<String> exempt = new ArrayList<String>();
 	
+	transient NameMapper nameMapper;
+	
 	/**
 	 * NB: Run before run(), as the row names are needed earlier to setup the BusinessState
 	 * 
@@ -182,8 +184,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		
 		Dictionary rowNames = b.getRowNames(); // do this now, so we can support fuzzy matching but not give a fuzzy
 												// match against the csv's own rows		
-		
-		HashMap ourRowNames4csvRowName = new HashMap(); 
+		nameMapper = new NameMapper(rowNames); 
 		for (String[] row : r) {
 			if (row.length == 0)
 				continue;
@@ -196,29 +197,14 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 				continue;
 			
 			// match row name
-			String ourRowName = run2_ourRowName(rowName, rowNames);
+			String ourRowName = nameMapper.run2_ourRowName(rowName, rowNames);
 			if (ourRowName==null) {
 				ourRowName = StrUtils.toTitleCase(rowName);
 				Log.d(LOGTAG, "Unmapped row: "+rowName);
-				run2_ourRowName(rowName, rowNames); // for debug
+				nameMapper.run2_ourRowName(rowName, rowNames); // for debug
 			} 
 			
-			// we want to prevent more than 1 rowName which corresponds to the same ourRowName
-			// if ourRowName is already added previously, do an ambiguity check
-			if (ourRowNames4csvRowName.values().contains(ourRowName)) {
-				Iterator it = ourRowNames4csvRowName.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry pair = (Map.Entry) it.next();
-					// if there is already an exact match previously, ignore this entry
-					if (pair.getValue().equals(ourRowName) && rowNames.contains((String) pair.getKey())) {	
-						exempt.add(rowName); // this entry should not be added to mapping
-						rowName = (String) pair.getKey();
-						break;
-					}
-				}
-			}
-			
-			ourRowNames4csvRowName.put(rowName, ourRowName);
+			nameMapper.putTheirsOurs(rowName, ourRowName);
 			
 			// get/make the row
 			Row brow = b.getRow(ourRowName);
@@ -235,7 +221,8 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			}
 		}	
 		if (mappingImportRow2ourRow==null) mappingImportRow2ourRow = new HashMap();
-		mappingImportRow2ourRow.putAll(ourRowNames4csvRowName);
+		mappingImportRow2ourRow.putAll(nameMapper.getOurNames4TheirNames());
+		exempt = nameMapper.getTheirAmbiguous();
 		
 		// match headers to columns
 		// NB: 1-indexed, so [0] = null
@@ -246,9 +233,10 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			if (col!=null) colsFound++;
 		}		
 		if (colsFound==0) {
-			throw new FailureException(
-					"No columns identified from "+StrUtils.join(headers, ", ")
-					+" Errors: "+importCol_exs+" Outside Time Window: "+importCol_outsideTimeWindow);
+			setError(new FailureException(
+					"No columns identified! from "+StrUtils.join(headers, ", ")
+					+" Errors: "+importCol_exs+" Outside Time Window: "+importCol_outsideTimeWindow
+					));
 		}
 	}
 	
@@ -490,104 +478,12 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		return true;
 	}
 
-	/**
-	 * See Business.getRow2() - refactor to share
-	 * @param rowName
-	 * @param rowNames
-	 * @return
-	 */
-	public String run2_ourRowName(String rowName, Dictionary rowNames) {
-		// mapping?
-		if (mappingImportRow2ourRow != null) {
-			String mappedName = Containers.getLenient(mappingImportRow2ourRow, rowName);
-			if (mappedName!=null) {
-				// try correcting for slight mismatches
-				String mn2 = run2_ourRowName2_noLookup(rowName, rowNames);
-				if (mn2==null) {
-					return mappedName;
-				}
-				if ( ! mappedName.equals(mn2)) {
-					Log.w(LOGTAG, "Mapped name changed from "+mappedName+" to "+mn2);
-				}
-				return mn2;
-			}
-		}
-		// no set mapping -- work it out if we can
-		String mappedName = run2_ourRowName2_noLookup(rowName, rowNames);
-		if (mappedName==null) {
-			Log.d(LOGTAG, "Unmapped row: "+mappedName);
-		}
-		return mappedName;
-	}
-	
-	String run2_ourRowName2_noLookup(String rowName, Dictionary rowNames) {
-		// exact match
-		if (rowNames.contains(rowName)) {
-			return rowNames.getMeaning(rowName);
-		}
-		// match ignoring case+
-		String rowNameCanon = StrUtils.toCanonical(rowName);
-		if (rowNames.contains(rowNameCanon)) {
-			return rowNames.getMeaning(rowNameCanon);
-		}
-		// match on ascii
-		String rowNameAscii = rowNameCanon.replaceAll("[^a-zA-Z0-9]", "");
-		if ( ! rowNameAscii.isEmpty() && rowNames.contains(rowNameAscii)) {
-			return rowNames.getMeaning(rowNameAscii);
-		}
-		// try removing "total" since MS group rows are totals
-		if (rowNameCanon.contains("total")) {			
-			String rn2 = rowNameCanon.replace("total", "").trim();
-			// Xero exports hack for e.g. "Total 01 Property"
-			rn2 = rn2.replaceFirst("^\\d+", "").trim();
-			
-			assert rn2.length() < rowNameCanon.length();
-			if ( ! rn2.isBlank()) {
-				String found = run2_ourRowName(rn2, rowNames);
-				if (found!=null) {
-					return found;
-				}
-			}
-			Log.d(LOGTAG, "Unmatched total: "+rn2);
-		}
-		// Allow a first-word or starts-with match if it is unambiguous e.g. Alice = Alice Smith
-		ArraySet<String> matches = new ArraySet();
-		String firstWord = rowNameCanon.split(" ")[0];
-		for(String existingName : rowNames) {
-			String existingNameFW = existingName.split(" ")[0];
-			if (firstWord.equals(existingNameFW)) {
-				matches.add(rowNames.getMeaning(existingName));
-			}
-		}
-		if (matches.size() == 1) {
-			return matches.first();
-		}
-		if (matches.size() > 1) {
-			Log.d(LOGTAG, "(skip match) Ambiguous 1st word matches for "+rowName+" to "+matches);
-		}
-		// starts-with?
-		matches.clear();
-		for(String existingName : rowNames) {
-			if (rowName.startsWith(existingName)) {
-				matches.add(rowNames.getMeaning(existingName));
-			} else if (existingName.startsWith(rowName)) {
-				matches.add(rowNames.getMeaning(existingName));
-			}
-		}
-		if (matches.size() == 1) {
-			return matches.first();
-		}
-		if (matches.size() > 1) {
-			Log.d(LOGTAG, "(skip match) Ambiguous startsWith matches for "+rowName+" to "+matches);
-		}
-		// Nothing left but "Nope"
-		return null;
-	}
-
 	@Override
 	public Map toJson2() throws UnsupportedOperationException {
 		return new ArrayMap(
 			"src", src,
+			"rows", rows,
+			"scenario", getScenario(),
 			"name", name,
 			"url", url,
 			"error", error

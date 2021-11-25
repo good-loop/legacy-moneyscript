@@ -19,10 +19,11 @@ public class PlanDoc extends AThing {
 	 * @deprecated This copies the info in Business for save and API / UX purposes.
 	 */
 	List<Map> importCommands = new ArrayList<>();
+	
 	/**
 	 * @deprecated copies the info in Business for API / UX purposes.
 	 */
-	List<Map> exportCommands = new ArrayList<>();
+	List<ExportCommand> exportCommands = new ArrayList<>();
 
 	/**
 	 * If this was a copy - keep the link for info
@@ -45,6 +46,7 @@ public class PlanDoc extends AThing {
 
 	public void setText(String s) {
 		this.text = s;
+		business = null;
 	}
 	
 	static Lang lang = new Lang();
@@ -62,9 +64,13 @@ public class PlanDoc extends AThing {
 			exportCommands = null;
 			return;
 		}
-		exportCommands = Containers.apply(importCommands2, ExportCommand::toJson2);
+		exportCommands = importCommands2;
 	}
 
+	public List<ExportCommand> getExportCommands() {
+		return exportCommands;
+	}
+	
 	public Business getBusiness() {
 		if (business==null) {
 			business = lang.parse(text);	

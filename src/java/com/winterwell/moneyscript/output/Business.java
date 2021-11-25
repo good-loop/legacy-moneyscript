@@ -52,7 +52,7 @@ import com.winterwell.utils.web.WebUtils2;
 public final class Business {
 
 	
-	Map<Scenario,Boolean> scenarios = new ArrayMap();
+	private Map<Scenario,Boolean> scenarios = new ArrayMap();
 	
 	/**
 	 * Constant used to mark cells that are being evaluated.
@@ -219,8 +219,8 @@ public final class Business {
 		}
 		importMaps = im4src.values();
 		map.put("importCommands", importMaps);
-		Collection<Map> exportMaps = Containers.apply(getExportCommands(), ExportCommand::toJson2);
-		map.put("exportCommands", exportMaps);
+//		Collection<Map> exportMaps = Containers.apply(getExportCommands(), ExportCommand::toJson2);
+//		map.put("exportCommands", exportMaps);
 		
 		// scenarios
 		map.put("scenarios", getScenarios());
@@ -778,28 +778,22 @@ public final class Business {
 	}
 
 	public void addImportCommand(ImportCommand ic) {
-		assert ! (ic instanceof ExportCommand);
 		if (importCommands.contains(ic)) return;
 		importCommands.add(ic); 
 	}
 	
 
-	public void addExportCommand(ExportCommand ic) {
-		if (exportCommands.contains(ic)) return;
-		exportCommands.add(ic); 
-	}
+//	public void addExportCommand(ExportCommand ic) {
+//		if (exportCommands.contains(ic)) return;
+//		exportCommands.add(ic); 
+//	}
 	
 	private List<ImportCommand> importCommands = new ArrayList<>();
-	private List<ExportCommand> exportCommands = new ArrayList<>();
 
 	/**
 	 * Flag to control whether excel formulae are constructed during a run
 	 */
 	public transient boolean isExportToGoogle;
-
-	public List<ExportCommand> getExportCommands() {
-		return exportCommands;
-	}
 	
 	public Map<Scenario, Boolean> getScenarios() {
 		if (scenarios==null) {
@@ -814,6 +808,20 @@ public final class Business {
 
 	public List<ImportCommand> getImportCommands() {
 		return importCommands;
+	}
+
+	public void setScenarios(List scs) {
+		Map<Scenario, Boolean> bscs = getScenarios();
+		// preserve false keys! Just false everything
+		for (Object s : bscs.keySet().toArray()) {
+			bscs.put((Scenario) s, false);
+		}
+		// set true
+		for (Object s : scs) {
+			Scenario scenario = s instanceof Scenario? (Scenario) s : new Scenario((CharSequence) s);
+			bscs.put(scenario, true);
+		}
+		setScenarios(bscs);
 	}
 	
 }

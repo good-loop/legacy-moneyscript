@@ -158,7 +158,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 
 
 
-	public Collection<Cell> getCells() {
+	public List<Cell> getCells() {
 		Business b = Business.get();
 		List<Col> cols = b.getColumns();
 		List<Cell> list = new ArrayList<Cell>(cols.size());

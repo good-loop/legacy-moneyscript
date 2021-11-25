@@ -117,7 +117,7 @@ public class ImportRowCommandTest {
 	@Test
 	public void testImportRowFromSF() {
 		// This syntax is too fragile -- TODO allow reordering sentence chunks
-		String ms = "SF Net Amount: import by month sum(Net Amount) using {\"End Date\":month, name:\"SF exported csv\"} from file:///home/daniel/winterwell/moneyscript/data/SF-won-report.csv";
+		String ms = "SF Net Amount: import by month sum(Net Amount) using {\"End Date\":month, name:\"SF exported csv\"} from file:///home/winterwell/moneyscript/data/SF-won-report.csv";
 		Lang lang = new Lang();
 		PP<ImportRowCommand> p = lang.langMisc._importRow1;
 //		Parser.DEBUG = true;

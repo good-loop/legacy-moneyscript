@@ -12,6 +12,7 @@ import static com.winterwell.nlp.simpleparser.Parsers.seq;
 import static com.winterwell.nlp.simpleparser.Parsers.space;
 import static com.winterwell.nlp.simpleparser.Parsers.word;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.MatchResult;
@@ -19,6 +20,7 @@ import java.util.regex.MatchResult;
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
 import com.winterwell.moneyscript.lang.cells.RowName;
+import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.num.BasicFormula;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.LangNum;
@@ -40,6 +42,7 @@ import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
 import com.winterwell.utils.time.TimeUtils;
 import com.winterwell.utils.web.WebUtils;
+import static com.winterwell.nlp.simpleparser.Parsers.ref;
 
 /**
  * Style (css), charts, etc
@@ -355,6 +358,7 @@ public class LangMisc {
 	PP<ExportCommand> _exportCommand = new PP<ExportCommand>(
 			seq(lit("export"), 
 					opt(lit(" all"," overlap", " annual").label("whichRows")), 	
+					opt(seq(word(" scenario"), space, ref(LangCellSet.ROW_NAME))),
 					opt(seq(word(" from"), space, LangTime.time)),
 					lit(":"), 
 					optSpace, LangMisc.urlOrFile, 
@@ -364,11 +368,17 @@ public class LangMisc {
 			AST<MatchResult> psrc = r.getNode(LangMisc.urlOrFile);
 			ExportCommand s = new ExportCommand(psrc.parsed());
 			s.overwrite = true;						
-			// rows: all / overlap? (can also be set in the json key:value)
-			AST<String> whichRows = r.getNode("whichRows");
-			if (whichRows != null) {
-				s.setRows(whichRows.getX()); 
-			}			
+//			// rows: all / overlap? (can also be set in the json key:value)
+//			AST<String> whichRows = r.getNode("whichRows");
+//			if (whichRows != null) {
+//				s.setRows(whichRows.getX()); 
+//			}			
+			AST rn = r.getNode(LangCellSet.ROW_NAME);
+			if (rn!=null) {
+				s.setScenarios(Arrays.asList(rn.parsed()));
+			} else {
+				Log.e("no scenario");
+			}
 			AST<TimeDesc> ft = r.getNode(LangTime.time);
 			if (ft!=null) {
 				TimeDesc from = ft.getX();
@@ -391,12 +401,12 @@ public class LangMisc {
 				}
 				if (jobj.containsKey("rows")) {
 					// e.g. specific rows, or "overlap", or "all"
-					s.setRows((String)jobj.get("rows"));
+//					s.setRows((String)jobj.get("rows"));
 				}
 				// mapping
 				Map rowMapping = new ArrayMap(jobj);
 				rowMapping.remove("name"); rowMapping.remove("url"); rowMapping.remove("rows");
-				s.setMapping(rowMapping);
+//				s.setMapping(rowMapping);
 			}
 			return s;
 		}

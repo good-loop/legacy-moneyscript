@@ -18,6 +18,8 @@ import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.winterwell.moneyscript.data.PlanDoc;
 import com.winterwell.moneyscript.lang.ExportCommand;
+import com.winterwell.moneyscript.lang.ImportCommand;
+import com.winterwell.moneyscript.lang.NameMapper;
 import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.num.Numerical;
@@ -58,13 +60,14 @@ public class GSheetFromMS {
 	public GSheetFromMS(GSheetsClient sc, ExportCommand exportCommand, Business biz) {
 		this.sc = sc;
 		this.ec = exportCommand;
+		assert exportCommand != null;
 		this.biz = biz;
 	}
 
 	public void doExportToGoogle() throws Exception {
-		assert ec.spreadsheetId !=null && true : ec;
+		assert ec.getSpreadsheetId() !=null && true : ec;
 
-		setupRows(ec, biz);
+		setupRows();
 		
 		List<List<Object>> values = calcValues(biz);
 		
@@ -84,7 +87,7 @@ public class GSheetFromMS {
 		
 		// actuals in blue
 		ArrayList reqs = new ArrayList();
-		Request reqblack = sc.setStyleRequest(0, null, null, Color.black, null);
+		Request reqblack = sc.setStyleRequest(new IntRange(1, Integer.MAX_VALUE), null, Color.black, null);
 		reqs.add(reqblack);
 		List<List<Map>> styles = calcStyles();
 		for(int r=0; r<styles.size(); r++) {
@@ -96,11 +99,14 @@ public class GSheetFromMS {
 				if (r>999 || c>33) {
 					continue; // API limits?!
 				}
-				Request reqblu = sc.setStyleRequest(0, new IntRange(r,r), new IntRange(c,c), Color.blue, null);
+				Request reqblu = sc.setStyleRequest(new IntRange(r,r), new IntRange(c,c), Color.blue, null);
 				reqs.add(reqblu);
 			}
 		}
-		sc.doBatchUpdate(ec.spreadsheetId, reqs);
+		if ( ! reqs.isEmpty()) {
+//			Object sheets = sc.getSheets();
+			sc.doBatchUpdate(ec.spreadsheetId, reqs);
+		}
 		Log.i(LOGTAG, "Exported to "+sc.getUrl(ec.spreadsheetId));
 	}
 
@@ -221,24 +227,32 @@ public class GSheetFromMS {
 			Rule r0 = row.getRules().get(0);
 			List<Map> rowvs = new ArrayList();
 			rowvs.add(null);
-			List<Map> cells = row.getValuesJSON(true); // ??
-			for (int coli0=0; coli0<cells.size(); coli0++) {
-				if ( ! incCols.contains(coli0+1)) {
+			List<Cell> cells = row.getCells(); // ??
+			for (Cell cell : cells) {
+				if ( ! incCols.contains(cell.col.index)) {
 					continue;
 				}
-				Map cell = cells.get(coli0);
-				String css = cell==null? null : (String) cell.get("css");
-				if (Utils.isBlank(css)) {
-					rowvs.add(null); 
-					continue;
-				}
-				if (css.contains("blue")) {	// HACK
+				// HACK for blue imports
+				Numerical cv = biz.getCellValue(cell);
+				if (cv!=null && ImportCommand.IMPORT_MARKER_COMMENT.equals(cv.comment)) {
 					rowvs.add(new ArrayMap(
 							"color", "blue"
-							)); // toExportString());
-				} else {
-					rowvs.add(null);
+					));
+					continue;
 				}
+				// TODO??
+				String css = biz.getCSSForCell(cell);
+//				if (Utils.isBlank(css)) {
+//					rowvs.add(null); 
+//					continue;
+//				}
+//				if (css.contains("blue")) {	// HACK
+//					rowvs.add(new ArrayMap(
+//							"color", "blue"
+//							)); // toExportString());
+//				} else {
+				rowvs.add(null);
+//				}
 			} // ./cell
 			values.add(rowvs);
 		}		
@@ -246,7 +260,7 @@ public class GSheetFromMS {
 	}
 
 	
-	void setupRows(ExportCommand ec, Business biz) throws Exception {
+	void setupRows() throws Exception {
 		List<Row> rows = biz.getRows();
 		if (ec.isOverlap()) {
 			setupRows2_overlap(ec, biz, rows);
@@ -284,12 +298,13 @@ public class GSheetFromMS {
 		spacedRows = new ArrayList();
 		unmatched = new ArrayList();
 		Dictionary rowNames = biz.getRowNames();
+		NameMapper nameMapper = new NameMapper(rowNames);
 		for(String sr : sheetRows) {
 			if (Utils.isBlank(sr)) {
 				spacedRows.add(null);
 				continue;
 			}
-			String ourRowName = ec.run2_ourRowName(sr, rowNames);
+			String ourRowName = nameMapper.run2_ourRowName(sr, rowNames);
 			if (ourRowName==null) {
 				unmatched.add(sr);
 				spacedRows.add(null);

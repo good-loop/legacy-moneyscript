@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import { ReactDOM } from 'react-dom';
 import _, { uniqBy } from 'lodash';
-import { Col, Row, Card as BSCard, Alert, Badge } from 'reactstrap';
+import { Col, Row, Card as BSCard, Alert, Badge, Modal, Button, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
 import printer from '../base/utils/printer';
 import C from '../C';
 import Roles from '../base/Roles';
 import Misc from '../base/components/Misc';
 import { stopEvent, modifyHash, encURI, space, uniq } from '../base/utils/miscutils';
-import DataStore from '../base/plumbing/DataStore';
+import DataStore, { getDataPath } from '../base/plumbing/DataStore';
 import Settings from '../base/Settings';
 import ShareWidget, { ShareLink } from '../base/components/ShareWidget';
 import ListLoad, { CreateButton } from '../base/components/ListLoad';
@@ -26,6 +26,8 @@ import AceCodeEditor from './AceCodeEditor';
 import Icon from '../base/components/Icon';
 import { getStatus } from '../base/data/DataClass';
 import KStatus from '../base/data/KStatus';
+import PropControlList from '../base/components/PropControlList';
+const dummy = PropControlList;
 
 /**
  * @returns {?String}
@@ -87,7 +89,7 @@ const MoneyScriptEditorPage = () => {
 						<h3>Errors</h3>
 						<ErrorsList errors={item.errors} />
 						<h3>Exports</h3>
-						<ExportsList cargo={item} />
+						<ExportsList planDoc={item} />
 					</BSCard>
 					<BSCard className="mt-2" style={{maxWidth:"300px"}} >
 						<SavePublishDeleteEtc size="md" type="PlanDoc" id={id} saveAs className="light" position="relative" />
@@ -199,7 +201,7 @@ const ImportsList2 = ({verb, imports}) => {
 	// NB the import src is usually g-drive gibberish
 	return (<ul>
 		{imports.map((imp,i) => 
-			<li key={imp.src} ><LinkOut className='mr-2' href={imp.url || imp.src}>[{imp.name || verb+" "+(i+1)}]		
+			<li key={i} ><LinkOut className='mr-2' href={imp.url || imp.src}>[{imp.name || verb+" "+(i+1)}]		
 				{imp.error && <Badge color="danger" title={imp.error.detailMessage || imp.error.message || JSON.stringify(imp.error)}>!</Badge>}
 			</LinkOut></li>
 		)}
@@ -207,16 +209,35 @@ const ImportsList2 = ({verb, imports}) => {
 };
 
 
+const ExportEditor = ({path}) => {
+	return (<>
+		<PropControl path={path} prop="active" label="Active" type="yesNo" dflt={true} />
+			<PropControl path={path} prop="name" label="Name" />		
+			<PropControl path={path} prop="url" placeholder="URL" label="URL" type="url" />
+			<PropControl readOnly path={path} prop="spreadsheetId" label="ID"  />
+			<PropControl path={path} prop="from" label="From" help="You can export only from a set month onwards" placeholder={"Jan "+(new Date().getFullYear+1)} />
+			<PropControl path={path} prop="scenarios" label="Scenarios" type="pills" />
+			<PropControl path={path} prop="overlap" label="Overlap rows only" type="yesNo" />
+			<PropControl path={path} prop="annual" label="Annual columns" type="yesNo" />
+	</>);
+};
+
 /**
  * 
  * @param {PlanDoc|Business} p.cargo can be from MoneyServlet or PlanDocServlet
  */
-const ExportsList = ({cargo}) => {
-	if ( ! cargo) return null;
-	let imports = cargo.exportCommands;
-	return <ImportsList2 verb="Export" imports={imports} />;
+const ExportsList = ({planDoc}) => {
+	if ( ! planDoc) return null;
+	let imports = planDoc.exportCommands;
+	// NB the import src is usually g-drive gibberish, so no point showing it
+	const path = getDataPath({status:KStatus.DRAFT, type:C.TYPES.PlanDoc, id:planDoc.id});
+
+	return <PropControl path={path} prop='exportCommands' type="list" Editor={ExportEditor} Viewer={ViewExport} />;
 };
 
+const ViewExport = ({item, i}) => {
+	return <LinkOut className={space('mr-2', ! item.active && "text-muted")} href={item.url || item.src}>[{item.name || "Export "+(i+1)}]</LinkOut> 
+};
 
 MoneyScriptEditorPage.fullWidth = true;
 export default MoneyScriptEditorPage;
