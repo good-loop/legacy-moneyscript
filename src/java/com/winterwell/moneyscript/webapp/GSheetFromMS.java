@@ -71,6 +71,11 @@ public class GSheetFromMS {
 		
 		List<List<Object>> values = calcValues(biz);
 		
+		// ??
+		if ( ! Utils.isBlank(ec.sheetId)) {
+			sc.setSheet(Integer.valueOf(ec.sheetId));
+		}
+
 		// update with data
 		if ( ! ec.isOverlap()) {
 			values = sc.replaceNulls(values);
