@@ -50,22 +50,30 @@ public class UnaryOp extends Formula {
 		if (op.startsWith("count")) {
 			return calculate2_count(b);
 		}
+		// e.g. "previous Debt"
+		if (op=="previous") {
+			return calculate2_previous(b);
+		}
+		Numerical x = right.calculate(b);
+		if (x==null) return null;
+		assert ! (x instanceof UncertainNumerical) : this;		
+		if (op.equals("round")) {
+			return new Numerical(Math.round(x.doubleValue()), x.getUnit());			
+		}
+		if (op.equals("round down")) {
+			return new Numerical(Math.floor(x.doubleValue()), x.getUnit());			
+		}
+		if (op.equals("round up")) {
+			return new Numerical(Math.ceil(x.doubleValue()), x.getUnit());			
+		}
 		if (op.equals("sqrt")) {
-			Numerical x = right.calculate(b);
-			if (x==null) return null;
-			assert ! (x instanceof UncertainNumerical) : this;
 			return new Numerical(Math.sqrt(x.doubleValue())); // any unit??
 		}
 		if (op.equals("log")) {
-			Numerical x = right.calculate(b);
-			if (x==null) return null;
-			assert ! (x instanceof UncertainNumerical) : this;
 			return new Numerical(Math.log(x.doubleValue())); // any unit??
 		}
 		// Probability
 		if (op.equals("p")) {			
-			Numerical x = right.calculate(b);			
-			if (x==null) return null;
 			double p = x.doubleValue();
 			// hack x% per year = 1 - 12th rt (1 -x) per month
 			// So we interpret p(10% per year) as P(at least once within a year) = 10%
@@ -87,10 +95,6 @@ public class UnaryOp extends Formula {
 //			assert x instanceof Numerical2;
 //			return ((Numerical2)x).getLhs();
 //		}
-		// e.g. "previous Debt"
-		if (op=="previous") {
-			return calculate2_previous(b);
-		}
 		// Fail
 		throw new TodoException(op+" "+right);
 	}

@@ -213,12 +213,13 @@ const ExportEditor = ({path}) => {
 	return (<>
 		<PropControl path={path} prop="active" label="Active" type="yesNo" dflt={true} />
 		<PropControl path={path} prop="name" label="Name" />		
-		<PropControl path={path} prop="url" placeholder="URL" label="URL" type="url" />
+		<PropControl path={path} prop="url" placeholder="URL" label="URL" type="url" required />
 		<PropControl readOnly path={path} prop="spreadsheetId" label="ID"  />
+		<PropControl readOnly path={path} prop="sheetId" label="Sheet/tab" help="Set this if you want to target a specific sheet within the spreadsheet" />
 		<PropControl path={path} prop="from" label="From" help="You can export only from a set month onwards" 
 			placeholder={"e.g. Jan "+(new Date().getFullYear()+1)} />
 		<PropControl path={path} prop="scenarios" label="Scenarios" type="pills" />
-		<PropControl path={path} prop="overlap" label="Overlap rows only" type="yesNo" />
+		<PropControl path={path} prop="overlap" label="Overlap rows only" type="yesNo" help="This is for if you setup the target export sheet with the rows and formatting you want." />
 		<PropControl path={path} prop="annual" label="Annual columns" type="yesNo" />
 	</>);
 };

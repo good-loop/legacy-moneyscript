@@ -69,8 +69,9 @@ public class ExportCommand
 	public boolean preferFormulae;
 
 	List<String> scenarios;
-	public String sheetName;
 
+	public String sheetName;
+	public String sheetId;
 	public String spreadsheetId;
 
 	protected String url;

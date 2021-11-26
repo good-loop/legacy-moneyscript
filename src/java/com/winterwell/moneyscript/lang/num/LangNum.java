@@ -107,12 +107,19 @@ public class LangNum {
 									.label(NUMBER); // temporary assignment for simple egs in this class
 
 
-	final Parser<String> mathFnNameUnary = word("sum row", "sum", "mean", "log", "sqrt", "abs", "previous", "p", "count row", "count").label("mathFnNameUnary");
+	final Parser<String> mathFnNameUnary = word(
+			"count row", "count",
+			"sum row", "sum", "mean", "log", 
+			"round down", "round up", "round", 
+			"sqrt", "abs", 
+			"previous", "p"
+			).label("mathFnNameUnary");
 
 
-	// if then else formulae		
+	/** if then else formulae */		
 	Parser<Formula> conditionalFormula = new PP<Formula>(
-			seq(lit("if").label(null), space, LangBool.bool, space, lit("then").label(null), space, num,
+			seq(lit("if").label(null), space, LangBool.bool, space, 
+				lit("then").label(null), space, num,
 				opt(seq(space, lit("else").label(null), space, num)))) 
 	{
 		protected Formula process(ParseResult<?> r) {
