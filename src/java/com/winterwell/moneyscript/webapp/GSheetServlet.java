@@ -5,6 +5,7 @@ import java.util.List;
 import com.goodloop.gsheets.GSheetsClient;
 import com.google.api.services.sheets.v4.model.SheetProperties;
 import com.winterwell.utils.Dep;
+import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.web.ajax.JSend;
 import com.winterwell.web.app.IServlet;
 import com.winterwell.web.app.WebRequest;
@@ -19,7 +20,7 @@ public class GSheetServlet implements IServlet {
 			
 			List<SheetProperties> sprops = gsc.getSheetProperties(sid);
 			
-			JSend jsend = new JSend(sprops);
+			JSend jsend = new JSend(new ArrayMap("sheets", sprops));
 			jsend.send(state);
 			return;
 		}
