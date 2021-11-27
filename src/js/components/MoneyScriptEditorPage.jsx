@@ -210,12 +210,23 @@ const ImportsList2 = ({verb, imports}) => {
 
 
 const ExportEditor = ({path}) => {
+	// gsheet info?
+	let ec = DataStore.getValue(path) || {};
+	let sheets = [];
+	if (ec.spreadsheetId && ! ec.sheetId) {
+		let pvInfo = DataStore.fetch(['widget','gsheetinfo',ec.spreadsheetId], () => {
+			return ServerIO.load("/gsheet/"+encURI(ec.spreadsheetId)+"?action=info");
+		});
+		if (pvInfo.value) console.warn(pvInfo);
+	}
+
 	return (<>
 		<PropControl path={path} prop="active" label="Active" type="yesNo" dflt={true} />
 		<PropControl path={path} prop="name" label="Name" />		
 		<PropControl path={path} prop="url" placeholder="URL" label="URL" type="url" required />
 		<PropControl readOnly path={path} prop="spreadsheetId" label="ID"  />
 		<PropControl readOnly path={path} prop="sheetId" label="Sheet/tab" help="Set this if you want to target a specific sheet within the spreadsheet" />
+		<small>Sheets in target spreadsheet: {sheets.map(sprops => JSON.stringify(sprops)+" --- ")}</small>
 		<PropControl path={path} prop="from" label="From" help="You can export only from a set month onwards" 
 			placeholder={"e.g. Jan "+(new Date().getFullYear()+1)} />
 		<PropControl path={path} prop="scenarios" label="Scenarios" type="pills" />

@@ -2,6 +2,7 @@ package com.winterwell.moneyscript.webapp;
 
 import java.util.Map;
 
+import com.goodloop.gsheets.GSheetsClient;
 import com.winterwell.data.KStatus;
 import com.winterwell.datalog.DataLog;
 import com.winterwell.es.XIdTypeAdapter;
@@ -38,6 +39,7 @@ public class MoneyScriptMain extends AMain<MoneyScriptConfig> {
 		MasterServlet ms = jl.addMasterServlet();	
 		ms.addServlet("/plandoc", PlanDocServlet.class);
 		ms.addServlet("/money", MoneyServlet.class);
+		ms.addServlet("/gsheet", GSheetServlet.class);
 	}
 	
 	/**
@@ -66,5 +68,7 @@ public class MoneyScriptMain extends AMain<MoneyScriptConfig> {
 		AppUtils.initESIndices(KStatus.main(), dbclasses);
 		Map<Class, Map> mappingFromClass = new ArrayMap();
 		AppUtils.initESMappings(KStatus.main(), dbclasses, mappingFromClass);		
+		// gsheet
+		Dep.set(GSheetsClient.class, new GSheetsClient());
 	}
 }
