@@ -336,11 +336,9 @@ public class Lang {
 			}
 			if (r.formula==null) {
 				// what is this??
-				System.out.println(r);
 				continue;
 			}
 			if (r.getSelector()==null) {
-				System.out.println(r);
 				continue;
 			}
 			CellSet cellset = r.getSelector();

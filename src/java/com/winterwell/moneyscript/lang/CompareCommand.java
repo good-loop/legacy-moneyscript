@@ -13,7 +13,7 @@ public class CompareCommand extends ImportCommand {
 
 	@Override
 	Numerical run2_setCellValue(Business b, double v, Cell cell) {
-		if (cell.row.getName().contains("Grant")) {
+		if (cell.row.getName().contains("DEBUGGrant")) {
 			System.out.println(cell);
 		}
 		Numerical ours = b.getCellValue(cell);
