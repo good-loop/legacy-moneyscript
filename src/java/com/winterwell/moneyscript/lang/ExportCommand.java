@@ -42,9 +42,9 @@ public class ExportCommand
 	// NB: some code will use "import" from the parent
 	public static final String LOGTAG = "export";
 
-	boolean active = true;
-	
-	boolean annual;
+	boolean active = true;	
+
+	KColFreq colFreq = KColFreq.MONTHLY_AND_ANNUAL;
 	
 	protected Throwable error;
 	
@@ -55,7 +55,7 @@ public class ExportCommand
 
 	public TimeDesc from;
 
-	private Time lastGoodRun;
+	Time lastGoodRun;
 
 	protected String name;
 
@@ -100,10 +100,6 @@ public class ExportCommand
 		return active;
 	}
 
-	public boolean isAnnual() {
-		return annual;
-	}
-
 	private boolean isAnnualCol(String col) {
 		col = col.toLowerCase().trim();
 		// NB: exclude the final "Total" (of all time)
@@ -119,9 +115,10 @@ public class ExportCommand
 			if (getScenarios() != null) {
 				biz.setScenarios(getScenarios());
 			}
-
+			
 			Time time = new Time();
-			if (isAnnual()) {
+			if (colFreq==null) colFreq = KColFreq.MONTHLY_AND_ANNUAL; // default
+			if (colFreq==KColFreq.ONLY_ANNUAL) {
 				// just export the annuals
 				runExport2_annualOnly(pd, biz);
 				// success
@@ -132,6 +129,7 @@ public class ExportCommand
 			// Export all or overlap
 			GSheetsClient sc = sc();
 			GSheetFromMS ms2gs = new GSheetFromMS(sc, this, biz);
+			ms2gs.setIncYearTotals(colFreq==KColFreq.MONTHLY_AND_ANNUAL);
 			ms2gs.doExportToGoogle();
 			// success
 			error = null;
@@ -176,7 +174,7 @@ public class ExportCommand
 			ArrayList rowvs = new ArrayList();
 			rowvs.add(rn);
 			List<Map> data = dataForRow.get(rn);
-			assert data.size() == cols.size()-1 : data.size()+" vs "+cols.size()+" "+cols;
+			assert data.size() == cols.size() : data.size()+" vs "+cols.size()+" "+cols;
 			for(int i=0; i<cols.size(); i++) {
 				String coli = cols.get(i);
 				if ( ! isAnnualCol(coli)) continue;
@@ -186,7 +184,6 @@ public class ExportCommand
 			}
 			annualValues.add(rowvs);	
 		}
-//		String bcsv = biz.toCSV(); // nope, this doesnt include the annuals!
 		
 		GSheetsClient sc = sc();		
 		if ( ! Utils.isBlank(sheetId)) {

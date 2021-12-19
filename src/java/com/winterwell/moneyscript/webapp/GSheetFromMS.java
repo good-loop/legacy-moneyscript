@@ -47,6 +47,9 @@ import com.winterwell.utils.log.Log;
  */
 public class GSheetFromMS {
 
+	public void setIncYearTotals(boolean incYearTotals) {
+		this.incYearTotals = incYearTotals;
+	}
 	private static final String LOGTAG = "GSheetFromMS";
 	private GSheetsClient sc;
 	/**
@@ -63,6 +66,8 @@ public class GSheetFromMS {
 		assert exportCommand != null;
 		this.biz = biz;
 	}
+	
+	boolean incYearTotals;
 
 	public void doExportToGoogle() throws Exception {
 		assert ec.getSpreadsheetId() !=null && true : ec;
@@ -122,24 +127,108 @@ public class GSheetFromMS {
 		// run
 		biz.run();		
 		
+		// json based approach - reuses the logic for the M$ front-end TODO switch all to this
+		List<List<Object>> values = calcValues2_fromJson(biz);
+		return values;
+		
+//		List<List<Object>> values = new ArrayList();
+//
+//		List<Col> cols = biz.getColumns();	
+//		// filter the columns?
+//		IntRange incCols = new IntRange(0, Integer.MAX_VALUE); // no filter!
+//		if (ec.from!=null) {
+//			Cell context = null;
+//			Col scol = ec.from.getCol(context);
+//			incCols = new IntRange(scol.index, Integer.MAX_VALUE); // probably correct: cols.size() - 1);
+//		}
+//		
+//		// add date row
+//		List<Object> headers = new ArrayList();
+//		headers.add(""); 
+//		for (Col col : cols) {
+//			if ( ! incCols.contains(col.index)) {
+//				continue;
+//			}
+//			headers.add(col.getTimeDesc());
+//		}
+//		values.add(headers);
+//				
+//		// make a blank row object
+//		final List<Object> blanks = new ArrayList();
+//		// ...overwrite or not depending on export=overlap
+//		for(int i=0; i<headers.size(); i++) blanks.add(ec.isOverlap()? null : "");
+//								
+//		// convert		
+//		for (Row row : spacedRows) {
+//			if (row==null) {
+//				values.add(blanks);
+//				continue;
+//			}
+//			Rule r0 = row.getRules().get(0);
+////			if ("debug UK Staff".contains(row.getName())) {
+////				System.out.println(r0); // TODO this has a few rules, e.g. 4% pay rise -- so it doesnt go to formula
+////			}
+//			List<Object> rowvs = new ArrayList();
+//			rowvs.add(row.getName());
+//			Collection<Cell> cells = row.getCells();
+//			for (Cell cell : cells) {
+//				if ( ! incCols.contains(cell.col.index)) {
+//					continue;
+//				}
+//				Numerical v = biz.getCellValue(cell);
+//				if (v ==null) {
+//					rowvs.add(""); 
+//					continue;
+//				}
+//				if (ec.preferFormulae && ! Utils.isBlank(v.excel)) {
+//					// Avoid self-reference which would upset GSheets
+//					// NB: "A12" contains "A1"
+//					Pattern p = Pattern.compile("\\b"+cellRef(cell.row, cell.col)+"\\b");
+//					if ( ! p.matcher(v.excel).find()) {
+//						rowvs.add("="+v.excel); // a formula	
+//						continue;
+//					}
+//				}
+//				if (v instanceof UncertainNumerical) {
+//					rowvs.add(v.doubleValue());	
+//				} else {
+//					rowvs.add(v.doubleValue()); // toExportString());
+//				}				
+//			} // ./cell
+//			values.add(rowvs);
+//		}
+//		
+//		Dep.set(GSheetFromMS.class, null); // clear earlier set
+//		
+//		return values;
+	}
+
+
+	private List<List<Object>> calcValues2_fromJson(Business biz2) {
+		ArrayMap json = biz.toJSON2(incYearTotals);
+//		Printer.out(json.keySet());
+//		Object rows = json.get("rows");
+		List<String> columns = (List) json.get("columns");
+		Map dataForRow = (Map) json.get("dataForRow");
 		List<List<Object>> values = new ArrayList();
-		// add date row
-		List<Col> cols = biz.getColumns();	
-		// filter the columns?
+
+		// TODO filter the columns?
 		IntRange incCols = new IntRange(0, Integer.MAX_VALUE); // no filter!
-		if (ec.from!=null) {
+		if (ec.from!=null && false) { // Need to count annual columns
 			Cell context = null;
 			Col scol = ec.from.getCol(context);
 			incCols = new IntRange(scol.index, Integer.MAX_VALUE); // probably correct: cols.size() - 1);
 		}
 		
+		// add date row
 		List<Object> headers = new ArrayList();
-		headers.add(""); 
-		for (Col col : cols) {
-			if ( ! incCols.contains(col.index)) {
+		headers.add(""); // the row-name column
+		for(int c=0; c<columns.size(); c++) {
+			String col = columns.get(c);
+			if ( ! incCols.contains(c)) {
 				continue;
 			}
-			headers.add(col.getTimeDesc());
+			headers.add(col);
 		}
 		values.add(headers);
 				
@@ -154,49 +243,40 @@ public class GSheetFromMS {
 				values.add(blanks);
 				continue;
 			}
-			Rule r0 = row.getRules().get(0);
-//			if ("debug UK Staff".contains(row.getName())) {
-//				System.out.println(r0); // TODO this has a few rules, e.g. 4% pay rise -- so it doesnt go to formula
-//			}
 			List<Object> rowvs = new ArrayList();
 			rowvs.add(row.getName());
-			Collection<Cell> cells = row.getCells();
-			for (Cell cell : cells) {
-				if ( ! incCols.contains(cell.col.index)) {
+			List<Map> cells = (List) dataForRow.get(row.getName());
+			for(int c=0; c<cells.size(); c++) {
+				Map cell = cells.get(c);
+				if ( ! incCols.contains(c)) {
 					continue;
 				}
-				Numerical v = biz.getCellValue(cell);
+				Number v = (Number) cell.get("v");
 				if (v ==null) {
 					rowvs.add(""); 
 					continue;
 				}
-				if (ec.preferFormulae && ! Utils.isBlank(v.excel)) {
-					// Avoid self-reference which would upset GSheets
-					// NB: "A12" contains "A1"
-					Pattern p = Pattern.compile("\\b"+cellRef(cell.row, cell.col)+"\\b");
-					if ( ! p.matcher(v.excel).find()) {
-						rowvs.add("="+v.excel); // a formula	
-						continue;
-					}
-				}
-				if (v instanceof UncertainNumerical) {
-					rowvs.add(v.doubleValue());	
-				} else {
-					rowvs.add(v.doubleValue()); // toExportString());
-				}				
+//				if (ec.preferFormulae && ! Utils.isBlank(v.excel)) {
+//					// Avoid self-reference which would upset GSheets
+//					// NB: "A12" contains "A1"
+//					Pattern p = Pattern.compile("\\b"+cellRef(cell.row, cell.col)+"\\b");
+//					if ( ! p.matcher(v.excel).find()) {
+//						rowvs.add("="+v.excel); // a formula	
+//						continue;
+//					}
+//				}
+				rowvs.add(v.doubleValue());							
 			} // ./cell
 			values.add(rowvs);
 		}
 		
-		Dep.set(GSheetFromMS.class, null); // clear earlier set
-		
 		return values;
 	}
-
+	
+	
 
 	List<List<Map>> calcStyles() {
-		// assume calcValues has run!
-		
+		// assume calcValues has run!		
 		List<List<Map>> values = new ArrayList();
 		// add date row
 		List<Col> cols = biz.getColumns();	

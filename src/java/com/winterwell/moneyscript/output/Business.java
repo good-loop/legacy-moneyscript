@@ -148,13 +148,17 @@ public final class Business {
 	 * Map starts columns:column-names
 	 */
 	public ArrayMap toJSON() {
+		boolean incYearTotals = TUnit.MONTH.dt.equals(getSettings().timeStep);
+		return toJSON2(incYearTotals);
+	}
+	
+	public ArrayMap toJSON2(boolean incYearTotals) {
 		assert phase == KPhase.OUTPUT;
 		
 		// parse info
 		ArrayMap map = getParseInfoJson();
 		
 		// columns
-		boolean incYearTotals = TUnit.MONTH.dt.equals(getSettings().timeStep);
 		ArrayList<String> cols = new ArrayList<String>();
 		for(Col col : getColumns()) {
 			cols.add(col.getTimeDesc());
@@ -181,25 +185,29 @@ public final class Business {
 				"comment", comment,
 				"css", getCSSForRow(row)
 			));			
+			rowNames.add(row.getName());
 		}
 		map.put("rows", jrows);
 		map.put("dataForRow", datamap);
 				
-		// insert total
-		cols.add("Total");
-		for(String rowName : rowNames) {
-			Row row = getRow(rowName);
-			List<Map> rowvs = (List<Map>) datamap.get(rowName);
-			try {						
-				// TODO handle uncertainnumerical
-				List<Number> vs = Containers.apply(rowvs, cv -> ((Number) cv.get("v")).doubleValue());
-				Numerical v = new Numerical(MathUtils.sum(MathUtils.toArray(vs)));
-				Cell c = new Cell(row, new Col(cols.size()));
-				Map sumv = row.getValuesJSON2_cell(this, c, v);
-				rowvs.add(sumv);
-			} catch(Exception ex) {
-				Log.w("Money.Year Total."+rowName, ex);
-				rowvs.add(new ArrayMap());
+		// TODO insert total
+		if (false) {
+			cols.add("Total");
+			for(String rowName : rowNames) {
+				Row row = getRow(rowName);
+				// TODO need to also keep a version without the year-totals
+				List<Map> rowvs = (List<Map>) datamap.get(rowName);
+				try {						
+					// TODO handle uncertainnumerical
+					List<Number> vs = Containers.apply(rowvs, cv -> ((Number) cv.get("v")).doubleValue());
+					Numerical v = new Numerical(MathUtils.sum(MathUtils.toArray(vs)));
+					Cell c = new Cell(row, new Col(cols.size()));
+					Map sumv = row.getValuesJSON2_cell(this, c, v);
+					rowvs.add(sumv);
+				} catch(Exception ex) {
+					Log.w("Money.Year Total."+rowName, ex);
+					rowvs.add(new ArrayMap());
+				}
 			}
 		}
 		

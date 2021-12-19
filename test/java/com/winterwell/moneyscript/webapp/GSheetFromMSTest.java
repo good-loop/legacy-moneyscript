@@ -12,6 +12,7 @@ import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.nlp.simpleparser.Parser;
+import com.winterwell.utils.Printer;
 import com.winterwell.utils.io.FileUtils;
 
 public class GSheetFromMSTest {
@@ -26,6 +27,30 @@ public class GSheetFromMSTest {
 		gs4ms.setupRows();
 		List<List<Object>> vs = gs4ms.calcValues(biz);
 		System.out.println(vs);
+	}
+	
+
+	@Test
+	public void testIncludeAnnuals() throws Exception {
+		PlanDoc pd = new PlanDoc();
+		pd.setText("Alice: £10 per month\nBob: £5\nAlice at month 1: £5");
+		Business biz = MoneyServlet.lang.parse(pd.getText());
+		biz.setColumns(14);
+		
+		ExportCommand ec = new ExportCommand("");
+		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),ec,biz);
+		gs4ms.incYearTotals = true;
+		
+		gs4ms.setupRows();
+		
+		List<List<Object>> vs = gs4ms.calcValues(biz);
+		List<Object> headers = vs.get(0);
+		assert Printer.toString(headers).contains("Total 20") : headers;
+		List<Object> aliceRow = vs.get(1);
+//		Printer.out(headers);
+//		Printer.out(aliceRow);
+		assert aliceRow.size() == headers.size() : aliceRow.size()+" vs "+headers.size();
+		assert headers.size() > 15;
 	}
 	
 	

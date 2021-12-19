@@ -23,7 +23,7 @@ public class ExportCommandTest {
 		biz.run();
 
 		ExportCommand ex0 = new ExportCommand("https://docs.google.com/spreadsheets/d/1vksonmI0OWqshxPb7rNd5cKAMUbXZDwc1E0U6unSGw0");
-		ex0.annual = true;
+		ex0.colFreq = KColFreq.ONLY_ANNUAL;
 		ex0.runExport(new PlanDoc(), biz);
 	}
 

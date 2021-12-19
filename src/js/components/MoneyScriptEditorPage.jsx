@@ -239,7 +239,9 @@ const ExportEditor = ({path}) => {
 			placeholder={"e.g. Jan "+(new Date().getFullYear()+1)} />
 		<PropControl path={path} prop="scenarios" label="Scenarios" type="pills" />
 		<PropControl path={path} prop="overlap" label="Overlap rows only" type="yesNo" help="This is for if you setup the target export sheet with the rows and formatting you want." />
-		<PropControl path={path} prop="annual" label="Annual columns" type="yesNo" />
+		<PropControl path={path} prop="colFreq" label="Columns" type="select" 
+			options={["MONTHLY_AND_ANNUAL", "ONLY_MONTHLY", "ONLY_ANNUAL"]}
+			labels={["monthly and annual", "only monthly", "only annual"]}/>
 	</>);
 };
 
