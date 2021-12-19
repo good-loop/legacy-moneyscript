@@ -71,7 +71,7 @@ public class GSheetFromMS {
 		
 		List<List<Object>> values = calcValues(biz);
 		
-		// ??
+		// a specific tab in the spreadsheet?
 		if ( ! Utils.isBlank(ec.sheetId)) {
 			sc.setSheet(Integer.valueOf(ec.sheetId));
 		}

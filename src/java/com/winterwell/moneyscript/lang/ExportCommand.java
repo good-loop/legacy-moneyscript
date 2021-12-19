@@ -189,6 +189,9 @@ public class ExportCommand
 //		String bcsv = biz.toCSV(); // nope, this doesnt include the annuals!
 		
 		GSheetsClient sc = sc();		
+		if ( ! Utils.isBlank(sheetId)) {
+			sc.setSheet(Integer.valueOf(sheetId));
+		}
 		List<List<Object>> cleanVs = sc.replaceNulls(annualValues);
 		sc.clearSpreadsheet(spreadsheetId);
 		sc.updateValues(spreadsheetId, cleanVs);

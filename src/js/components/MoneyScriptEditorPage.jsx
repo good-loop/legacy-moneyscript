@@ -212,26 +212,29 @@ const ImportsList2 = ({verb, imports}) => {
 const ExportEditor = ({path}) => {
 	// gsheet info?
 	let ec = DataStore.getValue(path) || {};
-	let sheets = [];
-	if (ec.spreadsheetId) {
-		let pvInfo = DataStore.fetch(['widget','gsheetinfo',ec.spreadsheetId], () => {
-			return ServerIO.load("/gsheet/"+encURI(ec.spreadsheetId)+"?action=info");
-		});
-		if (pvInfo.value) {
-			sheets = pvInfo.value.sheets;
-		}
-	}
+	// let sheets = [];
+	// if (ec.spreadsheetId) {
+	// 	let pvInfo = DataStore.fetch(['widget','gsheetinfo',ec.spreadsheetId], () => {
+	// 		return ServerIO.load("/gsheet/"+encURI(ec.spreadsheetId)+"?action=info");
+	// 	});
+	// 	if (pvInfo.value) {
+	// 		sheets = pvInfo.value.sheets;
+	// 		// name
+	// 	}
+	// }
 
 	return (<>
 		<PropControl path={path} prop="active" label="Active" type="yesNo" dflt={true} />
 		<PropControl path={path} prop="name" label="Name" />		
-		<PropControl path={path} prop="url" placeholder="URL" label="URL" type="url" required />
+		<PropControl path={path} prop="url" placeholder="URL" label="Google Sheet URL" type="url" required 
+			help='Make a spreadsheet in Google Drive, set sharing to "anyone with the url can edit", then copy the url here' 
+			saveFn={e => { /* clear id on change - server will reset it */if (ec) ec.spreadsheetId = null; } } />
 		<small>ID: {ec && ec.spreadsheetId}</small> 
-		<PropControl path={path} prop="sheetId" label="Sheet/tab" help="Set this if you want to target a specific sheet within the spreadsheet" 
+		{/* see GSheetsClient <PropControl path={path} prop="sheetId" label="Sheet/tab" help="Set this if you want to target a specific sheet within the spreadsheet" 
 			type="select"
 			labels={sheets.map(sprops => space(sprops.title, sprops.hidden&&"(hidden)"))}
 			options={sheets.map(sprops => sprops.sheetId)}
-		/>
+	/> */}
 		<PropControl path={path} prop="from" label="From" help="You can export only from a set month onwards" 
 			placeholder={"e.g. Jan "+(new Date().getFullYear()+1)} />
 		<PropControl path={path} prop="scenarios" label="Scenarios" type="pills" />
@@ -250,7 +253,7 @@ const ExportsList = ({planDoc}) => {
 	// NB the import src is usually g-drive gibberish, so no point showing it
 	const path = getDataPath({status:KStatus.DRAFT, type:C.TYPES.PlanDoc, id:planDoc.id});
 
-	return <PropControl path={path} prop='exportCommands' type="list" Editor={ExportEditor} Viewer={ViewExport} />;
+	return <PropControl path={path} prop='exportCommands' type="list" Editor={ExportEditor} Viewer={ViewExport} itemType="Export to Google Sheets" />;
 };
 
 const ViewExport = ({item, i}) => {

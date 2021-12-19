@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.goodloop.gsheets.GSheetsClient;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
+import com.winterwell.bob.wwjobs.BuildHacks;
 import com.winterwell.data.KStatus;
 import com.winterwell.es.ESPath;
 import com.winterwell.es.client.ESHit;
@@ -143,6 +144,13 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 //				// NB: export is only done on publish -- so allow old status (esp errors) to stick around
 //				plandoc.setExportCommands(biz.getExportCommands());
 //			}
+			// export -- trigger id from url
+			List<ExportCommand> exports = plandoc.getExportCommands();
+			if (exports != null) {
+				for (ExportCommand export : exports) {
+					export.getSpreadsheetId();					
+				}
+			}
 			// make sure the json gets updated
 			jThing.setJava(plandoc);			
 		} catch(ParseExceptions exs) {
