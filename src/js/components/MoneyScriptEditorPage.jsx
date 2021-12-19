@@ -225,7 +225,7 @@ const ExportEditor = ({path}) => {
 
 	return (<>
 		<PropControl path={path} prop="active" label="Active" type="yesNo" dflt={true} />
-		<PropControl path={path} prop="name" label="Name" />		
+		<PropControl path={path} prop="name" label="Name here" />		
 		<PropControl path={path} prop="url" placeholder="URL" label="Google Sheet URL" type="url" required 
 			help='Make a spreadsheet in Google Drive, set sharing to "anyone with the url can edit", then copy the url here' 
 			saveFn={e => { /* clear id on change - server will reset it */if (ec) ec.spreadsheetId = null; } } />
