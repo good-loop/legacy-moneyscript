@@ -11,6 +11,7 @@ import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.ImportCommand;
 import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.output.Business;
+import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.containers.Containers;
 
 public class PlanDoc extends AThing {
@@ -31,7 +32,7 @@ public class PlanDoc extends AThing {
 	@ESKeyword
 	String originalId;
 	
-	String text;	
+	private String text;	
 	
 	public transient Map parseInfo;
 	
@@ -41,8 +42,14 @@ public class PlanDoc extends AThing {
 	public transient Business business;
 	
 	public String getText() {
+		// if sheets are in use, then combine them.
+		if (sheets!=null && sheets.length!=0) {
+			text = StrUtils.join(sheets, "\n\n");
+		}
 		return text;
 	}
+	
+	String[] sheets;
 
 	public void setText(String s) {
 		this.text = s;
@@ -73,7 +80,7 @@ public class PlanDoc extends AThing {
 	
 	public Business getBusiness() {
 		if (business==null) {
-			business = lang.parse(text);	
+			business = lang.parse(getText());	
 		}
 		return business;
 	}
