@@ -1,7 +1,7 @@
 import React, { Component, useState } from 'react';
 import { ReactDOM } from 'react-dom';
 import _, { uniqBy } from 'lodash';
-import { Col, Row, Card as BSCard, Alert, Badge, Modal, Button, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Col, Row, Card as BSCard, Alert, Badge, Modal, Button, ModalHeader, ModalBody, ModalFooter, Nav, TabContent, NavItem, NavLink, TabPane } from 'reactstrap';
 
 import printer from '../base/utils/printer';
 import C from '../C';
@@ -27,6 +27,7 @@ import Icon from '../base/components/Icon';
 import { getStatus } from '../base/data/DataClass';
 import KStatus from '../base/data/KStatus';
 import PropControlList from '../base/components/PropControlList';
+import { Tabs, Tab } from '../base/components/Tabs';
 const dummy = PropControlList;
 
 /**
@@ -83,7 +84,7 @@ const MoneyScriptEditorPage = () => {
 					<GSheetLink item={item} />
 					<GitHubLink item={item} />
 					<DownloadTextLink text={item.text} filename={item.name + ".txt"} />
-					<BSCard className="mt-2" style={{maxWidth:"300px"}}>
+					<BSCard className="mt-2" style={{ maxWidth: "300px" }}>
 						<h3>Imports</h3>
 						<ImportsList cargo={item} />
 						<h3>Errors</h3>
@@ -91,7 +92,7 @@ const MoneyScriptEditorPage = () => {
 						<h3>Exports</h3>
 						<ExportsList planDoc={item} />
 					</BSCard>
-					<BSCard className="mt-2" style={{maxWidth:"300px"}} >
+					<BSCard className="mt-2" style={{ maxWidth: "300px" }} >
 						<SavePublishDeleteEtc size="md" type="PlanDoc" id={id} saveAs className="light" position="relative" />
 					</BSCard>
 					{/* <ShareLink /> */}
@@ -102,11 +103,11 @@ const MoneyScriptEditorPage = () => {
 	);
 };
 
-const ErrorsList = ({errors}) => {
-	if ( ! errors || ! errors.length) {
+const ErrorsList = ({ errors }) => {
+	if (!errors || !errors.length) {
 		return "None :)";
 	}
-	return errors.map((err,i) => <Alert color='danger' key={i}>Line: {err.line} {err.message}</Alert>);
+	return errors.map((err, i) => <Alert color='danger' key={i}>Line: {err.line} {err.message}</Alert>);
 };
 
 export const GSheetLink = ({ item }) => {
@@ -172,14 +173,58 @@ const markerFromParseFail = pf => {
 	// return {startRow:line, startCol:1, endRow:line, endCol:2, className:'bg-warning', type: 'fullLine', text:pf.message };
 };
 
+/**
+ * 
+ * @param {Object} p
+ * @param {PlanDoc} p.plandoc
+ * @returns 
+ */
 const EditScript = ({ id, plandoc, path }) => {
 	// syntax errors?
 	let parsed = plandoc; // NB: parse info is added server-side by augment
 	let pes = (parsed && parsed.errors) || []; //[{line:3,message:"Boo"}]; // TODO immortal error bug - as we don't reset value on return -- FIX use diffs (parsed && parsed.errors) || [];
 	// standardise on tabs, with 4 spaces = 1 tab
 	let modelValueFromInput = (iv, type, eventType) => standardModelValueFromInput(iv ? iv.replace(/ {4}/g, '\t') : iv, type, eventType);
+	// backwards compatability
+	if (!plandoc.sheets) plandoc.sheets = [{text:plandoc.text || "",title:"Sheet 1"}];
+	let tabId = 1*(DataStore.getUrlValue("tab") || 0);
+	const deleteSheet = _tabId => {
+		let ok = confirm("Are you sure you want to delete "+(plandoc.sheets[tabId].title || tabId)+"?")
+		if ( ! ok) return;
+		plandoc.sheets.splice(tabId, 1);
+		DataStore.setValue(path, plandoc, true);
+	};
 	return (<div>
-		<AceCodeEditor path={path} prop='text' annotations={pes.map(markerFromParseFail)} height="calc(100vh - 10em)" />
+		<Nav tabs>
+			{plandoc.sheets.map((sheet, i) => (<NavItem key={i} className={tabId===i? 'active' : "bg-secondary"}>
+				<NavLink 
+					onClick={() => DataStore.setUrlValue("tab", i)}
+					className={space(tabId===i && 'active')}
+				>
+					{tabId===i?
+						<div className='flex-row'>
+							<PropControl path={path.concat('sheets', tabId)} prop='title' className="mb-0" />
+							<Button color="outline-danger" size="sm" className='ml-1' onClick={e => deleteSheet(tabId)} ><Icon name="trashcan" /></Button>
+						</div>
+						: (sheet.title || "Sheet "+(i+1))
+					}
+				</NavLink>
+				</NavItem>)
+			)}
+			<NavItem className='bg-secondary'><NavLink 
+				onClick={() => {
+					plandoc.sheets.push({text:"",title:"Sheet "+(plandoc.sheets.length + 1)}); 
+					DataStore.setUrlValue("tab", plandoc.sheets.length - 1);
+				}}
+			>+</NavLink></NavItem>
+		</Nav>
+		<TabContent activeTab={tabId}>
+			<TabPane tabId={tabId} title={"Foo"}>
+				<AceCodeEditor path={path.concat('sheets', tabId)}
+					prop='text'
+					annotations={pes.map(markerFromParseFail)} height="calc(100vh - 10em)" />
+			</TabPane>
+		</TabContent>
 	</div>);
 
 };
@@ -188,20 +233,20 @@ const EditScript = ({ id, plandoc, path }) => {
  * 
  * @param {PlanDoc|Business} p.cargo can be from MoneyServlet or PlanDocServlet
  */
-const ImportsList = ({cargo}) => {
-	if ( ! cargo) return null;
-	let imports = cargo.importCommands;	
+const ImportsList = ({ cargo }) => {
+	if (!cargo) return null;
+	let imports = cargo.importCommands;
 	return <ImportsList2 verb="Import" imports={imports} />;
 };
 
-const ImportsList2 = ({verb, imports}) => {
-	if ( ! imports || ! imports.length) return null;
+const ImportsList2 = ({ verb, imports }) => {
+	if (!imports || !imports.length) return null;
 	// filter dupes ??do this server side
 	imports = uniqBy(imports, imp => imp.src);
 	// NB the import src is usually g-drive gibberish
 	return (<ul>
-		{imports.map((imp,i) => 
-			<li key={i} ><LinkOut className='mr-2' href={imp.url || imp.src}>[{imp.name || verb+" "+(i+1)}]		
+		{imports.map((imp, i) =>
+			<li key={i} ><LinkOut className='mr-2' href={imp.url || imp.src}>[{imp.name || verb + " " + (i + 1)}]
 				{imp.error && <Badge color="danger" title={imp.error.detailMessage || imp.error.message || JSON.stringify(imp.error)}>!</Badge>}
 			</LinkOut></li>
 		)}
@@ -209,7 +254,7 @@ const ImportsList2 = ({verb, imports}) => {
 };
 
 
-const ExportEditor = ({path}) => {
+const ExportEditor = ({ path }) => {
 	// gsheet info?
 	let ec = DataStore.getValue(path) || {};
 	// let sheets = [];
@@ -225,23 +270,23 @@ const ExportEditor = ({path}) => {
 
 	return (<>
 		<PropControl path={path} prop="active" label="Active" type="yesNo" dflt={true} />
-		<PropControl path={path} prop="name" label="Name here" />		
-		<PropControl path={path} prop="url" placeholder="URL" label="Google Sheet URL" type="url" required 
-			help='Make a spreadsheet in Google Drive, set sharing to "anyone with the url can edit", then copy the url here' 
-			saveFn={e => { /* clear id on change - server will reset it */if (ec) ec.spreadsheetId = null; } } />
-		<small>ID: {ec && ec.spreadsheetId}</small> 
+		<PropControl path={path} prop="name" label="Name here" />
+		<PropControl path={path} prop="url" placeholder="URL" label="Google Sheet URL" type="url" required
+			help='Make a spreadsheet in Google Drive, set sharing to "anyone with the url can edit", then copy the url here'
+			saveFn={e => { /* clear id on change - server will reset it */if (ec) ec.spreadsheetId = null; }} />
+		<small>ID: {ec && ec.spreadsheetId}</small>
 		{/* see GSheetsClient <PropControl path={path} prop="sheetId" label="Sheet/tab" help="Set this if you want to target a specific sheet within the spreadsheet" 
 			type="select"
 			labels={sheets.map(sprops => space(sprops.title, sprops.hidden&&"(hidden)"))}
 			options={sheets.map(sprops => sprops.sheetId)}
 	/> */}
-		<PropControl path={path} prop="from" label="From" help="You can export only from a set month onwards" 
-			placeholder={"e.g. Jan "+(new Date().getFullYear()+1)} />
+		<PropControl path={path} prop="from" label="From" help="You can export only from a set month onwards"
+			placeholder={"e.g. Jan " + (new Date().getFullYear() + 1)} />
 		<PropControl path={path} prop="scenarios" label="Scenarios" type="pills" />
 		<PropControl path={path} prop="overlap" label="Overlap rows only" type="yesNo" help="This is for if you setup the target export sheet with the rows and formatting you want." />
-		<PropControl path={path} prop="colFreq" label="Columns" type="select" 
+		<PropControl path={path} prop="colFreq" label="Columns" type="select"
 			options={["MONTHLY_AND_ANNUAL", "ONLY_MONTHLY", "ONLY_ANNUAL"]}
-			labels={["monthly and annual", "only monthly", "only annual"]}/>
+			labels={["monthly and annual", "only monthly", "only annual"]} />
 	</>);
 };
 
@@ -249,17 +294,17 @@ const ExportEditor = ({path}) => {
  * 
  * @param {PlanDoc|Business} p.cargo can be from MoneyServlet or PlanDocServlet
  */
-const ExportsList = ({planDoc}) => {
-	if ( ! planDoc) return null;
+const ExportsList = ({ planDoc }) => {
+	if (!planDoc) return null;
 	let imports = planDoc.exportCommands;
 	// NB the import src is usually g-drive gibberish, so no point showing it
-	const path = getDataPath({status:KStatus.DRAFT, type:C.TYPES.PlanDoc, id:planDoc.id});
+	const path = getDataPath({ status: KStatus.DRAFT, type: C.TYPES.PlanDoc, id: planDoc.id });
 
 	return <PropControl path={path} prop='exportCommands' type="list" Editor={ExportEditor} Viewer={ViewExport} itemType="Export to Google Sheets" />;
 };
 
-const ViewExport = ({item, i}) => {
-	return <LinkOut className={space('mr-2', ! item.active && "text-muted")} href={item.url || item.src}>[{item.name || "Export "+(i+1)}]</LinkOut> 
+const ViewExport = ({ item, i }) => {
+	return <LinkOut className={space('mr-2', !item.active && "text-muted")} href={item.url || item.src}>[{item.name || "Export " + (i + 1)}]</LinkOut>
 };
 
 MoneyScriptEditorPage.fullWidth = true;

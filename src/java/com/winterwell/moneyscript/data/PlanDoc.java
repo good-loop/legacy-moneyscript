@@ -43,13 +43,13 @@ public class PlanDoc extends AThing {
 	
 	public String getText() {
 		// if sheets are in use, then combine them.
-		if (sheets!=null && sheets.length!=0) {
-			text = StrUtils.join(sheets, "\n\n");
+		if (sheets!=null && ! sheets.isEmpty()) {
+			text = StrUtils.join(Containers.apply(sheets, PlanSheet::getText), "\n\n");
 		}
 		return text;
 	}
 	
-	String[] sheets;
+	List<PlanSheet> sheets;
 
 	public void setText(String s) {
 		this.text = s;
