@@ -48,6 +48,14 @@ public class PlanDoc extends AThing {
 		}
 		return text;
 	}
+
+	private List<PlanSheet> getSheets() {
+		if (sheets==null) {
+			sheets = new ArrayList();
+			sheets.add(new PlanSheet(text));
+		}
+		return sheets;
+	}
 	
 	List<PlanSheet> sheets;
 
@@ -80,8 +88,9 @@ public class PlanDoc extends AThing {
 	
 	public Business getBusiness() {
 		if (business==null) {
-			business = lang.parse(getText());	
+			business = lang.parse(getSheets());	
 		}
 		return business;
 	}
+
 }
