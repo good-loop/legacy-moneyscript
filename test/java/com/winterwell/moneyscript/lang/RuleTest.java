@@ -127,7 +127,7 @@ public class RuleTest {
 			Business b = new Business();
 			BusinessContext.setBusiness(b);
 			Row alice = new Row("Alice");
-			b.addRow(alice);
+			b.addRow(alice,null);
 			Lang lang = new Lang();
 			Rule rule = lang.parseLine("Alice: £10 per month", b);	
 			assert rule != null;
@@ -141,7 +141,7 @@ public class RuleTest {
 			Business b = new Business();
 			BusinessContext.setBusiness(b);
 			Row alice = new Row("Alice");
-			b.addRow(alice);
+			b.addRow(alice,null);
 			Lang lang = new Lang();
 			Rule rule = lang.parseLine("Alice: £120 per year", b);	
 			assert rule != null;
@@ -158,7 +158,7 @@ public class RuleTest {
 	public void testSetValueRow() {
 		Business b = new Business();
 		Row alice = new Row("Alice");
-		b.addRow(alice);
+		b.addRow(alice,null);
 		Lang lang = new Lang();
 		Rule rule = lang.parseLine("Alice at month 1: £10", b);	
 		assert rule != null;

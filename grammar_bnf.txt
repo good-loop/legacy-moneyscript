@@ -30,7 +30,7 @@
 
 <opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
 
-<num> ::= {<__ndojvv17d5906530a>|<fPer>, <opAny>}+
+<num> ::= {<__wiyzfn17de7efa576>|<fPer>, <opAny>}+
 
 <meta> ::= "hide"|"show"|"plot distribution"|"plot"|"off"
 
@@ -50,7 +50,7 @@
 
 <num> ::= {<fPer>|<fPer>, <opAny>}+
 
-<__ndojvv17d5906530a> ::= "(" <fPer>|<__ndojvv17d5906530a> ")"
+<__wiyzfn17de7efa576> ::= "(" <fPer>|<__wiyzfn17de7efa576> ")"
 
 <fPer> ::= <fPlus> ["\s+" "per" "\s+" <dt>]
 
@@ -134,7 +134,7 @@
 
 <mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
 
-<mathFnNameUnary> ::= "sum row"|"sum"|"mean"|"log"|"sqrt"|"abs"|"previous"|"p"|"count row"|"count"
+<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"
 
 <op> ::= "from"|"to"|"if"|"at"
 
@@ -154,7 +154,7 @@
 
 <mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
 
-<mathFnNameUnary> ::= "sum row"|"sum"|"mean"|"log"|"sqrt"|"abs"|"previous"|"p"|"count row"|"count"
+<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"
 
 <fTimes> ::= <fTight> ["\s+"] "*"|"/"|"@" ["\s+"] <fTimes>|<fTight>
 
@@ -182,7 +182,7 @@
 
 <mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
 
-<mathFnNameUnary> ::= "sum row"|"sum"|"mean"|"log"|"sqrt"|"abs"|"previous"|"p"|"count row"|"count"
+<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"
 
 <time> ::= <__r39>|"start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"
 

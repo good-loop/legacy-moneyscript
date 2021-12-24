@@ -104,7 +104,7 @@ public class ImportCommandTest {
 		ic.overwrite = true;
 		ic.setRows("all");
 		Business bs = new Business();
-		bs.addRow(new Row("Dummy"));
+		bs.addRow(new Row("Dummy"), null);
 		bs.getSettings().setStart(new Time(new Time().getYear(), 1, 1));
 		bs.getSettings().setEnd(new Time(new Time().getYear(), 12, 31));
 		bs.addImportCommand(ic);

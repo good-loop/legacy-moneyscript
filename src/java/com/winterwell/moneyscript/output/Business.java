@@ -13,6 +13,7 @@ import com.winterwell.gson.Gson;
 import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
 import com.winterwell.maths.stats.distributions.d1.UniformDistribution1D;
 import com.winterwell.maths.timeseries.TimeSlicer;
+import com.winterwell.moneyscript.data.PlanSheet;
 import com.winterwell.moneyscript.lang.CompareCommand;
 import com.winterwell.moneyscript.lang.ErrorNumerical;
 import com.winterwell.moneyscript.lang.ExportCommand;
@@ -188,7 +189,8 @@ public final class Business {
 			rowNames.add(row.getName());
 		}
 		map.put("rows", jrows);
-		map.put("dataForRow", datamap);
+		map.put("dataForRow", datamap); 
+		map.put("rowsForPlansheet", rows4plansheet);
 				
 		// TODO insert total
 		if (false) {
@@ -566,14 +568,23 @@ public final class Business {
 		return rules;
 	}
 
-	public void addRow(Row row) {
+	/**
+	Can be null
+	*/
+	public void addRow(Row row, PlanSheet planSheet) {
 		assert _rows.indexOf(row) == -1 : row;
 		_rows.add(row);
 		// change state
 		if (state!=null) {
 			state.resize(_rows.size(), columns.size());
 		}
+		// plansheet-row tracking
+		if (planSheet !=null) {
+			rows4plansheet.add(planSheet.getId(), row.getName());
+		}
 	}
+	
+	ListMap<String,String> rows4plansheet = new ListMap(); 
 
 	public Dt getTimeStep() {
 		return settings.timeStep;
