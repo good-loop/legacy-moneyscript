@@ -28,6 +28,7 @@ import { getStatus } from '../base/data/DataClass';
 import KStatus from '../base/data/KStatus';
 import PropControlList from '../base/components/PropControlList';
 import { Tabs, Tab } from '../base/components/Tabs';
+import PlanDoc from '../data/PlanDoc';
 const dummy = PropControlList;
 
 /**
@@ -186,7 +187,9 @@ const EditScript = ({ id, plandoc, path }) => {
 	// standardise on tabs, with 4 spaces = 1 tab
 	let modelValueFromInput = (iv, type, eventType) => standardModelValueFromInput(iv ? iv.replace(/ {4}/g, '\t') : iv, type, eventType);
 	// backwards compatability
-	if (!plandoc.sheets) plandoc.sheets = [{text:plandoc.text || "",title:"Sheet 1"}];
+	if ( ! plandoc.sheets) {
+		PlanDoc.addSheet(plandoc, {text:plandoc.text});
+	}
 	let tabId = 1*(DataStore.getUrlValue("tab") || 0);
 	const deleteSheet = _tabId => {
 		let ok = confirm("Are you sure you want to delete "+(plandoc.sheets[tabId].title || tabId)+"?")
@@ -194,6 +197,7 @@ const EditScript = ({ id, plandoc, path }) => {
 		plandoc.sheets.splice(tabId, 1);
 		DataStore.setValue(path, plandoc, true);
 	};
+	const sheet = plandoc.sheets[tabId] || {};
 	return (<div>
 		<Nav tabs>
 			{plandoc.sheets.map((sheet, i) => (<NavItem key={i} className={tabId===i? 'active' : "bg-secondary"}>
@@ -213,13 +217,13 @@ const EditScript = ({ id, plandoc, path }) => {
 			)}
 			<NavItem className='bg-secondary'><NavLink 
 				onClick={() => {
-					plandoc.sheets.push({text:"",title:"Sheet "+(plandoc.sheets.length + 1)}); 
+					PlanDoc.addSheet(plandoc, {});
 					DataStore.setUrlValue("tab", plandoc.sheets.length - 1);
 				}}
 			>+</NavLink></NavItem>
 		</Nav>
 		<TabContent activeTab={tabId}>
-			<TabPane tabId={tabId} title={"Foo"}>
+			<TabPane tabId={tabId}>
 				<AceCodeEditor path={path.concat('sheets', tabId)}
 					prop='text'
 					annotations={pes.map(markerFromParseFail)} height="calc(100vh - 10em)" />

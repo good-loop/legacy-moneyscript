@@ -23,5 +23,9 @@ public class PlanSheet {
 	public String getText() {
 		return text;
 	}
+	@Override
+	public String toString() {
+		return "PlanSheet [id=" + id + ", title=" + title + "]";
+	}
 	
 }

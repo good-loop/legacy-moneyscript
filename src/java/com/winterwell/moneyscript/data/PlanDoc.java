@@ -32,6 +32,7 @@ public class PlanDoc extends AThing {
 	@ESKeyword
 	String originalId;
 	
+	@Deprecated // replaced by sheets
 	private String text;	
 	
 	public transient Map parseInfo;
@@ -41,6 +42,7 @@ public class PlanDoc extends AThing {
 
 	public transient Business business;
 	
+	@Deprecated // replaced by sheets
 	public String getText() {
 		// if sheets are in use, then combine them.
 		if (sheets!=null && ! sheets.isEmpty()) {
@@ -49,7 +51,7 @@ public class PlanDoc extends AThing {
 		return text;
 	}
 
-	private List<PlanSheet> getSheets() {
+	public List<PlanSheet> getSheets() {
 		if (sheets==null) {
 			sheets = new ArrayList();
 			sheets.add(new PlanSheet(text));

@@ -580,7 +580,9 @@ public final class Business {
 		}
 		// plansheet-row tracking
 		if (planSheet !=null) {
-			rows4plansheet.add(planSheet.getId(), row.getName());
+			String pid = planSheet.getId();
+			rows4plansheet.add(pid, row.getName());
+			Log.d("Sheets", pid+" <- "+row);
 		}
 	}
 	
