@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.goodloop.gsheets.GSheetsClient;
+import com.google.api.services.sheets.v4.model.SheetProperties;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.winterwell.gson.FlexiGson;
 import com.winterwell.gson.Gson;
 import com.winterwell.maths.datastorage.DataTable;
 import com.winterwell.moneyscript.data.PlanDoc;
+import com.winterwell.moneyscript.data.PlanSheet;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.time.TimeDesc;
 import com.winterwell.moneyscript.output.Business;
@@ -20,6 +22,7 @@ import com.winterwell.moneyscript.output.Row;
 import com.winterwell.moneyscript.webapp.GSheetFromMS;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.utils.Dep;
+import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.Utils;
@@ -71,7 +74,12 @@ public class ExportCommand
 	List<String> scenarios;
 
 	public String sheetName;
-	public String sheetId;
+	
+	/**
+	 * gsheet can be a sheet ID or "by-order" or "skip" 
+	 */
+	public Map<String,String> gsheetForPlanSheetId;
+	
 	public String spreadsheetId;
 
 	protected String url;
@@ -128,9 +136,34 @@ public class ExportCommand
 			}			
 			// Export all or overlap
 			GSheetsClient sc = sc();
-			GSheetFromMS ms2gs = new GSheetFromMS(sc, this, biz);
-			ms2gs.setIncYearTotals(colFreq==KColFreq.MONTHLY_AND_ANNUAL);
-			ms2gs.doExportToGoogle();
+			if (gsheetForPlanSheetId==null) {
+				gsheetForPlanSheetId = new ArrayMap();
+				for(PlanSheet planSheet : pd.getSheets()) gsheetForPlanSheetId.put(planSheet.getId(), "by-order");
+			}
+			// fill in sheet IDs
+			List<SheetProperties> sheetProps = sc.getSheetProperties(getSpreadsheetId());
+			for(int i=0; i<pd.getSheets().size(); i++) {
+				PlanSheet ps = pd.getSheets().get(i);
+				String gs = gsheetForPlanSheetId.get(ps.getId());
+				if ("by-order".equals(gs)) {
+					if (sheetProps.size() > i) {
+						gsheetForPlanSheetId.put(ps.getId(), ""+sheetProps.get(i).getSheetId());
+					} else {
+						
+					}
+				}
+			}
+			for(PlanSheet planSheet : pd.getSheets()) {
+				String shid = gsheetForPlanSheetId.get(planSheet);
+				if ("skip".equals(shid)) {
+					continue;
+				}
+				sc.setSheet(shid==null? null : Integer.parseInt(shid));
+				GSheetFromMS ms2gs = new GSheetFromMS(sc, this, biz);
+				ms2gs.setIncYearTotals(colFreq==KColFreq.MONTHLY_AND_ANNUAL);
+				ms2gs.setPlanSheet(planSheet);
+				ms2gs.doExportToGoogle();
+			}
 			// success
 			error = null;
 			lastGoodRun = time;
@@ -186,9 +219,9 @@ public class ExportCommand
 		}
 		
 		GSheetsClient sc = sc();		
-		if ( ! Utils.isBlank(sheetId)) {
-			sc.setSheet(Integer.valueOf(sheetId));
-		}
+//		if ( ! Utils.isBlank(sheetId)) { TODO
+//			sc.setSheet(Integer.valueOf(sheetId));
+//		}
 		List<List<Object>> cleanVs = sc.replaceNulls(annualValues);
 		sc.clearSpreadsheet(spreadsheetId);
 		sc.updateValues(spreadsheetId, cleanVs);

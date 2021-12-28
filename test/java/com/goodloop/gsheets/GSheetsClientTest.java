@@ -6,11 +6,14 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.jetty.util.ajax.JSON;
 import org.junit.Test;
 
 import com.google.api.services.sheets.v4.model.Request;
+import com.google.api.services.sheets.v4.model.SheetProperties;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.winterwell.maths.GridInfo;
+import com.winterwell.utils.Printer;
 import com.winterwell.utils.containers.IntRange;
 
 /**
@@ -76,6 +79,31 @@ public class GSheetsClientTest {
 			Arrays.asList("Bob", "berries in Jan", "blueberries in Feb", 100)
 		);
 		sq.updateValues(sid, vs);
+	}
+
+
+	@Test
+	public void testUpdateValues2Sheets() throws GeneralSecurityException, IOException {
+		List<List<Object>> vs1 = Arrays.asList(
+			Arrays.asList("row","jan","feb","mar"),
+			Arrays.asList("Alice", "apples in January", "avocados in Feb", 0),
+			Arrays.asList("Bob", "berries in Jan", "blueberries in Feb", 100)
+		);
+		List<List<Object>> vs2 = Arrays.asList(
+				Arrays.asList("row","jan","feb","mar"),
+				Arrays.asList("America", 1,3,5),
+				Arrays.asList("Britain", 2,4,6)
+			);
+		String sid2 = "1Kx3Efvz--XkCf4vuPBVZvP2WUctITEH_uyTJ0K6Akkg";
+		GSheetsClient sq = new GSheetsClient();
+		List<SheetProperties> sheets = sq.getSheetProperties(sid2);
+		Printer.out(sheets);
+		
+		sq.setSheet(sheets.get(0).getSheetId());
+		sq.updateValues(sid2, vs1);
+		
+		sq.setSheet(sheets.get(1).getSheetId());
+		sq.updateValues(sid2, vs2);
 	}
 
 

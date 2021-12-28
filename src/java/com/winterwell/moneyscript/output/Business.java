@@ -586,8 +586,12 @@ public final class Business {
 		}
 	}
 	
-	ListMap<String,String> rows4plansheet = new ListMap(); 
+	final ListMap<String,String> rows4plansheet = new ListMap(); 
 
+	public ListMap<String, String> getRows4plansheet() {
+		return rows4plansheet;
+	}
+	
 	public Dt getTimeStep() {
 		return settings.timeStep;
 	}

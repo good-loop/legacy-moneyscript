@@ -278,6 +278,12 @@ public class Lang {
 		return null;
 	}
 
+	/**
+	 * @deprecated 
+	 * @param script
+	 * @return
+	 * @throws ParseExceptions
+	 */
 	public Business parse(String script) throws ParseExceptions {
 		return parse(Arrays.asList(new PlanSheet(script)));
 	}

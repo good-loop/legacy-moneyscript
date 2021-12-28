@@ -1,6 +1,7 @@
 package com.winterwell.moneyscript.output;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
+import com.winterwell.moneyscript.data.PlanSheet;
 import com.winterwell.moneyscript.lang.ErrorNumerical;
 import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.lang.Rule;
@@ -26,37 +28,14 @@ public class BusinessTest {
 
 
 	@Test
-	public void testPlanSheets() {
-		try {
-			Lang lang = new Lang();
-			Business b = lang.parse(s);
-//			b.getSettings().setStart(new Time(2020,1,1));
-//			b.getSettings().setEnd(new Time(2020,3,31));
-//			b.run(); 
-			assert false;
-		} catch (Exception ex) {
-			// good
-			System.out.println(ex);
-		}
-		{	// two rules for one row is OK
-			String s = "Sales Manager: £40k\nSales Manager from month 2: £45k";
-			Lang lang = new Lang();
-			Business b = lang.parse(s);
-			b.getSettings().setStart(new Time(2020,1,1));
-			b.getSettings().setEnd(new Time(2020,3,31));
-			b.run(); 
-			System.out.println(b.toCSV());
-		}
-		{	// two rules for two scenarios is OK
-			String s = "Sales Manager: £40k\nscenario Happy:\n\tSales Manager: £45k";
-			Lang lang = new Lang();
-			Business b = lang.parse(s);
-			b.getSettings().setStart(new Time(2020,1,1));
-			b.getSettings().setEnd(new Time(2020,3,31));
-			b.run(); 
-			System.out.println(b.toCSV());
-		}
+	public void testPlanSheetsSmokeTest() {
+		Lang lang = new Lang();
+		List<PlanSheet> sheets = new ArrayList();
+		sheets.add(new PlanSheet("Alice: 1"));
+		sheets.add(new PlanSheet("Bob: 2"));
+		Business b = lang.parse(sheets);		
 	}
+	
 	@Test
 	public void testNoDuplicateRows() {
 		try {
