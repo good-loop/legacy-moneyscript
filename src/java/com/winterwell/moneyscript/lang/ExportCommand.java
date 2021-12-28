@@ -154,7 +154,7 @@ public class ExportCommand
 				}
 			}
 			for(PlanSheet planSheet : pd.getSheets()) {
-				String shid = gsheetForPlanSheetId.get(planSheet);
+				String shid = gsheetForPlanSheetId.get(planSheet.getId());
 				if ("skip".equals(shid)) {
 					continue;
 				}

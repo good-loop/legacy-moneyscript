@@ -322,13 +322,14 @@ public class Lang {
 			List<Rule> rules = parse2_rulesFromLines(lines, ln, errors, b);		
 			// make rows + group
 			parse3_addRulesAndGroupRows(b, planSheet, groupStack, rules);
-	
-			List<ParseFail> unref = parse4_checkReferences(b);
-			errors.addAll(unref);
-			
+				
 			List<ParseFail> dupes = parse5_checkDuplicates(b);
 			errors.addAll(dupes);						
 		}
+		
+		// check rule refs at the whole-plan level (not per sheet)
+		List<ParseFail> unref = parse4_checkReferences(b);
+		errors.addAll(unref);
 		
 		// fail?
 		if ( ! errors.isEmpty()) {

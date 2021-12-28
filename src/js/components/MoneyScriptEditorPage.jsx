@@ -94,7 +94,7 @@ const MoneyScriptEditorPage = () => {
 						<ExportsList planDoc={item} />
 					</BSCard>
 					<BSCard className="mt-2" style={{ maxWidth: "300px" }} >
-						<SavePublishDeleteEtc size="md" type="PlanDoc" id={id} saveAs className="light" position="relative" />
+						<SavePublishDeleteEtc size="md" type="PlanDoc" id={id} saveAs className="light" position="relative" sendDiff />
 					</BSCard>
 					{/* <ShareLink /> */}
 					{/* <ShareWidget /> */}
@@ -307,8 +307,14 @@ const ExportsList = ({ planDoc }) => {
 	return <PropControl path={path} prop='exportCommands' type="list" Editor={ExportEditor} Viewer={ViewExport} itemType="Export to Google Sheets" />;
 };
 
+/**
+ * Just a LinkOut -- the buttons and error is done by PropControlList
+ * @param {*} param0 
+ * @returns 
+ */
 const ViewExport = ({ item, i }) => {
-	return <LinkOut className={space('mr-2', !item.active && "text-muted")} href={item.url || item.src}>[{item.name || "Export " + (i + 1)}]</LinkOut>
+	return <LinkOut className={space('mr-2', !item.active && "text-muted")} href={item.url || item.src}
+		>[{item.name || "Export " + (i + 1)}]</LinkOut>
 };
 
 MoneyScriptEditorPage.fullWidth = true;
