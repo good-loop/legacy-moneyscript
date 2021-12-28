@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import com.goodloop.gsheets.GSheetsClient;
 import com.winterwell.es.ESNoIndex;
 import com.winterwell.moneyscript.data.PlanDoc;
+import com.winterwell.moneyscript.data.PlanSheet;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
@@ -150,6 +151,8 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	private List<String> exempt = new ArrayList<String>();
 	
 	transient NameMapper nameMapper;
+
+	private PlanSheet planSheet; // TODO
 	
 	/**
 	 * NB: Run before run(), as the row names are needed earlier to setup the BusinessState
@@ -217,7 +220,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 					continue; // don't import this row
 				}
 				brow = new Row(ourRowName);
-				b.addRow(brow);
+				b.addRow(brow, this.planSheet); // TODO 
 			}
 		}	
 		if (mappingImportRow2ourRow==null) mappingImportRow2ourRow = new HashMap();

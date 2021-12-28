@@ -52,8 +52,9 @@ public class Particles1D extends ADistribution1D implements IScalarArithmetic {
 	public Particles1D(int numParticles, IDistribution1D dist) {
 		// exact copy?
 		if (dist instanceof Particles1D) {
-			if (numParticles == ((Particles1D) dist).pts.length) {
-				this.pts = Arrays.copyOf(pts, numParticles);
+			double[] distPts = ((Particles1D) dist).pts;
+			if (numParticles == distPts.length) {
+				this.pts = Arrays.copyOf(distPts, numParticles);
 				return;
 			}
 		}

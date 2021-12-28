@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -17,6 +18,7 @@ import com.google.api.services.sheets.v4.model.RowData;
 import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.winterwell.moneyscript.data.PlanDoc;
+import com.winterwell.moneyscript.data.PlanSheet;
 import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.ImportCommand;
 import com.winterwell.moneyscript.lang.NameMapper;
@@ -68,6 +70,7 @@ public class GSheetFromMS {
 	}
 	
 	boolean incYearTotals;
+	private PlanSheet planSheet;
 
 	public void doExportToGoogle() throws Exception {
 		assert ec.getSpreadsheetId() !=null && true : ec;
@@ -76,10 +79,7 @@ public class GSheetFromMS {
 		
 		List<List<Object>> values = calcValues(biz);
 		
-		// a specific tab in the spreadsheet?
-		if ( ! Utils.isBlank(ec.sheetId)) {
-			sc.setSheet(Integer.valueOf(ec.sheetId));
-		}
+		// NB: a specific tab in the spreadsheet? Done before this class
 
 		// update with data
 		if ( ! ec.isOverlap()) {
@@ -130,77 +130,6 @@ public class GSheetFromMS {
 		// json based approach - reuses the logic for the M$ front-end TODO switch all to this
 		List<List<Object>> values = calcValues2_fromJson(biz);
 		return values;
-		
-//		List<List<Object>> values = new ArrayList();
-//
-//		List<Col> cols = biz.getColumns();	
-//		// filter the columns?
-//		IntRange incCols = new IntRange(0, Integer.MAX_VALUE); // no filter!
-//		if (ec.from!=null) {
-//			Cell context = null;
-//			Col scol = ec.from.getCol(context);
-//			incCols = new IntRange(scol.index, Integer.MAX_VALUE); // probably correct: cols.size() - 1);
-//		}
-//		
-//		// add date row
-//		List<Object> headers = new ArrayList();
-//		headers.add(""); 
-//		for (Col col : cols) {
-//			if ( ! incCols.contains(col.index)) {
-//				continue;
-//			}
-//			headers.add(col.getTimeDesc());
-//		}
-//		values.add(headers);
-//				
-//		// make a blank row object
-//		final List<Object> blanks = new ArrayList();
-//		// ...overwrite or not depending on export=overlap
-//		for(int i=0; i<headers.size(); i++) blanks.add(ec.isOverlap()? null : "");
-//								
-//		// convert		
-//		for (Row row : spacedRows) {
-//			if (row==null) {
-//				values.add(blanks);
-//				continue;
-//			}
-//			Rule r0 = row.getRules().get(0);
-////			if ("debug UK Staff".contains(row.getName())) {
-////				System.out.println(r0); // TODO this has a few rules, e.g. 4% pay rise -- so it doesnt go to formula
-////			}
-//			List<Object> rowvs = new ArrayList();
-//			rowvs.add(row.getName());
-//			Collection<Cell> cells = row.getCells();
-//			for (Cell cell : cells) {
-//				if ( ! incCols.contains(cell.col.index)) {
-//					continue;
-//				}
-//				Numerical v = biz.getCellValue(cell);
-//				if (v ==null) {
-//					rowvs.add(""); 
-//					continue;
-//				}
-//				if (ec.preferFormulae && ! Utils.isBlank(v.excel)) {
-//					// Avoid self-reference which would upset GSheets
-//					// NB: "A12" contains "A1"
-//					Pattern p = Pattern.compile("\\b"+cellRef(cell.row, cell.col)+"\\b");
-//					if ( ! p.matcher(v.excel).find()) {
-//						rowvs.add("="+v.excel); // a formula	
-//						continue;
-//					}
-//				}
-//				if (v instanceof UncertainNumerical) {
-//					rowvs.add(v.doubleValue());	
-//				} else {
-//					rowvs.add(v.doubleValue()); // toExportString());
-//				}				
-//			} // ./cell
-//			values.add(rowvs);
-//		}
-//		
-//		Dep.set(GSheetFromMS.class, null); // clear earlier set
-//		
-//		return values;
 	}
 
 
@@ -347,6 +276,11 @@ public class GSheetFromMS {
 	
 	void setupRows() throws Exception {
 		List<Row> rows = biz.getRows();
+		// filter by sheet
+		if (planSheet!=null) {
+			Collection<String> rowNames = new HashSet(biz.getRows4plansheet().get(planSheet.getId()));
+			rows = Containers.filter(rows, row -> rowNames.contains(row.getName()));
+		}
 		if (ec.isOverlap()) {
 			setupRows2_overlap(ec, biz, rows);
 			return;
@@ -426,6 +360,10 @@ public class GSheetFromMS {
 		String s = excel(x);
 		if (s.contains(" ")) s = "("+s+")";
 		return s;
+	}
+
+	public void setPlanSheet(PlanSheet planSheet) {
+		this.planSheet = planSheet;
 	}
 
 }

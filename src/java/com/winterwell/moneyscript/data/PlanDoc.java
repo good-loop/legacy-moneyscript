@@ -32,6 +32,7 @@ public class PlanDoc extends AThing {
 	@ESKeyword
 	String originalId;
 	
+	@Deprecated // replaced by sheets
 	private String text;	
 	
 	public transient Map parseInfo;
@@ -41,12 +42,21 @@ public class PlanDoc extends AThing {
 
 	public transient Business business;
 	
+	@Deprecated // replaced by sheets
 	public String getText() {
 		// if sheets are in use, then combine them.
 		if (sheets!=null && ! sheets.isEmpty()) {
 			text = StrUtils.join(Containers.apply(sheets, PlanSheet::getText), "\n\n");
 		}
 		return text;
+	}
+
+	public List<PlanSheet> getSheets() {
+		if (sheets==null) {
+			sheets = new ArrayList();
+			sheets.add(new PlanSheet(text));
+		}
+		return sheets;
 	}
 	
 	List<PlanSheet> sheets;
@@ -80,8 +90,9 @@ public class PlanDoc extends AThing {
 	
 	public Business getBusiness() {
 		if (business==null) {
-			business = lang.parse(getText());	
+			business = lang.parse(getSheets());	
 		}
 		return business;
 	}
+
 }

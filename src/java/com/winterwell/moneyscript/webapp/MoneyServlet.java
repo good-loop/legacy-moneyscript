@@ -6,21 +6,29 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.winterwell.gson.Gson;
+import com.winterwell.moneyscript.data.PlanDoc;
+import com.winterwell.moneyscript.data.PlanSheet;
 import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.nlp.simpleparser.ParseExceptions;
 import com.winterwell.nlp.simpleparser.ParseFail;
+import com.winterwell.utils.Dep;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.web.WebUtils2;
 import com.winterwell.web.ajax.JSend;
 import com.winterwell.web.ajax.JThing;
 import com.winterwell.web.ajax.KAjaxStatus;
+import com.winterwell.web.app.AppUtils;
 import com.winterwell.web.app.IServlet;
 import com.winterwell.web.app.WebRequest;
 import com.winterwell.web.app.WebRequest.KResponseType;
+import com.winterwell.web.fields.AField;
+import com.winterwell.web.fields.JsonField;
 import com.winterwell.web.fields.ListField;
+import com.winterwell.web.fields.MissingFieldException;
 
 public class MoneyServlet implements IServlet {
 
@@ -30,13 +38,10 @@ public class MoneyServlet implements IServlet {
 	static Lang lang = new Lang();
 	
 	@Override
-	public void process(WebRequest state) throws Exception {		
-		String text = state.get("text");
-		if (text==null) {
-			return;
-		}
-		try {
-			Business biz = lang.parse(text);
+	public void process(WebRequest state) throws Exception {
+		List<PlanSheet> sheets = getSheets(state);
+		try {			
+			Business biz = lang.parse(sheets);
 			
 			// scenarios?
 			List<Scenario> scs = state.get(SCENARIOS);
@@ -70,6 +75,20 @@ public class MoneyServlet implements IServlet {
 		} catch(ParseExceptions pex) {
 			processFail(pex.getErrors(), state);
 		}
+	}
+
+	private List<PlanSheet> getSheets(WebRequest state) {
+		PlanDoc _plandoc = new PlanDocServlet().getThing(state);
+		if (_plandoc != null) {
+			List<PlanSheet> sheets = _plandoc.getSheets();
+			return sheets;
+		}
+		String text = state.get("text");
+		if (text==null) {
+			throw new MissingFieldException(AppUtils.ITEM);
+		}
+		PlanSheet sheet = new PlanSheet(text);
+		return Arrays.asList(sheet);
 	}
 
 	private void processFail(List<ParseFail> pfs, WebRequest state) {

@@ -8,6 +8,7 @@ import static com.winterwell.nlp.simpleparser.Parsers.ref;
 import static com.winterwell.nlp.simpleparser.Parsers.seq;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.winterwell.maths.NoDupes;
+import com.winterwell.moneyscript.data.PlanSheet;
 import com.winterwell.moneyscript.lang.bool.LangBool;
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.CurrentRow;
@@ -276,43 +278,59 @@ public class Lang {
 		return null;
 	}
 
+	/**
+	 * @deprecated 
+	 * @param script
+	 * @return
+	 * @throws ParseExceptions
+	 */
 	public Business parse(String script) throws ParseExceptions {
+		return parse(Arrays.asList(new PlanSheet(script)));
+	}
+	
+	public Business parse(List<PlanSheet> script) throws ParseExceptions {
 		assert script != null;
 		Business b = new Business();
 		BusinessContext.setBusiness(b);
-		if (Utils.isBlank(script)) {
+		if (script.isEmpty()) {
 			return b;
 		}
-		String[] lines = StrUtils.splitLines(script);
-		int ln = 0;
-		// get title? (any other header stuff?)
-		while(ln<lines.length) {
-			String line = lines[ln];
-			if (Utils.isBlank(line)) {
-				ln++;
-				continue;
-			}
-			if (line.indexOf(':') == -1 || line.startsWith("title:")) {
-				b.title = line;
-				ln++;
-			}
-			break;
-		}
-		// track the group we're in to group rules
-		List<Group> groupStack = new ArrayList();
-
+		
 		List<ParseFail> errors = new ArrayList<ParseFail>();
-		// ...do the actual parse
-		List<Rule> rules = parse2_rulesFromLines(lines, ln, errors, b);		
-		// make rows + group
-		parse3_addRulesAndGroupRows(b, groupStack, rules);
-
-		List<ParseFail> unref = parse4_checkReferences(b);
-		errors.addAll(unref);
+		// process each sheet
+		for(PlanSheet planSheet : script) {
+			if (Utils.isBlank(planSheet.getText())) continue;		
+			String[] lines = StrUtils.splitLines(planSheet.getText());
+			int ln = 0;
+			// get title? (any other header stuff?)
+			while(ln<lines.length) {
+				String line = lines[ln];
+				if (Utils.isBlank(line)) {
+					ln++;
+					continue;
+				}
+				if (line.indexOf(':') == -1 || line.startsWith("title:")) {
+					b.title = line;
+					ln++;
+				}
+				break;
+			}
+			// track the group we're in to group rules
+			List<Group> groupStack = new ArrayList();
+	
+			// ...do the actual parse
+			List<Rule> rules = parse2_rulesFromLines(lines, ln, errors, b);		
+			// make rows + group
+			parse3_addRulesAndGroupRows(b, planSheet, groupStack, rules);
+	
+			List<ParseFail> unref = parse4_checkReferences(b);
+			errors.addAll(unref);
+			
+			List<ParseFail> dupes = parse5_checkDuplicates(b);
+			errors.addAll(dupes);						
+		}
 		
-		List<ParseFail> dupes = parse5_checkDuplicates(b);
-		errors.addAll(dupes);
-		
+		// fail?
 		if ( ! errors.isEmpty()) {
 			throw new ParseExceptions(errors);
 		}
@@ -356,7 +374,7 @@ public class Lang {
 	}
 
 
-	private void parse3_addRulesAndGroupRows(Business b, List<Group> groupStack, List<Rule> rules) {
+	private void parse3_addRulesAndGroupRows(Business b, PlanSheet planSheet, List<Group> groupStack, List<Rule> rules) {
 		for (Rule rule : rules) {
 			if (rule instanceof DummyRule || rule instanceof ImportCommand)  {
 				// HACK imports dont have rows per-se. But ImportRowCommand does
@@ -384,7 +402,7 @@ public class Lang {
 				Row row = b.getRow(rn);
 				if (row==null) {
 					row = new Row(rn);
-					b.addRow(row);
+					b.addRow(row, planSheet);
 					isNewRow = true;
 				}
 				rows.add(row);

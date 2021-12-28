@@ -1,6 +1,7 @@
 package com.winterwell.moneyscript.output;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.winterwell.maths.stats.distributions.d1.IDistribution1D;
+import com.winterwell.moneyscript.data.PlanSheet;
 import com.winterwell.moneyscript.lang.ErrorNumerical;
 import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.lang.Rule;
@@ -24,6 +26,16 @@ import com.winterwell.utils.time.Time;
 
 public class BusinessTest {
 
+
+	@Test
+	public void testPlanSheetsSmokeTest() {
+		Lang lang = new Lang();
+		List<PlanSheet> sheets = new ArrayList();
+		sheets.add(new PlanSheet("Alice: 1"));
+		sheets.add(new PlanSheet("Bob: 2"));
+		Business b = lang.parse(sheets);		
+	}
+	
 	@Test
 	public void testNoDuplicateRows() {
 		try {
