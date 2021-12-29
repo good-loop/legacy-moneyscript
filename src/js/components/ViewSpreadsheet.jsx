@@ -221,7 +221,7 @@ const makeDataTree = ({ runOutput, sheetId}) => {
 		rowData.id = rowName; // needs and id for collapse to work
 		// rowData.style = {};
 		return rowData;
-	});
+	}, {onNull:"snip"});
 	assert(dtree);
 	runOutput.dataTree[sheetId] = dtree;
 	console.log("MADE dataTree", runOutput.dataTree, "allcolumns", runOutput.allcolumns);
