@@ -578,11 +578,15 @@ public final class Business {
 		if (state!=null) {
 			state.resize(_rows.size(), columns.size());
 		}
+		addRow2_linkToPlanSheet(row, planSheet);
+	}
+
+	public void addRow2_linkToPlanSheet(Row row, PlanSheet planSheet) {
 		// plansheet-row tracking
 		if (planSheet !=null) {
 			String pid = planSheet.getId();
-			rows4plansheet.add(pid, row.getName());
-			Log.d("Sheets", pid+" <- "+row);
+			rows4plansheet.addOnce(pid, row.getName());
+//			Log.d("Sheets", pid+" <- "+row);
 		}
 	}
 	

@@ -47,6 +47,7 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	public PlanDocServlet() {
 		super(PlanDoc.class);
 		augmentFlag = true;
+		gitAuditTrail = true;
 	}
 
 	@Override
@@ -59,14 +60,6 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	@Override
 	protected void doSave(WebRequest state) {
 		super.doSave(state); // db
-		// HACK Is it a file??
-		File f = getPlanFile(state);
-		if (f!=null) {
-			File fd = new File(f.getParentFile(), "~"+f.getName());
-			PlanDoc thing = getThing(state);
-			String text = thing.getText();
-			doSave2_file_and_git(state, text, fd);
-		}
 	}	
 	
 	@Override
@@ -78,15 +71,8 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 
 	@Override
 	protected JThing<PlanDoc> doPublish(WebRequest state, KRefresh forceRefresh, boolean deleteDraft) throws Exception {
-		// HACK Is it a file??
-		File f = getPlanFile(state);		
 		// normal
 		JThing<PlanDoc> pubd = super.doPublish(state, forceRefresh, deleteDraft);
-		if (f != null) {
-			// Save to file also
-			String text = pubd.java().getText();
-			doSave2_file_and_git(state, text, f);
-		}
 		// plus export to google ?? do this async?
 		PlanDoc pd = pubd.java();
 		doExportToGoogle(pd, state, forceRefresh, deleteDraft);
@@ -174,32 +160,6 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	protected JThing<PlanDoc> getThingFromDB(WebRequest state) throws E403 {
 		// normal - db
 		JThing<PlanDoc> jpd = super.getThingFromDB(state);
-		// HACK file
-		File f = getPlanFile(state);
-		if (f != null) {
-			KStatus status = state.get(CommonFields.STATUS);		
-			File fd = new File(f.getParentFile(), "~"+f.getName());
-			if (status==KStatus.DRAFT 
-					&& fd.isFile() 
-					&& fd.lastModified() > f.lastModified()) 
-			{
-				f = fd; // load from draft
-			}
-			if (f.isFile()) {
-				String s = FileUtils.read(f);
-				if (jpd==null) {
-					// e.g. using local to look at a remote file, pulled in via github
-					PlanDoc pd = new PlanDoc();
-					String id = getId(state);
-					pd.setId(id);
-					Log.w(LOGTAG(),"Creating local PlanDoc for "+id);
-					jpd = new JThing(pd);
-				}
-				PlanDoc pd = jpd.java();
-				pd.setText(s);
-				jpd.setJava(pd);
-			}
-		}
 		return jpd;
 	}
 
@@ -216,18 +176,4 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		return pd;
 	}
 	
-	/**
-	 * 
-	 * @param state
-	 * @return file or null
-	 */
-	private File getPlanFile(WebRequest state) {
-		String sbit1 = state.getSlugBits(1);
-		if (Utils.isBlank(sbit1)) {
-			return null;
-		}
-		String sf = FileUtils.safeFilename(sbit1, true);
-		File f = new File(plansDir, sf);
-		return f;
-	}
 }

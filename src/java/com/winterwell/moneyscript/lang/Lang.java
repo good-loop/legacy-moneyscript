@@ -405,6 +405,9 @@ public class Lang {
 					row = new Row(rn);
 					b.addRow(row, planSheet);
 					isNewRow = true;
+				} else {
+					// make sure its part of this sheet
+					b.addRow2_linkToPlanSheet(row, planSheet);
 				}
 				rows.add(row);
 			}	

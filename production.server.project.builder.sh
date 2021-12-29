@@ -327,7 +327,8 @@ function use_webpack {
         printf "\nNPM is now running a Webpack process for $PROJECT_NAME\n"
         cd $PROJECT_ROOT_ON_SERVER && npm run compile &> $NPM_RUN_COMPILE_LOGFILE
         printf "\nChecking for errors that occurred during Webpacking process ...\n"
-        if [[ $(cat $NPM_RUN_COMPILE_LOGFILE | grep -i 'error' | grep -iv 'ErrorAlert.jsx') = '' ]]; then
+	# NB: mean_squared_error is one of the TensorFlow library files - which includes the keyword "error"
+        if [[ $(cat $NPM_RUN_COMPILE_LOGFILE | grep -i 'error' | grep -iv 'ErrorAlert.jsx' | grep -v 'mean_squared_error') = '' ]]; then
             printf "\nNo Webpacking errors detected\n"
         else
             printf "\nOne or more errors were recorded during the webpacking process. Breaking Operation\n"
