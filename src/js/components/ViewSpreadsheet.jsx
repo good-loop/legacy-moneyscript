@@ -97,6 +97,10 @@ const renderCell = (v, column, item) => {
 	if (colv && colv.delta) {
 		return <div>{vs} <span className='small text-info'>delta: {prettyNumber(colv.delta, 3)}</span></div>;
 	}
+	// HACK show % change
+	if (colv && colv.dv) {
+		return <div>{vs} <span className='percent'>{colv.dx>0?<>&uarr;</>:<>&#x2191;</>}{prettyNumber(100*colv.dv, 2)}%</span></div>;
+	}
 	return vs;
 };
 
@@ -121,16 +125,30 @@ const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 		makeDataTree({ runOutput, sheetId });
 	} // data prep done
 
-	// HACK - only show year totals
+	const dtree = runOutput.dataTree[sheetId];
+	// console.log("dataTree", dtree, "allcolumns", runOutput.allcolumns);
+
+	// HACK - only show year totals?
 	let vizcolumns = runOutput.allcolumns;
 	if (hideMonths) {
 		vizcolumns = vizcolumns.filter(col => col.Header === "Row" || col.Header.includes("Total"));
+		// HACK add % change info
+		Tree.map(dtree, r => {
+			let rowData = r.value;
+			if (rowData && rowData.length) {
+				for(let c=13; c<rowData.length; c++) {
+					let cv = rowData[c].v;
+					let prev = rowData[c-13].v;
+					if (cv && prev) {
+						let dv = (cv-prev)/prev;
+						rowData[c].dv = dv;
+					}
+				};
+			}
+		});
 	}
 
-	const dtree = runOutput.dataTree[sheetId];
-	console.log("dataTree", dtree, "allcolumns", runOutput.allcolumns);
-	// The Table
-	
+	// The Table	
 	return (<>
 	<Nav tabs>
 			{plandoc.sheets.map((sheet, i) => (<NavItem key={i} className={tabId===i? 'active' : "text-secondary"}>
