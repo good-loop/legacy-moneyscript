@@ -16,7 +16,11 @@ PlanDoc.text = plandoc => {
 	if ( ! plandoc.sheets) {
 		return plandoc.text;
 	}
-	let text = plandoc.sheets.map(sheet => sheet.text).join("\n\n");
+	let text = plandoc.sheets.map(sheet => 
+		"// "+(sheet.title||"")+"\n"
+		+"// "+("-".repeat((sheet.title ||"").length))+"\n\n"
+		+sheet.text)
+		.join("\n\n");
 	return text;
 };
 

@@ -84,7 +84,7 @@ const MoneyScriptEditorPage = () => {
 					<a className='btn btn-primary btn-sm ml-2 mr-2' href={'/#sheet/' + escape(id)}>View SpreadSheet &gt;</a>
 					<GSheetLink item={item} />
 					<GitHubLink item={item} />
-					<DownloadTextLink text={item.text} filename={item.name + ".txt"} />
+					<DownloadTextLink text={PlanDoc.text(item)} filename={item.name + ".txt"} />
 					<BSCard className="mt-2" style={{ maxWidth: "300px" }}>
 						<h3>Imports</h3>
 						<ImportsList cargo={item} />
