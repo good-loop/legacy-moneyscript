@@ -26,6 +26,7 @@ import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.nlp.simpleparser.Ref;
+import com.winterwell.nlp.simpleparser.RegexParser;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
 
@@ -35,6 +36,11 @@ import com.winterwell.utils.time.Time;
  *
  */
 public class LangTime implements IInit {
+
+	public static final RegexParser MONTHYEAR_PARSER = regex(
+			"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)(\\s+(20\\d\\d))?");
+
+
 
 	public static final String from = "from";
 
@@ -138,7 +144,7 @@ public class LangTime implements IInit {
 	 * month year
 	 */
 	final Parser<TimeDesc> date = new PP<TimeDesc>(
-			regex("(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)(\\s+(20\\d\\d))?")
+			MONTHYEAR_PARSER
 	) {
 		@Override
 		protected TimeDesc process(ParseResult<?> r) throws ParseFail {

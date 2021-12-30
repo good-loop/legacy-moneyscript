@@ -342,7 +342,8 @@ public final class Business {
 			return v;
 		}
 		
-		Numerical v = state.get(cell);
+		final Numerical beforeSet = state.get(cell);
+		Numerical v = beforeSet;
 		if (v==EVALUATING) {
 			throw new StackOverflowError("This could loop forever: "+cell);
 		}
@@ -365,8 +366,8 @@ public final class Business {
 			GSheetFromMS gs = Dep.getWithDefault(GSheetFromMS.class, null);
 			if (gs!=null) v.excel = gs.cellRef(cell.row, cell.col);
 		}
-		assert state.get(cell)==null || state.get(cell)==EVALUATING 
-				|| state.get(cell)==v : state.get(cell)+" vs "+v;		
+		assert beforeSet==null || beforeSet==EVALUATING || beforeSet==v || v instanceof ErrorNumerical 
+				: beforeSet+" vs "+v;		
 		// clear evaluating flag
 		state.set(cell, v);
 		return v;

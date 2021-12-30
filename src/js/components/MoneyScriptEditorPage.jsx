@@ -191,7 +191,6 @@ const EditScript = ({ id, plandoc, path }) => {
 	let pes = (parsed && parsed.errors) || []; 
 	// ...Split errors into the ones for this sheet vs others
 	let pesHere = pes.filter(pf => pf.sheetId? pf.sheetId===sheet.id : true);
-	console.warn("pes", pesHere);
 
 	return (<div>
 		<Nav tabs>

@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.winterwell.moneyscript.lang.Lang;
+import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.nlp.simpleparser.AST;
 import com.winterwell.nlp.simpleparser.PP;
 import com.winterwell.nlp.simpleparser.ParseFail;
@@ -22,7 +23,9 @@ import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.ParseState;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.utils.StrUtils;
+import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.Slice;
+import com.winterwell.utils.time.TimeParser;
 
 /**
  * Loose Inspiration: css selectors
@@ -53,16 +56,19 @@ public class LangCellSet {
 
 	public static final String ROW_NAME = "row-name";
 	
-	public Parser rowName = new Parser() {
+	/**
+	 * Parse row names, e.g. "Alice"
+	 */
+	public Parser<String> rowName = new Parser() {
 		Pattern p = Pattern.compile("^[A-Z][^:,\\+\\-\\*\\/<>=%\\?\\(\\)]*");		
 		
 		@Override
-		protected ParseResult doParse(ParseState state) {			
+		protected ParseResult<String> doParse(ParseState state) {			
 			Slice unparsed = state.unparsed();
 			Matcher m = p.matcher(unparsed);
-			if ( ! m.find()) return null;
+			if ( ! m.find()) return null;			
 			int end = m.end();			
-			// keyword break			
+			// keyword? shorten what we parsed			
 			String rn = state.unparsed().subSequence(0, end).toString();
 			Matcher kwm = kw.matcher(rn);
 			if (kwm.find()) {
@@ -76,9 +82,16 @@ public class LangCellSet {
 				assert end !=0;
 			}			
 			assert end !=0; // return null; should be impossible due to commands lowercase, names Capitalised
+			Slice parsedSlice = new Slice(unparsed, 0, end);
+			// HACK: avoid months "Jan" is not a valid row
+			Matcher mm = LangTime.MONTHYEAR_PARSER.regex.matcher(parsedSlice.toString());
+			if (mm.find() && mm.start()==0) {
+				return null;
+			}
 			// return
-			AST ast = new AST(this, new Slice(unparsed, 0, end));
-			ParseResult r = new ParseResult(state, ast, state.text, state.posn + end);
+			AST<String> ast = new AST<>(this, parsedSlice);
+			ast.setX(ast.parsed());
+			ParseResult<String> r = new ParseResult<>(state, ast, state.text, state.posn + end);
 			return r;
 		}
 	}.label(ROW_NAME);
@@ -91,20 +104,33 @@ public class LangCellSet {
 		}		
 	};
 	
+	Parser<CellSet> thisRow = new PP<CellSet>(word("this row")) {
+		@Override
+		protected CellSet process(ParseResult<?> r) throws ParseFail {
+			return new CurrentRow(r.parsed());
+		}		
+	};
 	
 	Parser<CellSet> selector1 = new PP<CellSet>(seq(
-			first(rowName, all), optSpace, opt(LangFilter.filter)
+			first(rowName, all, thisRow), optSpace, opt(LangFilter.filter)
 	)) {
 		protected CellSet process(ParseResult<?> pr) {
 			List<AST> ls = pr.getLeaves();
-			String rn = ls.get(0).parsed();
-			RowName rns = new RowName(rn);			
+			AST rowParsed = ls.get(0);
+			CellSet base;
+			if (rowParsed.getX() instanceof CellSet) {
+				base = (CellSet) rowParsed.getX();
+			} else {
+				String rn = rowParsed.parsed();
+				base = new RowName(rn);							
+			}
+			// unfiltered?
 			if (ls.size() == 1) {
-				return rns;
+				return base;
 			}
 			assert ls.size() == 2;
 			Object f = ls.get(1).getX();
-			return new FilteredCellSet(rns, (Filter) f, pr.parsed());
+			return new FilteredCellSet(base, (Filter) f, pr.parsed());
 		}
 	}.label(CELLSET_SINGLE_ROW);
 	

@@ -2,6 +2,7 @@ package com.winterwell.moneyscript.lang.num;
 
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
+import com.winterwell.moneyscript.output.Row;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.time.TUnit;
 
@@ -17,7 +18,9 @@ public class Var extends Formula {
 	@Override
 	public Numerical calculate(Cell b) {
 		if (var.equals("row")) {
-			return new Numerical(b.getBusiness().getRowIndex(b.getRow()));
+			// row index ??is this ever useful?
+			Row row = b.getRow();
+			return new Numerical(b.getBusiness().getRowIndex(row));
 		}
 		if (var.equals("column")) return new Numerical(b.col.index);
 		if (var.equals("month")) {

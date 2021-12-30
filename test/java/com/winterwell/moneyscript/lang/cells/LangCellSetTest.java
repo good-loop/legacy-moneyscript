@@ -397,6 +397,37 @@ public class LangCellSetTest {
 	}
 	
 
+	@Test public void testCellSet_rowInGroup() {
+		Lang lang = new Lang();
+//		Parser.DEBUG = true;
+//		CellSet cs0 = LangCellSet.cellSet.parseOut("Staff if (Alice at Jan 2022) > 0").getX();
+		
+		CellSet cs = LangCellSet.cellSet.parseOut("Staff from Feb 2022 if (this row at Jan 2022) > 0").getX();
+		assert cs instanceof FilteredCellSet;
+		FilteredCellSet fcs = (FilteredCellSet) cs;
+		assert fcs.base.toString().equals("Staff");
+		
+	}
+
+
+	@Test public void testCellSet_rowInGroup_apply() {
+		Lang lang = new Lang();
+		Business b = lang.parse("start: Jan 2022\nend:March 2022\nStaff:\n\tAlice: 1\n"
+				+"Staff from Feb 2022 if (this row at Jan 2022) > 0: * 2");
+		b.run();
+		String csv = b.toCSV();
+		Printer.out(csv);
+	}
+	
+	@Test public void testCellSet_rowInGroup_payriseExample() {
+		Lang lang = new Lang();
+		Business b = lang.parse("start: Jan 2022\nend:June 2022\nStaff:\n\tAlice: 1\n\tBob from March 2022: 1\n"
+				+"Staff from Feb 2022 if (this row at Jan 2022) > 0: * 2");
+		b.run();
+		String csv = b.toCSV();
+		Printer.out(csv);
+	}
+
 	@Test
 	public void testCurrentRow() {
 		{

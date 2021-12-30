@@ -19,6 +19,11 @@ public class Comparison extends Condition {
 	private Formula rhs;
 	private String op;
 
+	@Override
+	public String toString() {
+		return "Comparison["+lhs+" "+op+" "+rhs+"]";
+	}
+	
 	public Comparison(Formula lhs, String cmp, Formula rhs) {
 		this.lhs = lhs;
 		this.rhs = rhs;

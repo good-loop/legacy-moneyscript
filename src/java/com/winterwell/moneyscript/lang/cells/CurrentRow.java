@@ -32,7 +32,8 @@ public final class CurrentRow extends CellSet {
 	@Override
 	public Collection<Cell> getCells(Cell b, boolean wide) {
 		if (wide) {
-			throw new UnsupportedOperationException("wide not supported for "+this);
+			Row row = b.getRow();
+			return row.getCells();
 		}
 		return Collections.singleton(b);
 	}		

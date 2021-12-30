@@ -37,6 +37,21 @@ public class LangTimeTest {
 		
 //		lang.parse("White papers: £3k at June 2020"); fails
 	}			
+	
+
+	@Test
+	public void testNotAMonth() {
+		Parser.clearGrammar();
+		Lang lang = new Lang();
+		LangTime lt = new LangTime();
+//		lt.date.parseOut("June 2020");
+//		Parser.DEBUG = true;
+		ParseResult<TimeDesc> p1 = lt.date.parseOut("June 2020");
+		ParseResult<TimeDesc> p2 = lt.date.parseOut("June");
+		ParseResult<TimeDesc> p2b = lt.date.parseOut("March");
+		ParseResult<TimeDesc> p3 = lt.date.parse("Marching Orders");
+		assert p3==null;
+	}			
 
 	@Test
 	public void testPrint() {
