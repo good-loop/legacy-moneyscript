@@ -99,7 +99,7 @@ const renderCell = (v, column, item) => {
 	}
 	// HACK show % change
 	if (colv && colv.dv) {
-		return <div>{vs} <span className='percent'>{colv.dx>0?<>&uarr;</>:<>&#x2191;</>}{prettyNumber(100*colv.dv, 2)}%</span></div>;
+		return <div>{vs} <span className='small text-info percent'>{colv.dx>0?<>&uarr;</>:<>&#x2191;</>}{prettyNumber(100*colv.dv, 2)}%</span></div>;
 	}
 	return vs;
 };
@@ -136,7 +136,8 @@ const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 		Tree.map(dtree, r => {
 			let rowData = r.value;
 			if (rowData && rowData.length) {
-				for(let c=13; c<rowData.length; c++) {
+				// HACk step over year total columns
+				for(let c=13; c<rowData.length; c+=13) {
 					let cv = rowData[c].v;
 					let prev = rowData[c-13].v;
 					if (cv && prev) {

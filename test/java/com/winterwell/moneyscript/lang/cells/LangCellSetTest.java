@@ -425,11 +425,21 @@ public class LangCellSetTest {
 	
 	@Test public void testCellSet_rowInGroup_payriseExample() {
 		Lang lang = new Lang();
-		Business b = lang.parse("start: Jan 2022\nend:June 2022\nStaff:\n\tAlice: 1\n\tBob from March 2022: 1\n"
-				+"Staff from Feb 2022 if (this row at Jan 2022) > 0: * 2");
-		b.run();
-		String csv = b.toCSV();
-		Printer.out(csv);
+		{
+			Business b = lang.parse("start: Jan 2022\nend:June 2022\nStaff:\n\tAlice: 1\n\tBob from March 2022: 1\n"
+					+"Staff from Feb 2022 if (this row at Jan 2022) > 0: * 2");
+			b.run();
+			String csv = b.toCSV();
+			Printer.out(csv);
+		}
+		{
+			Business b = lang.parse("start: Jan 2022\nend:June 2022\nStaff:\n\tAlice: 1\n\tBob from March 2022: 1\n"
+					+"Staff from July 2022 if (this row at Jan 2022) > 0: * 104% // £5k per year // some rumblings\n"				
+					);
+			b.run();
+			String csv = b.toCSV();
+			Printer.out(csv);
+		}
 	}
 
 	@Test
