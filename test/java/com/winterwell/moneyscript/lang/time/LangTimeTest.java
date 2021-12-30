@@ -44,7 +44,7 @@ public class LangTimeTest {
 		Parser.clearGrammar();
 		Lang lang = new Lang();
 		LangTime lt = new LangTime();
-//		lt.date.parseOut("June 2020");
+//		lt.date.parseOut("June 2020");r
 //		Parser.DEBUG = true;
 		ParseResult<TimeDesc> p1 = lt.date.parseOut("June 2020");
 		ParseResult<TimeDesc> p2 = lt.date.parseOut("June");

@@ -38,7 +38,7 @@ import com.winterwell.utils.time.Time;
 public class LangTime implements IInit {
 
 	public static final RegexParser MONTHYEAR_PARSER = regex(
-			"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)(\\s+(20\\d\\d))?");
+			"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)\\b(\\s+(20\\d\\d))?");
 
 
 

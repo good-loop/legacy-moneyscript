@@ -59,11 +59,11 @@ public class LangCellSet {
 	/**
 	 * Parse row names, e.g. "Alice"
 	 */
-	public Parser<String> rowName = new Parser() {
+	public Parser<RowName> rowName = new Parser<RowName>() {
 		Pattern p = Pattern.compile("^[A-Z][^:,\\+\\-\\*\\/<>=%\\?\\(\\)]*");		
 		
 		@Override
-		protected ParseResult<String> doParse(ParseState state) {			
+		protected ParseResult<RowName> doParse(ParseState state) {			
 			Slice unparsed = state.unparsed();
 			Matcher m = p.matcher(unparsed);
 			if ( ! m.find()) return null;			
@@ -89,9 +89,10 @@ public class LangCellSet {
 				return null;
 			}
 			// return
-			AST<String> ast = new AST<>(this, parsedSlice);
-			ast.setX(ast.parsed());
-			ParseResult<String> r = new ParseResult<>(state, ast, state.text, state.posn + end);
+			RowName cs = new RowName(parsedSlice.toString());
+			AST<RowName> ast = new AST<>(this, parsedSlice);
+			ast.setX(cs);
+			ParseResult<RowName> r = new ParseResult<>(state, ast, state.text, state.posn + end);
 			return r;
 		}
 	}.label(ROW_NAME);
@@ -121,7 +122,7 @@ public class LangCellSet {
 			if (rowParsed.getX() instanceof CellSet) {
 				base = (CellSet) rowParsed.getX();
 			} else {
-				String rn = rowParsed.parsed();
+				String rn = rowParsed.parsed(); // does this ever happen??
 				base = new RowName(rn);							
 			}
 			// unfiltered?

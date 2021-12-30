@@ -380,6 +380,10 @@ public class LangCellSetTest {
 			assert lang.rowName.parse("Sales ") == null;
 			assert lang.rowName.parse("Sales sum") == null;
 		}
+		{	// month-like names (July, March)
+			lang.rowName.parseOut("Jules");
+			lang.rowName.parseOut("Marketing");
+		}
 		{
 			assert lang.rowName.parse("Chairman (part time)") == null; //"time" is a reserved keyword
 			lang.rowName.parseOut("Chairman PartTime");
