@@ -96,6 +96,9 @@ public class Lang {
 	 */
 	public Parser line;
 	
+	/**
+	 * Means "skip in calculations"
+	 */
 	Parser na = lit("na");
 	
 	Parser<Rule> commentRow = new PP<Rule>(LangMisc.comment) {
@@ -110,7 +113,10 @@ public class Lang {
 	 */
 	Parser<Rule> groupRow = new PP<Rule>(
 			seq(LangMisc.indent, opt(lit("scenario ").label("scenario")), 
-					ref(LangCellSet.ROW_NAME), lit(":"), optSpace, opt(na), opt(LangMisc.comment))) 
+					ref(LangCellSet.ROW_NAME), lit(":"), 
+					optSpace, opt(na), 
+					optSpace, opt(LangMisc.tags),
+					opt(LangMisc.comment))) 
 	{
 		protected Rule process(ParseResult r) {			
 			AST<Number> indentAst = r.getNode(LangMisc.indent);
@@ -150,6 +156,8 @@ public class Lang {
 			opt(unit),
 			lit(":"), optSpace, 
 			ruleBody,
+			optSpace,
+			opt(LangMisc.tags),
 			opt(LangMisc.comment),
 			optSpace)
 	) {
@@ -319,7 +327,7 @@ public class Lang {
 			List<Group> groupStack = new ArrayList();
 	
 			// ...do the actual parse
-			List<Rule> rules = parse2_rulesFromLines(lines, ln, errors, b);		
+			List<Rule> rules = parse2_rulesFromLines(lines, ln, errors, b, planSheet);		
 			// make rows + group
 			parse3_addRulesAndGroupRows(b, planSheet, groupStack, rules);
 				
@@ -368,7 +376,8 @@ public class Lang {
 			}
 			ParseFail pf = new ParseFail(new Slice(r.src), 
 				"This rule overlaps with another rule for: "+cellset.getSrc());
-			pf.lineNum = r.lineNum;
+			pf.lineNum = r.getLineNum();
+			pf.setSheetId(r.sheetId);
 			dupes.add(pf);
 		}
 		return dupes;
@@ -503,9 +512,10 @@ public class Lang {
 	 * @param lines
 	 * @param ln starting line number (eg a header may have been parsed already)
 	 * @param errors
+	 * @param planSheet 
 	 * @return
 	 */
-	private List<Rule> parse2_rulesFromLines(String[] lines, int ln, List<ParseFail> errors, Business b) {
+	private List<Rule> parse2_rulesFromLines(String[] lines, int ln, List<ParseFail> errors, Business b, PlanSheet planSheet) {
 		List<Rule> rules = new ArrayList();
 		for (; ln<lines.length; ln++) {
 			String lineln = lines[ln];
@@ -522,12 +532,13 @@ public class Lang {
 				Log.w("Lang.parse", ex);
 			}
 			if (rule == null) {	// error :(
-				ParseFail pf = parse2_rulesFromLines2_fail(lineln, ln);
+				ParseFail pf = parse2_rulesFromLines2_fail(lineln, ln, planSheet);
 				errors.add(pf);
 				continue;
 			}
 			
 			rule.lineNum = ln;
+			rule.sheetId = planSheet.getId();
 			rules.add(rule);
 
 			// HACK: Process import of m$
@@ -546,7 +557,7 @@ public class Lang {
 	}
 
 
-	private ParseFail parse2_rulesFromLines2_fail(String text, int lineNum) {
+	private ParseFail parse2_rulesFromLines2_fail(String text, int lineNum, PlanSheet planSheet) {
 		ParseFail e = ParseFail.getParseFail();
 		if (e == null) {
 			e = new ParseFail(new Slice(text), null);
@@ -558,6 +569,7 @@ public class Lang {
 			}
 		}
 		e.lineNum = lineNum;
+		e.setSheetId(planSheet.getId());
 		return e;
 	}
 
@@ -602,7 +614,8 @@ public class Lang {
 					String msg = "`"+var+"` is not defined.";
 					if (couldBe!=null) msg += " Did you mean `"+couldBe+"`?"; 
 					ParseFail pf = new ParseFail(new Slice(r.src), msg);
-					pf.lineNum = r.lineNum;
+					pf.lineNum = r.getLineNum();
+					pf.setSheetId(r.sheetId);
 					unref.add(pf);
 					continue;
 				}
@@ -610,7 +623,8 @@ public class Lang {
 				if (couldBe != null && ! var.equals(couldBe)) {
 					String msg = "`"+var+"` could be confused with `"+couldBe+"`.";
 					ParseFail pf = new ParseFail(new Slice(r.src), msg);
-					pf.lineNum = r.lineNum;
+					pf.lineNum = r.getLineNum();
+					pf.setSheetId(r.sheetId);
 					unref.add(pf);
 				}
 			}

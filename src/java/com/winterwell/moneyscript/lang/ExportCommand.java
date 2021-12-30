@@ -136,25 +136,27 @@ public class ExportCommand
 			}			
 			// Export all or overlap
 			GSheetsClient sc = sc();
-			if (gsheetForPlanSheetId==null) {
-				gsheetForPlanSheetId = new ArrayMap();
-				for(PlanSheet planSheet : pd.getSheets()) gsheetForPlanSheetId.put(planSheet.getId(), "by-order");
+			// NB: don't save temporary allocations in case the target sheets change
+			Map<String, String> _gsheetForPlanSheetId = gsheetForPlanSheetId;
+			if (_gsheetForPlanSheetId==null) {
+				_gsheetForPlanSheetId = new ArrayMap();
+				for(PlanSheet planSheet : pd.getSheets()) _gsheetForPlanSheetId.put(planSheet.getId(), "by-order");
 			}
 			// fill in sheet IDs
 			List<SheetProperties> sheetProps = sc.getSheetProperties(getSpreadsheetId());
 			for(int i=0; i<pd.getSheets().size(); i++) {
 				PlanSheet ps = pd.getSheets().get(i);
-				String gs = gsheetForPlanSheetId.get(ps.getId());
+				String gs = _gsheetForPlanSheetId.get(ps.getId());
 				if ("by-order".equals(gs)) {
 					if (sheetProps.size() > i) {
-						gsheetForPlanSheetId.put(ps.getId(), ""+sheetProps.get(i).getSheetId());
+						_gsheetForPlanSheetId.put(ps.getId(), ""+sheetProps.get(i).getSheetId());
 					} else {
 						
 					}
 				}
 			}
 			for(PlanSheet planSheet : pd.getSheets()) {
-				String shid = gsheetForPlanSheetId.get(planSheet.getId());
+				String shid = _gsheetForPlanSheetId.get(planSheet.getId());
 				if ("skip".equals(shid)) {
 					continue;
 				}

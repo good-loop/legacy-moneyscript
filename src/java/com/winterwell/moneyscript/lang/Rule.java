@@ -44,7 +44,8 @@ public class Rule implements IReset {
 		if (getClass() != obj.getClass())
 			return false;
 		Rule other = (Rule) obj;
-		return lineNum == other.lineNum && Objects.equals(scenario, other.scenario) && Objects.equals(src, other.src);
+		return lineNum == other.lineNum && Objects.equals(sheetId, other.sheetId) 
+				&& Objects.equals(scenario, other.scenario) && Objects.equals(src, other.src);
 	}
 
 	/**
@@ -92,7 +93,9 @@ public class Rule implements IReset {
 	public final String src;
 	
 	int lineNum;
+	
 	private String unit;
+	String sheetId;
 	
 	@Override
 	public String toString() {

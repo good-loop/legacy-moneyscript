@@ -89,7 +89,7 @@ const MoneyScriptEditorPage = () => {
 						<h3>Imports</h3>
 						<ImportsList cargo={item} />
 						<h3>Errors</h3>
-						<ErrorsList errors={item.errors} />
+						<ErrorsList errors={item.errors} sheets={item.sheets} />
 						<h3>Exports</h3>
 						<ExportsList planDoc={item} />
 					</BSCard>
@@ -104,11 +104,15 @@ const MoneyScriptEditorPage = () => {
 	);
 };
 
-const ErrorsList = ({ errors }) => {
+const ErrorsList = ({ errors, sheets }) => {
 	if (!errors || !errors.length) {
 		return "None :)";
 	}
-	return errors.map((err, i) => <Alert color='danger' key={i}>Line: {err.line} {err.message}</Alert>);
+	return errors.map((err, i) => <PlanError key={i} error={err} sheets={sheets} />);
+};
+const PlanError = ({error, sheets}) => {
+	const s = sheets && sheets.find(s => s.id===error.sheetId);
+	return <Alert color='danger'>{s && s.title} line: {error.line} {error.message}</Alert>;
 };
 
 export const GSheetLink = ({ item }) => {
@@ -143,20 +147,6 @@ const DownloadTextLink = ({ text, filename }) => {
 		</a>);
 };
 
-// const saveFn = _.debounce(({path}) => {
-// 	console.warn("saveFn", path);
-// 	const plandoc = DataStore.getValue(path);
-// 	// parse
-// 	let p = ServerIO.load('/money.json', {data: {action:'parse', text: plandoc.text}});
-// 	return p.then(res => {
-// 		DataStore.setValue(['transient', 'parsed', path[path.length-1]], JSend.data(res));
-// 	}, res => {
-// 		// error handling
-// 		if (JSend.status(res) === 'fail') return JSend.data(res);
-// 		throw res;
-// 	});
-// }, 2000);
-
 /**
  * Ace markers -- What format?? Any docs??
  * @param {ParseFail} pf 
@@ -183,13 +173,13 @@ const markerFromParseFail = pf => {
 const EditScript = ({ id, plandoc, path }) => {
 	// syntax errors?
 	let parsed = plandoc; // NB: parse info is added server-side by augment
-	let pes = (parsed && parsed.errors) || []; //[{line:3,message:"Boo"}]; // TODO immortal error bug - as we don't reset value on return -- FIX use diffs (parsed && parsed.errors) || [];
 	// standardise on tabs, with 4 spaces = 1 tab
 	let modelValueFromInput = (iv, type, eventType) => standardModelValueFromInput(iv ? iv.replace(/ {4}/g, '\t') : iv, type, eventType);
 	// backwards compatability
 	if ( ! plandoc.sheets) {
 		PlanDoc.addSheet(plandoc, {text:plandoc.text});
 	}
+	// which sheet?
 	let tabId = 1*(DataStore.getUrlValue("tab") || 0);
 	const deleteSheet = _tabId => {
 		let ok = confirm("Are you sure you want to delete "+(plandoc.sheets[tabId].title || tabId)+"?")
@@ -198,6 +188,11 @@ const EditScript = ({ id, plandoc, path }) => {
 		DataStore.setValue(path, plandoc, true);
 	};
 	const sheet = plandoc.sheets[tabId] || {};
+	let pes = (parsed && parsed.errors) || []; 
+	// ...Split errors into the ones for this sheet vs others
+	let pesHere = pes.filter(pf => pf.sheetId? pf.sheetId===sheet.id : true);
+	console.warn("pes", pesHere);
+
 	return (<div>
 		<Nav tabs>
 			{plandoc.sheets.map((sheet, i) => (<NavItem key={i} className={tabId===i? 'active' : "bg-secondary"}>
@@ -226,7 +221,7 @@ const EditScript = ({ id, plandoc, path }) => {
 			<TabPane tabId={tabId}>
 				<AceCodeEditor path={path.concat('sheets', tabId)}
 					prop='text'
-					annotations={pes.map(markerFromParseFail)} height="calc(100vh - 10em)" />
+					annotations={pesHere.map(markerFromParseFail)} height="calc(100vh - 10em)" />
 			</TabPane>
 		</TabContent>
 	</div>);
@@ -261,16 +256,6 @@ const ImportsList2 = ({ verb, imports }) => {
 const ExportEditor = ({ path }) => {
 	// gsheet info?
 	let ec = DataStore.getValue(path) || {};
-	// let sheets = [];
-	// if (ec.spreadsheetId) {
-	// 	let pvInfo = DataStore.fetch(['widget','gsheetinfo',ec.spreadsheetId], () => {
-	// 		return ServerIO.load("/gsheet/"+encURI(ec.spreadsheetId)+"?action=info");
-	// 	});
-	// 	if (pvInfo.value) {
-	// 		sheets = pvInfo.value.sheets;
-	// 		// name
-	// 	}
-	// }
 
 	return (<>
 		<PropControl path={path} prop="active" label="Active" type="yesNo" dflt={true} />

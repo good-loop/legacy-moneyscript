@@ -16,31 +16,56 @@ import com.winterwell.utils.containers.Containers;
 
 public class PlanDoc extends AThing {
 
+	static Lang lang = new Lang();
+	
+	public transient Business business;
+
+	List charts;
+	
+	@ESNoIndex 
+	public List errors;
+	
+	/**
+	 * @deprecated copies the info in Business for API / UX purposes.
+	 */
+	List<ExportCommand> exportCommands = new ArrayList<>();	
+	
 	/**
 	 * @deprecated This copies the info in Business for save and API / UX purposes.
 	 */
 	List<Map> importCommands = new ArrayList<>();
 	
 	/**
-	 * @deprecated copies the info in Business for API / UX purposes.
-	 */
-	List<ExportCommand> exportCommands = new ArrayList<>();
-
-	/**
 	 * If this was a copy - keep the link for info
 	 */
 	@ESKeyword
 	String originalId;
-	
-	@Deprecated // replaced by sheets
-	private String text;	
-	
+
 	public transient Map parseInfo;
 	
-	@ESNoIndex 
-	public List errors;
+	List<PlanSheet> sheets;
 
-	public transient Business business;
+	@Deprecated // replaced by sheets
+	private String text;
+	
+	public Business getBusiness() {
+		if (business==null) {
+			business = lang.parse(getSheets());	
+		}
+		return business;
+	}
+
+	public List<ExportCommand> getExportCommands() {
+		return exportCommands;
+	}
+	
+	public List<PlanSheet> getSheets() {
+		if (sheets==null) {
+			sheets = new ArrayList();
+			sheets.add(new PlanSheet(text));
+		}
+		return sheets;
+	}
 	
 	@Deprecated // replaced by sheets
 	public String getText() {
@@ -51,31 +76,6 @@ public class PlanDoc extends AThing {
 		return text;
 	}
 
-	public List<PlanSheet> getSheets() {
-		if (sheets==null) {
-			sheets = new ArrayList();
-			sheets.add(new PlanSheet(text));
-		}
-		return sheets;
-	}
-	
-	List<PlanSheet> sheets;
-
-	public void setText(String s) {
-		this.text = s;
-		business = null;
-	}
-	
-	static Lang lang = new Lang();
-	
-	public void setImportCommands(List<ImportCommand> importCommands2) {
-		if (importCommands2==null) {
-			importCommands = null;
-			return;
-		}
-		importCommands = Containers.apply(importCommands2, ImportCommand::toJson2);
-	}
-
 	public void setExportCommands(List<ExportCommand> importCommands2) {
 		if (importCommands2==null) {
 			exportCommands = null;
@@ -84,15 +84,17 @@ public class PlanDoc extends AThing {
 		exportCommands = importCommands2;
 	}
 
-	public List<ExportCommand> getExportCommands() {
-		return exportCommands;
+	public void setImportCommands(List<ImportCommand> importCommands2) {
+		if (importCommands2==null) {
+			importCommands = null;
+			return;
+		}
+		importCommands = Containers.apply(importCommands2, ImportCommand::toJson2);
 	}
 	
-	public Business getBusiness() {
-		if (business==null) {
-			business = lang.parse(getSheets());	
-		}
-		return business;
+	public void setText(String s) {
+		this.text = s;
+		business = null;
 	}
 
 }

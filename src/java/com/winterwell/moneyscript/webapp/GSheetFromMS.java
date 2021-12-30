@@ -278,7 +278,8 @@ public class GSheetFromMS {
 		List<Row> rows = biz.getRows();
 		// filter by sheet
 		if (planSheet!=null) {
-			Collection<String> rowNames = new HashSet(biz.getRows4plansheet().get(planSheet.getId()));
+			List<String> prows = biz.getRows4plansheet().get(planSheet.getId());
+			Collection<String> rowNames = prows==null? new HashSet() : new HashSet(prows);
 			rows = Containers.filter(rows, row -> rowNames.contains(row.getName()));
 		}
 		if (ec.isOverlap()) {
