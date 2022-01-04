@@ -7,7 +7,7 @@ import printer from '../base/utils/printer';
 import C from '../C';
 import Roles from '../base/Roles';
 import Misc from '../base/components/Misc';
-import { stopEvent, modifyHash, encURI, space, uniq } from '../base/utils/miscutils';
+import { stopEvent, modifyHash, encURI, space, uniq, urlRegex } from '../base/utils/miscutils';
 import DataStore, { getDataPath } from '../base/plumbing/DataStore';
 import Settings from '../base/Settings';
 import ShareWidget, { ShareLink } from '../base/components/ShareWidget';
@@ -24,7 +24,7 @@ import Editor3ColLayout, { MainPane, RightSidebar } from '../base/components/Edi
 import BG from '../base/components/BG';
 import AceCodeEditor from './AceCodeEditor';
 import Icon from '../base/components/Icon';
-import { getStatus } from '../base/data/DataClass';
+import { getId, getStatus } from '../base/data/DataClass';
 import KStatus from '../base/data/KStatus';
 import PropControlList from '../base/components/PropControlList';
 import { Tabs, Tab } from '../base/components/Tabs';
@@ -79,29 +79,51 @@ const MoneyScriptEditorPage = () => {
 				<MainPane>
 					<Col md={8}><PropControl path={path} prop="name" size="lg" /></Col>
 					<EditScript id={id} plandoc={item} path={path} option="Text" />
-				</MainPane>
+				</MainPane>				
 				<RightSidebar height="" overflowY="auto" >
-					<a className='btn btn-primary btn-sm ml-2 mr-2' href={'/#sheet/' + escape(id)}>View SpreadSheet &gt;</a>
-					<GSheetLink item={item} />
-					<GitHubLink item={item} />
-					<DownloadTextLink text={PlanDoc.text(item)} filename={item.name + ".txt"} />
-					<BSCard className="mt-2" style={{ maxWidth: "300px" }}>
-						<h3>Imports</h3>
-						<ImportsList cargo={item} />
-						<h3>Errors</h3>
-						<ErrorsList errors={item.errors} sheets={item.sheets} />
-						<h3>Exports</h3>
-						<ExportsList planDoc={item} />
-					</BSCard>
-					<BSCard className="mt-2" style={{ maxWidth: "300px" }} >
-						<SavePublishDeleteEtc size="md" type="PlanDoc" id={id} saveAs className="light" position="relative" sendDiff />
-					</BSCard>
-					{/* <ShareLink /> */}
-					{/* <ShareWidget /> */}
+					<RightSide plandoc={item} />
 				</RightSidebar>
 			</Editor3ColLayout>
 		</BG>
 	);
+};
+
+const RightSide = ({plandoc}) => {
+	const id = getId(plandoc);
+	const item = plandoc; // old code
+	
+	// links in comments?
+	const text = PlanDoc.text(plandoc);
+	const links = [];
+	const comments = text.matchAll(/[^:]\/\/.+$/gm);
+	comments.forEach(c => {
+		const cs = c[0];
+		const urls = cs.matchAll(urlRegex).map(m => m[0]);
+		urls.forEach(u => links.push(u));
+		console.log(cs, Array.from(urls), links);
+	});
+
+	return (<><a className='btn btn-primary btn-sm ml-2 mr-2' href={'/#sheet/' + encURI(id)}>View SpreadSheet &gt;</a>
+	<GSheetLink item={item} />
+	<GitHubLink item={item} />
+	<DownloadTextLink text={PlanDoc.text(item)} filename={item.name + ".txt"} />
+	<BSCard className="mt-2" style={{ maxWidth: "300px" }}>
+		<h3>Imports</h3>
+		<ImportsList cargo={item} />
+		<h3>Errors</h3>
+		<ErrorsList errors={item.errors} sheets={item.sheets} />
+		<h3>Exports</h3>
+		<ExportsList planDoc={item} />
+		<h3>Comment Links</h3>
+		<ul>
+		{links.map(link => <li key={link}><LinkOut href={link} fetchTitle /></li>)}
+		</ul>
+	</BSCard>
+	<BSCard className="mt-2" style={{ maxWidth: "300px" }} >
+		<SavePublishDeleteEtc size="md" type="PlanDoc" id={id} saveAs className="light" position="relative" sendDiff />
+	</BSCard></>);
+	// {/* <ShareLink /> */}
+	// {/* <ShareWidget /> */}
 };
 
 const ErrorsList = ({ errors, sheets }) => {
