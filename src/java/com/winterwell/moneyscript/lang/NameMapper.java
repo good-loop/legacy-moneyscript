@@ -1,6 +1,7 @@
 package com.winterwell.moneyscript.lang;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -18,8 +19,12 @@ public class NameMapper {
 	private static final String LOGTAG = "NameMapper";
 	private Dictionary ourNames;
 	private List<String> theirAmbiguous = new ArrayList<>();
+	/**
+	 * TODO currently always null?!
+	 */
 	private Map<String,String> mappingImportRow2ourRow;
-	private Map<String, String> ourRowNames4csvRowName = new HashMap();
+	// NB: make it thread safe - concurrent mod exception seen Jan 2022
+	private Map<String, String> ourRowNames4csvRowName = Collections.synchronizedMap(new HashMap());
 
 	public NameMapper(Dictionary ourNames) {
 		this.ourNames = ourNames;
