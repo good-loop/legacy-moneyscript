@@ -27,6 +27,7 @@ import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.ITree;
+import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Time;
 
 /**
@@ -264,6 +265,9 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			assert ! (v instanceof UncertainNumerical) : this; // Sampled above
 			if (Numerical.isZero(v)) {
 				continue;
+			}
+			if ( ! Double.isFinite(v.doubleValue())) {
+				Log.w(LOGTAG, "Bad numerical "+b+" = "+v);
 			}
 			Numerical oldSum = sum;
 			// plus

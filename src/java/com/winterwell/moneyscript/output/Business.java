@@ -531,6 +531,9 @@ public final class Business {
 		Numerical n = state.get(cell);
 		if (n==null) {
 			n = run3_evaluate(cell);
+//			if ( ! Double.isFinite(n.doubleValue())) { // debug
+//				n = run3_evaluate(cell);
+//			}
 		}		
 		return n;
 	}
@@ -733,6 +736,12 @@ public final class Business {
 	
 	public Col getColForTime(Time time) {
 		int i = getSettings().getTimeSlicer().getBucket(time);
+		if (i < 0) {
+			return Col.THE_PAST;
+		}
+		if (i >= columns.size()) {
+			return Col.THE_INDEFINITE_FUTURE;
+		}
 		Col coli = columns.get(i);
 		assert coli.index == i + 1;
 		return coli;

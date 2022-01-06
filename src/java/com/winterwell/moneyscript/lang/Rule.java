@@ -137,9 +137,10 @@ public class Rule implements IReset {
 			if (gs!=null && v.excel==null) {
 				v.excel = gs.cellRef(cell.row, cell.col);
 			}
-			// No NaN or infinity
+			// Allow NaN or infinity (so the user can debug their formula)
 			if ( ! Double.isFinite(v.doubleValue())) {
-				throw new IllegalArgumentException(v+" for "+this+" on "+cell);
+				Log.w("Rule", "not finite "+cell+" "+this);
+//				throw new IllegalArgumentException(v+" for "+this+" on "+cell);
 			}
 			// allow the script to override and set what the unit is, e.g. "Margin (%): Profit / Income" 
 			if (unit != null) {

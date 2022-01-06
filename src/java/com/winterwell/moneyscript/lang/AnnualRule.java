@@ -43,7 +43,8 @@ public class AnnualRule extends MetaRule {
 		if ("previous".equals(op)) {
 			Cell cj = cells.get(i);
 			Numerical vj = b.getCellValue(cj);
-			Numerical yearEnd = new Numerical(vj);
+			Numerical yearEnd = vj instanceof ErrorNumerical? vj
+					: new Numerical(vj);
 			yearEnd.comment = "end of year";
 			return yearEnd;
 		}

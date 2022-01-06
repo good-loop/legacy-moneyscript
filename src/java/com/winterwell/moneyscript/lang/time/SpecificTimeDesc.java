@@ -1,5 +1,6 @@
 package com.winterwell.moneyscript.lang.time;
 
+import com.winterwell.moneyscript.lang.Settings;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.utils.time.Time;
@@ -24,7 +25,13 @@ public class SpecificTimeDesc extends TimeDesc {
 	 * Can be Col.THE_INDEFINITE_FUTURE or Col.THE_PAST. never null.
 	 */
 	public Col getCol(Cell context) {
-		return context.getBusiness().getColForTime(time);
+		Col col = context.getBusiness().getColForTime(time);
+		if (col!=null) return col;
+		Settings bs = context.getBusiness().getSettings();
+		if (time.isBefore(bs.getStart())) {
+			return Col.THE_PAST;
+		}
+		return Col.THE_INDEFINITE_FUTURE;
 	}
 	
 	@Override
