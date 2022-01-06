@@ -65,6 +65,11 @@ public class Numerical extends Number implements IScalarArithmetic {
 	 */
 	private Double delta;
 
+	/**
+	 * HACK how many bits went into this number?
+	 */
+	public int cnt;
+
 	// TODO remove the ,?
 	public static Pattern number = Pattern.compile("-?(£|$)?([0-9]+[0-9,]+[0-9]{3}|[0-9]+\\.[0-9]+|[0-9]+)(k|m|bn)?%?", Pattern.CASE_INSENSITIVE);
 	

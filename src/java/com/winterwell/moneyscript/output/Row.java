@@ -17,8 +17,11 @@ import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.StyleRule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.CurrentRow;
 import com.winterwell.moneyscript.lang.cells.RowName;
+import com.winterwell.moneyscript.lang.num.BasicFormula;
 import com.winterwell.moneyscript.lang.num.Numerical;
+import com.winterwell.moneyscript.lang.num.UnaryOp;
 import com.winterwell.moneyscript.webapp.GSheetFromMS;
 import com.winterwell.utils.Dep;
 import com.winterwell.utils.IFilter;
@@ -259,7 +262,8 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		Numerical sum = new Numerical(0);
 		GSheetFromMS gs = Dep.getWithDefault(GSheetFromMS.class, null);		
 		// add them up...
-		boolean allImports = true;
+		boolean allImports = true; // stays true if every bit of the sum is an import
+		int size = 0;
 		for (Row kid : kids) {
 			Numerical v = biz.getCellValue(new Cell(kid, col));			
 			assert ! (v instanceof UncertainNumerical) : this; // Sampled above
@@ -273,6 +277,7 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			// plus
 			sum = sum.plus(v);
 			// ...what went into the sum?
+			size += v.cnt==0? 1 : v.cnt;
 			String newComment = StrUtils.joinWithSkip(" + ", oldSum.comment, kid.getName()+"("+v+")");
 			sum.comment = newComment;
 			if (gs!=null) {
@@ -284,6 +289,20 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			{
 				allImports = false;
 			}
+		}
+		// number of rows? NB not needed for a low number
+		sum.cnt = size;
+		if (size > 4) {
+			// ?? why does this not always give the same answer?? But top level count(Foo) does?? oddity seen with count(Staff) in 2022 Budget
+//			UnaryOp countOp = new UnaryOp("count", new BasicFormula(new RowName(getName())));
+//			Numerical cnt2 = countOp.calculate(b);
+//			if (size == cnt2.intValue()) {
+//				assert size != -1;
+//			} else {
+//				assert size != -1;
+//				Numerical cnt3 = countOp.calculate(b);
+//			}
+			sum.comment += " ("+size+" basic rows)";
 		}
 		// HACK
 		if ( ! Numerical.isZero(sum) && allImports) {
