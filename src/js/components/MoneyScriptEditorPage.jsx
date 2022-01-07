@@ -24,7 +24,7 @@ import Editor3ColLayout, { MainPane, RightSidebar } from '../base/components/Edi
 import BG from '../base/components/BG';
 import AceCodeEditor from './AceCodeEditor';
 import Icon from '../base/components/Icon';
-import { getId, getStatus } from '../base/data/DataClass';
+import { getId, getStatus, getType } from '../base/data/DataClass';
 import KStatus from '../base/data/KStatus';
 import PropControlList from '../base/components/PropControlList';
 import { Tabs, Tab } from '../base/components/Tabs';
@@ -155,7 +155,7 @@ export const GitHubLink = ({ item }) => {
 	}
 	return (<LinkOut
 		className="btn btn-light btn-sm ml-1 mr-1"
-		href={'https://github.com/good-loop/moneyscript-plans/blame/master/~' + item.id}
+		href={'https://github.com/good-loop/moneyscript-plans/blame/master/PlanDoc~' + item.id}
 		title={"Link to version control in GitHub"}
 	><Icon size='xs' name="github" /></LinkOut>);
 };
