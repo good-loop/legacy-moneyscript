@@ -94,7 +94,7 @@ const RightSide = ({plandoc}) => {
 	
 	// links in comments?
 	const text = PlanDoc.text(plandoc);
-	const links = [];
+	let links = [];
 	const comments = text.matchAll(/[^:]\/\/.+$/gm);
 	comments.forEach(c => {
 		const cs = c[0];
