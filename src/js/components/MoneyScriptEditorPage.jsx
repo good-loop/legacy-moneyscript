@@ -102,6 +102,7 @@ const RightSide = ({plandoc}) => {
 		urls.forEach(u => links.push(u));
 		console.log(cs, Array.from(urls), links);
 	});
+	links = uniq(links);
 
 	return (<><a className='btn btn-primary btn-sm ml-2 mr-2' href={'/#sheet/' + encURI(id)}>View SpreadSheet &gt;</a>
 	<GSheetLink item={item} />
