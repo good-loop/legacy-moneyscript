@@ -10,7 +10,7 @@ var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
 var PythonHighlightRules = function() {
 
     var keywords = (
-		"from|to|per|year|month|annual|at|sum|count|mean|months|ago|previous|fresh|this row|except|" +
+		"from|to|per|year|month|annual|at|sum|count|mean|months|ago|previous|fresh|this|row|except|" +
         "if|import|export|all|overlap|off|aggregate|using|in|start|end|columns|na|samples|scenario"
     );
 
@@ -19,7 +19,7 @@ var PythonHighlightRules = function() {
     );
 
     var builtinFunctions = (
-		"N|min|max"
+		"N|min|max|average"
     );
     var keywordMapper = this.createKeywordMapper({
         "invalid.deprecated": "debugger",
