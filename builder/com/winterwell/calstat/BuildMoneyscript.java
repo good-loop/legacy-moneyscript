@@ -10,7 +10,7 @@ public class BuildMoneyscript extends BuildWinterwellProject {
 
 	public BuildMoneyscript() {
 		super("moneyscript");
-		setVersion("0.9.1"); // 10 Apr 2021
+		setVersion("1.0.0"); // Jan 2022
 		setMainClass("com.winterwell.moneyscript.webapp.MoneyScriptMain");
 //		setMakeFatJar(true); // odd classpath issues -- this is one (not ideal but simple) way to fix them
 	}

@@ -20,6 +20,8 @@ import com.winterwell.moneyscript.data.PlanSheet;
 import com.winterwell.moneyscript.lang.bool.LangBool;
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.CurrentRow;
+import com.winterwell.moneyscript.lang.cells.Filter;
+import com.winterwell.moneyscript.lang.cells.FilteredCellSet;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
 import com.winterwell.moneyscript.lang.cells.LangFilter;
 import com.winterwell.moneyscript.lang.cells.RowName;
@@ -113,7 +115,9 @@ public class Lang {
 	 */
 	Parser<Rule> groupRow = new PP<Rule>(
 			seq(LangMisc.indent, opt(lit("scenario ").label("scenario")), 
-					ref(LangCellSet.ROW_NAME), lit(":"), 
+//					ref(LangCellSet.ROW_NAME),
+					LangCellSet.cellSet, // allow "Row" or "Row from next year"
+					lit(":"), 
 					optSpace, opt(na), 
 					optSpace, opt(LangMisc.tags),
 					opt(LangMisc.comment))) 
@@ -121,11 +125,16 @@ public class Lang {
 		protected Rule process(ParseResult r) {			
 			AST<Number> indentAst = r.getNode(LangMisc.indent);
 			int ind = indentAst.getX().intValue();
-			AST rn = r.getNode(LangCellSet.ROW_NAME);
+			AST<CellSet> rn = r.getNode(LangCellSet.cellSet);
+			CellSet row = rn.getX();
 			String rname = rn.parsed();
 			boolean scenario = r.getNode("scenario") != null;			
-			GroupRule gr = scenario? new ScenarioRule(new Scenario(rname), ind)
-							: new GroupRule(new RowName(rname), ind);
+			GroupRule gr;
+			if (scenario) {
+				gr = new ScenarioRule(new Scenario(rname), ind);
+			} else {				
+				gr = new GroupRule(row, ind);
+			}
 			AST rna = r.getNode(na);
 			if (rna != null) {
 				gr.na = true;
@@ -467,6 +476,19 @@ public class Lang {
 				// (perhaps just for some Rules)
 			} // ./grouping	
 			
+			// filter?
+			if (parent.rule != null) {
+				GroupRule gr = parent.rule;
+				if (gr.getSelector() instanceof FilteredCellSet) {
+					FilteredCellSet fcs = ((FilteredCellSet) gr.getSelector());
+					Filter f = fcs.getFilter();
+					CellSet rsel = rule.getSelector();
+					// add the filter
+					FilteredCellSet rfcs = new FilteredCellSet(rsel, f, fcs.getSrc()+" and "+rsel.getSrc());
+					rule.setSelector(rfcs);
+				}
+			}
+			
 			// rule grouping eg for scenarios (which apply at the rule level not the row level)
 			parse4_addRulesAndGroupRows2_setRuleGroup(rule, parent);			
 		}
@@ -487,6 +509,9 @@ public class Lang {
 		}
 		Row row0 = rows.get(0);		
 		Group group = new Group(row0, rule.indent);
+		if (rule instanceof GroupRule) {
+			group.rule = (GroupRule) rule;
+		}
 		return group;
 	}
 

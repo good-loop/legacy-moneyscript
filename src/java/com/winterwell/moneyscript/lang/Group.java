@@ -50,6 +50,7 @@ final class Group {
 	final Filter byFilter;
 	final int indent;
 	Group parent;
+	GroupRule rule;
 	
 	public void setParent(Group parent) {
 		this.parent = parent;

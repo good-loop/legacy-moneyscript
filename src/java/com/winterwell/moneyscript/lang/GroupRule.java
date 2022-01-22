@@ -1,5 +1,6 @@
 package com.winterwell.moneyscript.lang;
 
+import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.RowName;
 
 
@@ -23,8 +24,9 @@ public class GroupRule extends Rule {
 		return na;
 	}
 
-	public GroupRule(RowName row, int indent) {
+	public GroupRule(CellSet row, int indent) {
 		super(row, null, row+":", indent);
+		assert getSelector() != null : this;
 	}
 
 }

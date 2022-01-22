@@ -23,6 +23,10 @@ public class FilteredCellSet extends CellSet {
 	CellSet base;
 	Filter filter;
 
+	public Filter getFilter() {
+		return filter;
+	}
+	
 	public FilteredCellSet(CellSet base, Filter filter, String src) {
 		super(src);
 		this.base = base;

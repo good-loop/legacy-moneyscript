@@ -157,7 +157,7 @@ export const GitHubLink = ({ item }) => {
 	}
 	return (<LinkOut
 		className="btn btn-light btn-sm ml-1 mr-1"
-		href={'https://github.com/good-loop/moneyscript-plans/blame/master/PlanDoc~' + item.id}
+		href={'https://github.com/good-loop/moneyscript-plans/blame/master/PlanDoc/~' + item.id+".txt"}
 		title={"Link to version control in GitHub"}
 	><Icon size='xs' name="github" /></LinkOut>);
 };

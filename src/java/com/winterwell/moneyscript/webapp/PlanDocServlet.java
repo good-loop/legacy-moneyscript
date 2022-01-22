@@ -9,6 +9,7 @@ import java.util.Map;
 import com.goodloop.gsheets.GSheetsClient;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.winterwell.bob.wwjobs.BuildHacks;
+import com.winterwell.data.AThing;
 import com.winterwell.data.KStatus;
 import com.winterwell.es.ESPath;
 import com.winterwell.es.client.ESHit;
@@ -57,6 +58,17 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		_jthing.java().errors = new ArrayList();
 	}
 
+	@Override
+	protected File doBeforeSaveOrPublish2_git(WebRequest state, AThing ting) {
+		File f = super.doBeforeSaveOrPublish2_git(state, ting);
+		if (f==null) return null;		
+		// text file too for useful human-readable diff
+		File ftxt = FileUtils.changeType(f, "txt");
+		String text = ((PlanDoc)ting).getText();
+		doSave2_file_and_git(state, text, ftxt);		
+		return f;
+	}
+	
 	@Override
 	protected void doSave(WebRequest state) {
 		super.doSave(state); // db
