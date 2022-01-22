@@ -48,7 +48,8 @@ const SheetPage = () => {
 		`} />
 		<div className='header'>
 			<Row className="w-100">
-				<Col md={2}><a className='mt-1 btn btn-dark' href={'/#plan/'+escape(id)}>&lt; View Plan</a></Col>
+				<Col md={2}><a className='mt-1 btn btn-dark' 				
+					href={'/#plan/'+encURI(id)+"?tab="+(DataStore.getUrlValue("tab")||"")}>&lt; View Plan</a></Col>
 				<Col md={10}><h2>{item.name || item.id}</h2></Col>
 			</Row>			
 			<div className='flex-row'>

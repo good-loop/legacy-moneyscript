@@ -104,7 +104,9 @@ const RightSide = ({plandoc}) => {
 	});
 	links = uniq(links);
 
-	return (<><a className='btn btn-primary btn-sm ml-2 mr-2' href={'/#sheet/' + encURI(id)}>View SpreadSheet &gt;</a>
+	return (<>
+	<a className='btn btn-primary btn-sm ml-2 mr-2' 
+		href={'/#sheet/' + encURI(id)+"?tab="+(DataStore.getUrlValue("tab")||"")}>View SpreadSheet &gt;</a>
 	<GSheetLink item={item} />
 	<GitHubLink item={item} />
 	<DownloadTextLink text={PlanDoc.text(item)} filename={item.name + ".txt"} />
