@@ -1,11 +1,15 @@
 package com.winterwell.moneyscript.lang;
 
+import java.util.List;
+import java.util.Set;
+
 import org.junit.Test;
 
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.cells.FilteredCellSet;
 import com.winterwell.moneyscript.output.Business;
+import com.winterwell.moneyscript.output.Row;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Containers;
@@ -22,6 +26,20 @@ public class GroupRuleTest {
 		FilteredCellSet cells = (FilteredCellSet) rule.getSelector();
 		Filter filter = cells.getFilter();
 		System.out.println(filter);
+	}
+
+	@Test
+	public void testParseNestedConditionalGroup() {
+		String s = "Pay from month 2:\n\tUK Peeps:\n\t\tAlice: +£1";
+		Lang lang = new Lang();
+		Business b = lang.parse(s);
+		Set<Rule> rules = b.getAllRules();
+		System.out.println(rules);
+		Row row = b.getRow("Alice");
+		List<Rule> arules = row.getRules();
+		Rule r0 = arules.get(0);
+		CellSet rcs = r0.getSelector();
+		assert rcs instanceof FilteredCellSet : rcs; // hurrah the time filter has been passed down
 	}
 
 

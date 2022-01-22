@@ -2,6 +2,8 @@ package com.winterwell.moneyscript.lang.cells;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.winterwell.moneyscript.output.Business;
@@ -45,15 +47,34 @@ public final class RowName extends CellSet {
 		return r;
 	}
 
+	/**
+	 * 
+	 * @param myRow
+	 * @param cell
+	 * @return true if cell is in myRow or its children
+	 */
 	private boolean contains2(Row myRow, Cell cell) {
 		if (cell.row == myRow) return true;
 		if ( ! myRow.isGroup()) return false;
-		for(Row kRow : myRow.getChildren()) {
-			boolean yes = contains2(kRow, cell);
-			if (yes) return true;
+		// NB: Profiling showed this as a bottleneck, Jan 2022
+		if (_subRows==null) {
+			_subRows = new HashSet();
+			initSubRows(myRow);
 		}
-		return false;
+		return _subRows.contains(cell.row);
 	}		
+	
+	private void initSubRows(Row myRow) {		
+		for(Row kRow : myRow.getChildren()) {
+			_subRows.add(kRow);
+			initSubRows(kRow);
+		}			
+	}
+
+	transient Set<Row> _subRows;
+	
+	
+	
 	
 	/**
 	 * the equivalent cell in this row. e.g. for rows A, B    

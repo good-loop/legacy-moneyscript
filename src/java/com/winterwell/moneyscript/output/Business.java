@@ -2,6 +2,7 @@ package com.winterwell.moneyscript.output;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +80,9 @@ public final class Business {
 	 */
 	public static final Numerical EMPTY = new Numerical(0);
 
-	List<Row> _rows = new ArrayList<Row>();	
+	List<Row> _rows = new ArrayList<Row>();
+
+	private transient HashMap<String,Row> _row4name;	
 	
 	public Business() {
 		setSettings(new Settings());		
@@ -398,9 +401,18 @@ public final class Business {
 	}
 
 	public Row getRow(String name) {
-		for(Row r : getRows()) {
-			if (name.equals(r.name)) return r;
+		// NB: this showed as a minor bottleneck, Jan 2022
+		if (_row4name==null) {			
+			_row4name = new HashMap();
+			for(Row row : getRows()) {
+				_row4name.put(row.name, row);
+			}
 		}
+		Row row = _row4name.get(name);
+		if (row != null) {
+			return row;
+		}
+		// Is this ever used??
 		if (getSettings().fuzzyNames) {	
 			// maybe cache for speed??
 			Dictionary rowNames = getRowNames();
@@ -508,7 +520,8 @@ public final class Business {
 	private void run2_removeOffRows() {
 		for(Row row : _rows.toArray(new Row[0])) {
 			if (row.isOn()) continue;
-			_rows.remove(row);
+			_rows.remove(row);			
+			// remove from _row4name ??
 		}
 	}
 
@@ -578,6 +591,7 @@ public final class Business {
 	public void addRow(Row row, PlanSheet planSheet) {
 		assert _rows.indexOf(row) == -1 : row;
 		_rows.add(row);
+		_row4name.put(row.name, row);
 		// change state
 		if (state!=null) {
 			state.resize(_rows.size(), columns.size());
@@ -705,7 +719,9 @@ public final class Business {
 	
 	public void setSettings(Settings settings) {
 		this.settings = settings;
-		int months = (int) settings.getRunTime().divide(settings.timeStep);
+		Dt runTime = settings.getRunTime();
+		// NB: we typically get e.g. 23.9999 months
+		int months = (int) Math.round(runTime.divide(settings.timeStep));
 //		months += 1; // include the end month - done by a hack on end
 		setColumns(months);
 	}
@@ -744,7 +760,7 @@ public final class Business {
 		return coli;
 	}
 
-	public Settings getSettings() {
+	public final Settings getSettings() {
 		return settings;
 	}
 

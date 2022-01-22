@@ -23,6 +23,10 @@ public final class Settings {
 	 */
 	int samples;
 	protected Dt _runTime;
+	
+	/**
+	 * Is this ever used??
+	 */
 	public boolean fuzzyNames;
 	
 	public void setSamples(int samples) {

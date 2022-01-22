@@ -200,9 +200,9 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 
 
 	/**
-	 * The direct children
+	 * The direct children. never null
 	 */
-	public List<Row> getChildren() {
+	public final List<Row> getChildren() {
 		return kids;
 	}
 
@@ -219,8 +219,8 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 
 
 
-	public boolean isGroup() {
-		return kids.size() != 0;
+	public final boolean isGroup() {
+		return ! kids.isEmpty();
 	}
 
 	/**
