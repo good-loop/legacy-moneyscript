@@ -41,28 +41,26 @@ import com.winterwell.utils.time.Time;
  * @author daniel
  *
  */
-public final class Row 
-implements ITree // NB: we don't use Row ITree anywhere (yet) 
+public final class Row implements ITree // NB: we don't use Row ITree anywhere (yet)
 {
 
 	private static final String LOGTAG = "Row";
 	String name;
-	
+
 	public Row getParent() {
 		return parent;
 	}
-	
+
 	public Row(String name) {
 		this.name = name.trim();
 		// HACK - avoid annual totals for Balance, Head Count, etc
 		// ??How might we make this a setting in the script??
 		// maybe "Total: annual except(Balance)"
-		String cname = StrUtils.toCanonical(name).replace(" ","");
-		if (Arrays.asList("balance","cashatbank", "cash").contains(cname) || cname.contains("count")) {
+		String cname = StrUtils.toCanonical(name).replace(" ", "");
+		if (Arrays.asList("balance", "cashatbank", "cash").contains(cname) || cname.contains("count")) {
 			noTotal = true;
 		}
 	}
-
 
 	@Override
 	public String toString() {
@@ -70,11 +68,12 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 	}
 
 	public List<Rule> getRules() {
-		if (parent!=null) {					
+		if (parent != null) {
 			ArrayList<Rule> rules2 = new ArrayList<Rule>(rules);
 			List<Rule> rs = parent.getRules();
 			for (Rule rule : rs) {
-				if (rule instanceof GroupRule) continue;
+				if (rule instanceof GroupRule)
+					continue;
 				rules2.add(rule);
 			}
 			return rules2;
@@ -88,46 +87,54 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 	private Row parent;
 	private List<StyleRule> stylers = new ArrayList<StyleRule>();
 	/**
-	 * If true don't include a year-end total for this row
-	 * e.g. Balance
+	 * If true don't include a year-end total for this row e.g. Balance
 	 */
 	private boolean noTotal;
 
 	/**
 	 * Process the cell -- except group cells
+	 * 
 	 * @param col
 	 * @param b
 	 * @return value or null for a group cell
 	 */
-	public Numerical calculate(Col col, Business b) {	
-//		if ((""+getName()+" "+this).toLowerCase().contains("profit")) {	// debug!
-//			assert true;
-//		}
+	public Numerical calculate(Col col, Business b) {
+		if (("" + getName() + " " + this).toLowerCase().contains("arim")) { // debug!
+			System.out.println(this);
+		}
 		Cell cell = new Cell(this, col);
 		// special case: group rows
 		if (isGroup()) {
-			// ??But you can also use a group for organisation, to contain a set of child rows
+			// ??But you can also use a group for organisation, to contain a set of child
+			// rows
 			return getGroupValue(col, cell);
 		}
-		List<Rule> rs = getRules();		
-		if (rs.isEmpty()) return null;
+		List<Rule> rs = getRules();
+		if (rs.isEmpty())
+			return null;
 		Numerical v = null;
 		// Last rule wins in a straight calculation (some rules are modifiers)
-		// Minor efficiency TODO - mark which rules are modifiers, then start with the last absolute rule
+		// Minor efficiency TODO - mark which rules are modifiers, then start with the
+		// last absolute rule
 		for (Rule r : rs) {
 			// imports win
 			if (v != null && ImportCommand.IMPORT_MARKER_COMMENT.equals(v.comment)) {
 				continue;
 			}
 			// skip non calc rules
-			if (r instanceof MetaRule) continue;
-			if (r instanceof StyleRule) continue;
-			if (r instanceof DummyRule) continue;
-			if (r instanceof GroupRule) continue;			
+			if (r instanceof MetaRule)
+				continue;
+			if (r instanceof StyleRule)
+				continue;
+			if (r instanceof DummyRule)
+				continue;
+			if (r instanceof GroupRule) {
+				continue;
+			}
 			assert r != null : rs;
 			// NB: scenario on/off is done inside calculate
 			Numerical v2 = r.calculate(cell);
-			if (v2==null) {
+			if (v2 == null) {
 				continue; // e.g. rule not active yet
 			}
 			if (Numerical.isZero(v2)) {
@@ -135,13 +142,14 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			}
 			// comment = rule name
 			if (v != v2) {
-				// ?? How to spot when r is/isn't a modifier, and the earlier comment should be kept/discarded?
+				// ?? How to spot when r is/isn't a modifier, and the earlier comment should be
+				// kept/discarded?
 				if (ImportCommand.IMPORT_MARKER_COMMENT.equals(v2.comment)) {
 					// its an import, leave it alone
 				} else {
 					// combine comments
 					String v2c = Utils.or(v2.comment, r.src);
-					v2.comment = StrUtils.space(v==null? null : v.comment, v2c);
+					v2.comment = StrUtils.space(v == null ? null : v.comment, v2c);
 				}
 			}
 			v = v2;
@@ -154,13 +162,9 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		return v;
 	}
 
-
-
 	public String getName() {
 		return name;
 	}
-
-
 
 	public List<Cell> getCells() {
 		Business b = Business.get();
@@ -172,32 +176,30 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		return list;
 	}
 
-
-
 	public final int getIndex() {
-		if (index != -1) return index;
+		if (index != -1)
+			return index;
 		Business b = Business.get();
 		index = b.getRowIndex(this);
 		return index;
 	}
 
-
-
 	public boolean isOn() {
 		// is there an off rule?
 		Cell cell = new Cell(this, new Col(1));
-		for(Rule r : rules) {
+		for (Rule r : rules) {
 			if (r instanceof MetaRule) {
 				String meta = ((MetaRule) r).meta;
-				if ( ! "off".equals(meta)) continue;				
+				if (!"off".equals(meta))
+					continue;
 				boolean applies = r.getSelector().contains(cell, cell);
-				if ( ! applies) continue;				
+				if (!applies)
+					continue;
 				return false;
 			}
 		}
 		return true;
 	}
-
 
 	/**
 	 * The direct children. never null
@@ -206,25 +208,23 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		return kids;
 	}
 
-
-
 	public void setParent(Row group) {
-		if (parent==group) return;
+		if (parent == group)
+			return;
 		assert parent == null;
 		parent = group;
-		assert ! group.kids.contains(this) : this;
+		assert !group.kids.contains(this) : this;
 		group.kids.add(this);
 		// NB: scenario is done at the rule level (not the row level)
 	}
 
-
-
 	public final boolean isGroup() {
-		return ! kids.isEmpty();
+		return !kids.isEmpty();
 	}
 
 	/**
 	 * ?? Is this 0 or 1 indexed
+	 * 
 	 * @return
 	 */
 	public double[] getValues() {
@@ -233,8 +233,8 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		double[] vs = new double[cells.size()];
 		for (int i = 0; i < vs.length; i++) {
 			Cell c = cells.get(i);
-			Numerical v = b.getCellValue(c); 
-			vs[i] = (v==null || v==Business.EVALUATING)? 0 : v.doubleValue();
+			Numerical v = b.getCellValue(c);
+			vs[i] = (v == null || v == Business.EVALUATING) ? 0 : v.doubleValue();
 		}
 		return vs;
 	}
@@ -244,56 +244,57 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		// HACK na?
 		List<Rule> _rules = getRules();
 		for (Rule rule : _rules) {
-			if (rule instanceof GroupRule && ((GroupRule)rule).isNA()) {
+			if (rule instanceof GroupRule && ((GroupRule) rule).isNA()) {
 				Numerical n = Business.EMPTY; // HACK 0 isnt skip, but it should do for most cases
 				return n;
 			}
 		}
 		// sum over the kids
 		List<Row> kids = getChildren();
-		
-		// sample from distributions? (could we preserve in some cases instead?? But thats messy)
+
+		// sample from distributions? (could we preserve in some cases instead?? But
+		// thats messy)
 		Business biz = Business.get();
 		Numerical dummy = biz.getCellValue(new Cell(kids.get(0), col));
 		if (dummy instanceof UncertainNumerical) {
 			return getGroupValue2_dist(col, biz);
 		}
-		
+
 		Numerical sum = new Numerical(0);
-		GSheetFromMS gs = Dep.getWithDefault(GSheetFromMS.class, null);		
+		GSheetFromMS gs = Dep.getWithDefault(GSheetFromMS.class, null);
 		// add them up...
 		boolean allImports = true; // stays true if every bit of the sum is an import
 		int size = 0;
 		for (Row kid : kids) {
-			Numerical v = biz.getCellValue(new Cell(kid, col));			
-			assert ! (v instanceof UncertainNumerical) : this; // Sampled above
+			Numerical v = biz.getCellValue(new Cell(kid, col));
+			assert !(v instanceof UncertainNumerical) : this; // Sampled above
 			if (Numerical.isZero(v)) {
 				continue;
 			}
-			if ( ! Double.isFinite(v.doubleValue())) {
-				Log.w(LOGTAG, "Bad numerical "+b+" = "+v);
+			if (!Double.isFinite(v.doubleValue())) {
+				Log.w(LOGTAG, "Bad numerical " + b + " = " + v);
 			}
 			Numerical oldSum = sum;
 			// plus
 			sum = sum.plus(v);
 			// ...what went into the sum?
-			size += v.cnt==0? 1 : v.cnt;
-			String newComment = StrUtils.joinWithSkip(" + ", oldSum.comment, kid.getName()+"("+v+")");
+			size += v.cnt == 0 ? 1 : v.cnt;
+			String newComment = StrUtils.joinWithSkip(" + ", oldSum.comment, kid.getName() + "(" + v + ")");
 			sum.comment = newComment;
-			if (gs!=null) {
-				String newExcel = (oldSum.excel==null? "" : oldSum.excel+" + ")+gs.cellRef(kid, col);
+			if (gs != null) {
+				String newExcel = (oldSum.excel == null ? "" : oldSum.excel + " + ") + gs.cellRef(kid, col);
 				sum.excel = newExcel;
 			}
-			if (allImports && ! ImportCommand.IMPORT_MARKER_COMMENT.equals(v.comment)
-				&& ! (v.comment!=null && v.comment.startsWith("imports"))) 
-			{
+			if (allImports && !ImportCommand.IMPORT_MARKER_COMMENT.equals(v.comment)
+					&& !(v.comment != null && v.comment.startsWith("imports"))) {
 				allImports = false;
 			}
 		}
 		// number of rows? NB not needed for a low number
 		sum.cnt = size;
 		if (size > 4) {
-			// ?? why does this not always give the same answer?? But top level count(Foo) does?? oddity seen with count(Staff) in 2022 Budget
+			// ?? why does this not always give the same answer?? But top level count(Foo)
+			// does?? oddity seen with count(Staff) in 2022 Budget
 //			UnaryOp countOp = new UnaryOp("count", new BasicFormula(new RowName(getName())));
 //			Numerical cnt2 = countOp.calculate(b);
 //			if (size == cnt2.intValue()) {
@@ -302,11 +303,11 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 //				assert size != -1;
 //				Numerical cnt3 = countOp.calculate(b);
 //			}
-			sum.comment += " ("+size+" basic rows)";
+			sum.comment += " (" + size + " basic rows)";
 		}
 		// HACK
-		if ( ! Numerical.isZero(sum) && allImports) {
-			sum.comment = "imports: "+sum.comment; // mark it for display
+		if (!Numerical.isZero(sum) && allImports) {
+			sum.comment = "imports: " + sum.comment; // mark it for display
 		}
 		return sum;
 	}
@@ -322,18 +323,20 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		String unit = null;
 		for (Row kid : kids) {
 			UncertainNumerical v = (UncertainNumerical) b.getCellValue(new Cell(kid, col));
-			if (v==null) continue;
+			if (v == null)
+				continue;
 			Particles1D dist = new Particles1D(numParticles, ((UncertainNumerical) v).getDist());
-			assert ps.pts.length == dist.pts.length;			
-			for(int i=0; i<dist.pts.length; i++) {
+			assert ps.pts.length == dist.pts.length;
+			for (int i = 0; i < dist.pts.length; i++) {
 				ps.pts[i] += dist.pts[i];
 			}
-			if (unit == null) unit = v.getUnit(); 
+			if (unit == null)
+				unit = v.getUnit();
 		}
 		return new UncertainNumerical(ps, unit);
 	}
 
-	public List<StyleRule> getStyleRules() {		
+	public List<StyleRule> getStyleRules() {
 		return stylers;
 	}
 
@@ -342,14 +345,15 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			stylers.add((StyleRule) rule);
 			sortRules(stylers);
 			return;
-		}		
+		}
 		rules.add(rule);
 		sortRules(rules);
 	}
 
 	/**
-	 * sort rules: rules with a filter beat those without, regardless of definition order.
-	 * Otherwise it's last-in wins
+	 * sort rules: rules with a filter beat those without, regardless of definition
+	 * order. Otherwise it's last-in wins
+	 * 
 	 * @param _rules
 	 */
 	private void sortRules(List<? extends Rule> _rules) {
@@ -359,13 +363,15 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 				CellSet as = a.getSelector();
 				CellSet bs = b.getSelector();
 				return as.compareTo(bs);
-			}			
+			}
 		});
 	}
 
 	public List<MetaRule> getMetaRules() {
-		return Containers.filter(rules, new IFilter(){
-			public boolean accept(Object x) {return x instanceof MetaRule;}
+		return Containers.filter(rules, new IFilter() {
+			public boolean accept(Object x) {
+				return x instanceof MetaRule;
+			}
 		});
 	}
 
@@ -379,27 +385,29 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 		String unit = null;
 		for (int i = 0; i < cells.size(); i++) {
 			Cell c = cells.get(i);
-			Numerical v = b.getCellValue(c);			
+			Numerical v = b.getCellValue(c);
 			// cell json
 			ArrayMap map = getValuesJSON2_cell(b, c, v);
-			list.add(map);	
-			
-			// year total?			
-			if ( ! yearTotals) continue;
+			list.add(map);
+
+			// year total?
+			if (!yearTotals)
+				continue;
 			Time t = c.getColumn().getTime();
 			if (t.getMonth() != 12) {
 				continue; // not time for a year end
 			}
-			if (v != null && v.getUnit()!=null) unit = v.getUnit();
+			if (v != null && v.getUnit() != null)
+				unit = v.getUnit();
 			Numerical yearSum = getValuesJSON_calculateYearTotal(b, c, cells, i, unit);
-			if (yearSum==null) {
+			if (yearSum == null) {
 				list.add(new ArrayMap()); // add a blank for column balance
 				continue;
 			}
 			// ... into json
 			ArrayMap ymap = getValuesJSON2_cell(b, null, yearSum);
 			String css = (String) map.get("css");
-			css = (css==null?"":css)+"fontWeight:bold;";
+			css = (css == null ? "" : css) + "fontWeight:bold;";
 			ymap.put("css", css);
 			list.add(ymap);
 		}
@@ -409,15 +417,15 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 	/**
 	 * 
 	 * @param b
-	 * @param c The end of year cell
+	 * @param c     The end of year cell
 	 * @param cells
-	 * @param i c = cells[i]
-	 * @param unit 
+	 * @param i     c = cells[i]
+	 * @param unit
 	 * @return
 	 */
 	private Numerical getValuesJSON_calculateYearTotal(Business b, Cell c, List<Cell> cells, int i, String unit) {
 		Time t = c.getColumn().getTime();
-		assert t.getMonth()==12 : t;
+		assert t.getMonth() == 12 : t;
 		// Is there an annual rule?
 		AnnualRule ar = Containers.firstClass(getRules(), AnnualRule.class);
 		if (ar == null) {
@@ -437,58 +445,54 @@ implements ITree // NB: we don't use Row ITree anywhere (yet)
 			// default to sum
 			ar = new AnnualRule(new RowName(getName()), "sum", "");
 		}
-		
+
 		// Apply!
 		Numerical yearSum = ar.calculateAnnual(b, cells, i);
 		return yearSum;
 	}
 
-	
 	ArrayMap getValuesJSON2_cell(Business b, Cell c, Numerical v) {
 		// empty?
-		if (v==null || v==Business.EMPTY) {
-			return new ArrayMap(
-					"v", 0,
-					"str", ""
-				);
+		if (v == null || v == Business.EMPTY) {
+			return new ArrayMap("v", 0, "str", "");
 		}
 		double dv = v.doubleValue();
-		ArrayMap map = new ArrayMap(
-			"v", Double.isFinite(dv)? dv : null,
-			"str", v.toString(),
-			"unit", v.getUnit(),
-			"comment", v.comment,			
-			"css", c==null? null : b.getCSSForCell(c)
-		);
+		ArrayMap map = new ArrayMap("v", Double.isFinite(dv) ? dv : null, "str", v.toString(), "unit", v.getUnit(),
+				"comment", v.comment, "css", c == null ? null : b.getCSSForCell(c));
 		if (v.getDelta() != null) {
 			map.put("delta", v.getDelta());
 		}
 		return map;
 	}
 
-	@Override @Deprecated
+	@Override
+	@Deprecated
 	public void addChild(ITree childNode) {
 		addRule((Rule) childNode);
 	}
 
-	@Override @Deprecated
+	@Override
+	@Deprecated
 	public Object getValue() {
 		return null;
 	}
 
-	@Override @Deprecated
+	@Override
+	@Deprecated
 	public void removeChild(ITree childNode) {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override @Deprecated
+	@Override
+	@Deprecated
 	public void setParent(ITree parent) {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override @Deprecated
+	@Override
+	@Deprecated
 	public void setValue(Object value) {
 		throw new UnsupportedOperationException();
 	}
-	
+
 }

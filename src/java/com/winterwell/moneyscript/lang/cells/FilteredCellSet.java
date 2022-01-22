@@ -31,6 +31,8 @@ public class FilteredCellSet extends CellSet {
 		super(src);
 		this.base = base;
 		this.filter = filter;
+		// no dupe nesting
+		assert ! (base instanceof FilteredCellSet) || ((FilteredCellSet)base).filter != filter : filter; 	
 	}
 
 	@Override

@@ -16,7 +16,11 @@ import com.winterwell.utils.Dep;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.log.Log;
 
-
+/**
+ * Warning: Rules get cached so do NOT edit them after construction
+ * @author daniel
+ *
+ */
 public class Rule implements IReset {
 
 	private CellSet selector;
@@ -52,7 +56,7 @@ public class Rule implements IReset {
 	 * @deprecated usually done in constructor
 	 * @param selector
 	 */
-	public void setSelector(CellSet selector) {
+	void setSelector(CellSet selector) {
 		this.selector = selector;
 	}
 	
@@ -63,7 +67,7 @@ public class Rule implements IReset {
 		return selector;
 	}
 	
-	public Rule setComment(String comment) {
+	Rule setComment(String comment) {
 		if (comment != null) {
 			comment = comment.trim();
 			if (comment.startsWith("//")) comment = comment.substring(2).trim();
@@ -72,7 +76,11 @@ public class Rule implements IReset {
 		return this;
 	}
 	
-	public Formula formula;
+	Formula formula;
+	public final Formula getFormula() {
+		return formula;
+	}
+		
 	/**
 	 * How many tabs in? for rule groups
 	 */
@@ -87,6 +95,9 @@ public class Rule implements IReset {
 		this.selector = selector;
 		this.formula = formula;
 		this.src = src;
+//		if (src!=null && src.contains("leadership")) { // DEBUG hack
+//			System.out.println(src);
+//		}
 		this.indent = indent;
 	}
 	
@@ -170,7 +181,7 @@ public class Rule implements IReset {
 		return v;
 	}
 
-	public void setScenario(Scenario byScenario) {
+	void setScenario(Scenario byScenario) {
 		// scenario can only be set once, to protect against confusing setups
 //		assert this.scenario==null || this.scenario.equiv(byScenario) : "scenario conflict: "+this.scenario+" vs "+byScenario+" in "+this;
 		// but cached rules were clashing on this		
@@ -193,7 +204,7 @@ public class Rule implements IReset {
 		scenario = null;
 	}
 
-	public void setUnit(String unit) {
+	void setUnit(String unit) {
 		this.unit = unit;
 	}
 

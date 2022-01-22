@@ -61,17 +61,18 @@ public final class RowName extends CellSet {
 			_subRows = new HashSet();
 			initSubRows(myRow);
 		}
-		return _subRows.contains(cell.row);
+		boolean in = _subRows.contains(cell.row.getName());
+		return in;
 	}		
 	
 	private void initSubRows(Row myRow) {		
 		for(Row kRow : myRow.getChildren()) {
-			_subRows.add(kRow);
+			_subRows.add(kRow.getName());
 			initSubRows(kRow);
 		}			
 	}
 
-	transient Set<Row> _subRows;
+	transient Set<String> _subRows;
 	
 	
 	

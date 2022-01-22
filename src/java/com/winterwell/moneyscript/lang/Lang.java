@@ -428,69 +428,62 @@ public class Lang {
 					b.addRow2_linkToPlanSheet(row, planSheet);
 				}
 				rows.add(row);
-			}	
-			
-			// add the rule
-			b.addRule(rule);
+			}				
 			
 			// Grouping by groupStack
 			// NB: only if there's one row (i.e. not for no-row comments, or a multi-row rule -- Do we have those?)
 			Group group = parse4_addRulesAndGroupRows2_group(rule, rows);
-			if (group==null) {
-				continue;
-			}
-			// Manage the group stack
 			Group parent = null;
-			while( ! groupStack.isEmpty()) {
-				Group last = groupStack.get(groupStack.size() - 1);
-				if (last.indent < group.indent) {
-					// group found - stop here
-					parent = last;
-					break;
+			if (group!=null) {
+				// Manage the group stack				
+				while( ! groupStack.isEmpty()) {
+					Group last = groupStack.get(groupStack.size() - 1);
+					if (last.indent < group.indent) {
+						// group found - stop here
+						parent = last;
+						break;
+					}
+					// pop a now closed group
+					groupStack.remove(groupStack.size() - 1);
 				}
-				// pop a now closed group
-				groupStack.remove(groupStack.size() - 1);
-			}
-			// the current rule is the new group
-			groupStack.add(group);
-			group.setParent(parent);
-			
-			// add this row0 to a group?
-			if (parent==null) {
-				continue;
+				// the current rule is the new group
+				groupStack.add(group);
+				group.setParent(parent);
 			}			
-			// the first appearance wins -- later rules wont change the parent
-			if (isNewRow) {
-				if (group.byRow != null) {
-					Row row0 = group.byRow;
-					row0.setParent(parent.byRow);
-					b.reorderRows();
-				} else {
-					Log.d("Lang", "huh "+rule);
+			// add this row0 to a group?
+			if (parent!=null) {
+				// the first appearance wins -- later rules wont change the parent
+				if (isNewRow) {
+					if (group.byRow != null) {
+						Row row0 = group.byRow;
+						row0.setParent(parent.byRow);
+						b.reorderRows();
+					} else {
+						Log.d("Lang", "huh "+rule);
+					}
 				}
-			} else {
-				// a later group - it can't claim the row fully
-				// Hm: for e.g. the `Pay Rise` use case, it'd be nice to see the effect of those rules broken out.
-				// But fiddly!	
-				// We could have Numerical's track their history, and what each Rule contributes
-				// (perhaps just for some Rules)
-			} // ./grouping	
+				// filter?
+				if (parent.rule != null) {
+					GroupRule gr = parent.rule;
+					if (gr.getSelector() instanceof FilteredCellSet) {
+						FilteredCellSet fcs = ((FilteredCellSet) gr.getSelector());
+						Filter f = fcs.getFilter();
+						CellSet rsel = rule.getSelector();
+						// add the filter
+						FilteredCellSet rfcs = new FilteredCellSet(rsel, f, fcs.getSrc()+" and "+rsel.getSrc());
+						// copy because cached
+						rule = Utils.copy(rule);
+						rule.setSelector(rfcs);
+					}
+				}
+			} // ./parent!=null
 			
-			// filter?
-			if (parent.rule != null) {
-				GroupRule gr = parent.rule;
-				if (gr.getSelector() instanceof FilteredCellSet) {
-					FilteredCellSet fcs = ((FilteredCellSet) gr.getSelector());
-					Filter f = fcs.getFilter();
-					CellSet rsel = rule.getSelector();
-					// add the filter
-					FilteredCellSet rfcs = new FilteredCellSet(rsel, f, fcs.getSrc()+" and "+rsel.getSrc());
-					rule.setSelector(rfcs);
-				}
-			}
 			
 			// rule grouping eg for scenarios (which apply at the rule level not the row level)
-			parse4_addRulesAndGroupRows2_setRuleGroup(rule, parent);			
+			rule = parse4_addRulesAndGroupRows2_setRuleGroup(rule, parent);			
+
+			// add the rule
+			b.addRule(rule);
 		}
 	}
 
@@ -520,15 +513,19 @@ public class Lang {
 	 * rule grouping eg for scenarios (which apply at the rule level not the row level)
 	 * @param rule2
 	 * @param parent
+	 * @return 
 	 */
-	private void parse4_addRulesAndGroupRows2_setRuleGroup(Rule newRule, Group parent) {		
+	private Rule parse4_addRulesAndGroupRows2_setRuleGroup(Rule newRule, Group parent) {		
 		// check up the stack
 		while(parent!=null) {
 			if (parent.byScenario != null) {
+				// copy because cached
+				newRule = Utils.copy(newRule); 
 				newRule.setScenario(parent.byScenario);
 			}
 			parent = parent.parent;
 		}
+		return newRule;
 	}
 
 

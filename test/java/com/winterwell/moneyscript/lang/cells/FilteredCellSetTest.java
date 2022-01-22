@@ -25,7 +25,7 @@ public class FilteredCellSetTest {
 			
 			Row row = b.getRow("Alice2M");
 			Rule rule = row.getRules().get(0);
-			BasicFormula bf = (BasicFormula) rule.formula;
+			BasicFormula bf = (BasicFormula) rule.getFormula();
 			FilteredCellSet sel = (FilteredCellSet) bf.getCellSetSelector();
 			System.out.println(sel);
 			Cell focalCell = new Cell(row, new Col(3));

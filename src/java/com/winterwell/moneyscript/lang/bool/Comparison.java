@@ -51,7 +51,11 @@ public class Comparison extends Condition {
 		if (l==null) l = Numerical.NULL;
 		Numerical r = rhs.calculate(b);
 		if (r==null) r = Numerical.NULL; 			
-		if (l instanceof UncertainNumerical || r instanceof UncertainNumerical) {				
+		if (l instanceof UncertainNumerical || r instanceof UncertainNumerical) {
+			if (l==Business.EVALUATING || r==Business.EVALUATING) {
+				// HACK handle e.g. "Payrises from July 2022:\n		Staff if (this row at Jan 2022) > 0: + £1k per year 
+				return false;
+			}
 			assert Business.get().getPhase() == KPhase.OUTPUT : this;
 		}
 		if ("<".equals(op)) {

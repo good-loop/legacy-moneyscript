@@ -171,7 +171,7 @@ public class LangCellSetTest {
 		Set<Rule> rules = b.getAllRules();
 		Row row = b.getRow("Foo");
 		Rule rule = row.getRules().get(0);
-		UnaryOp f = (UnaryOp) rule.formula;
+		UnaryOp f = (UnaryOp) rule.getFormula();
 		
 	}
 

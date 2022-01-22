@@ -224,7 +224,7 @@ public class LangNumTest {
 			b.setColumns(2);
 			b.run();			
 			Row interest = b.getRow("Interest");
-			Formula f = interest.getRules().get(0).formula;
+			Formula f = interest.getRules().get(0).getFormula();
 			Numerical x = f.calculate(new Cell(interest, new Col(1)));
 			assert x.doubleValue() == 0.01*1000 : x;
 		}

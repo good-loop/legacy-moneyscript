@@ -265,7 +265,7 @@ public class BusinessTest {
 		b.put(new Cell(b.getRow("Invest"), new Col(1)), new Numerical(100));
 		b.put(new Cell(cf, new Col(1)), new Numerical(-10));
 		b.put(new Cell(cf, new Col(2)), new Numerical(-10));
-		Numerical v = rule.formula.calculate(new Cell(balance, c2));
+		Numerical v = rule.getFormula().calculate(new Cell(balance, c2));
 		assert v.doubleValue() == 80 : v;
 		
 		b.run();
@@ -294,7 +294,7 @@ public class BusinessTest {
 		b.put(new Cell(b.getRow("Invest"), new Col(1)), new Numerical(100));
 		b.put(new Cell(cf, new Col(1)), new Numerical(-10));
 		b.put(new Cell(cf, new Col(2)), new Numerical(-10));
-		Numerical v = rule.formula.calculate(new Cell(balance, c2));
+		Numerical v = rule.getFormula().calculate(new Cell(balance, c2));
 		assert v.doubleValue() == 80 : v;
 		
 		b.run();
@@ -392,7 +392,7 @@ public class BusinessTest {
 		Cell cell = new Cell(balance, col);
 
 		RowName balanceSelector = (RowName) sumRule.getSelector();
-		Formula f = sumRule.formula;
+		Formula f = sumRule.getFormula();
 //		Collection<Cell> cells = selector.getCells(b);
 //		System.out.println(cells);
 		b.state = new BusinessState(b);			
@@ -510,7 +510,7 @@ public class BusinessTest {
 		RowName sumSel = (RowName) sum.getSelector();
 		assert sumSel.getRowNames(null).contains("Both");
 		
-		Formula f = sum.formula;
+		Formula f = sum.getFormula();
 		Numerical s = sum.calculate(bc);
 		assert s.doubleValue() > 1 : s;
 		

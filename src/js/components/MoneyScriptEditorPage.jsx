@@ -100,7 +100,6 @@ const RightSide = ({plandoc}) => {
 		const cs = c[0];
 		const urls = cs.matchAll(urlRegex).map(m => m[0]);
 		urls.forEach(u => links.push(u));
-		console.log(cs, Array.from(urls), links);
 	});
 	links = uniq(links);
 
