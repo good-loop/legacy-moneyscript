@@ -8,6 +8,7 @@ import LinkOut from '../base/components/LinkOut';
 import Misc from '../base/components/Misc';
 import PropControl from '../base/components/PropControl';
 import DataStore from '../base/plumbing/DataStore';
+import { encURI } from '../base/utils/miscutils';
 import C from '../C';
 import ActionMan from '../plumbing/ActionMan';
 import { getPlanId, GSheetLink, ImportsList } from './MoneyScriptEditorPage';
