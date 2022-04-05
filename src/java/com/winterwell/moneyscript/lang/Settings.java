@@ -99,9 +99,14 @@ public final class Settings {
 		this._start = time;
 		ts = null;
 	}
+	/**
+	 * Also set the year-end!
+	 * @param _end
+	 */
 	public void setEnd(Time _end) {
 		this._end = _end;
-		ts = null;
+		ts = null;		
+		this.yearEnd = _end.getMonth();
 	}	
 	
 
@@ -112,5 +117,14 @@ public final class Settings {
 			ts = new TimeSlicer(getStart(), getEnd(), timeStep);
 		}
 		return ts;
+	}
+	
+	/**
+	 * 12=dec (default), 3=march
+	 */
+	int yearEnd = 12;
+	
+	public int getYearEnd() {
+		return yearEnd;
 	}
 }

@@ -14,6 +14,7 @@ import com.winterwell.moneyscript.lang.GroupRule;
 import com.winterwell.moneyscript.lang.ImportCommand;
 import com.winterwell.moneyscript.lang.MetaRule;
 import com.winterwell.moneyscript.lang.Rule;
+import com.winterwell.moneyscript.lang.Settings;
 import com.winterwell.moneyscript.lang.StyleRule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.cells.CellSet;
@@ -381,6 +382,8 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 //		}
 		List<Cell> cells = Containers.getList(getCells());
 		Business b = Business.get();
+		Settings settings = b.getSettings();
+		int yearEndMonth = settings.getYearEnd();
 		List<Map> list = new ArrayList<Map>();
 		String unit = null;
 		for (int i = 0; i < cells.size(); i++) {
@@ -391,14 +394,14 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 			list.add(map);
 
 			// year total?
-			if (!yearTotals)
-				continue;
+			if ( ! yearTotals) continue;
 			Time t = c.getColumn().getTime();
-			if (t.getMonth() != 12) {
+			if (t.getMonth() != yearEndMonth) {
 				continue; // not time for a year end
 			}
-			if (v != null && v.getUnit() != null)
+			if (v != null && v.getUnit() != null) {
 				unit = v.getUnit();
+			}
 			Numerical yearSum = getValuesJSON_calculateYearTotal(b, c, cells, i, unit);
 			if (yearSum == null) {
 				list.add(new ArrayMap()); // add a blank for column balance
@@ -425,7 +428,7 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 	 */
 	private Numerical getValuesJSON_calculateYearTotal(Business b, Cell c, List<Cell> cells, int i, String unit) {
 		Time t = c.getColumn().getTime();
-		assert t.getMonth() == 12 : t;
+		assert t.getMonth() == b.getSettings().getYearEnd() : t;
 		// Is there an annual rule?
 		AnnualRule ar = Containers.firstClass(getRules(), AnnualRule.class);
 		if (ar == null) {

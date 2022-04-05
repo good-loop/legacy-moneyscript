@@ -167,8 +167,12 @@ public final class Business {
 		for(Col col : getColumns()) {
 			cols.add(col.getTimeDesc());
 			// year total?
-			if (col.getTime().getMonth() == 12 && incYearTotals) {
-				cols.add("Total "+col.getTime().getYear());
+			if (col.getTime().getMonth() == getSettings().getYearEnd() && incYearTotals) {				
+				String yr = ""+col.getTime().getYear();
+				if (col.getTime().getMonth() != 12) {
+					yr = (col.getTime().getYear() - 2001)+"/"+(col.getTime().getYear() - 2000);
+				}
+				cols.add("Total "+yr);
 			}
 		}
 		map.put("columns", cols);
@@ -195,27 +199,6 @@ public final class Business {
 		map.put("dataForRow", datamap); 
 		map.put("rowsForPlansheet", rows4plansheet);
 				
-		// TODO insert total
-		if (false) {
-			cols.add("Total");
-			for(String rowName : rowNames) {
-				Row row = getRow(rowName);
-				// TODO need to also keep a version without the year-totals
-				List<Map> rowvs = (List<Map>) datamap.get(rowName);
-				try {						
-					// TODO handle uncertainnumerical
-					List<Number> vs = Containers.apply(rowvs, cv -> ((Number) cv.get("v")).doubleValue());
-					Numerical v = new Numerical(MathUtils.sum(MathUtils.toArray(vs)));
-					Cell c = new Cell(row, new Col(cols.size()));
-					Map sumv = row.getValuesJSON2_cell(this, c, v);
-					rowvs.add(sumv);
-				} catch(Exception ex) {
-					Log.w("Money.Year Total."+rowName, ex);
-					rowvs.add(new ArrayMap());
-				}
-			}
-		}
-		
 		// imports
 		Collection<Map> importMaps = Containers.apply(getImportCommands(), ImportCommand::toJson2);
 		// merge if same src
