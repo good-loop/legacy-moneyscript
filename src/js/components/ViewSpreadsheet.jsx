@@ -81,9 +81,11 @@ const fStyle = ({ cellValue, item, row, depth, column }) => {
 	if (column.Header) {
 		if (column.Header.toLowerCase().includes("total")) {
 			cellStyle.fontWeight = "bold";
+			cellStyle.borderLeft = "2px solid black"; // end of year marker line
 			cellStyle.borderRight = "2px solid black"; // end of year marker line
+		} else {
+			if (column.Header.toLowerCase().includes('dec')) cellStyle.borderRight = "1px solid #666"; // end of calendar year marker line
 		}
-		if (column.Header.toLowerCase().includes('dec')) cellStyle.borderRight = "2px solid black"; // end of year marker line
 		if (column.Header.toLowerCase() === 'row') cellStyle.borderRight = "2px solid black"; // start numbers marker line
 	}
 	return cellStyle;
