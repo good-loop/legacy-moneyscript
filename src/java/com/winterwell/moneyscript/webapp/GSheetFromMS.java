@@ -21,7 +21,6 @@ import com.winterwell.moneyscript.data.PlanDoc;
 import com.winterwell.moneyscript.data.PlanSheet;
 import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.ImportCommand;
-import com.winterwell.moneyscript.lang.NameMapper;
 import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.num.Numerical;
@@ -30,6 +29,7 @@ import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.nlp.dict.Dictionary;
+import com.winterwell.nlp.dict.NameMapper;
 import com.winterwell.utils.Dep;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
@@ -324,7 +324,7 @@ public class GSheetFromMS {
 				spacedRows.add(null);
 				continue;
 			}
-			String ourRowName = nameMapper.run2_ourRowName(sr, rowNames);
+			String ourRowName = nameMapper.run2_ourRowName(sr);
 			if (ourRowName==null) {
 				unmatched.add(sr);
 				spacedRows.add(null);

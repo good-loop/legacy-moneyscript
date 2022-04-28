@@ -22,6 +22,7 @@ import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.nlp.dict.Dictionary;
+import com.winterwell.nlp.dict.NameMapper;
 import com.winterwell.utils.FailureException;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.StrUtils;
@@ -200,11 +201,11 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 				continue;
 			
 			// match row name
-			String ourRowName = nameMapper.run2_ourRowName(rowName, rowNames);
+			String ourRowName = nameMapper.run2_ourRowName(rowName);
 			if (ourRowName==null) {
 				ourRowName = StrUtils.toTitleCase(rowName);
 				Log.d(LOGTAG, "Unmapped row: "+rowName);
-				nameMapper.run2_ourRowName(rowName, rowNames); // for debug
+				nameMapper.run2_ourRowName(rowName); // for debug
 			} 
 			
 			nameMapper.putTheirsOurs(rowName, ourRowName);
