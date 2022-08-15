@@ -375,7 +375,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 
 	Numerical run2_setCellValue(Business b, double n, Cell cell) {
 		Numerical v = new Numerical(n);
-		v.comment = IMPORT_MARKER_COMMENT;
+		v.comment = IMPORT_MARKER_COMMENT+" from "+Utils.or(name, url);
 		// Set value
 		b.state.set(cell, v);
 		return v;
