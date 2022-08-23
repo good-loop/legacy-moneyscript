@@ -122,7 +122,8 @@ const RightSide = ({plandoc}) => {
 		</ul>
 	</BSCard>
 	<BSCard className="mt-2" style={{ maxWidth: "300px" }} >
-		<SavePublishDeleteEtc size="md" type="PlanDoc" id={id} saveAs className="light" position="relative" 
+		<SavePublishDeleteEtc size="md" type="PlanDoc" id={id} className="light" position="relative" 
+			canDiscard saveAs
 			sendDiff={false /* TODO fix flickering from multiple edits on text + 2 people editing issues to use this */} />
 	</BSCard></>);
 	// {/* <ShareLink /> */}
