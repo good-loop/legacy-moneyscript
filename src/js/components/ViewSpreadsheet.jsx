@@ -2,6 +2,7 @@ import React, { Component, useState } from 'react';
 import { ReactDOM } from 'react-dom';
 import _ from 'lodash';
 import printer, { prettyNumber } from '../base/utils/printer';
+import Graphs from '../components/Graphs'
 import C from '../C';
 import Roles from '../base/Roles';
 import Misc from '../base/components/Misc';
@@ -28,7 +29,7 @@ import { assert } from '../base/utils/assert';
  */
 const doShowMeTheMoney = ({ plandoc, scenarios }) => {
 	if ( ! plandoc) return null;
-	return DataStore.fetch(['transient', 'run', plandoc.id, md5(PlanDoc.text(plandoc) || 'blank'), str(scenarios) || 'base'],
+	let x =  DataStore.fetch(['transient', 'run', plandoc.id, md5(PlanDoc.text(plandoc) || 'blank'), str(scenarios) || 'base'],
 		() => {
 			let p = ServerIO.post('/money.json', { item: JSON.stringify(plandoc), scenarios });
 			return p.then(JSend.data, res => {
@@ -37,6 +38,7 @@ const doShowMeTheMoney = ({ plandoc, scenarios }) => {
 				throw res;
 			});
 		});
+	return x
 };
 
 
@@ -107,7 +109,11 @@ const renderCell = (v, column, item) => {
 };
 
 
+// plandoc 		- raw text input
+// scenarios 	- unknown, initally null?
+// hideMonths 	- bool - hides months if true
 const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
+	console.log("Scenarios: ", hideMonths)
 	if (!plandoc) return null;
 	const pvrun = doShowMeTheMoney({ plandoc, scenarios });
 	if (!pvrun.resolved) {
@@ -126,10 +132,9 @@ const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 	if ( ! runOutput.dataTree || ! runOutput.dataTree[sheetId]) {
 		makeDataTree({ runOutput, sheetId });
 	} // data prep done
-
+	
 	const dtree = runOutput.dataTree[sheetId];
 	// console.log("dataTree", dtree, "allcolumns", runOutput.allcolumns);
-
 	// HACK - only show year totals?
 	let vizcolumns = runOutput.allcolumns;
 	if (hideMonths) {
@@ -150,6 +155,8 @@ const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 			}
 		});
 	}
+
+	console.log("plandoc:", plandoc)
 
 	// The Table	
 	return (<>
@@ -174,7 +181,13 @@ const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 		hasCollapse
 		hideEmpty={false}
 		hasCsv />
-		</TabPane></TabContent></>);
+	<Graphs 
+		data={runOutput}
+		tableName={plandoc.name}
+		dataTree={dtree}
+		columns={vizcolumns} />
+	
+	</TabPane></TabContent></>);
 };
 
 const InfoPop = ({ text }) => {
@@ -187,6 +200,7 @@ const InfoPop = ({ text }) => {
  * @param {*} runOutput Modified here 
  */
 const makeDataTree = ({ runOutput, sheetId}) => {
+	console.log("ro", runOutput)
 	assert(runOutput);
 	assert(sheetId, "no sheet ID");
 	// let rows = runOutput.rows;
