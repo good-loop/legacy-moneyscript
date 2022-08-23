@@ -104,7 +104,7 @@ const ChartPage = () => {
 					<Row className="w-100">
 					<Col md={2}><a className='mt-1 btn btn-dark' 				
 						href={'/#sheet/'+encURI(id)+"?tab="+(DataStore.getUrlValue("tab")||"")}>&lt; View Sheet</a></Col>
-					<Col md={8}><h2>{"ITS THE CHART PAGE, LETS GOOOOOOO"}</h2></Col>
+					<Col md={8}><h2>{"CHART PAGE TESTING PAGE"}</h2></Col>
 					</Row>	
 				</div>
 				<div className="charts-body">

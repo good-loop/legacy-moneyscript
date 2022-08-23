@@ -52,7 +52,8 @@ const Graphs = ({data}) => {
 				data: data.dataForRow[rowName].map((el) => el.v)})
 		})
 
-		return (
+		return (<>
+		<br />
 			<div className="chart-container" style={{height:"500px"}}>
 				<NewChartWidget
 				responsive = "true"
@@ -61,9 +62,11 @@ const Graphs = ({data}) => {
 					{labels: myLabels,
 					datasets: myDatasets}}
 				className="test"
-				style={{height:"350px", width:"500px"}}
+				style={{height:"500px", width:"750px"}}
 				/>
-			</div>); 
+			</div>
+			<br />
+			</>); 
 	})
 
 	return (<>{charts}</>)
