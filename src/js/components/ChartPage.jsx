@@ -1,7 +1,7 @@
 import React, { Component, useState } from 'react';
 import {ReactDOM} from 'react-dom';
 import printer from '../base/utils/printer';
-import { Alert, Col, Form, Row } from 'reactstrap';
+import { Alert, Button, Col, Form, Row } from 'reactstrap';
 import C from '../C';
 import Roles from '../base/Roles';
 import Misc from '../base/components/Misc';
@@ -17,44 +17,90 @@ import SimpleTable from '../base/components/SimpleTable';
 import {setTaskTags} from '../base/components/TaskList';
 import ServerIO from '../plumbing/ServerIO';
 import ViewCharts from './ViewCharts';
-import ViewSpreadSheet, {doShowMeTheMoney} from './ViewSpreadsheet';
+import ViewSpreadSheet, {doShowMeTheMoney, makeDataTree} from './ViewSpreadsheet';
 import ChartWidget from '../base/components/ChartWidget';
-import _ from 'lodash';
+import _, { cloneDeep } from 'lodash';
 import { getPlanId } from './MoneyScriptEditorPage';
+import NewChartWidget from '../base/components/NewChartWidget'
 
 
-const ChartSettings = ({id, rowNames}) => {
-	
-	// turn row names into object of "{RowName1: false, RowName2: False, ...}"
-	let [rowSelections, setRowSelections] = useState(rowNames.reduce((acc, val) => {return {...acc, [val]: false}}, {}))
 
+const ChartSettings = ({id, rowNames, selections, setSelections}) => {
 	console.log(rowNames)
-	let checkboxes = (
+	let [searchValue, setSearchValue] = useState("")
+
+
+	const selected = (
 		<div className="checkboxes">
-			{rowNames.map((el) => {return (<p>{el}</p>)})}
+			{selections.map((el) => {return (
+			<Row>
+				<Col md={9}><p>{el}</p></Col>
+				<Col md={3}><Button className='mt-1 btn btn-dark' onClick={() => removeSelection(el)}>-</Button></Col>
+			</Row>
+			)})}
 		</div>
 	)
+	
+	const removeSelection = (toRemove) => setSelections(selections.filter((el) => el !== toRemove))
 
-	console.log(checkboxes)
-
+	const addSelection = (newSelection) => {
+		if(rowNames.includes(newSelection)){
+			setSelections([...selections, newSelection]);
+			setSearchValue("")
+		}
+	}
 	return (
 		<div 
-			className="chart-settings"
-			style={{backgroundColor:"#EEE", border:"1px solid Gray", borderRadius:"10px", padding:"10px", height:"100%"}}
-		>
-			{checkboxes}
+		className="chart-settings"
+		style={{backgroundColor:"#EEE", border:"1px solid Gray", borderRadius:"10px", padding:"10px", height:"100%"}}>
+			<textarea type="text" value={searchValue} onChange={e => setSearchValue(e.target.value)}></textarea>
+			<Button className='mt-1 btn btn-dark' onClick={() => {addSelection(searchValue)}}>Add</Button>
+			{selected}
 			<p>{id}</p>
 		</div>
 	)
 }
 
-const ChartChunk = ({id}) => {
+const ChartVisuals = ({id, selections, data}) => {
+	let myLabels = data.columns.filter((el) => (el.indexOf("Total") == -1))
+	console.log(myLabels)
+	let myDatasets = []
+	selections.forEach((row) => {
+		myDatasets.push({
+			label:row,
+			data: data.dataForRow[row].filter((el) => el.comment.indexOf("total for year") == -1).map((el) => el.v)})
+		})
+	
+
 	return (
-		<div className="chart-chunk" style={{height:"100%", backgroundColor:"#EEE", border:"1px solid Gray", borderRadius:"10px", padding:"10px"}}
-		>
-			<p>{id}</p>
+		<div className="chart-chunk" style={{height:"100%", backgroundColor:"#EEE", border:"1px solid Gray", borderRadius:"10px", padding:"10px"}}>
+			<NewChartWidget
+				type="bar"
+				responsive = "true"
+				maintainAspectRatio = "false"
+				data = {
+					{labels: myLabels,
+					datasets: myDatasets}}
+				className="test"
+				style={{height:"100%", width:"100%"}}
+			/>
 		</div>
 	)
+}
+
+const ChartChunk = ({id, rows, data}) => {
+	let [selections, setSelections] = useState(["Salaries"])
+
+	let chartExample = (<><br />
+	<div className="chart-set" style={{height:"70vh"}}>
+		<Row style={{minHeight:"100%"}}>
+			<Col md={4}><ChartSettings id={id} rowNames={rows.map((el) => el.name)} selections={selections} setSelections={setSelections}/></Col>
+			<Col md={1}></Col>
+			<Col md={7}><ChartVisuals id={id} selections={selections} data={data}/></Col>
+		</Row>
+	</div><br /></>)
+
+	return chartExample
 }
 
 
@@ -73,8 +119,12 @@ const ChartPage = () => {
 	if ( ! pvItem.value) {
 		return (<div><h1>{type}: {id}</h1><Misc.Loading /></div>);
 	}
+
+	console.log(pvItem, "OOOOOOOO")
+
 	const plandoc = pvItem.value;
 
+	
 	const pvrun = doShowMeTheMoney({plandoc});
 	if ( ! pvrun.resolved) {
 		return <Misc.Loading />;
@@ -85,17 +135,13 @@ const ChartPage = () => {
 	}
 	let rows = runOutput.rows || [];
 
-
-	console.log("rows: ",pvrun)
-
-	let chartExample = (<><br />
-	<div className="chart-set" style={{height:"70vh"}}>
-		<Row style={{minHeight:"100%"}}>
-			<Col md={4}><ChartSettings id={id} rowNames={rows.map((el) => el.name)}/></Col>
-			<Col md={1}></Col>
-			<Col md={7}><ChartChunk id={id}/></Col>
-		</Row>
-	</div><br /></>)
+	let dataForest = plandoc.sheets.map((sheet) =>{
+		let outputClone = cloneDeep(runOutput)
+		let sheetId = sheet.id
+		makeDataTree({ runOutput:outputClone, sheetId });
+		console.log(sheetId, outputClone)
+		return outputClone.dataTree[sheetId]
+	})
 
 	if (true) {
 		return (
@@ -108,9 +154,7 @@ const ChartPage = () => {
 					</Row>	
 				</div>
 				<div className="charts-body">
-					{chartExample}
-					{chartExample}
-					{chartExample}
+					<ChartChunk id={id} rows={rows} data={runOutput}/>
 				</div>
 			</div>
 		)

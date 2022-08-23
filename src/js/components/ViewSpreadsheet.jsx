@@ -137,6 +137,7 @@ const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 	// console.log("dataTree", dtree, "allcolumns", runOutput.allcolumns);
 	// HACK - only show year totals?
 	let vizcolumns = runOutput.allcolumns;
+	console.log("vizcols, ", vizcolumns[0])
 	if (hideMonths) {
 		vizcolumns = vizcolumns.filter(col => col.Header === "Row" || col.Header.includes("Total"));
 		// HACK add % change info
@@ -200,13 +201,16 @@ const InfoPop = ({ text }) => {
  * @param {*} runOutput Modified here 
  */
 const makeDataTree = ({ runOutput, sheetId}) => {
+	console.log("making data tree in ViewSpreadsheet.jsx....")
 	console.log("ro", runOutput)
+	console.log("id, ", sheetId)
 	assert(runOutput);
 	assert(sheetId, "no sheet ID");
 	// let rows = runOutput.rows;
 	let rowtree = runOutput.parse.rowtree;
 	let dataForRow = runOutput.dataForRow;
 	let thisSheetRowNames = runOutput.rowsForPlansheet && runOutput.rowsForPlansheet[sheetId];
+	console.log("ROWNAMES: ", thisSheetRowNames)
 	// Make the columns
 	// type: Column[]
 	let columns = runOutput.columns.map((c, i) => {
@@ -238,7 +242,6 @@ const makeDataTree = ({ runOutput, sheetId}) => {
 	runOutput.allcolumns = [rowCol].concat(columns);
 
 	// which rows?
-
 	// transform rowtree from holding names, to holding all the values
 	if ( ! runOutput.dataTree) runOutput.dataTree = {};
 	const dtree = Tree.map(rowtree, node => {
@@ -252,6 +255,7 @@ const makeDataTree = ({ runOutput, sheetId}) => {
 		}
 		// NB: rowData is an array but js will let us treat it like an object
 		let rowData = dataForRow[rowName];
+		rowData.testooo = "beans"
 		rowData.row = rowName;
 		rowData.id = rowName; // needs and id for collapse to work
 		// rowData.style = {};
@@ -259,8 +263,10 @@ const makeDataTree = ({ runOutput, sheetId}) => {
 	}, {onNull:"snip"});
 	assert(dtree);
 	runOutput.dataTree[sheetId] = dtree;
+
+	console.log("---->", runOutput.dataTree[sheetId]);		
 	console.log("MADE dataTree", runOutput.dataTree, "allcolumns", runOutput.allcolumns);
 };
 
-export { doShowMeTheMoney };
+export { doShowMeTheMoney, makeDataTree };
 export default ViewSpreadSheet;

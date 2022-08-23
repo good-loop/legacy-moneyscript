@@ -41,6 +41,7 @@ const Graphs = ({data}) => {
 		let myLabels = data.columns
 		let myDatasets = []
 		var rowSelections = (Object.values(selection.selector))
+		console.log(data.parse)
 
 		if(rowSelections.length > 1){
 			rowSelections = rowSelections.map((el) => el.rowName)
@@ -51,9 +52,8 @@ const Graphs = ({data}) => {
 				label: rowName,
 				data: data.dataForRow[rowName].map((el) => el.v)})
 		})
-
+		console.log(rowSelections)
 		return (<>
-		<br />
 			<div className="chart-container" style={{height:"500px"}}>
 				<NewChartWidget
 				responsive = "true"
