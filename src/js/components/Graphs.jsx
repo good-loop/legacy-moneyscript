@@ -13,7 +13,6 @@ import PropControl from '../base/components/PropControl';
 import JSend from '../base/data/JSend';
 import Tree from '../base/data/Tree';
 import SimpleTable, { Column } from '../base/components/SimpleTable';
-import NewChartWidget from '../base/components/NewChartWidget'
 import {Chart, ctx} from 'chart.js'
 import { setTaskTags } from '../base/components/TaskList';
 import ServerIO from '../plumbing/ServerIO';
