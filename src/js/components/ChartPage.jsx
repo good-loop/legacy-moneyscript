@@ -23,153 +23,138 @@ import ChartWidget from '../base/components/ChartWidget';
 import _, { cloneDeep, remove } from 'lodash';
 import { getPlanId } from './MoneyScriptEditorPage';
 import NewChartWidget from '../base/components/NewChartWidget'
+import deepCopy from '../base/utils/deepCopy';
 
 
-
+// Each selected row that we want in our chart
+// In the end, result is: 'RowName   [Colour Button]   [Remove Button]'
 const ChartSelectionRow = ({selections, setSelections, el}) => {
-	let [selectionColor, setSelectionColor] = useState({})
 	let [colorPopoverOpen, setColorPopoverState] = useState(false)
+	let [colorPropOpen, setColorPropOpen] = useState(false)
 
+	// find & remove row we've selected by name
 	const removeSelection = (toRemove) => {
-		console.log("Trying to remove ", toRemove)
-		setSelections(selections.filter((el) => el[0] !== toRemove))
-		console.log("???", selections, toRemove)
-		delete selectionColor[toRemove]
-		setSelectionColor(selectionColor)
+		setSelections(selections.filter((el) => el[0] !== toRemove[0]))
 	}
 
-	const getSelectionColor = (selection) => {
-		if (Object.keys(selectionColor).includes(selection)) return selectionColor[selection]
-		return "#AAA"
-	}
-
+	// remaps the selected rows colour
 	const changeColor = ((el, color) => {
-		selectionColor[el] = color
-		setSelectionColor(selectionColor)
-		console.log("!!!!!!")
-		console.log(selectionColor)
-		let temp = []
-		temp = selections.map((pair) => {
-			return ([pair[0], getSelectionColor(pair[0])])
-		})
-		setSelections(temp)
-		console.log(">>>", temp)
+		setSelections(selections.map((sel) => {
+			if(sel[0] == el) { return [sel[0], color] }
+			return sel
+		}))
 	})
 
-	const ColorPopover = (el) => (
-		<Col lg={1} md={1}>
-			<Button id="PopoverID" className='colorPopover' onClick={() => { setColorPopoverState(!colorPopoverOpen) }} style={{ backgroundColor: getSelectionColor(el) }}>
-				Color
-			</Button>
-			<Popover placement='bottom' isOpen={colorPopoverOpen} target='PopoverID' toggle={() => { setColorPopoverState(!colorPopoverOpen) }}>
-				<PopoverHeader>{el} color</PopoverHeader>
-				<PopoverBody style={{ padding: 0, overflow: "hidden" }}>
-					<Container>
-						<Row>
-							<Col style={{ margin: 0, paddingleft: "0 !important", paddingRight: "0 !important" }}><Button className="btn-block" onClick={() => { changeColor(el, "#95dbc6"); setColorPopoverState(!colorPopoverOpen) }} style={{ width: "100%", height: "100%", backgroundColor: "#95dbc6", borderRadius: "0", border: 0 }}></Button></Col>
-							<Col style={{ margin: 0, paddingleft: "0 !important", paddingRight: "0 !important" }}><Button className="btn-block" onClick={() => { changeColor(el, "#db959e"); setColorPopoverState(!colorPopoverOpen) }} style={{ width: "100%", height: "100%", backgroundColor: "#db959e", borderRadius: "0", border: 0 }}></Button></Col>
-						</Row>
-						<Row>
-							<Col style={{ margin: 0, paddingleft: "0 !important", paddingRight: "0 !important" }}><Button className="btn-block" onClick={() => { changeColor(el, "#9597db"); setColorPopoverState(!colorPopoverOpen) }} style={{ width: "100%", height: "100%", backgroundColor: "#9597db", borderRadius: "0", border: 0 }}></Button></Col>
-							<Col style={{ margin: 0, paddingleft: "0 !important", paddingRight: "0 !important" }}><Button className="btn-block" onClick={() => { changeColor(el, "#dbb595"); setColorPopoverState(!colorPopoverOpen) }} style={{ width: "100%", height: "100%", backgroundColor: "#dbb595", borderRadius: "0", border: 0 }}></Button></Col>
-						</Row>
-						<Row>
-							<Col style={{ margin: 0, paddingleft: "0 !important", paddingRight: "0 !important" }}><Button className="btn-block" onClick={() => { changeColor(el, "#211f1d"); setColorPopoverState(!colorPopoverOpen) }} style={{ width: "100%", height: "100%", backgroundColor: "#211f1d", borderRadius: "0", border: 0 }}></Button></Col>
-							<Col style={{ margin: 0, paddingleft: "0 !important", paddingRight: "0 !important" }}><Button className="btn-block" onClick={() => { changeColor(el, "#cf72a6"); setColorPopoverState(!colorPopoverOpen) }} style={{ width: "100%", height: "100%", backgroundColor: "#cf72a6", borderRadius: "0", border: 0 }}></Button></Col>
-						</Row>
-					</Container>
-				</PopoverBody>
-			</Popover>
-		</Col>
-	)
+	// When choosing colours, have it pop out into a wee "choose your own" window
+	const ColorPopover = (el) => {
+		let popoverId = el[0].split(" ").join("-")
 
-	return (
-	<Row style={{ margin: 15, height: "100%" }}>
-		<Col lg={8} md={8}><p>{el}</p></Col>
-		{ColorPopover(el[0])}
-		<Col lg={1} md={1}></Col>
-		<Col lg={1} md={1}><Button className='mt-1 btn btn-dark' onClick={() => removeSelection(el)}>-</Button></Col>
-	</Row>)
+		const onMouseLeave = (e) => {
+			if(colorPropOpen){
+				setColorPopoverState(!colorPopoverOpen);
+				setColorPropOpen(false)
+			}
+		}
+		
+
+		return (
+			<>
+				<Button id={popoverId} className='colorPopover' onClick={() => { setColorPopoverState(!colorPopoverOpen) }} style={{ backgroundColor:el[1]}}>
+					Color
+				</Button>
+				<Popover placement='bottom' isOpen={colorPopoverOpen} target={popoverId} toggle={() => { setColorPopoverState(!colorPopoverOpen) }}>
+					<PopoverHeader>{el[0]} color</PopoverHeader>
+					<PopoverBody className='Popover-body'>
+						<PropControl onMouseLeave={onMouseLeave} type="color" prop="mycol" onChange={(e) => {changeColor(el[0], e.value)}} onClick={() => setColorPropOpen(true)}/>
+					</PopoverBody>
+				</Popover>
+			</>
+		)
+		}
+
+	return (<>
+	<Row className="selection-row">
+		<Col lg={4} md={4} className="row-text"><p>{el[0]}</p></Col>	
+		<Col lg={1} md={2}></Col>
+		<Col lg={3} md={2}l>{ColorPopover(el)}</Col>									
+		<Col lg={1} md={2}></Col>
+		<Col lg={3} md={2}><Button className='btn btn-dark' onClick={() => removeSelection(el)}>-</Button></Col>
+	</Row>
+	<br />
+	</>)
 }
 
 // which rows are selected to be displayed
 const ChartSelections = ({ rowNames, selections, setSelections }) => {
 	let [searchValue, setSearchValue] = useState("")
 
+	// choose row by name, check it matches a row in the spreadsheet & hasn't been chosen, then add it in
 	const addSelection = (newSelection) => {
-		if (rowNames.includes(newSelection)) {
-			setSelections([...selections, [newSelection, "#AAA"]]);		// TODO: This isn't a good way of finding values, dropdown / text prediction? 
-			setSearchValue("")
+		let newSelectionLower = deepCopy(newSelection).toLowerCase()
+		let rowNamesLower = rowNames.map((row) => deepCopy(row).toLowerCase())
+		
+		// if it's not already chosen...
+		if(selections.map((el) => el[0].toLowerCase()).includes(newSelectionLower) == false) {
+			// try to find that row, (converting uppercase to lowercase) 
+			let selectedRow = rowNames.filter((row) => row.toLowerCase() === newSelectionLower)[0]
+			// if found, add it to our selections
+			if(selectedRow) {
+				setSelections([...selections, [selectedRow, "#AAA"]]);
+				setSearchValue("")
+			}
 		}
 	}
 
+	// holder of all the rows we've currently got selected
 	const selected = (
 		<div className="selection-chunk">
 			{selections.map((el) => {
-				return (<ChartSelectionRow el={el} selections={selections}/>)
+				return (<ChartSelectionRow el={el} selections={selections} setSelections={setSelections}/>)
 			})}
 		</div>
 	)
+
+	// TODO: a textarea search sucks! It currently needs to be an exact match or it doesn't 
 	return (
-		<div
-			className="chart-settings"
-			style={{ backgroundColor: "#DDD", border: "1px solid Gray", borderRadius: "10px", padding: "2.5%" }}>
+		<div className="chart-selection-settings">
 			<div className="selection-input">
 				<Row>
-					<Col md={8}><textarea style={{ height: "100%", width: "100%", resize: "none" }} rows="1" type="text" value={searchValue} onChange={e => setSearchValue(e.target.value)}></textarea></Col>
-					<Col md={4}><Button style={{ height: "100%", width: "100%" }} className='mt-1 btn btn-dark' onClick={() => { addSelection(searchValue) }}>Add</Button></Col>
+					<Col md={9}><textarea style={{marginTop:"5px"}} className='selection-search' rows="1" type="text" value={searchValue} onChange={e => setSearchValue(e.target.value)}></textarea></Col>
+					<Col md={3}><Button className='btn btn-dark add-selection' onClick={() => { addSelection(searchValue) }}>+</Button></Col>
 				</Row>
 				<br />
 				{selected}
 			</div>
-			<br />
 		</div>
 	)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // settings for ChartVisual
+//TODO: - time range settings?
+// 		- adding in the scenarios?
+//		- more styling, eg filled in line graphs
+//		- export graph to image?
 const ChartSettings = ({ id, rowNames, selections, setSelections, setChartType, typeDropdownState, setTypeDropdownState }) => {
-	console.log(rowNames)
-	console.log("oooooh", selections)
-
 	return (
-		<div
-			className="chart-settings"
-			style={{ backgroundColor: "#EEE", border: "1px solid Gray", borderRadius: "10px", padding: "10px", height: "100%" }}>
+		<div className="chart-settings">
 			<ChartSelections rowNames={rowNames} selections={selections} setSelections={setSelections} />
-			<br />
+			<hr className='line'/>
 			<ChartTypeDropdown setChartType={setChartType} typeDropdownState={typeDropdownState} setTypeDropdownState={setTypeDropdownState} />
 			<br />
+
 		</div>
 	)
 }
 // component for a charts setting & visuals
 const ChartChunk = ({ id, rows, data }) => {
-	let [selections, setSelections] = useState([])
+	let [selections, setSelections] = useState([])	// TODO: refactor this into an object, as an array it's needlessly complicated
 	let [typeDropdownState, setTypeDropdownState] = useState(false)
-	let [chartType, setChartType] = useState("line")
+	let [chartType, setChartType] = useState("line") // TODO: add more types, only tested with 'line' & 'bar' but others *should* work fine
 
 	let chartExample = (<><br />
-		<div className="chart-set" style={{ height: "70vh" }}>
-			<Row style={{ maxHeight: "100%" }}>
+		<div className="chart-set">
+			<Row className=""style={{ maxHeight: "100%" }}>
 				<Col md={4}>
 					<ChartSettings
 						id={id}
@@ -192,10 +177,8 @@ const ChartChunk = ({ id, rows, data }) => {
 
 const ChartVisuals = ({ type, id, selections, data }) => {
 	let myLabels = data.columns.filter((el) => (el.indexOf("Total") == -1))
-	console.log(myLabels)
 	let myDatasets = []
 	selections.forEach((row) => {
-		console.log("Row!, ", row)
 		myDatasets.push({
 			label: row[0],
 			data: data.dataForRow[row[0]].filter((el) => el.comment.indexOf("total for year") == -1).map((el) => el.v),
@@ -206,7 +189,7 @@ const ChartVisuals = ({ type, id, selections, data }) => {
 
 
 	return (
-		<div className="chart-chunk" style={{ height: "100%", backgroundColor: "#EEE", border: "1px solid Gray", borderRadius: "10px", padding: "10px" }}>
+		<div className="chart-chunk">
 			<NewChartWidget
 				type={type}
 				responsive="true"
@@ -216,7 +199,7 @@ const ChartVisuals = ({ type, id, selections, data }) => {
 						labels: myLabels,
 						datasets: myDatasets
 					}}
-				className="test"
+				className="chart-visual"
 				style={{ height: "100%", width: "100%" }}
 			/>
 		</div>
@@ -256,7 +239,6 @@ const ChartPage = () => {
 		return (<div><h1>{type}: {id}</h1><Misc.Loading /></div>);
 	}
 
-	console.log(pvItem, "OOOOOOOO")
 
 	const plandoc = pvItem.value;
 
@@ -271,14 +253,7 @@ const ChartPage = () => {
 	}
 	let rows = runOutput.rows || [];
 
-	let dataForest = plandoc.sheets.map((sheet) => {
-		let outputClone = cloneDeep(runOutput)
-		let sheetId = sheet.id
-		makeDataTree({ runOutput: outputClone, sheetId });
-		console.log(sheetId, outputClone)
-		return outputClone.dataTree[sheetId]
-	})
-
+	
 	if (true) {
 		return (
 			<>

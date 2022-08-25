@@ -113,7 +113,6 @@ const renderCell = (v, column, item) => {
 // scenarios 	- unknown, initally null?
 // hideMonths 	- bool - hides months if true
 const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
-	console.log("Scenarios: ", hideMonths)
 	if (!plandoc) return null;
 	const pvrun = doShowMeTheMoney({ plandoc, scenarios });
 	if (!pvrun.resolved) {
@@ -137,7 +136,6 @@ const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 	// console.log("dataTree", dtree, "allcolumns", runOutput.allcolumns);
 	// HACK - only show year totals?
 	let vizcolumns = runOutput.allcolumns;
-	console.log("vizcols, ", vizcolumns[0])
 	if (hideMonths) {
 		vizcolumns = vizcolumns.filter(col => col.Header === "Row" || col.Header.includes("Total"));
 		// HACK add % change info
@@ -157,7 +155,6 @@ const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 		});
 	}
 
-	console.log("plandoc:", plandoc)
 
 	// The Table	
 	return (<>
@@ -201,16 +198,12 @@ const InfoPop = ({ text }) => {
  * @param {*} runOutput Modified here 
  */
 const makeDataTree = ({ runOutput, sheetId}) => {
-	console.log("making data tree in ViewSpreadsheet.jsx....")
-	console.log("ro", runOutput)
-	console.log("id, ", sheetId)
 	assert(runOutput);
 	assert(sheetId, "no sheet ID");
 	// let rows = runOutput.rows;
 	let rowtree = runOutput.parse.rowtree;
 	let dataForRow = runOutput.dataForRow;
 	let thisSheetRowNames = runOutput.rowsForPlansheet && runOutput.rowsForPlansheet[sheetId];
-	console.log("ROWNAMES: ", thisSheetRowNames)
 	// Make the columns
 	// type: Column[]
 	let columns = runOutput.columns.map((c, i) => {
@@ -263,9 +256,6 @@ const makeDataTree = ({ runOutput, sheetId}) => {
 	}, {onNull:"snip"});
 	assert(dtree);
 	runOutput.dataTree[sheetId] = dtree;
-
-	console.log("---->", runOutput.dataTree[sheetId]);		
-	console.log("MADE dataTree", runOutput.dataTree, "allcolumns", runOutput.allcolumns);
 };
 
 export { doShowMeTheMoney, makeDataTree };
