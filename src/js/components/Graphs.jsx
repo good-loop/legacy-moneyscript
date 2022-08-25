@@ -22,6 +22,7 @@ import LinkOut from '../base/components/LinkOut';
 import { ellipsize, space, yessy } from '../base/utils/miscutils';
 import PlanDoc from '../data/PlanDoc';
 import { assert } from '../base/utils/assert';
+import NewChartWidget from '../base/components/NewChartWidget'
 
 
 /**
