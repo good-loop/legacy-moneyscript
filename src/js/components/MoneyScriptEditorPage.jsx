@@ -217,7 +217,32 @@ const EditScript = ({ id, plandoc, path }) => {
 	let pes = (parsed && parsed.errors) || []; 
 	// ...Split errors into the ones for this sheet vs others
 	let pesHere = pes.filter(pf => pf.sheetId? pf.sheetId===sheet.id : true);
+	
+	const ctrlClickLink = (e) => {
+		let row = e.cursor.row
+		let col = e.cursor.column
+		let token = e.session.getTokenAt(row, col)
+		// if we've clicked on a url...
+		if(token.type === 'string.unquoted'){
+			document.body.onclick = (e) => {
+				// ... and have ctrl pressed
+				if(e.ctrlKey) {
+					// open link!
+					window.open(token.value)
+				}
+			}
+		}
+	}
 
+	let codeEditor = (
+		<AceCodeEditor path={path.concat('sheets', tabId)}
+			prop='text'
+			annotations={pesHere.map(markerFromParseFail)}
+			height="calc(100vh - 10em)"
+			onSelectionChange={ctrlClickLink}
+		/>
+	)
+	
 	return (<div>
 		<Nav tabs>
 			{plandoc.sheets.map((sheet, i) => (<NavItem key={i} className={tabId===i? 'active' : "bg-secondary"}>
@@ -244,9 +269,7 @@ const EditScript = ({ id, plandoc, path }) => {
 		</Nav>
 		<TabContent activeTab={tabId}>
 			<TabPane tabId={tabId}>
-				<AceCodeEditor path={path.concat('sheets', tabId)}
-					prop='text'
-					annotations={pesHere.map(markerFromParseFail)} height="calc(100vh - 10em)" />
+				{codeEditor}
 			</TabPane>
 		</TabContent>
 	</div>);
