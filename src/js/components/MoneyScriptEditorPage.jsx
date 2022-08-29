@@ -105,7 +105,7 @@ const RightSide = ({plandoc}) => {
 
 	return (<>
 	<a className='btn btn-primary btn-sm ml-2 mr-2' 
-		href={'/#sheet/' + encURI(id)+"?tab="+(DataStore.getUrlValue("tab")||"")}>View SpreadSheet &gt;</a>
+		href={'/#sheet/' + encURI(id)+"?tab="+(DataStore.getUrlValue("tab")||"")}>View Sheet &gt;</a>
 	<GSheetLink item={item} />
 	<GitHubLink item={item} />
 	<DownloadTextLink text={PlanDoc.text(item)} filename={item.name + ".txt"} />
@@ -217,7 +217,33 @@ const EditScript = ({ id, plandoc, path }) => {
 	let pes = (parsed && parsed.errors) || []; 
 	// ...Split errors into the ones for this sheet vs others
 	let pesHere = pes.filter(pf => pf.sheetId? pf.sheetId===sheet.id : true);
+	
+	
+	let clickHandlerAdded = false;
 
+	// on ctrl + click on a url, open that page
+	const ctrlClickLink = (e) => {
+		let row = e.cursor.row
+		let col = e.cursor.column
+		let token = e.session.getTokenAt(row, col)
+		
+		// string.unquoted are only urls
+		if (token.type !== 'string.unquoted') return;
+		if (clickHandlerAdded) return;
+
+		// add and remove the handler, fixes weird bug that was due to the onSelectionChange
+		// being called on the click down and the click up
+		const clickHandler = (e) => {
+			document.body.removeEventListener('click', clickHandler);
+			clickHandlerAdded = false;
+			if (e.ctrlKey && token.value) {
+				window.open(token.value)
+			}
+		};
+		document.body.addEventListener('click', clickHandler);
+		clickHandlerAdded = true;
+	}
+	
 	return (<div>
 		<Nav tabs>
 			{plandoc.sheets.map((sheet, i) => (<NavItem key={i} className={tabId===i? 'active' : "bg-secondary"}>
@@ -246,7 +272,10 @@ const EditScript = ({ id, plandoc, path }) => {
 			<TabPane tabId={tabId}>
 				<AceCodeEditor path={path.concat('sheets', tabId)}
 					prop='text'
-					annotations={pesHere.map(markerFromParseFail)} height="calc(100vh - 10em)" />
+					annotations={pesHere.map(markerFromParseFail)} 
+					height="calc(100vh - 10em)"
+					onSelectionChange={ctrlClickLink}
+				/>
 			</TabPane>
 		</TabContent>
 	</div>);
