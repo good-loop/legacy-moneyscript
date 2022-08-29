@@ -33,7 +33,7 @@
 			// Insert bundle[-debug].js - but allow dynamic test/production build switch.
 			// Default to debug build on test and local servers.
 			var isDebug = window.location.hostname.match(/^local/) || window.location.hostname.match(/^test/);
-			
+			console.log("testestest")
 			// Has the user specified debug/production build with a URL param?
 			var debugParam = (""+window.location).match(/debug=(\w+)/i); // NB: .search misses parameters after a #
 			if (debugParam && debugParam[1]) {

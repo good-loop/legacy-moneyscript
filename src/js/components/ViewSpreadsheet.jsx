@@ -2,6 +2,7 @@ import React, { Component, useState } from 'react';
 import { ReactDOM } from 'react-dom';
 import _ from 'lodash';
 import printer, { prettyNumber } from '../base/utils/printer';
+import Graphs from '../components/Graphs'
 import C from '../C';
 import Roles from '../base/Roles';
 import Misc from '../base/components/Misc';
@@ -28,7 +29,7 @@ import { assert } from '../base/utils/assert';
  */
 const doShowMeTheMoney = ({ plandoc, scenarios }) => {
 	if ( ! plandoc) return null;
-	return DataStore.fetch(['transient', 'run', plandoc.id, md5(PlanDoc.text(plandoc) || 'blank'), str(scenarios) || 'base'],
+	let x =  DataStore.fetch(['transient', 'run', plandoc.id, md5(PlanDoc.text(plandoc) || 'blank'), str(scenarios) || 'base'],
 		() => {
 			let p = ServerIO.post('/money.json', { item: JSON.stringify(plandoc), scenarios });
 			return p.then(JSend.data, res => {
@@ -37,6 +38,7 @@ const doShowMeTheMoney = ({ plandoc, scenarios }) => {
 				throw res;
 			});
 		});
+	return x
 };
 
 
@@ -107,6 +109,9 @@ const renderCell = (v, column, item) => {
 };
 
 
+// plandoc 		- raw text input
+// scenarios 	- unknown, initally null?
+// hideMonths 	- bool - hides months if true
 const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 	if (!plandoc) return null;
 	const pvrun = doShowMeTheMoney({ plandoc, scenarios });
@@ -126,10 +131,9 @@ const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 	if ( ! runOutput.dataTree || ! runOutput.dataTree[sheetId]) {
 		makeDataTree({ runOutput, sheetId });
 	} // data prep done
-
+	
 	const dtree = runOutput.dataTree[sheetId];
 	// console.log("dataTree", dtree, "allcolumns", runOutput.allcolumns);
-
 	// HACK - only show year totals?
 	let vizcolumns = runOutput.allcolumns;
 	if (hideMonths) {
@@ -150,6 +154,7 @@ const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 			}
 		});
 	}
+
 
 	// The Table	
 	return (<>
@@ -174,7 +179,13 @@ const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 		hasCollapse
 		hideEmpty={false}
 		hasCsv />
-		</TabPane></TabContent></>);
+	<Graphs 
+		data={runOutput}
+		tableName={plandoc.name}
+		dataTree={dtree}
+		columns={vizcolumns} />
+	
+	</TabPane></TabContent></>);
 };
 
 const InfoPop = ({ text }) => {
@@ -224,7 +235,6 @@ const makeDataTree = ({ runOutput, sheetId}) => {
 	runOutput.allcolumns = [rowCol].concat(columns);
 
 	// which rows?
-
 	// transform rowtree from holding names, to holding all the values
 	if ( ! runOutput.dataTree) runOutput.dataTree = {};
 	const dtree = Tree.map(rowtree, node => {
@@ -238,6 +248,7 @@ const makeDataTree = ({ runOutput, sheetId}) => {
 		}
 		// NB: rowData is an array but js will let us treat it like an object
 		let rowData = dataForRow[rowName];
+		rowData.testooo = "beans"
 		rowData.row = rowName;
 		rowData.id = rowName; // needs and id for collapse to work
 		// rowData.style = {};
@@ -245,8 +256,7 @@ const makeDataTree = ({ runOutput, sheetId}) => {
 	}, {onNull:"snip"});
 	assert(dtree);
 	runOutput.dataTree[sheetId] = dtree;
-	console.log("MADE dataTree", runOutput.dataTree, "allcolumns", runOutput.allcolumns);
 };
 
-export { doShowMeTheMoney };
+export { doShowMeTheMoney, makeDataTree };
 export default ViewSpreadSheet;

@@ -8,13 +8,13 @@ import C from '../C';
 import ServerIO from '../base/plumbing/ServerIOBase';
 
 ServerIO.APIBASE = 
-    ''; // local
-    // 'https://moneyscript.good-loop.com'; // live data, edited local!
+    // ''; // local
+    'https://moneyscript.good-loop.com'; // live data, edited local!
 
 ServerIO.checkBase();
 
-// ServerIO.DATALOG_ENDPOINT = 'https://testlg.good-loop.com/data';
-// ServerIO.DATALOG_ENDPOINT = '/data';
+ServerIO.DATALOG_ENDPOINT = 'https://testlg.good-loop.com/data';
+ServerIO.DATALOG_ENDPOINT = '/data';
 
 
 export default ServerIO;

@@ -1,0 +1,63 @@
+/* A chart-set is a pair of settings & their respective chart*/
+.chart-set {
+	height:70vh;
+}
+
+/* Settings that appear on the left, tall & thin box of inputs*/
+.chart-settings {
+	background-color: #eee;
+	border: 1px solid gray;
+	border-radius: 10px;
+	padding:10px;
+	min-width: 100%;
+	min-height: 100%;
+}
+
+/* Chart itself, should be tall & slightly rectangular */
+.chart-visual-container {
+	height: 70vh;
+	/* keep graph to be in rectangular shape while also making sure it stays on the page*/
+	min-width: 50vw;
+	max-width: 100%;
+	background-color: #eee;
+	border: 1px solid gray;
+	border-radius: 10px;
+	padding:10px;
+}
+
+/* Row to appear in chart, eg user has entered "Headcount", should be shown a row in form
+	HeadCount	[Color]	[-]	
+*/
+.selection-row {
+	height: 50px;
+	display: flex;
+	align-items: center;
+
+	button, p {
+		width: 100%;
+		min-width: 100%;
+		margin-bottom: 0;
+	}
+}
+
+/* Input searchbar to find rows */
+.selection-search {
+	height: 100%;
+	width: 100%;
+	resize: none;
+}
+
+/* line break with visible line */
+.line {
+	width: 90%;
+	height: 1px;
+	background-color: #E0E0E0;
+	margin-bottom: 30px;
+}
+
+/* Add button beside selection-search */
+.add-selection { 
+	margin: 5px;
+	height: 100%;
+	width:  100%;
+}
