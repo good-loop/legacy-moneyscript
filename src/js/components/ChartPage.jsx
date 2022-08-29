@@ -80,7 +80,6 @@ const ChartSelectionRow = ({selections, setSelections, el}) => {
 		<Col lg={3} md={12} sm={12}><Button className='btn btn-dark' onClick={() => removeSelection(el)}>-</Button></Col>
 	</Row>
 	<br />
-	<br />
 	</>)
 }
 
@@ -291,7 +290,7 @@ const ChartPage = () => {
 					<Row className="w-100">
 						<Col md={2}><a className='mt-1 btn btn-dark'
 							href={'/#sheet/' + encURI(id) + "?tab=" + (DataStore.getUrlValue("tab") || "")}>&lt; View Sheet</a></Col>
-						<Col md={8}><h2>{"CHARTS WIZ| PAGE"}</h2></Col>
+						<Col md={8}><h2>{"CHARTS PAGE"}</h2></Col>
 					</Row>
 					<Row>
 						<ScenariosOnOff scenarioMap={scenarioMap} scenarioTexts={pvrun.value && pvrun.value.scenarioTexts} />
