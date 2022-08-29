@@ -74,12 +74,12 @@ const ChartSelectionRow = ({selections, setSelections, el}) => {
 
 	return (<>
 	<Row className="selection-row">
-		<Col lg={4} md={4} className="row-text"><p>{el[0]}</p></Col>	
-		<Col lg={1} md={2}></Col>
-		<Col lg={3} md={2}l>{ColorPopover(el)}</Col>									
-		<Col lg={1} md={2}></Col>
-		<Col lg={3} md={2}><Button className='btn btn-dark' onClick={() => removeSelection(el)}>-</Button></Col>
+		<Col lg={5} md={12} sm={12} className="row-text"><p>{el[0]}</p></Col>	
+		<Col lg={1} md={0} sm={0}></Col>
+		<Col lg={3} md={12} sm={12}l>{ColorPopover(el)}</Col>									
+		<Col lg={3} md={12} sm={12}><Button className='btn btn-dark' onClick={() => removeSelection(el)}>-</Button></Col>
 	</Row>
+	<br />
 	<br />
 	</>)
 }
@@ -107,11 +107,11 @@ const ChartSelections = ({ rowNames, selections, setSelections }) => {
 
 	// holder of all the rows we've currently got selected
 	const selected = (
-		<div className="selection-chunk">
+		<>
 			{selections.map((el) => {
 				return (<ChartSelectionRow el={el} selections={selections} setSelections={setSelections}/>)
 			})}
-		</div>
+		</>
 	)
 
 	// TODO: a textarea search sucks! It currently needs to be an exact match or it doesn't 
@@ -162,9 +162,10 @@ const ChartChunk = ({ plandoc, id, rows, scenarios }) => {
 
 	let data = pvrun.value
 
-	let chartExample = (<><br />
-		<div className="chart-set">
-			<Row className=""style={{ maxHeight: "100%" }}>
+	let chartExample = (
+		<>
+		<br />
+		<Row className="chart-set">
 				<Col md={4}>
 					<ChartSettings
 						id={id}
@@ -179,7 +180,9 @@ const ChartChunk = ({ plandoc, id, rows, scenarios }) => {
 				<Col md={1}></Col>
 				<Col md={7}><ChartVisuals type={chartType} id={id} selections={selections} data={data} /></Col>
 			</Row>
-		</div><br /></>)
+		<br />
+		</>
+		)
 
 	return chartExample
 }
@@ -211,7 +214,7 @@ const ChartVisuals = ({ type, id, selections, data }) => {
 
 
 	return (
-		<div className="chart-chunk">
+		<div className="chart-visual-container">
 			<NewChartWidget
 				type={type}
 				responsive="true"
@@ -288,7 +291,7 @@ const ChartPage = () => {
 					<Row className="w-100">
 						<Col md={2}><a className='mt-1 btn btn-dark'
 							href={'/#sheet/' + encURI(id) + "?tab=" + (DataStore.getUrlValue("tab") || "")}>&lt; View Sheet</a></Col>
-						<Col md={8}><h2>{"CHART PAGE TESTING PAGE"}</h2></Col>
+						<Col md={8}><h2>{"CHARTS WIZ| PAGE"}</h2></Col>
 					</Row>
 					<Row>
 						<ScenariosOnOff scenarioMap={scenarioMap} scenarioTexts={pvrun.value && pvrun.value.scenarioTexts} />

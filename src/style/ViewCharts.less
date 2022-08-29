@@ -1,88 +1,63 @@
-.Popover-body {
-	padding:0;
-	overflow: hidden;
+/* A chart-set is a pair of settings & their respective chart*/
+.chart-set {
+	height:70vh;
 }
 
+/* Settings that appear on the left, tall & thin box of inputs*/
+.chart-settings {
+	background-color: #eee;
+	border: 1px solid gray;
+	border-radius: 10px;
+	padding:10px;
+	min-width: 100%;
+	min-height: 100%;
+}
+
+/* Chart itself, should be tall & slightly rectangular */
+.chart-visual-container {
+	height: 70vh;
+	/* keep graph to be in rectangular shape while also making sure it stays on the page*/
+	min-width: 50vw;
+	max-width: 100%;
+	background-color: #eee;
+	border: 1px solid gray;
+	border-radius: 10px;
+	padding:10px;
+}
+
+/* Row to appear in chart, eg user has entered "Headcount", should be shown a row in form
+	HeadCount	[Color]	[-]	
+*/
+.selection-row {
+	height: 50px;
+	display: flex;
+	align-items: center;
+
+	button, p {
+		width: 100%;
+		min-width: 100%;
+		margin-bottom: 0;
+	}
+}
+
+/* Input searchbar to find rows */
 .selection-search {
 	height: 100%;
 	width: 100%;
 	resize: none;
 }
 
-.selection-add {
-	height: "100%";
-	width: "100%";
-}
-
-.chart-set {
-	height:70vh;
-}
-
-.chart-visual {
-	min-height: 60vh;
-	max-height: 60vh;
-	min-width: 60vh;
-	max-width: 60vh;
-
-}
-.chart-chunk {
-	min-height: 63vh;
-	max-height: 63vh;
-	min-width: 63vh;
-	max-width: 63vh;
-	background-color: "#EEE";
-	border: "1px solid Gray";
-	border-radius: "10px";
-	padding: "10px"
-}
-
-.selection-chunk {
-	button, p {
-		margin: 0;
-		margin: 5px;
-		height: 100%;
-		width: 100%;
-		vertical-align: middle;
-	}
-
-	.row-text {
-		transform: translateY(25%);
-	}
-
-}
-
+/* line break with visible line */
 .line {
 	width: 90%;
 	height: 1px;
-	background-color: gray;
+	background-color: #E0E0E0;
 	margin-bottom: 30px;
 }
 
-.chart-settings {
-	background-color: #eee;
-	border: 1px solid gray;
-	border-radius: 10px;
-	padding:10px;
-	height: 100%;
-}
-
-.selection-row {
-	margin: 15;
-	height: "100%"
-}
-
-
-.chart-settings {
-	background-color: "#DDD";
-	border: "1px solid Gray";
-	border-radius: "10px";
-	 padding: "2.5%";
-}
-
+/* Add button beside selection-search */
 .add-selection { 
-			margin: 0;
-		margin: 5px;
-		height: 100%;
-		width: 100%;
-		vertical-align: middle;
+	margin: 5px;
+	height: 100%;
+	width:  100%;
 }
