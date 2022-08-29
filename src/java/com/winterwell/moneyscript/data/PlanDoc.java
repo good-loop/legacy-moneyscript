@@ -26,7 +26,7 @@ public class PlanDoc extends AThing {
 	public List errors;
 	
 	/**
-	 * @deprecated copies the info in Business for API / UX purposes.
+	 * 
 	 */
 	List<ExportCommand> exportCommands = new ArrayList<>();	
 	
