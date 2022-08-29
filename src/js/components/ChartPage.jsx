@@ -147,10 +147,20 @@ const ChartSettings = ({ id, rowNames, selections, setSelections, setChartType, 
 	)
 }
 // component for a charts setting & visuals
-const ChartChunk = ({ id, rows, data }) => {
+const ChartChunk = ({ plandoc, id, rows, scenarios }) => {
 	let [selections, setSelections] = useState([])	// TODO: refactor this into an object, as an array it's needlessly complicated
 	let [typeDropdownState, setTypeDropdownState] = useState(false)
 	let [chartType, setChartType] = useState("line") // TODO: add more types, only tested with 'line' & 'bar' but others *should* work fine
+
+
+	// recalc for scenario specifics
+	if (!plandoc) return null;
+	const pvrun = doShowMeTheMoney({ plandoc, scenarios });
+	if (!pvrun.resolved) {
+		return <Misc.Loading />;
+	}
+
+	let data = pvrun.value
 
 	let chartExample = (<><br />
 		<div className="chart-set">
@@ -175,13 +185,25 @@ const ChartChunk = ({ id, rows, data }) => {
 }
 
 
+const ScenariosOnOff = ({scenarioMap, scenarioTexts}) => {
+	if ( ! scenarioMap) return null;
+	return (<Form>
+			<PropControl inline label="Scenarios" tooltip={"Toggle scenarios on/off"} 
+				type='checkboxArray' prop='scenarios' options={Object.keys(scenarioMap)} 
+				tooltips={scenarioTexts}
+			/>
+		</Form>);
+};
+
 const ChartVisuals = ({ type, id, selections, data }) => {
 	let myLabels = data.columns.filter((el) => (el.indexOf("Total") == -1))
 	let myDatasets = []
-	selections.forEach((row) => {
+	selections.forEach((row, i) => {
 		myDatasets.push({
 			label: row[0],
-			data: data.dataForRow[row[0]].filter((el) => el.comment.indexOf("total for year") == -1).map((el) => el.v),
+			// if a row doesn't have a value, label it as a year total
+			// if a row is labeled a year total, don't include it
+			data: data.dataForRow[row[0]].filter((el) => (el.comment ? el.comment : "total for year").indexOf("total for year") == -1).map((el) => el.v),
 			borderColor: row[1],
 			backgroundColor: row[1]
 		})
@@ -224,10 +246,6 @@ const ChartTypeDropdown = ({ setChartType, typeDropdownState, setTypeDropdownSta
 }
 
 const ChartPage = () => {
-
-	// a chart set should contain its settings and its chart object
-	let [chartSets, setChartSets] = useState([])
-
 	const id = getPlanId();
 	if (!id) {
 		return <BS.Alert color='warning'>No plan ID - go to <a href='#Plan'>Plans</a> to select or create one</BS.Alert>;
@@ -239,6 +257,11 @@ const ChartPage = () => {
 		return (<div><h1>{type}: {id}</h1><Misc.Loading /></div>);
 	}
 
+	let _scenarios = DataStore.getUrlValue("scenarios");
+	console.log(_scenarios, "scenarios")
+	console.log("ITEM TIME BABEE", pvItem)
+
+	let scenariosOn = _.isString(_scenarios)? _scenarios.split(",") : _scenarios; // NB: string if fresh from url, array if modified by PropControl
 
 	const plandoc = pvItem.value;
 
@@ -253,8 +276,11 @@ const ChartPage = () => {
 	}
 	let rows = runOutput.rows || [];
 
+	let scenarioMap = pvrun.value && pvrun.value.scenarios;
+
 	
 	if (true) {
+		console.log("-->", scenariosOn)
 		return (
 			<>
 				<CSS css={`footer {display:none}`} />
@@ -264,10 +290,13 @@ const ChartPage = () => {
 							href={'/#sheet/' + encURI(id) + "?tab=" + (DataStore.getUrlValue("tab") || "")}>&lt; View Sheet</a></Col>
 						<Col md={8}><h2>{"CHART PAGE TESTING PAGE"}</h2></Col>
 					</Row>
+					<Row>
+						<ScenariosOnOff scenarioMap={scenarioMap} scenarioTexts={pvrun.value && pvrun.value.scenarioTexts} />
+					</Row>
 				</div>
 				<div className="clearfix"></div>
 				<div className="chart">
-					<ChartChunk id={id} rows={rows} data={runOutput} />
+					<ChartChunk plandoc={plandoc} id={id} rows={rows} data={runOutput} scenarios={scenariosOn}/>
 				</div>
 			</>
 		)
