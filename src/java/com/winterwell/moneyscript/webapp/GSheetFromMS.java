@@ -248,7 +248,7 @@ public class GSheetFromMS {
 				}
 				// HACK for blue imports
 				Numerical cv = biz.getCellValue(cell);
-				if (cv!=null && cv.comment!=null && cv.comment.startsWith(ImportCommand.IMPORT_MARKER_COMMENT)) {
+				if (cv!=null && ImportCommand.isImported(cv)) {
 					rowvs.add(new ArrayMap(
 						"color", "blue"
 					));

@@ -75,8 +75,8 @@ const fStyle = ({ cellValue, item, row, depth, column }) => {
 	}
 	// red -ives
 	if (cellValue && cellValue < 0) cellStyle.color = "red";
-	// actuals
-	if (colVal && colVal.comment && (colVal.comment === "import" || colVal.comment.substr(0, 7) === "imports")) {
+	// actuals HACK
+	if (colVal && colVal.comment && (colVal.comment.substr(0, 6) === "import")) {
 		cellStyle.color = "blue"; // cellStyle.backgroundColor = "#ddf"; // blue pastel highlight on actuals
 	}
 	// column hacks

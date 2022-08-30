@@ -41,7 +41,7 @@ import com.winterwell.utils.time.TimeUtils;
  */
 public class ImportRowCommand extends ImportCommand {
 
-	private String propForComment;
+//	private String propForComment;
 	private String propToSum;
 
 	public ImportRowCommand(String src) {
@@ -99,7 +99,7 @@ public class ImportRowCommand extends ImportCommand {
 		RowName fcs = (RowName) coltosum.getCellSetSelector();
 		propToSum = fcs.getRowName();
 		
-		propForComment = mappingImportRow2ourRow==null? null : mappingImportRow2ourRow.get("commentary");
+//		propForComment = mappingImportRow2ourRow==null? null : mappingImportRow2ourRow.get("commentary");
 		
 		// filter out of window data
 		Period period = new Period(b.getSettings().getStart(), b.getSettings().getEnd());
@@ -136,7 +136,7 @@ public class ImportRowCommand extends ImportCommand {
 			Numerical n = run2_numForItems(op, citems);
 			// If we have no data for a column -- 0 sales! Don't let the predictive formulae fill in a number later on
 			Numerical zero = new Numerical(0);
-			zero.comment = IMPORT_MARKER_COMMENT;
+			zero.comment = IMPORT_MARKER_COMMENT+" "+propToSum+" from "+(name!=null?" from "+name:"");
 			getCreateCol(col, zero);	
 			values.set(col.index, n);			
 		}
@@ -186,8 +186,8 @@ public class ImportRowCommand extends ImportCommand {
 //					vs.add(null);
 					continue; // skip blanks and non-numbers but not "true" 0s
 				}
-				Numerical v = new Numerical(n);
-				v.comment = IMPORT_MARKER_COMMENT;				
+				Numerical v = new Numerical(n);				
+				v.comment = IMPORT_MARKER_COMMENT+" "+importRowName+(name!=null?" from "+name:"");
 				getCreateCol(col, null);
 				values.set(col.index, v);
 			}
@@ -212,7 +212,7 @@ public class ImportRowCommand extends ImportCommand {
 		MeanVar1D mv = new MeanVar1D();
 		double sum = 0;
 		int cnt = 0;		
-		StringBuilder comment = propForComment==null? null : new StringBuilder();
+//		StringBuilder importedComment = propForComment==null? null : new StringBuilder();
 		for (Map<String, ?> citem : citems) {
 			String v = (String) Containers.getLenient(citem, propToSum);
 			double vn = MathUtils.getNumber(v);
@@ -221,10 +221,10 @@ public class ImportRowCommand extends ImportCommand {
 			if ( ! Utils.isBlank(v) && ! v.equals("0") && ! v.equals("0.0")) {
 				cnt++;
 			}
-			if (comment!=null) {
-				String c = (String) Containers.getLenient(citem, propForComment);
-				if (c !=null) { comment.append(c); comment.append(", "); }
-			}
+//			if (importedComment!=null) {
+//				String c = (String) Containers.getLenient(citem, propForComment);
+//				if (c !=null) { importedComment.append(c); importedComment.append(", "); }
+//			}
 		}
 		Numerical n;
 		switch(op) {
@@ -238,9 +238,9 @@ public class ImportRowCommand extends ImportCommand {
 		default:
 			throw new IllegalArgumentException("TODO op "+op+" in "+this);
 		}
-		if (comment!=null) {
-			n.comment = comment.toString();
-		}
+//		if (importedComment!=null) {
+//			n.comment = importedComment.toString();
+//		}
 		return n;
 	}
 	

@@ -1,4 +1,9 @@
 
+/* avoid splitting row names*/
+#mainDiv .SimpleTable td {
+	overflow-wrap: break-word;
+}
+
 // mark out top-level rows, so that groups are clearer
 tr.depth1 {
 	border-top: solid 2px black;

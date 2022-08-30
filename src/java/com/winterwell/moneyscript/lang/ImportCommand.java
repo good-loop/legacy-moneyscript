@@ -32,6 +32,7 @@ import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.containers.Cache;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.Pair2;
+import com.winterwell.utils.containers.Trio;
 import com.winterwell.utils.io.CSVReader;
 import com.winterwell.utils.io.CSVSpec;
 import com.winterwell.utils.io.FileUtils;
@@ -140,14 +141,16 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 
 	protected int importCol_exs;
 
-	private int importCol_ok;
+	private int importCol_ok; // ??
 
 	protected int importCol_outsideTimeWindow;
 	
 	/**
-	 * url to csv,fetch-time
+	 * url to csv,name,fetch-time
+	 * 
+	 * ??why not use a guava cache with built-in time handling??
 	 */
-	static Map<String, Pair2<String,Time>> csvCache = new Cache<>(20);
+	static Map<String, Trio<String,String,Time>> csvCache = new Cache<>(20);
 	
 	private List<String> exempt = new ArrayList<String>();
 	
@@ -280,17 +283,17 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 				if (isEmptyRow(row)) {
 					continue;
 				}
-				String rowName = row[0];
-				if (Utils.isBlank(rowName))
+				String srcRowName = row[0];
+				if (Utils.isBlank(srcRowName))
 					continue;
 				
 				// Hack to prevent null pointer exception for ambiguous rows
-				if (exempt.contains(rowName))
+				if (exempt.contains(srcRowName))
 					continue;
 				
 				// match row name
-				String ourRowName = mappingImportRow2ourRow.get(rowName);
-				assert ourRowName != null : rowName;
+				String ourRowName = mappingImportRow2ourRow.get(srcRowName);
+				assert ourRowName != null : srcRowName;
 				// get/make the row
 				Row brow = b.getRow(ourRowName);
 				if (brow == null) {
@@ -306,7 +309,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 				// add in the data
 				for (int i = 1; i < row.length; i++) {
 					if (i >= ourCol4importCol.length) {
-						Log.e(LOGTAG, "Overlong row? "+i+" from "+rowName);
+						Log.e(LOGTAG, "Overlong row? "+i+" from "+srcRowName);
 						break;
 					}
 					Col col = ourCol4importCol[i];
@@ -319,7 +322,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 						continue; // skip blanks and non-numbers but not "true" 0s
 					}
 					Cell cell = new Cell(brow, col);
-					Numerical v = run2_setCellValue(b, n, cell);
+					Numerical v = run2_setCellValue(b, n, cell, srcRowName);
 				}
 			}
 			// all good
@@ -373,9 +376,9 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		return _ourCol4importCol;
 	}
 
-	Numerical run2_setCellValue(Business b, double n, Cell cell) {
+	Numerical run2_setCellValue(Business b, double n, Cell cell, String srcRowName) {
 		Numerical v = new Numerical(n);
-		v.comment = IMPORT_MARKER_COMMENT+" from "+Utils.or(name, url);
+		v.comment = IMPORT_MARKER_COMMENT+" "+srcRowName+" from "+Utils.or(name, url);
 		// Set value
 		b.state.set(cell, v);
 		return v;
@@ -404,12 +407,13 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		}
 		// cached?
 		String csvUrl = getCsvUrl();
-		Pair2<String, Time> cached = csvCache.get(csvUrl);
+		Trio<String, String, Time> cached = csvCache.get(csvUrl);
 		if (cached != null && cacheDt!=null 
-				&& cached.second.plus(cacheDt).isAfter(new Time())) 
+				&& cached.third.plus(cacheDt).isAfter(new Time())) 
 		{
 			// use cache
 			csv = cached.first;
+			if (name==null) name = cached.second;
 			Log.d(LOGTAG, "use cached "+csvUrl);
 			return;
 		}
@@ -421,10 +425,11 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 				URI u = WebUtils.URI(csvUrl);
 				String fpath = u.getPath();
 				csv = FileUtils.read(new File(fpath));
-			} else { // fetch (TODO with some cache)
+			} else { // fetch
 				FakeBrowser fb = new FakeBrowser();
 				fb.setFollowRedirects(true);
 				csv = fb.getPage(csvUrl);
+				// NB: no name info provided 
 			}
 			// HACK Is it a JSend wrapper?
 			if (csvUrl.endsWith(".ms") || csvUrl.endsWith(".m$") || csvUrl.endsWith(".json")) {
@@ -441,7 +446,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 		}
 		// cache		
 		if (cacheDt!=null && cacheDt.getValue() > 0) {
-			csvCache.put(csvUrl, new Pair2(csv, fetched));
+			csvCache.put(csvUrl, new Trio(csv, name, fetched));
 		}
 		Log.d(LOGTAG, "fetched "+csvUrl);
 	}
@@ -526,6 +531,10 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 
 	public void setError(Exception ex) {
 		this.error = ex;
+	}
+
+	public static boolean isImported(Numerical v) {
+		return v.comment != null && v.comment.startsWith(IMPORT_MARKER_COMMENT);
 	}
 	
 }

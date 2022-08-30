@@ -119,7 +119,7 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 		// last absolute rule
 		for (Rule r : rs) {
 			// imports win
-			if (v != null && ImportCommand.IMPORT_MARKER_COMMENT.equals(v.comment)) {
+			if (v != null && ImportCommand.isImported(v)) {
 				continue;
 			}
 			// skip non calc rules
@@ -145,7 +145,7 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 			if (v != v2) {
 				// ?? How to spot when r is/isn't a modifier, and the earlier comment should be
 				// kept/discarded?
-				if (ImportCommand.IMPORT_MARKER_COMMENT.equals(v2.comment)) {
+				if (ImportCommand.isImported(v2)) {
 					// its an import, leave it alone
 				} else {
 					// combine comments
@@ -286,8 +286,7 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 				String newExcel = (oldSum.excel == null ? "" : oldSum.excel + " + ") + gs.cellRef(kid, col);
 				sum.excel = newExcel;
 			}
-			if (allImports && !ImportCommand.IMPORT_MARKER_COMMENT.equals(v.comment)
-					&& !(v.comment != null && v.comment.startsWith("imports"))) {
+			if (allImports && ! ImportCommand.isImported(v)) {
 				allImports = false;
 			}
 		}

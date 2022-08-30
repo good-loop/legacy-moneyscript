@@ -12,7 +12,7 @@ public class CompareCommand extends ImportCommand {
 	}
 
 	@Override
-	Numerical run2_setCellValue(Business b, double v, Cell cell) {
+	Numerical run2_setCellValue(Business b, double v, Cell cell, String srcRowNameIgnored) {
 		if (cell.row.getName().contains("DEBUGGrant")) {
 			System.out.println(cell);
 		}
