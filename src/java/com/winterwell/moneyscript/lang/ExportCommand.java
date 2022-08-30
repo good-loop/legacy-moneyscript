@@ -140,7 +140,9 @@ public class ExportCommand
 			Map<String, String> _gsheetForPlanSheetId = gsheetForPlanSheetId;
 			if (_gsheetForPlanSheetId==null) {
 				_gsheetForPlanSheetId = new ArrayMap();
-				for(PlanSheet planSheet : pd.getSheets()) _gsheetForPlanSheetId.put(planSheet.getId(), "by-order");
+				for(PlanSheet planSheet : pd.getSheets()) {
+					_gsheetForPlanSheetId.put(planSheet.getId(), "by-order");
+				}
 			}
 			// fill in sheet IDs
 			List<SheetProperties> sheetProps = sc.getSheetProperties(getSpreadsheetId());

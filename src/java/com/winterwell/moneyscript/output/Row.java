@@ -465,6 +465,9 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 		if (v.getDelta() != null) {
 			map.put("delta", v.getDelta());
 		}
+		if (b.isExportToGoogle) {
+			map.put("excel", v.excel);
+		}
 		return map;
 	}
 

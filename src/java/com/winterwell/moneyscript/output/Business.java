@@ -185,6 +185,7 @@ public final class Business {
 			if ( ! row.isOn()) {
 				continue;
 			}			
+			// The numbers
 			List<Map> rowvs = row.getValuesJSON(incYearTotals);			
 			datamap.put(row.name, rowvs);
 			String comment = StrUtils.joinWithSkip(". ", Containers.apply(row.getRules(), Rule::getComment));
@@ -215,8 +216,6 @@ public final class Business {
 		}
 		importMaps = im4src.values();
 		map.put("importCommands", importMaps);
-//		Collection<Map> exportMaps = Containers.apply(getExportCommands(), ExportCommand::toJson2);
-//		map.put("exportCommands", exportMaps);
 		
 		// scenarios
 		map.put("scenarios", getScenarios());

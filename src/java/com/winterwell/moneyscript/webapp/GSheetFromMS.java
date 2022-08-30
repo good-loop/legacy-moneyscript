@@ -185,15 +185,15 @@ public class GSheetFromMS {
 					rowvs.add(""); 
 					continue;
 				}
-//				if (ec.preferFormulae && ! Utils.isBlank(v.excel)) {
-//					// Avoid self-reference which would upset GSheets
-//					// NB: "A12" contains "A1"
+				if (ec.preferFormulae && cell.get("excel") != null) {
+					// Avoid self-reference which would upset GSheets
+					// NB: "A12" contains "A1"
 //					Pattern p = Pattern.compile("\\b"+cellRef(cell.row, cell.col)+"\\b");
 //					if ( ! p.matcher(v.excel).find()) {
-//						rowvs.add("="+v.excel); // a formula	
-//						continue;
-//					}
-//				}
+					Object excel = cell.get("excel");
+					rowvs.add("="+excel); // a formula	
+					continue;					
+				}
 				rowvs.add(v.doubleValue());							
 			} // ./cell
 			values.add(rowvs);
@@ -342,6 +342,7 @@ public class GSheetFromMS {
 	}
 
 	public String cellRef(Row row, Col col) {
+		String msref = row.getName()+":"+col.index; // TODO use this and deref it at export
 		int ki = spacedRows.indexOf(row)+2; // +1 for 0 index and +1 for the header row
 		return GSheetsClient.getBase26(col.index)+ki;
 	}

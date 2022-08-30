@@ -223,12 +223,15 @@ const EditScript = ({ id, plandoc, path }) => {
 
 	// on ctrl + click on a url, open that page
 	const ctrlClickLink = (e) => {
+		if ( ! e.cursor || ! e.session) return; // paranoia
 		let row = e.cursor.row
 		let col = e.cursor.column
 		let token = e.session.getTokenAt(row, col)
 		
 		// string.unquoted are only urls
-		if (token.type !== 'string.unquoted') return;
+		if (token?.type !== 'string.unquoted') {
+			return;
+		}
 		if (clickHandlerAdded) return;
 
 		// add and remove the handler, fixes weird bug that was due to the onSelectionChange
@@ -330,6 +333,7 @@ const ExportEditor = ({ path }) => {
 		<PropControl path={path} prop="colFreq" label="Columns" type="select"
 			options={["MONTHLY_AND_ANNUAL", "ONLY_MONTHLY", "ONLY_ANNUAL"]}
 			labels={["monthly and annual", "only monthly", "only annual"]} />
+		<PropControl path={path} prop="preferFormulae" label="(Experimental!) Formulae" type="checkbox" help="Export formulae instead of numbers where possible" />
 	</>);
 };
 
