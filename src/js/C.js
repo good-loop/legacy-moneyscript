@@ -11,6 +11,7 @@ export default C;
 C.app = {
 	name: "MoneyScript",
 	service: "moneyscript",
+	dataspace: "good-loop",
 	logo: "/img/gl-logo/LogoMark/logo.green.svg"
 };
 
