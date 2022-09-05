@@ -256,7 +256,7 @@ const EditScript = ({ id, plandoc, path }) => {
 				>
 					{tabId===i?
 						<div className='flex-row'>
-							<PropControl path={path.concat('sheets', tabId)} prop='title' className="mb-0" />
+							<PropControl path={path.concat('sheets', tabId)} prop='title' className="mb-0" warnOnUnpublished={false} />
 							<Button color="outline-danger" size="sm" className='ml-1' onClick={e => deleteSheet(tabId)} ><Icon name="trashcan" /></Button>
 						</div>
 						: (sheet.title || "Sheet "+(i+1))
