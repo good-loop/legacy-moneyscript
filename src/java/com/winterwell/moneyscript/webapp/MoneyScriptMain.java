@@ -2,6 +2,7 @@ package com.winterwell.moneyscript.webapp;
 
 import java.util.Map;
 
+import com.goodloop.data.KCurrency;
 import com.goodloop.gsheets.GSheetsClient;
 import com.winterwell.data.KStatus;
 import com.winterwell.datalog.DataLog;
@@ -11,6 +12,7 @@ import com.winterwell.gson.GsonBuilder;
 import com.winterwell.gson.KLoopPolicy;
 import com.winterwell.gson.StandardAdapters;
 import com.winterwell.moneyscript.data.PlanDoc;
+import com.winterwell.moneyscript.lang.num.CurrencyConvertor_USD2GBP;
 import com.winterwell.utils.AString;
 import com.winterwell.utils.Dep;
 import com.winterwell.utils.containers.ArrayMap;
@@ -70,5 +72,11 @@ public class MoneyScriptMain extends AMain<MoneyScriptConfig> {
 		AppUtils.initESMappings(KStatus.main(), dbclasses, mappingFromClass);		
 		// gsheet
 		Dep.set(GSheetsClient.class, new GSheetsClient());
+		
+		// HACK
+		if (config.currency == KCurrency.GBP) {
+			CurrencyConvertor_USD2GBP cc = new CurrencyConvertor_USD2GBP(new Time());
+			Dep.set(CurrencyConvertor_USD2GBP.class, cc);
+		}
 	}
 }

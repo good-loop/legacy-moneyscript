@@ -39,7 +39,7 @@ public class ExportCommandTest {
 		PlanSheet s2 = new PlanSheet("start: June 2020\nend: Dec 2021\n"
 				+ "Bob: 1 + previous");
 		Lang lang = new Lang();
-		Business biz = lang.parse(Arrays.asList(s1,s2));
+		Business biz = lang.parse(Arrays.asList(s1,s2), null);
 		biz.run();
 
 		

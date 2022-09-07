@@ -2,6 +2,7 @@ package com.winterwell.moneyscript.output;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -82,7 +83,7 @@ public final class Business {
 
 	List<Row> _rows = new ArrayList<Row>();
 
-	private transient HashMap<String,Row> _row4name;	
+	private transient HashMap<String,Row> _row4name = new HashMap();	
 	
 	public Business() {
 		setSettings(new Settings());		
@@ -384,12 +385,12 @@ public final class Business {
 
 	public Row getRow(String name) {
 		// NB: this showed as a minor bottleneck, Jan 2022
-		if (_row4name==null) {			
-			_row4name = new HashMap();
-			for(Row row : getRows()) {
-				_row4name.put(row.name, row);
-			}
-		}
+//		if (_row4name==null) {			
+//			_row4name = new HashMap();
+//			for(Row row : getRows()) {
+//				_row4name.put(row.name, row);
+//			}
+//		}
 		Row row = _row4name.get(name);
 		if (row != null) {
 			return row;
@@ -509,7 +510,7 @@ public final class Business {
 
 	public List<Row> getRows() {
 		// filter off rows here? No that's confusing
-		return _rows;
+		return Collections.unmodifiableList(_rows);
 	}
 	
 	/**

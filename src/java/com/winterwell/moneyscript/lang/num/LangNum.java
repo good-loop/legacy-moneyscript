@@ -11,7 +11,7 @@ import static com.winterwell.nlp.simpleparser.Parsers.regex;
 import static com.winterwell.nlp.simpleparser.Parsers.seq;
 import static com.winterwell.nlp.simpleparser.Parsers.space;
 import static com.winterwell.nlp.simpleparser.Parsers.word;
-
+import com.winterwell.datalog.server.CurrencyConvertor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +30,7 @@ import com.winterwell.nlp.simpleparser.PP;
 import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
+import com.winterwell.utils.Dep;
 import com.winterwell.utils.containers.Slice;
 import com.winterwell.utils.containers.Tree;
 
@@ -59,13 +60,32 @@ public class LangNum {
 	Parser<String> opAny = first(opTightBind, opMediumBind, opPlusBind).label("opAny");
 
 	
-	PP<Numerical> plainNumber = new PP<Numerical>(regex(Numerical.number.pattern())) {
-		protected Numerical process(ParseResult<?> r) {
-			return new Numerical(r.parsed());
-		}
-	}.label("123");
+	PP<Numerical> plainNumber = new PPPlainNumber().label("123");
 	
-	// no comma! plainNumber's regex grabs the , which breaks the parse for gaussian
+	static class PPPlainNumber extends PP<Numerical> {
+		
+		public PPPlainNumber() {
+			super(regex(Numerical.number.pattern()));
+		}
+
+		protected Numerical process(ParseResult<?> r) {
+			Numerical n = new Numerical(r.parsed());
+			// HACK: handle dollars if a convertor was set for that
+			if ("$".equals(n.getUnit())) {
+				CurrencyConvertor_USD2GBP cc = Dep.getWithDefault(CurrencyConvertor_USD2GBP.class, null);				
+				if (cc !=null) {
+					double v = n.doubleValue();
+					double v2 = cc.convertES(v);
+					Numerical n2 = new Numerical(v2);
+					n2.setUnit("£");
+					return n2;
+				}
+			}
+			return n;
+		}
+	};
+	
+	/** no comma! plainNumber's regex grabs the , which breaks the parse for gaussian */
 	PP<Numerical> plainNumber2 = new PP<Numerical>(regex("-?(£|$)?([0-9]+\\.?\\d*)(k|m|bn)?%?")) {
 		protected Numerical process(ParseResult<?> r) {
 			return new Numerical(r.parsed());

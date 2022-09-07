@@ -23,8 +23,10 @@ import com.winterwell.moneyscript.output.Row;
 import com.winterwell.nlp.simpleparser.GrammarPrinter;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
+import com.winterwell.utils.Dep;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.Printer;
+import com.winterwell.utils.time.Time;
 
 public class LangNumTest {
 
@@ -101,6 +103,25 @@ public class LangNumTest {
 		Numerical v = formula.calculate(cell);
 		Printer.out(v);
 		assert v.doubleValue() >= 4000 && v.doubleValue() <= 5000 : v;
+	}
+
+
+	
+	@Test
+	public void testCurrencies() {
+		Lang lang = new Lang();
+		LangNum.num.parseOut("10");
+		LangNum.num.parseOut("£5k");
+		// dollars to pounds
+		Dep.set(CurrencyConvertor_USD2GBP.class, new CurrencyConvertor_USD2GBP(new Time()));
+		Formula tenBucks = LangNum.num.parseOut("$10").getX();
+		System.out.println(tenBucks);
+		Cell cell = new Cell(null, null);
+		Numerical v = tenBucks.calculate(cell);
+		assert v.getUnit().equals("£");
+		assert v.doubleValue() < 9 : v;
+		
+		LangNum.num.parseOut("$5k");
 	}
 
 

@@ -302,12 +302,22 @@ public class Lang {
 	 * @throws ParseExceptions
 	 */
 	public Business parse(String script) throws ParseExceptions {
-		return parse(Arrays.asList(new PlanSheet(script)));
+		return parse(Arrays.asList(new PlanSheet(script)), null);
 	}
 	
-	public Business parse(List<PlanSheet> script) throws ParseExceptions {
+	/**
+	 * 
+	 * @param script
+	 * @param settings Can be null
+	 * @return
+	 * @throws ParseExceptions
+	 */
+	public Business parse(List<PlanSheet> script, Settings settings) throws ParseExceptions {
 		assert script != null;
 		Business b = new Business();
+		if (settings != null) {
+			b.setSettings(settings);
+		}
 		BusinessContext.setBusiness(b);
 		if (script.isEmpty()) {
 			return b;

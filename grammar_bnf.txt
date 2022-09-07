@@ -32,7 +32,7 @@
 
 <opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
 
-<num> ::= {<__iqiiel17e82e909fa>|<fPer>, <opAny>}+
+<num> ::= {<__numdhu1831840f3b2>|<fPer>, <opAny>}+
 
 <meta> ::= "hide"|"show"|"plot distribution"|"plot"|"off"
 
@@ -50,7 +50,7 @@
 
 <num> ::= {<fPer>|<fPer>, <opAny>}+
 
-<__iqiiel17e82e909fa> ::= "(" <fPer>|<__iqiiel17e82e909fa> ")"
+<__numdhu1831840f3b2> ::= "(" <fPer>|<__numdhu1831840f3b2> ")"
 
 <fPer> ::= <fPlus> ["\s+" "per" "\s+" <dt>]
 

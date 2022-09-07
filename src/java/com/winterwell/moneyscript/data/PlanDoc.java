@@ -10,6 +10,7 @@ import com.winterwell.es.ESNoIndex;
 import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.ImportCommand;
 import com.winterwell.moneyscript.lang.Lang;
+import com.winterwell.moneyscript.lang.Settings;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.containers.Containers;
@@ -24,6 +25,8 @@ public class PlanDoc extends AThing {
 	
 	@ESNoIndex 
 	public List errors;
+	
+	Settings settings;
 	
 	/**
 	 * 
@@ -50,7 +53,7 @@ public class PlanDoc extends AThing {
 	
 	public Business getBusiness() {
 		if (business==null) {
-			business = lang.parse(getSheets());	
+			business = lang.parse(getSheets(), null);	
 		}
 		return business;
 	}
@@ -95,6 +98,10 @@ public class PlanDoc extends AThing {
 	public void setText(String s) {
 		this.text = s;
 		business = null;
+	}
+
+	public Settings getSettings() {
+		return settings;
 	}
 
 }
