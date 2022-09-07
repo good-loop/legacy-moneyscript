@@ -100,7 +100,7 @@ public class LangTest {
 		
 		List<Row> rows = b.getRows();
 		String srows = Printer.str(rows);
-		assert srows.equals("Staff, Alice, Bob") : srows;
+		assert srows.equals("[Staff, Alice, Bob]") : srows;
 	}
 	
 	@Test

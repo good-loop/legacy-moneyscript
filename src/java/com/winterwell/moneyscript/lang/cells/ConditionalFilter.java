@@ -37,7 +37,9 @@ public class ConditionalFilter extends Filter {
 		}
 		if (LangTime.from.equals(op)) {
 			Cell start = getStart(cell.row, context);
-			if (start==null) return false;
+			if (start==null) {
+				return false;
+			}
 			return cell.col.index >= start.col.index;
 		}
 		if ("to".equals(op)) {
@@ -54,11 +56,11 @@ public class ConditionalFilter extends Filter {
 	 * @param b
 	 * @return first cell in this row that meets the condition
 	 */
-	private Cell getStart(Row row, Cell b) {
-		List<Col> cols = b.getBusiness().getColumns();
+	private Cell getStart(Row row, Cell context) {
+		List<Col> cols = context.getBusiness().getColumns();
 		for (Col col : cols) {
 			Cell cell = new Cell(row, col);
-			if (cond.contains(cell, b)) {
+			if (cond.contains(cell, context)) {
 				return cell;
 			}
 		}
@@ -100,6 +102,11 @@ public class ConditionalFilter extends Filter {
 		// TODO Auto-generated method stub
 		return super.filter(cells, context);
 	}
-	
 
+	@Override
+	public String toString() {
+		return "ConditionalFilter[cond=" + cond + ", op=" + op + "]";
+	}
+	
+	
 }

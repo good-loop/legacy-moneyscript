@@ -32,7 +32,7 @@
 
 <opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
 
-<num> ::= {<__numdhu1831840f3b2>|<fPer>, <opAny>}+
+<num> ::= {<__dfhwti1831920515d>|<fPer>, <opAny>}+
 
 <meta> ::= "hide"|"show"|"plot distribution"|"plot"|"off"
 
@@ -50,7 +50,7 @@
 
 <num> ::= {<fPer>|<fPer>, <opAny>}+
 
-<__numdhu1831840f3b2> ::= "(" <fPer>|<__numdhu1831840f3b2> ")"
+<__dfhwti1831920515d> ::= "(" <fPer>|<__dfhwti1831920515d> ")"
 
 <fPer> ::= <fPlus> ["\s+" "per" "\s+" <dt>]
 
@@ -130,7 +130,7 @@
 
 <123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
 
-<123> ::= "-?(£|$)?([0-9]+[0-9,]+[0-9]{3}|[0-9]+\.[0-9]+|[0-9]+)(k|m|bn)?%?"
+<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}|[0-9]+\.[0-9]+|[0-9]+)(k|m|bn)?%?"
 
 <cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter>
 
@@ -150,7 +150,7 @@
 
 <123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
 
-<123> ::= "-?(£|$)?([0-9]+[0-9,]+[0-9]{3}|[0-9]+\.[0-9]+|[0-9]+)(k|m|bn)?%?"
+<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}|[0-9]+\.[0-9]+|[0-9]+)(k|m|bn)?%?"
 
 <cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter>
 
@@ -178,7 +178,7 @@
 
 <123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
 
-<123> ::= "-?(£|$)?([0-9]+[0-9,]+[0-9]{3}|[0-9]+\.[0-9]+|[0-9]+)(k|m|bn)?%?"
+<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}|[0-9]+\.[0-9]+|[0-9]+)(k|m|bn)?%?"
 
 <cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter>
 
@@ -226,9 +226,9 @@
 
 <n> ::= "-?\d+(\.\d+)?"
 
-<time> ::= <__r235>|"start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)\b(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"
+<time> ::= <__r239>|"start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)\b(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"
 
-<__r235> ::= "(" "start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)\b(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"|<__r235> ")"
+<__r239> ::= "(" "start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)\b(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"|<__r239> ")"
 
 <of> ::= "of"
 

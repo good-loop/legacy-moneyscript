@@ -38,6 +38,46 @@ public class LangCellSetTest {
 		assert fcs.base.toString().equals("Staff");
 	}
 	
+	
+
+	@Test 
+	public void testCellSetFromConditional() {
+		Lang lang = new Lang();
+		Business b = lang.parse("A: 1\n"
+				+"A at month 2: 10\n"
+				+"Go from A > 2: 1");		
+		b.setColumns(4);
+		b.run();
+		Rule rule = b.getRow("Go").getRules().get(0);
+		FilteredCellSet filter = (FilteredCellSet) rule.getSelector();
+		Cell go3 = new Cell(b.getRow("Go"), new Col(3));
+		boolean in = filter.contains(go3, go3);
+		assert in;
+		List<Row> rows = b.getRows();
+		String csv = b.toCSV();
+		assert csv.contains("A, 1, 10, 1, 1");
+		assert csv.contains("Go, 0, 1, 1, 1") : csv;
+	}
+	
+	
+
+
+	@Test 
+	public void testCellSetFromConditionalIf() {
+		Lang lang = new Lang();
+		Business b = lang.parse("Staff:\n\tAlice: 2\n\tBob: 0\n"
+				+"Staff from month 3 if (this row at month 1) > 1: + 1");		
+		b.setColumns(4);
+		b.run();
+		Rule rule = b.getRow("Staff").getRules().get(0);		
+		Cell go3 = new Cell(b.getRow("Alice"), new Col(3));
+		List<Row> rows = b.getRows();
+		String csv = b.toCSV();
+		assert csv.contains("Alice, 2, 2, 3, 3") : csv;
+		assert csv.contains("Bob, 0, 0, 0, 0") : csv;
+	}
+	
+	
 	@Test public void testCellSetExcept() {
 		Lang lang = new Lang();
 		CellSet cs = LangCellSet.cellSet.parseOut("Staff except(Alice)").getX();

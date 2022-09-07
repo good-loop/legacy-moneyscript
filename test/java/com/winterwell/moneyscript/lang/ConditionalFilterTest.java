@@ -26,5 +26,11 @@ public class ConditionalFilterTest {
 		assert vs[4] == 100;
 		assert vs[5] == 100;
 	}
+	
+
+	@Test
+	public void testFrom() {
+		// TODO see LangCellSetTest.testCellSetFromConditional
+	}
 
 }
