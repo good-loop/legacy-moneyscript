@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.bool.LangBool;
+import com.winterwell.moneyscript.lang.cells.Filter.KDirn;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.lang.num.SimpleLangNum;
 import com.winterwell.moneyscript.lang.num.UnaryOp;
@@ -76,6 +77,39 @@ public class LangCellSetTest {
 		assert csv.contains("Alice, 2, 2, 3, 3") : csv;
 		assert csv.contains("Bob, 0, 0, 0, 0") : csv;
 	}
+
+	
+
+	@Test 
+	public void testCellSetIfScenario() {
+		Lang lang = new Lang();
+		{	// test with a dumb if
+			LangCellSet.cellSetFilter.parseOut("if 1 > 2");
+			Business b = lang.parse("Alice if 1 > 2: 2\n");		
+			b.setColumns(4);
+			b.run();
+			String csv = b.toCSV();
+			assert csv.contains("Alice, 0, 0, 0, 0") : csv;
+		}
+		{
+			LangCellSet.cellSetFilter.parseOut("if A > 0");
+			Business b = lang.parse("scenario A:\n\nAlice if A > 0: 2\n");		
+			b.setColumns(4);
+			b.setScenarios(Arrays.asList("A"));
+			b.run();
+			String csv = b.toCSV();
+			assert csv.contains("Alice, 2, 2, 2, 2") : csv;
+		}
+		{
+			Business b = lang.parse("scenario A:\n\nAlice if A > 0: 2\n");		
+			b.setColumns(4);
+			b.run();
+			String csv = b.toCSV();
+			assert csv.contains("Alice, 0, 0, 0, 0") : csv;
+		}
+	}
+	
+
 	
 	
 	@Test public void testCellSetExcept() {
@@ -282,7 +316,7 @@ public class LangCellSetTest {
 			CellSet cells = pr.getX();		
 		}
 		{
-			Business b = lang.parse("Invest at month 1:100");
+			Business b = lang.parse("Invest at month 1: 100");
 			Row row = b.getRow("Invest");
 			b.run();
 			double[] vs = row.getValues();
@@ -290,6 +324,9 @@ public class LangCellSetTest {
 			assert vs[1] == 0;
 			assert vs[2] == 0;
 			assert row != null;
+			Rule rule = row.getRules().get(0);
+			FilteredCellSet fcs =  (FilteredCellSet) rule.getSelector();
+			assert fcs.filter.op.equals("at") && fcs.filter.dirn == KDirn.HERE : fcs; // test for `at` 
 		}
 	}
 	

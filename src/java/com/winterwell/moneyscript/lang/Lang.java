@@ -350,8 +350,9 @@ public class Lang {
 			// make rows + group
 			parse3_addRulesAndGroupRows(b, planSheet, groupStack, rules);
 				
+			// check dupes ...and also converts RowName to ScenarioName
 			List<ParseFail> dupes = parse5_checkDuplicates(b);
-			errors.addAll(dupes);						
+			errors.addAll(dupes);									
 		}
 		
 		// check rule refs at the whole-plan level (not per sheet)
@@ -388,6 +389,7 @@ public class Lang {
 				continue;
 			}
 			CellSet cellset = r.getSelector();
+			
 			// NB: overlaps between scenarios are fine
 			String cs = r.getScenario()+cellset.toString(); //XStreamUtils.serialiseToXml(cellset);
 			if ( ! cellsets.isDuplicate(cs)) {
@@ -584,7 +586,7 @@ public class Lang {
 				Settings s3 = settings2.merge(b.getSettings());
 				b.setSettings(s3);
 			}			
-		}
+		}		
 		return rules;
 	}
 

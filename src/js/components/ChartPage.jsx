@@ -84,10 +84,20 @@ const ChartSettings = ({plandoc, chartPath, rowNames}) => {
 const ChartLineEditor = ({item, rowNames, path}) => {
 	return <div className='row'>
 		<PropControl className="col" label="Row" prop="rowName" type="select" options={rowNames} path={path} warnOnUnpublished={false} />
-		<PropControl className="col" label="Colour" prop="color" type="color" path={path} warnOnUnpublished={false} />
+		<PropControl className="col" label="Colour" prop="color" type="color" path={path} warnOnUnpublished={false} dflt={randomColor()} />
 	</div>;
 };
 
+/**
+ * @returns "#ab12f3" or something
+ */
+const randomColor = () => {
+	return '#'+convertToHex(Math.random()*255)+convertToHex(Math.random()*255)+convertToHex(Math.random()*255);
+};
+function convertToHex(integer) {
+    var str = Number(Math.round(integer)).toString(16);
+    return str.length == 1 ? "0" + str : str;
+};
 
 const ScenariosOnOff = ({scenarioMap, scenarioTexts}) => {
 	if ( ! scenarioMap) return null;

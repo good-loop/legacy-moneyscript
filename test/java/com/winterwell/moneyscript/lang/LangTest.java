@@ -344,6 +344,46 @@ public class LangTest {
 		}		
 	}
 	
+	
+
+	@Test
+	public void testScenarioAsFilter() {
+		Lang lang = new Lang();
+		ParseResult<Rule> sa = lang.groupRow.parseOut("scenario A:");
+		GroupRule gr = (GroupRule) sa.getX();
+		assert gr.getScenario().equiv("A") : gr.getScenario();
+		{	// scenario off
+			Business b = lang.parse(
+					"start: Jan 2020\nAlice if B == 0: £1\n" +
+					"scenario B:\n" +
+					"\tBob: £2");
+			b.run();
+			Row alice = b.getRow("Alice");
+			Row bob = b.getRow("Bob");
+			Rule br = bob.getRules().get(0);
+			String csv = b.toCSV();
+			System.out.println(csv);
+			assert csv.contains("Alice, £1, £1");
+			assert csv.contains("Bob, 0, 0");
+		}
+		{	// scenario on
+			Business b = lang.parse(
+					"start: Jan 2020\nAlice if B == 0: £1\n" +
+					"scenario B:\n" +
+					"\tBob: £2");
+			b.setScenarios(Arrays.asList(new Scenario("B")));
+			b.run();
+			Row alice = b.getRow("Alice");
+			Row bob = b.getRow("Bob");
+			Rule br = bob.getRules().get(0);
+			String csv = b.toCSV();
+			System.out.println(csv);
+			assert csv.contains("Alice, 0, 0");
+			assert csv.contains("Bob, £2, £2");
+		}
+	}
+	
+	
 	public void testGroupRuleSum_Known_BAD() {
 		Lang lang = new Lang();
 		{

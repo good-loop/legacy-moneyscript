@@ -208,5 +208,13 @@ public class Rule implements IReset {
 		this.unit = unit;
 	}
 
+	/**
+	 * e.g. "+ 10%"
+	 * @return
+	 */
+	public boolean isStacked() {
+		return formula !=null && formula.isStacked();
+	}
+
 
 }

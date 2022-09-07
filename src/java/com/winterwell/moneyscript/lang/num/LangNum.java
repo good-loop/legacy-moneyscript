@@ -57,6 +57,9 @@ public class LangNum {
 	Parser<String> opTightBind = seq(optSpace,lit("+-", "±", "^"), optSpace);
 	Parser<String> opMediumBind = seq(optSpace,lit("*", "/", "@"), optSpace);
 	Parser<String> opPlusBind = seq(optSpace,lit("+", "-"), optSpace);	
+	/**
+	 * e.g. +
+	 */
 	Parser<String> opAny = first(opTightBind, opMediumBind, opPlusBind).label("opAny");
 
 	
@@ -136,7 +139,7 @@ public class LangNum {
 			).label("mathFnNameUnary");
 
 
-	/** if then else formulae */		
+	/** TODO if then else formulae */		
 	Parser<Formula> conditionalFormula = new PP<Formula>(
 			seq(lit("if").label(null), space, LangBool.bool, space, 
 				lit("then").label(null), space, num,

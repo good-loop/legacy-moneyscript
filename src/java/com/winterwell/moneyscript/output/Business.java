@@ -385,12 +385,6 @@ public final class Business {
 
 	public Row getRow(String name) {
 		// NB: this showed as a minor bottleneck, Jan 2022
-//		if (_row4name==null) {			
-//			_row4name = new HashMap();
-//			for(Row row : getRows()) {
-//				_row4name.put(row.name, row);
-//			}
-//		}
 		Row row = _row4name.get(name);
 		if (row != null) {
 			return row;
@@ -728,7 +722,7 @@ public final class Business {
 		return crules;
 	}
 
-	public static Business get() {
+	public static final Business get() {
 		return BusinessContext.getBusiness();
 	}
 
@@ -857,6 +851,14 @@ public final class Business {
 			bscs.put(scenario, true);
 		}
 		setScenarios(bscs);
+	}
+
+	public Scenario getScenario(String rn) {
+		Set<Scenario> sc = getScenarios().keySet();
+		for (Scenario scenario : sc) {
+			if (rn.equals(scenario.name)) return scenario;
+		}
+		return null;
 	}
 	
 }
