@@ -182,7 +182,8 @@ const HelpLink = () => {
 	let helpText = "";
 	if (open) {
 		let pvHelpText = DataStore.fetch(["misc", "help"], () => {
-			return ServerIO.load("/help.md");
+			// TODO offer other help pages? an index?
+			return ServerIO.load("/doc/examples.md");
 		});
 		helpText = pvHelpText.value || "...";
 	}
