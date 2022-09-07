@@ -32,24 +32,24 @@ public class Comparison extends Condition {
 	}
 
 	@Override
-	public boolean contains(Cell cell, Cell b) {
+	public boolean contains(Cell cell, Cell context) {
 		// HACK
 		if ("in".equals(op)) {
 			Set<String> lnames; 
 			// fugly HACK
 			if  (lhs instanceof BasicFormula && ((BasicFormula) lhs).getCellSetSelector() instanceof CurrentRow) {
 				lnames = Collections.singleton(cell.row.getName());
-			} else lnames = lhs.getRowNames(b); 
-			Set<String> names = rhs.getRowNames(b);
+			} else lnames = lhs.getRowNames(context); 
+			Set<String> names = rhs.getRowNames(context);
 			for (String lname : lnames) {
 				if ( ! names.contains(lname)) return false;
 			}
 			return true;
 		}
 		
-		Numerical l = lhs.calculate(b);
+		Numerical l = lhs.calculate(cell); // NB: changed from `context` to `cell` Sept 2022 (a bugfix I think)
 		if (l==null) l = Numerical.NULL;
-		Numerical r = rhs.calculate(b);
+		Numerical r = rhs.calculate(cell);
 		if (r==null) r = Numerical.NULL; 			
 		if (l instanceof UncertainNumerical || r instanceof UncertainNumerical) {
 			if (l==Business.EVALUATING || r==Business.EVALUATING) {

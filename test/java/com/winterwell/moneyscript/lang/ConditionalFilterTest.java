@@ -8,6 +8,8 @@ import com.winterwell.utils.Printer;
 
 public class ConditionalFilterTest {
 
+	
+	
 	@Test
 	public void testContains() {
 		Lang lang = new Lang();
@@ -25,6 +27,12 @@ public class ConditionalFilterTest {
 		assert vs[3] == 100;
 		assert vs[4] == 100;
 		assert vs[5] == 100;
+	}
+	
+
+	@Test
+	public void testFrom() {
+		// TODO see LangCellSetTest.testCellSetFromConditional
 	}
 
 }

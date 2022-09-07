@@ -33,7 +33,7 @@ public class BusinessTest {
 		List<PlanSheet> sheets = new ArrayList();
 		sheets.add(new PlanSheet("Alice: 1"));
 		sheets.add(new PlanSheet("Bob: 2"));
-		Business b = lang.parse(sheets);		
+		Business b = lang.parse(sheets, null);		
 	}
 	
 	@Test

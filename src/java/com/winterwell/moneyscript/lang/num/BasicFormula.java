@@ -6,6 +6,8 @@ import java.util.Set;
 
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.CurrentRow;
+import com.winterwell.moneyscript.lang.cells.RowName;
+import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Containers;
@@ -51,9 +53,22 @@ public class BasicFormula extends Formula {
 		assert Utils.isBlank(op) : op;
 //		assert b != null;
 		if (num!=null) return sample(num);
-				
+		// HACK: a scenario?
+		if (sel instanceof RowName) {
+			Scenario s = new Scenario(((RowName) sel).getRowName());
+			Boolean onOff = b.getBusiness().getScenarios().get(s);
+			if (onOff != null) {
+				if (onOff) {
+					return new Numerical(1);					
+				}
+				return new Numerical(0);
+			}			
+		}
+		// get first cell of the set
 		Collection<Cell> cell2 = sel.getCells(b, false);
-		if (cell2==null || cell2.isEmpty()) return null;
+		if (cell2==null || cell2.isEmpty()) {
+			return null;
+		}
 		assert cell2.size() == 1 : sel+" "+cell2;
 		Cell cell = Containers.first(cell2);
 //		// special case: group rows <- nah just eval - handled in Business

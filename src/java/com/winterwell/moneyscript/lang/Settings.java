@@ -2,6 +2,7 @@ package com.winterwell.moneyscript.lang;
 
 import java.lang.reflect.Field;
 
+import com.goodloop.data.KCurrency;
 import com.winterwell.maths.timeseries.TimeSlicer;
 import com.winterwell.utils.ReflectionUtils;
 import com.winterwell.utils.Utils;
@@ -28,6 +29,11 @@ public final class Settings {
 	 * Is this ever used??
 	 */
 	public boolean fuzzyNames;
+	
+	/**
+	 * TODO use to switch $ handling on/off
+	 */
+	KCurrency currency;
 	
 	public void setSamples(int samples) {
 		this.samples = samples;

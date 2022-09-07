@@ -248,7 +248,7 @@ const makeDataTree = ({ runOutput, sheetId}) => {
 		}
 		// NB: rowData is an array but js will let us treat it like an object
 		let rowData = dataForRow[rowName];
-		rowData.testooo = "beans"
+		// rowData.testooo = "beans"
 		rowData.row = rowName;
 		rowData.id = rowName; // needs and id for collapse to work
 		// rowData.style = {};

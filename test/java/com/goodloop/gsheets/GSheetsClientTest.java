@@ -32,6 +32,27 @@ public class GSheetsClientTest {
         assert s != null;
 
 	}
+
+
+	/**
+	 * 
+ Odd bug Sep 2022: This code would work from the moneyscript project -- but the same code 
+ (using the same logins/moneyscript app credentials file)
+ would throw a 403 error when run from the calstat project.
+	 * @throws Exception
+	 */
+	@Test
+	public void testClearSheet() throws Exception {        
+        final String spreadsheetId = "1aQMJI6Plui9TdHeWWCGaoJfnoZB1IbOVu6LDyKrogBI";        
+        GSheetsClient sq = new GSheetsClient();
+        Spreadsheet s = sq.getSheet(spreadsheetId);
+        System.out.println(s);
+        
+        sq.clearSpreadsheet(spreadsheetId);
+        
+        Spreadsheet s2 = sq.getSheet(spreadsheetId);
+        System.out.println(s2);
+	}
 	
 
 	@Test

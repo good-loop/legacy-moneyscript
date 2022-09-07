@@ -68,18 +68,23 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 		return name;
 	}
 
+	/**
+	 * rule ordering: ??
+	 * @return
+	 */
 	public List<Rule> getRules() {
-		if (parent != null) {
-			ArrayList<Rule> rules2 = new ArrayList<Rule>(rules);
-			List<Rule> rs = parent.getRules();
-			for (Rule rule : rs) {
-				if (rule instanceof GroupRule)
-					continue;
-				rules2.add(rule);
-			}
-			return rules2;
+		if (parent == null) {
+			return rules;
 		}
-		return rules;
+		// copy this rows rules and add in the parent rules
+		ArrayList<Rule> rules2 = new ArrayList<Rule>(rules);
+		List<Rule> rs = parent.getRules();
+		for (Rule rule : rs) {
+			if (rule instanceof GroupRule)
+				continue;
+			rules2.add(rule);
+		}
+		return rules2;	
 	}
 
 	final List<Rule> rules = new ArrayList<Rule>();
@@ -100,7 +105,7 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 	 * @return value or null for a group cell
 	 */
 	public Numerical calculate(Col col, Business b) {
-		if (("" + getName() + " " + this).toLowerCase().contains("arim")) { // debug!
+		if (("" + getName() + " " + this).toLowerCase().contains("gross marketing spend")) { // debug!
 			System.out.println(this);
 		}
 		Cell cell = new Cell(this, col);
@@ -351,20 +356,40 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 	}
 
 	/**
-	 * sort rules: rules with a filter beat those without, regardless of definition
-	 * order. Otherwise it's last-in wins
+	 * sort rules: Last is better.
+	 * 
+	 *  - TODO?? `at` rules go last
+	 *  - Then stackable modifier rules like "+ 10%"
+	 *  - Then rules with a filter beat those without (i.e. go later)
+
+		This is regardless of when the rule is defined in the script.
+	 * 	  
+	 * 	Otherwise it's last-in wins.
 	 * 
 	 * @param _rules
 	 */
 	private void sortRules(List<? extends Rule> _rules) {
+//		if (getName().contains("Gross Mark")) { // debug
+//			System.out.println(_rules);
+//		}
 		Collections.sort(_rules, new Comparator<Rule>() {
 			@Override
 			public int compare(Rule a, Rule b) {
+				// at rules win??
+//				if (a.getSelector()) see testAtMonth()
+				// modifier rules go last so they can stack
+				boolean aIsMod = a.isStacked();
+				boolean bIsMod = b.isStacked();
+				if (aIsMod || bIsMod) {
+					return Boolean.compare(aIsMod, bIsMod);
+				}
+				// filter rules go later so they can take over
 				CellSet as = a.getSelector();
 				CellSet bs = b.getSelector();
 				return as.compareTo(bs);
 			}
 		});
+//		System.out.println(_rules);
 	}
 
 	public List<MetaRule> getMetaRules() {

@@ -1,5 +1,7 @@
 package com.winterwell.moneyscript.lang.cells;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 import com.winterwell.moneyscript.lang.Lang;
@@ -19,7 +21,20 @@ import com.winterwell.nlp.simpleparser.Ref;
  *
  */
 public class LangFilterTest {
+	
 
+
+	@Test 
+	public void testCellSetIf() {
+		Lang lang = new Lang();
+		lang.langFilter.conditionalFilter.parseOut("if 1 > 2");
+		lang.langFilter.conditionalFilter.parseOut("if Bob > 2");
+		lang.langFilter.conditionalFilter.parseOut("if B > 0");
+//		lang.langFilter.conditionalFilter.parseOut("if B"); // cant parse
+	}
+	
+
+	
 	@Test public void testAbove() {
 		Parser.DEBUG = true;
 		LangFilter lf = new LangFilter();

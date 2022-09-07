@@ -82,10 +82,15 @@ public final class RowName extends CellSet {
 	 * then RowName("A").getCells(context: {row:B, col:1}) = {row:A, col:1}
 	 * 
 	 *  Use-case: e.g. formulae like "B: 2 * A"
+	 *  @return HACK: null if the row-name is invalid
 	 */
 	@Override
 	public Collection<Cell> getCells(Cell bc, boolean wide) {
 		Row row = getRow(bc);
+		if (row==null) {
+			// HACK 
+			return null;			
+		}
 		assert row != null : rowName+" in "+bc;
 		if (wide) {
 			return row.getCells();

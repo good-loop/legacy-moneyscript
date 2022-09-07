@@ -39,9 +39,10 @@ public class MoneyServlet implements IServlet {
 	
 	@Override
 	public void process(WebRequest state) throws Exception {
-		List<PlanSheet> sheets = getSheets(state);
+		PlanDoc planDoc = getPlanDoc(state);
+		List<PlanSheet> sheets = planDoc.getSheets();
 		try {			
-			Business biz = lang.parse(sheets);
+			Business biz = lang.parse(sheets, planDoc.getSettings());
 			
 			// scenarios?
 			List<Scenario> scs = state.get(SCENARIOS);
@@ -77,18 +78,18 @@ public class MoneyServlet implements IServlet {
 		}
 	}
 
-	private List<PlanSheet> getSheets(WebRequest state) {
+	private PlanDoc getPlanDoc(WebRequest state) {
 		PlanDoc _plandoc = new PlanDocServlet().getThing(state);
 		if (_plandoc != null) {
-			List<PlanSheet> sheets = _plandoc.getSheets();
-			return sheets;
+			return _plandoc;
 		}
 		String text = state.get("text");
 		if (text==null) {
 			throw new MissingFieldException(AppUtils.ITEM);
 		}
-		PlanSheet sheet = new PlanSheet(text);
-		return Arrays.asList(sheet);
+		_plandoc = new PlanDoc();
+		_plandoc.setText(text);
+		return _plandoc;
 	}
 
 	private void processFail(List<ParseFail> pfs, WebRequest state) {

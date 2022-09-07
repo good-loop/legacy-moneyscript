@@ -54,7 +54,7 @@ public class PayRiseExampleTest {
 		Printer.out(pay.getValues());
 		List<Row> rows = b.getRows();
 		String srows = Printer.str(rows);
-		assert srows.equals("Staff, Alice, Bob") : srows;
+		assert srows.equals("[Staff, Alice, Bob]") : srows;
 		assert alicePay.equals("1000, 1000, 1500, 1500, 1500, 1500");
 		assert bobPay.equals("1000, 1000, 1100, 1100, 1100, 1100");
 	}

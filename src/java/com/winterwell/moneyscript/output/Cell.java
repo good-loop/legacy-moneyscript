@@ -57,7 +57,7 @@ public final class Cell {
 		return true;
 	}
 
-	public static Business getBusiness() {
+	public final static Business getBusiness() {
 		return Business.get();
 	}
 

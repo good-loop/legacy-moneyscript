@@ -25,8 +25,26 @@ public class NumericalTest {
 		assert Numerical.number.matcher("20,000,500").matches();
 		assert ! Numerical.number.matcher("1,0").matches();		
 		assert ! Numerical.number.matcher(",").matches();
-		assert ! Numerical.number.matcher("1,").matches();		
+		assert ! Numerical.number.matcher("1,").matches();
 	}
+	
+
+	@Test
+	public void testPatternCurrency() {
+		assert Numerical.number.matcher("12").matches();
+		assert Numerical.number.matcher("£12").matches();
+		assert Numerical.number.matcher("$12").matches();
+	}
+	
+
+	@Test
+	public void testCurrency() {
+		Numerical tenBucks = new Numerical("$10");
+		Numerical tenQuid = new Numerical("£10");
+		assert tenQuid.getUnit().equals("£");
+		assert tenBucks.getUnit().equals("$");
+	}
+	
 	
 	@Test
 	public void testToString() {		
