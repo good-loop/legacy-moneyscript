@@ -27,6 +27,7 @@ import deepCopy from '../base/utils/deepCopy';
 import KStatus from '../base/data/KStatus';
 import SavePublishDeleteEtc from '../base/components/SavePublishDeleteEtc';
 import { assert } from '../base/utils/assert';
+import Tree from '../base/data/Tree';
 
 class ChartLine {
 	rowName;
@@ -53,13 +54,16 @@ const ChartChunk = ({id, plandoc, rows, scenarios }) => {
 	let chartPath = getDataPath({status:KStatus.DRAFT, id, type:C.TYPES.PlanDoc}).concat("charts", 0);
 	let chartSetup = DataStore.setValueIfAbsent(chartPath, new ChartSetup());
 
+	let rowNames = rows.map(el => el.name);
+	rowNames.sort(); // A-Z
+
 	return (
 		<Row className="chart-set">
 				<Col md={4}>
 					<ChartSettings
 						plandoc={plandoc}
 						chartPath={chartPath}
-						rowNames={rows.map((el) => el.name)}
+						rowNames={rowNames}
 					/>
 				</Col>
 				<Col md={8}><ChartVisuals chartSetup={chartSetup} data={data} /></Col>
@@ -157,7 +161,7 @@ const ChartPage = () => {
 	}
 
 	let _scenarios = DataStore.getUrlValue("scenarios");
-	console.log(_scenarios, "scenarios")
+	// console.log(_scenarios, "scenarios")
 
 	let scenariosOn = _.isString(_scenarios)? _scenarios.split(",") : _scenarios; // NB: string if fresh from url, array if modified by PropControl
 
@@ -173,8 +177,17 @@ const ChartPage = () => {
 		return <Alert>{runOutput.errors.map(e => <div key={JSON.stringify(e)}>{JSON.stringify(e)}</div>)}</Alert>;
 	}
 	let rows = runOutput.rows || [];
+	// // HACK just the top rows??
+	// let rtree = runOutput?.parse?.rowtree;
+	// const prunedTree = rtree && Tree.filter(rtree, (n,p,depth) => depth < 3);
+	// console.log(prunedTree);
+	// if (prunedTree) {
+	// 	const rowNames = Tree.flatten(prunedTree).map(n => n.value);
+	// 	console.log("pruned rows", rowNames, "rows", rows);
+	// 	rows = rowNames;
+	// }	
 
-	let scenarioMap = pvrun.value && pvrun.value.scenarios;
+	let scenarioMap = runOutput?.scenarios;
 
 	
 	return (

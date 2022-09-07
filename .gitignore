@@ -19,3 +19,4 @@ pom.bob.xml
 /bin/
 config/version.properties
 com.winterwell.moneyscript.output.SpeedTest.log
+data

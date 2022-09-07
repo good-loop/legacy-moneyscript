@@ -29,6 +29,7 @@ import KStatus from '../base/data/KStatus';
 import PropControlList from '../base/components/PropControlList';
 import { Tabs, Tab } from '../base/components/Tabs';
 import PlanDoc from '../data/PlanDoc';
+import MDText from '../base/components/MDText';
 const dummy = PropControlList;
 
 /**
@@ -109,6 +110,7 @@ const RightSide = ({plandoc}) => {
 	<GSheetLink item={item} />
 	<GitHubLink item={item} />
 	<DownloadTextLink text={PlanDoc.text(item)} filename={item.name + ".txt"} />
+	<HelpLink />
 	<BSCard className="mt-2" style={{ maxWidth: "300px" }}>
 		<h3>Imports</h3>
 		<ImportsList cargo={item} />
@@ -171,6 +173,38 @@ const DownloadTextLink = ({ text, filename }) => {
 		<a title="Download .txt" className="btn btn-light btn-sm ml-1 mr-1" href={'data:text/csv;charset=utf-8,' + encURI(text)} download={(filename || 'business-plan') + '.txt'}>
 			<Icon name='.txt' />
 		</a>);
+};
+
+
+
+const HelpLink = () => {
+	let [open, setOpen] = useState();
+	let helpText = "";
+	if (open) {
+		let pvHelpText = DataStore.fetch(["misc", "help"], () => {
+			return ServerIO.load("/help.md");
+		});
+		helpText = pvHelpText.value || "...";
+	}
+	return (<>
+		<Button title="Help" className="btn btn-light btn-sm ml-1 mr-1" onClick={e => stopEvent(e) && setOpen(true)}>
+			<Icon name='help' />
+		</Button>
+		<Modal
+				isOpen={open}
+				className="help-modal"
+				toggle={() => setOpen( ! open)}
+				size="lg"
+			>
+				<ModalHeader toggle={() => setOpen( ! open)}>
+					Help
+				</ModalHeader>
+				<ModalBody>
+					<MDText source={helpText} />
+				</ModalBody>
+			</Modal>
+		</>		
+		);
 };
 
 /**
