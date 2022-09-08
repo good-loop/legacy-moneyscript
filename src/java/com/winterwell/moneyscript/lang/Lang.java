@@ -625,6 +625,13 @@ public class Lang {
 			String n2 = parse4_checkReferences2_stripNameDown(name);			
 			similarNames.put(n2,name);
 		}
+		// also include scenarios
+		for(Scenario r : b.getScenarios().keySet()) {
+			String name = r.toString();
+			names.add(name);
+			String n2 = parse4_checkReferences2_stripNameDown(name);			
+			similarNames.put(n2,name);
+		}
 		
 		Set<Rule> rules = b.getAllRules();		
 		for (Rule r : rules) {
@@ -661,6 +668,7 @@ public class Lang {
 					pf.setSheetId(r.sheetId);
 					unref.add(pf);
 				}
+				// ?? should we mark scenario vs rule as a boolean flag in formula, for an efficiency boost later?? 
 			}
 		}
 		return unref;
