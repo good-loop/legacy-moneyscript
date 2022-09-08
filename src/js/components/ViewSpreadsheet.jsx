@@ -99,7 +99,13 @@ const renderCell = (v, column, item) => {
 	let vs = (colv && colv.str) || v || '';
 	vs = vs.replace('-', '‑'); // str value for display, then replace - with a non-breaking hyphen (which looks the same here, but it is different)	
 	if (colv && colv.delta) {
-		return <div>{vs} <span className='small text-info'>delta: {prettyNumber(colv.delta, 3)}</span></div>;
+		try {
+			if (Math.abs(colv.delta / v) > 0.1) { // ignore under 10% difference
+				return <div>{vs} <span className='small text-info'>delta: {prettyNumber(colv.delta, 3)}</span></div>;
+			}
+		} catch(err) { //paranoia
+			console.error("(swallow) delta caused maths error", v, colv, column, item, err);
+		}
 	}
 	// HACK show % change
 	if (colv && colv.dv) {
