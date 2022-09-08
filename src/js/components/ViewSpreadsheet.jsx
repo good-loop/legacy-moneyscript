@@ -100,7 +100,7 @@ const renderCell = (v, column, item) => {
 	vs = vs.replace('-', '‑'); // str value for display, then replace - with a non-breaking hyphen (which looks the same here, but it is different)	
 	if (colv && colv.delta) {
 		try {			
-			let deltaPercent = colv.delta / v
+			let deltaPercent = 1 - (v / (v - colv.delta));
 			if (Math.abs(deltaPercent) > 0.1) { // ignore under 10% difference
 				return <div>{vs} <span className='small text-info'>delta: {prettyNumber(100*deltaPercent, 2)}%</span></div>;
 			}
