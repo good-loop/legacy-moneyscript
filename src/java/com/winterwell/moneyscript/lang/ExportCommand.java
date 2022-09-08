@@ -157,23 +157,34 @@ public class ExportCommand
 					}
 				}
 			}
+			boolean fail = false;
 			for(PlanSheet planSheet : pd.getSheets()) {
-				String shid = _gsheetForPlanSheetId.get(planSheet.getId());
-				if ("skip".equals(shid)) {
-					continue;
+				GSheetFromMS ms2gs;
+				try {
+					String shid = _gsheetForPlanSheetId.get(planSheet.getId());
+					if ("skip".equals(shid)) {
+						continue;
+					}
+					sc.setSheet(shid==null? null : Integer.parseInt(shid));
+					ms2gs = new GSheetFromMS(sc, this, biz);
+					ms2gs.setIncYearTotals(colFreq==KColFreq.MONTHLY_AND_ANNUAL);
+					ms2gs.setPlanSheet(planSheet);
+					ms2gs.doExportToGoogle();
+				} catch(Exception ex) {
+					error = ex;
+					Log.e(LOGTAG, ex);
+					fail = true;
 				}
-				sc.setSheet(shid==null? null : Integer.parseInt(shid));
-				GSheetFromMS ms2gs = new GSheetFromMS(sc, this, biz);
-				ms2gs.setIncYearTotals(colFreq==KColFreq.MONTHLY_AND_ANNUAL);
-				ms2gs.setPlanSheet(planSheet);
-				ms2gs.doExportToGoogle();
+			}			
+			if (fail) {
+				throw error;
 			}
-			// success
+			// success			
 			error = null;
 			lastGoodRun = time;
 		} catch (Throwable ex) {
 			error = ex;
-			Log.e(LOGTAG, ex);
+//			Log.e(LOGTAG, ("repeat log")ex);
 			throw Utils.runtime(ex);
 		}
 	}

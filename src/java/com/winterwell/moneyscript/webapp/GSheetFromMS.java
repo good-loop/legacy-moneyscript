@@ -92,7 +92,7 @@ public class GSheetFromMS {
 			sc.clearSpreadsheet(ec.spreadsheetId);
 		}
 		
-		// update
+		// update!
 		sc.updateValues(ec.spreadsheetId, values);
 		
 		// actuals in blue
