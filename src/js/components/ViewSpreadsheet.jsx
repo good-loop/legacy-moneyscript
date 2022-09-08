@@ -102,7 +102,7 @@ const renderCell = (v, column, item) => {
 		try {			
 			let deltaPercent = (v / (v - colv.delta)) - 1;
 			if (Math.abs(deltaPercent) > 0.1) { // ignore under 10% difference
-				return <div>{vs} <span className='small text-info' title={prettyNumber(v-colv.delta, 3)}>delta: {prettyNumber(100*deltaPercent, 2)}%</span></div>;
+				return <div>{vs} <span className='small text-info' title={prettyNumber(v-colv.delta, 3)}>{prettyNumber(100*deltaPercent, 2)}%</span></div>;
 			}
 		} catch(err) { //paranoia
 			console.error("(swallow) delta caused maths error", v, colv, column, item, err);
