@@ -574,7 +574,7 @@ public class Lang {
 			rule.lineNum = ln;
 			rule.sheetId = planSheet.getId();
 			rules.add(rule);
-
+			
 			// HACK: Process import of m$
 			if (rule instanceof ImportCommand && rule.src.endsWith("ms") || rule.src.endsWith("ms")) {
 				ImportCommand ic = (ImportCommand) rule;
@@ -668,6 +668,7 @@ public class Lang {
 					pf.setSheetId(r.sheetId);
 					unref.add(pf);
 				}
+				// ?? should we Rule setScenario for fast filtering? But what about "if not Scenario X" Need to create -ive scenarios
 				// ?? should we mark scenario vs rule as a boolean flag in formula, for an efficiency boost later?? 
 			}
 		}
