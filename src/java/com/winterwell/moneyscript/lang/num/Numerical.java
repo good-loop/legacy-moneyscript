@@ -116,8 +116,14 @@ public class Numerical extends Number implements IScalarArithmetic {
 	 * @param value If a Numerical, then copy value and unit but not comment, excel, or delta
 	 */
 	public Numerical(Number value) {
-		this(value.doubleValue(), 
-			value instanceof Numerical? ((Numerical) value).unit : null); // ugly - pass down the unit
+		this(value.doubleValue(), null); 
+		if (value instanceof Numerical) {
+			Numerical n = (Numerical) value;
+			setUnit(n.getUnit());// ugly - pass down the unit
+			if (n.value4tag != null) { // and tag breakdown
+				this.value4tag = new ArrayMap(n.value4tag);
+			}
+		}
 	}
 
 
@@ -250,14 +256,31 @@ public class Numerical extends Number implements IScalarArithmetic {
 		this.delta = d;
 	}
 
-	public void setUnit(String unit) {
+	public Numerical setUnit(String unit) {
 		this.unit = unit;
+		return this;
 	}
 
-	public Numerical addTag(String tag) {
+	public Numerical setTag(String tag) {
 		if (value4tag==null) value4tag = new ArrayMap();
 		value4tag.put(tag, value);
 		return this;
+	}
+
+	/**
+	 * 
+	 * @param tag
+	 * @return the tagged value, or zero
+	 */
+	public Numerical getTagged(String tag) {
+		Double tv = value4tag==null? null : value4tag.get(tag);
+		if (tv==null) {
+			return new Numerical(0).setUnit(unit); // no tag 'cos zero
+		}
+		Numerical n = new Numerical(tv);
+		n.setUnit(getUnit());
+		n.setTag(tag);
+		return n;
 	}
 		
 

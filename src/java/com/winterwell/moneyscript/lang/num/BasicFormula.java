@@ -33,6 +33,7 @@ public class BasicFormula extends Formula {
 	
 	CellSet sel;
 	Numerical num;
+	private String tag;
 
 	@Override
 	public String toString() {
@@ -52,7 +53,13 @@ public class BasicFormula extends Formula {
 	public Numerical calculate(Cell b) {		 
 		assert Utils.isBlank(op) : op;
 //		assert b != null;
-		if (num!=null) return sample(num);
+		if (num!=null) {
+			Numerical n = sample(num);
+			if (tag!=null) {
+				n = n.getTagged(tag);
+			}
+			return n;
+		}
 		// HACK: a scenario?
 		if (sel instanceof RowName) {
 			Scenario s = new Scenario(((RowName) sel).getRowName());
@@ -77,11 +84,19 @@ public class BasicFormula extends Formula {
 //		}
 		// Get the cell value - this can trigger a further evaluate 
 		Numerical n = b.getBusiness().getCellValue(cell);
+		// filter by tag?
+		if (tag!=null) {
+			n = n.getTagged(tag);
+		}
 		return n;
 	}
 
 	public boolean isCurrentRow() {
 		return sel instanceof CurrentRow;
+	}
+
+	public void setTag(String htag) {
+		this.tag = htag;
 	}
 	
 }

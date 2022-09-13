@@ -60,7 +60,7 @@ public class LangCellSet {
 	 * Parse row names, e.g. "Alice"
 	 */
 	public Parser<RowName> rowName = new Parser<RowName>() {
-		Pattern p = Pattern.compile("^[A-Z][^:,\\+\\-\\*\\/<>=%\\?\\(\\)]*");		
+		Pattern p = Pattern.compile("^[A-Z][^:,\\+\\-\\*\\/<>=%\\?\\(\\)#]*");		
 		
 		@Override
 		protected ParseResult<RowName> doParse(ParseState state) {			

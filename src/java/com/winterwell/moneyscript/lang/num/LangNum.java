@@ -14,6 +14,7 @@ import static com.winterwell.nlp.simpleparser.Parsers.word;
 import com.winterwell.datalog.server.CurrencyConvertor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.MatchResult;
 
 import com.winterwell.maths.stats.distributions.d1.Gaussian1D;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
@@ -31,6 +32,7 @@ import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.utils.Dep;
+import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Slice;
 import com.winterwell.utils.containers.Tree;
 
@@ -111,21 +113,43 @@ public class LangNum {
 		}
 	}.eg("N(£10, 1)");
 
+
+	/**
+	 * lowercase and including the hash e.g. "#uk"
+	 */
+	public static Parser<String> hashTag = new PP<String>(regex("#[a-zA-Z0-9]+")) {
+		@Override
+		protected String process(ParseResult<?> r) throws ParseFail {
+			MatchResult htag = (MatchResult) r.getX();
+			return htag.group().toLowerCase();
+		}		
+	}.eg("#green").label("hashtag");
+	
 	/**
 	 * A cell set gets evaluated to a number in context.
 	 * We only allow single-row cell sets -- multiple row sets would not
 	 * evaluate nicely. 
 	 */
 	PP<Formula> cellSetAsFormula = new PP<Formula>(
-			first(LangCellSet.cellSet1Row, LangCellSet.cellSetFilter)			
+			seq(
+					first(LangCellSet.cellSet1Row, LangCellSet.cellSetFilter)
+					, opt(hashTag))
 			) {
 		@Override
 		protected Formula process(ParseResult<?> r) {
-			CellSet sel= (CellSet) r.ast.getX();
-			return new BasicFormula(sel);
+//			Utils.breakpoint();
+			List ls = r.getLeafValues();
+			CellSet sel = (CellSet) ls.get(0); 			
+			BasicFormula bf = new BasicFormula(sel);
+			if (ls.size()==2) {
+				String htag = (String) ls.get(1);
+				bf.setTag(htag);
+			}
+			return bf;
 		}
 	}.label("cellSetAsFormula");
 
+	
 	Parser<Numerical> _number = first(gaussian, plainNumber)
 									.label(NUMBER); // temporary assignment for simple egs in this class
 
