@@ -38,6 +38,8 @@ class ChartSetup {
 	type;
 	/** @type {ChartLine[]} */
 	lines = [];
+	/** @type {?number} */
+	maxy;
 }
 
 /** component for a charts setting & visuals  */
@@ -76,8 +78,10 @@ const ChartSettings = ({plandoc, chartPath, rowNames}) => {
 	assert(chartSetup); // guaranteed from ChartChunk
 	return <>		
 		<PropControl label="Type" prop="type" type="select" options={["line","bar"]} path={chartPath} warnOnUnpublished={false} />
+		<PropControl label="Max Y Scale" prop="maxy" type="number" path={chartPath} warnOnUnpublished={false} />
+		<PropControl label="Min Y Scale" prop="miny" type="number" path={chartPath} warnOnUnpublished={false} />
 		<PropControl label="Chart Lines" itemType="Line" type="list" prop="lines" path={chartPath} Viewer={false} rowStyle
-			Editor={args => <ChartLineEditor rowNames={rowNames} {...args} />} />
+			Editor={args => <ChartLineEditor rowNames={rowNames} {...args} />} warnOnUnpublished={false} />
 	</>;
 };
 
@@ -153,6 +157,8 @@ const ChartVisuals = ({chartSetup, data }) => {
 					}}
 				className="chart-visual"
 				style={{ height: "100%", width: "100%" }}
+				maxy={chartSetup.maxy}
+				miny={chartSetup.miny}
 			/>
 		</div>
 	)
