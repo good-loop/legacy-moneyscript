@@ -3,6 +3,7 @@ package com.winterwell.moneyscript.lang.num;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.winterwell.moneyscript.lang.UncertainNumerical;
@@ -16,6 +17,7 @@ import com.winterwell.moneyscript.webapp.GSheetFromMS;
 import com.winterwell.utils.Dep;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.Utils;
+import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.log.Log;
 
@@ -45,35 +47,35 @@ public class UnaryOp extends Formula {
 			return calculate2_sum(b);
 		}
 		if (op.startsWith("count row")) {
-			return calculate2_countRow(b);
+			return calculate2_countRow(b); 		// TODO preserve tags
 		}
 		if (op.startsWith("count")) {
 			return calculate2_count(b);
 		}
 		// e.g. "previous Debt"
 		if (op=="previous") {
-			return calculate2_previous(b);
+			return calculate2_previous(b); 
 		}
 		Numerical x = right.calculate(b);
 		if (x==null) return null;
 		assert ! (x instanceof UncertainNumerical) : this;		
-		if (op.equals("round")) {
+		if (op.equals("round")) { 		// TODO preserve tags
 			return new Numerical(Math.round(x.doubleValue()), x.getUnit());			
 		}
-		if (op.equals("round down")) {
+		if (op.equals("round down")) { 		// TODO preserve tags
 			return new Numerical(Math.floor(x.doubleValue()), x.getUnit());			
 		}
-		if (op.equals("round up")) {
+		if (op.equals("round up")) { 		// TODO preserve tags
 			return new Numerical(Math.ceil(x.doubleValue()), x.getUnit());			
 		}
-		if (op.equals("sqrt")) {
+		if (op.equals("sqrt")) { 		// TODO preserve tags
 			return new Numerical(Math.sqrt(x.doubleValue())); // any unit??
 		}
-		if (op.equals("log")) {
+		if (op.equals("log")) { 		// TODO preserve tags
 			return new Numerical(Math.log(x.doubleValue())); // any unit??
 		}
 		// Probability
-		if (op.equals("p")) {			
+		if (op.equals("p")) { 		// TODO preserve tags??
 			double p = x.doubleValue();
 			// hack x% per year = 1 - 12th rt (1 -x) per month
 			// So we interpret p(10% per year) as P(at least once within a year) = 10%
@@ -99,6 +101,7 @@ public class UnaryOp extends Formula {
 		throw new TodoException(op+" "+right);
 	}
 
+	
 	private Numerical calculate2_previous(Cell b) {
 		// at the start? 0 then
 		if (b.getColumn().index == 1) {
@@ -172,14 +175,26 @@ public class UnaryOp extends Formula {
 		
 		// apply the op
 		int cnt = 0;
+		Map<String,Double> cnt4tag = new ArrayMap();
 		for(Row row : leafRows) {
 			Cell rcell = new Cell(row, b.getColumn());
 			Numerical c = biz.getCellValue(rcell);
-			if (c != null && c.doubleValue() != 0) {
-				cnt++;
+			if (c == null || c.doubleValue() == 0) continue;
+			cnt++;
+			if (c.value4tag!=null) {
+				for(Map.Entry<String,Double> e : c.value4tag.entrySet()) {
+					Double ce = cnt4tag.get(e.getKey());
+					double ce2 = ce==null? 1 : ce + 1;
+					cnt4tag.put(e.getKey(), ce2);
+				}
 			}
 		}
-		return new Numerical(cnt);
+		Numerical n = new Numerical(cnt);
+		// NB: there's no unit carried over for a count
+		if ( ! cnt4tag.isEmpty()) {
+			n.value4tag = cnt4tag;
+		}
+		return n;
 	}
 
 

@@ -467,7 +467,13 @@ public class LangCellSetTest {
 		}
 	}
 
-
+	@Test
+	public void testRowNameBad() {		
+		Lang lang0 = new Lang();	
+		LangCellSet lang = lang0.langCellSet;
+		ParseResult<RowName> parsed = lang.rowName.parse("Foo#bar");
+		assert parsed==null;		
+	}
 	
 	@Test
 	public void testSelector() {

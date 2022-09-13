@@ -119,7 +119,7 @@ public class Lang {
 					LangCellSet.cellSet, // allow "Row" or "Row from next year"
 					lit(":"), 
 					optSpace, opt(na), 
-					optSpace, opt(LangMisc.tags),
+//					optSpace, opt(LangMisc.tags),
 					opt(LangMisc.comment))) 
 	{
 		protected Rule process(ParseResult r) {			
@@ -166,7 +166,8 @@ public class Lang {
 			lit(":"), optSpace, 
 			ruleBody,
 			optSpace,
-			opt(LangMisc.tags),
+			opt(LangMisc.tag),
+			optSpace,
 			opt(LangMisc.comment),
 			optSpace)
 	) {
@@ -179,13 +180,23 @@ public class Lang {
 			// record the comment if there was one
 			AST astComment = r.getNode(LangMisc.comment);
 			String comment = astComment==null? null : ""+astComment.getValue();
+			// unit?
 			AST<String> u = r.getNode("unit");
+			// hashtag?
+			AST<String> astTag = r.getNode(LangMisc.tag);
+			String tag = null;
+			if (astTag!=null) {
+				tag = astTag.getX();			
+			}
 			// a formula?
 			Object rbx = rb.getX();			
 			if (rbx instanceof Formula) {
 				Rule _rule = new Rule(sel, (Formula) rbx, r.parsed(), ind).setComment(comment);
 				if (u != null) {
 					_rule.setUnit(u.getX());
+				}
+				if (tag !=null) {
+					_rule.setTag(tag);
 				}
 				return _rule;
 			}
@@ -194,6 +205,9 @@ public class Lang {
 				Rule _rule = new ListValuesRule(sel, (List<Formula>) rbx, r.parsed(), ind).setComment(comment);
 				if (u != null) {
 					_rule.setUnit(u.getX());
+				}
+				if (tag !=null) {
+					_rule.setTag(tag);
 				}
 				return _rule;
 			}
@@ -574,7 +588,7 @@ public class Lang {
 			rule.lineNum = ln;
 			rule.sheetId = planSheet.getId();
 			rules.add(rule);
-
+			
 			// HACK: Process import of m$
 			if (rule instanceof ImportCommand && rule.src.endsWith("ms") || rule.src.endsWith("ms")) {
 				ImportCommand ic = (ImportCommand) rule;
@@ -668,6 +682,7 @@ public class Lang {
 					pf.setSheetId(r.sheetId);
 					unref.add(pf);
 				}
+				// ?? should we Rule setScenario for fast filtering? But what about "if not Scenario X" Need to create -ive scenarios
 				// ?? should we mark scenario vs rule as a boolean flag in formula, for an efficiency boost later?? 
 			}
 		}

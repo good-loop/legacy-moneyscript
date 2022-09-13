@@ -43,6 +43,8 @@ import com.winterwell.utils.log.Log;
  * 
  * NB: Don't merge with ExportCommand 'cos it makes sense to keep google-drive specific code separate
  * 
+ * TODO handle hashtags (by exporting numbers; we can't duplicate that logic)
+ * 
  * @testedby GSheetFromMSTest
  * @author daniel
  *

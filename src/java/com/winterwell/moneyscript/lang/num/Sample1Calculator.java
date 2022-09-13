@@ -40,6 +40,12 @@ public final class Sample1Calculator implements ICalculator {
 		y = sample(y);
 		return simple.times(x, y);		
 	}
+	
+	@Override
+	public Numerical timesScalar(Numerical x, double y) {
+		x = sample(x);
+		return simple.timesScalar(x, y);
+	}
 
 	private Numerical sample(Numerical x) {
 		if (x==Business.EVALUATING) {

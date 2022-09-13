@@ -30,6 +30,19 @@ import com.winterwell.utils.time.Time;
 
 public class LangNumTest {
 
+	
+
+	
+	@Test
+	public void testHashTagFormula() {
+		Lang lang = new Lang();
+		LangNum nlang = lang.langNum;
+//		ParseResult<Formula> mten = nlang.formula.parseOut("-£10");
+		ParseResult<Formula> foo = nlang.cellSetAsFormula.parseOut("Foo#bar");
+		Formula foobar = nlang.formula.parseOut("Foo#bar").getX();
+		System.out.println(foobar);		
+	}
+	
 	@Test
 	public void testGaussian() {
 		Lang lang = new Lang();

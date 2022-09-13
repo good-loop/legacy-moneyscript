@@ -145,4 +145,13 @@ public final class ParticleCloudCalculator implements ICalculator {
 		return sample(x, y, TIMES);
 	}
 
+
+	@Override
+	public Numerical timesScalar(Numerical x, double y) {
+		if (isSimple(x, null)) {
+			return simple.timesScalar(x, y);
+		}
+		return sample(x, new Numerical(y), TIMES);
+	}
+
 }

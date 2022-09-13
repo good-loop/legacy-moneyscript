@@ -44,6 +44,7 @@ class BinaryOp extends Formula {
 		return set;
 	}
 
+	// TODO preserve hashtag breakdown (which does already happen for some formulae below)
 	@Override
 	public Numerical calculate(Cell b) {
 		Numerical x = left.calculate(b);
@@ -101,10 +102,12 @@ class BinaryOp extends Formula {
 			return sample(new UncertainNumerical(dist, DefaultCalculator.unit(x, y)));		
 		case"min":
 			double mxy = Math.min(x.doubleValue(), y.doubleValue());
-			return new Numerical(mxy, DefaultCalculator.unit(x, y));
+			Numerical winner = mxy==x.doubleValue()? x : y;
+			return winner; //new Numerical(mxy, DefaultCalculator.unit(x, y));
 		case "max":
 			mxy = Math.max(x.doubleValue(), y.doubleValue());
-			return new Numerical(mxy, DefaultCalculator.unit(x, y));
+			winner = mxy==x.doubleValue()? x : y;
+			return winner;
 		case "power": case "^":
 			if (x==Numerical.NULL) return null;
 			double xtoy = Math.pow(x.doubleValue(), y.doubleValue());

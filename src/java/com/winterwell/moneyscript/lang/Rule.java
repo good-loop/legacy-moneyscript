@@ -107,6 +107,7 @@ public class Rule implements IReset {
 	
 	private String unit;
 	String sheetId;
+	private String tag;
 	
 	@Override
 	public String toString() {
@@ -132,7 +133,7 @@ public class Rule implements IReset {
 			}
 			Numerical v = calculate2_formula(cell);
 			if (v==null) {
-				return v;
+				return v; // null
 			}
 			assert v != Business.EVALUATING : cell+" "+this;
 			// Should we allow local distributions -- or force all stochastic work to be done by global samples?
@@ -156,6 +157,9 @@ public class Rule implements IReset {
 			// allow the script to override and set what the unit is, e.g. "Margin (%): Profit / Income" 
 			if (unit != null) {
 				v.setUnit(unit);
+			}
+			if (tag!=null) {
+				v.setTag(tag);
 			}
 			return v;
 		} catch(Throwable ex) {
@@ -214,6 +218,10 @@ public class Rule implements IReset {
 	 */
 	public boolean isStacked() {
 		return formula !=null && formula.isStacked();
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
 	}
 
 

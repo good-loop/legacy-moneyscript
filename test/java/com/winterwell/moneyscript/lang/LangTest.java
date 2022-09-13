@@ -40,6 +40,46 @@ import com.winterwell.utils.io.FileUtils;
 
 public class LangTest {
 
+
+	@Test
+	public void testTagMaths() {
+		Lang lang = new Lang();
+		{	// no effect on normal sums
+			Business b = lang.parse("Staff:\n\tAlice: 1 #amber\n\tBob: 2 #blue\n"
+					+"Overheads: Staff * 10%");
+			b.setColumns(3);
+			b.run();
+			String csv = b.toCSV();
+			assert csv.contains("Staff, 3, 3") : csv;
+			assert csv.contains("Overheads, 0.3") : csv;
+		}
+		{
+			Business b = lang.parse("Staff:\n\tAlice: 1 #amber\n\tBob: 2 #blue\n"
+					+"Overheads: Staff * 10%\n"
+					+"YellowStaff: Staff#amber\n");
+			b.setColumns(3);
+			b.run();
+			String csv = b.toCSV();
+			System.out.println(csv);
+			assert csv.contains("Staff, 3, 3") : csv;
+			assert csv.contains("Overheads, 0.3") : csv;
+			assert csv.contains("YellowStaff, 1, 1") : csv;
+		}
+		{
+			Business b = lang.parse("Staff:\n\tAlice: 1 #amber\n\tBob: 2 #blue\n"
+					+"Overheads: Staff * 10%\n"
+					+"OpEx: Staff + Overheads\n"
+					+"BlueOpEx: OpEx#blue");
+			b.setColumns(3);
+			b.run();
+			String csv = b.toCSV();
+			System.out.println(csv);
+			assert csv.contains("Staff, 3, 3") : csv;
+			assert csv.contains("Overheads, 0.3") : csv;
+			assert csv.contains("BlueOpEx, 2.2, 2.2") : csv;
+		}
+	}
+	
 	@Test
 	public void testPossibleStuckBug() {
 		Lang lang = new Lang();
