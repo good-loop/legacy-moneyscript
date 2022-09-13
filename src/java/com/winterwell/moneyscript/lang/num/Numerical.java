@@ -1,15 +1,17 @@
 package com.winterwell.moneyscript.lang.num;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.winterwell.maths.IScalarArithmetic;
-import com.winterwell.moneyscript.lang.ErrorNumerical;
+import com.winterwell.maths.stats.distributions.discrete.ObjectDistribution;
 import com.winterwell.moneyscript.lang.ICalculator;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.StrUtils;
-import com.winterwell.utils.log.Log;
+import com.winterwell.utils.containers.ArrayMap;
 
 /**
  * A number optionally plus a unit.
@@ -47,6 +49,11 @@ public class Numerical extends Number implements IScalarArithmetic {
 	public static final Numerical NULL = new Numerical(0);
 	
 	private final Double value;
+	
+	/**
+	 * for if breakdown-by-tag is being used
+	 */
+	Map<String,Double> value4tag;
 	
 	public String comment;
 	
@@ -227,7 +234,7 @@ public class Numerical extends Number implements IScalarArithmetic {
 	}
 
 	public Numerical times(double b) {
-		return calc.times(this, new Numerical(b));
+		return calc.timesScalar(this, b);
 	}
 
 	public Numerical minus(Numerical b) {
@@ -246,57 +253,12 @@ public class Numerical extends Number implements IScalarArithmetic {
 	public void setUnit(String unit) {
 		this.unit = unit;
 	}
+
+	public Numerical addTag(String tag) {
+		if (value4tag==null) value4tag = new ArrayMap();
+		value4tag.put(tag, value);
+		return this;
+	}
 		
-
-}
-
-
-final class DefaultCalculator implements ICalculator {
-
-	@Override
-	public Numerical divide(Numerical x, Numerical y) {
-		if (x instanceof ErrorNumerical) return x;
-		if (y instanceof ErrorNumerical) return y;
-		return new Numerical(x.doubleValue() / y.doubleValue(), unit(x, y));
-	}
-
-	@Override
-	public Numerical plus(Numerical x, Numerical y) {
-		if (x instanceof ErrorNumerical) return x;
-		if (y instanceof ErrorNumerical) return y;
-		return new Numerical(x.doubleValue() + y.doubleValue(), unit(x, y));
-	}
-
-	@Override
-	public Numerical times(Numerical x, Numerical y) {
-		assert x != null && y != null : x+" "+y;
-		if (x instanceof ErrorNumerical) return x;
-		if (y instanceof ErrorNumerical) return y;
-		return new Numerical(x.doubleValue() * y.doubleValue(), unit(x, y));
-	}
-
-	public static String unit(Numerical a, Numerical b) {
-		// anything beats % -- even unset! 
-		// So that 10% * Customers is not itself a %, even though Customers probably doesnt have a unit defined
-		if ("%".equals(a.getUnit())) return b.getUnit();
-		if ("%".equals(b.getUnit())) return a.getUnit();
-		// pick the non-blank
-		if (b.getUnit() == null) return a.getUnit();
-		if (a.getUnit() == null) return b.getUnit();
-		// both are set
-		// ...clash?
-		if ( ! a.getUnit().equals(b.getUnit())) {			
-			Log.w("Numerical", "Unit mismatch: "+a.getUnit()+" != "+b.getUnit());
-			return null;
-		}
-		return a.getUnit();
-	}
-
-	@Override
-	public Numerical minus(Numerical x, Numerical y) {
-		if (x instanceof ErrorNumerical) return x;
-		if (y instanceof ErrorNumerical) return y;
-		return new Numerical(x.doubleValue() - y.doubleValue(), unit(x, y));
-	}
 
 }

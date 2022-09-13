@@ -57,7 +57,7 @@ public class AnnualRule extends MetaRule {
 				if (vj==null) continue;
 				yearSum = yearSum.plus(vj);
 			}
-			yearSum = yearSum.divide(new Numerical(12));
+			yearSum = yearSum.times(1.0/12);
 			yearSum.comment = "average for year";
 			return yearSum;
 		}
