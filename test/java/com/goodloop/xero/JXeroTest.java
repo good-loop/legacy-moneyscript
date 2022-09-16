@@ -30,6 +30,15 @@ public class JXeroTest {
 		assert row0.size() > 1 : row0;
 	}
 
+	@Test
+	public void testPayroll() {
+		JXero jxero = new JXero();
+		jxero.init();
+		Time s = new Time(2020,1,1);
+		Time e = new Time(2020,12,31);
+		DataTable<String> data = jxero.fetchPayroll(s, e);
+		System.out.println(data);
+	}
 
 
 	@Test

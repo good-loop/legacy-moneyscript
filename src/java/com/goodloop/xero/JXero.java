@@ -221,6 +221,7 @@ public class JXero {
 		Time end1 = end;
 		while(end1.isAfter(start)) {
 			Time start1 = end1.minus(TUnit.YEAR);
+			// Get 1 year
 			List<List<Object>> got1year = fetch3_1year(report, start1, end1, timeframe);
 			// This will sort the columns into sensible order!
 			DataTable<String> newData = new DataTable<>(got1year);
@@ -383,6 +384,12 @@ public class JXero {
 	 */
 	private BigDecimal num(JsonElement cell) {
 		return cell.getAsJsonObject().get("Value").getAsBigDecimal();
+	}
+
+
+	public DataTable<String> fetchPayroll(Time start, Time end) {
+		DataTable<String> fetched = fetch2("PayrollActivityDetails", start, end, TUnit.MONTH);
+		return fetched;
 	}
 
 	
