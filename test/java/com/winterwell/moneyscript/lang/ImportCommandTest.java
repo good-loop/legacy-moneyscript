@@ -1,6 +1,7 @@
 package com.winterwell.moneyscript.lang;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -15,6 +16,21 @@ import com.winterwell.utils.time.Time;
 
 public class ImportCommandTest {
 
+	@Test
+	public void testRowMatchingBug_Payroll() {
+		String ms = "start: Jan 2021\n"
+				+"import: https://docs.google.com/spreadsheets/d/1PDqsFJcsBXgrHnQhKkrUaTPjqruk9U5NNsjE9OYMAhM {rows:all}\n"
+				;
+		Lang lang = new Lang();
+		Business b = lang.parse(ms);
+		
+//		ImportCommand ic = new ImportCommand("https://docs.google.com/spreadsheets/d/1PDqsFJcsBXgrHnQhKkrUaTPjqruk9U5NNsjE9OYMAhM");
+//		ic.setRows(Arrays.asList(ic.ALL_ROWS));
+//		ic.run(b);
+		
+		b.run();
+		System.out.println(b.toCSV());
+	}
 
 	@Test
 	public void testRowMatchingBug_Advertising() {

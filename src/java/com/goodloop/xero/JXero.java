@@ -387,7 +387,13 @@ public class JXero {
 	}
 
 
-	public DataTable<String> fetchPayroll(Time start, Time end) {
+	/**
+	 * @deprecated doesn't work -- but you can export a big csv from the UI
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	DataTable<String> fetchPayroll(Time start, Time end) {
 		DataTable<String> fetched = fetch2("PayrollActivityDetails", start, end, TUnit.MONTH);
 		return fetched;
 	}
