@@ -550,9 +550,7 @@ public final class Business {
 
 
 	/**
-	 * Add to the row(s) rules. 
-	 * NB: Row must already exist.
-	 * @param rule
+	 * Replace in row rules. Is this needed??
 	 */
 	public void replaceRule(Rule oldRule, Rule newRule) {
 		Collection<String> rows = newRule.getSelector().getRowNames(null);

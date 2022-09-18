@@ -30,7 +30,7 @@ public class JXeroTest {
 		assert row0.size() > 1 : row0;
 	}
 
-	@Test
+//	@Test
 	public void testPayroll() {
 		JXero jxero = new JXero();
 		jxero.init();
