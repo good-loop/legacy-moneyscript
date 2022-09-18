@@ -548,21 +548,21 @@ public final class Business {
 		}		
 	}
 
-
-	/**
-	 * Replace in row rules. Is this needed??
-	 */
-	public void replaceRule(Rule oldRule, Rule newRule) {
-		Collection<String> rows = newRule.getSelector().getRowNames(null);
-		for (String rn : rows) {			
-			Row row = getRow(rn);
-			assert row != null;
-			int i = row.rules.indexOf(oldRule);
-			if (i != -1) {
-				row.rules.set(i, newRule);
-			}
-		}		
-	}
+//
+//	/**
+//	 * Replace in row rules. Is this needed??
+//	 */
+//	public void replaceRule(Rule oldRule, Rule newRule) {
+//		Collection<String> rows = newRule.getSelector().getRowNames(null);
+//		for (String rn : rows) {			
+//			Row row = getRow(rn);
+//			assert row != null;
+//			int i = row.rules.indexOf(oldRule);
+//			if (i != -1) {
+//				row.rules.set(i, newRule);
+//			}
+//		}		
+//	}
 
 	
 	/**

@@ -95,6 +95,25 @@ public class LangTest {
 			assert csv.contains("Staff, 0, 0") : csv;
 			assert csv.contains("Alice, 0, 0") : csv;
 		}
+		{
+			Business b = lang.parse("start: Jan 2021\nStaff from Jan 2022:\n\tUK:\n\t\tSales:\n\t\t\tAlice: 1");
+			Row rowuk = b.getRow("UK");
+			List<Rule> rulesuk = rowuk.getRules();
+			assert rulesuk.size() == 1;
+			Rule ruleuk = rulesuk.get(0);
+			assert ruleuk.getSelector() instanceof FilteredCellSet : ruleuk.getSelector();
+			
+			Row row = b.getRow("Alice");
+			List<Rule> rules = row.getRules();
+			assert rules.size() == 1;
+			Rule rule = rules.get(0);
+			assert rule.getSelector() instanceof FilteredCellSet : rule.getSelector();
+			b.setColumns(3);
+			b.run();
+			String csv = b.toCSV();
+			assert csv.contains("Staff, 0, 0") : csv;
+			assert csv.contains("Alice, 0, 0") : csv;
+		}
 	}
 
 	

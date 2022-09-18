@@ -22,6 +22,7 @@ import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.CurrentRow;
 import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.cells.FilteredCellSet;
+import com.winterwell.moneyscript.lang.cells.IntersectionCellSet;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
 import com.winterwell.moneyscript.lang.cells.LangFilter;
 import com.winterwell.moneyscript.lang.cells.RowName;
@@ -263,11 +264,18 @@ public class Lang {
 	}
 	
 
+	/**
+	 * Parse - uses a cache for spped
+	 * @param scriptLine
+	 * @param b
+	 * @return
+	 */
 	public Rule parseLine(String scriptLine, Business b) {
 		Object r = null;
 		// HACK cache for speed
 		if (cache != null) {
-			r = cache.get(scriptLine);			
+			r = cache.get(scriptLine);
+			r = Utils.copy(r); // copy to avoid cache vs edit issues
 		}
 		if (r==null) {
 			ParseResult pr = line.parse(scriptLine);
@@ -396,21 +404,22 @@ public class Lang {
 				continue;
 			}
 			if (r.formula==null) {
-				// what is this??
-				continue;
-			}
+				continue; // no formula = dont care about overlaps
+			}			
 			if (r.getSelector()==null) {
 				continue;
-			}
-			CellSet cellset = r.getSelector();
-			
+			}			
 			// NB: overlaps between scenarios are fine
-			String cs = r.getScenario()+cellset.toString(); //XStreamUtils.serialiseToXml(cellset);
+			String cs = StrUtils.joinWithSkip(" ", r.getScenario(), r.src);
+			int i = cs.indexOf(':'); // pop the actual rule -- we just want the filter part
+			if (i!=-1) {
+				cs = cs.substring(0, i);
+			}
 			if ( ! cellsets.isDuplicate(cs)) {
 				continue; // all good
 			}
 			ParseFail pf = new ParseFail(new Slice(r.src), 
-				"This rule overlaps with another rule for: "+cellset.getSrc());
+				"This rule overlaps with another rule for: "+cs);
 			pf.lineNum = r.getLineNum();
 			pf.setSheetId(r.sheetId);
 			dupes.add(pf);
@@ -428,6 +437,7 @@ public class Lang {
 				}
 			}
 
+			FIXME group selector before group
 			CellSet selector = rule.getSelector();
 			if (selector==null) {
 				selector = new CurrentRow(null); // is this always OK?? How do grouping rules behave??
@@ -437,7 +447,10 @@ public class Lang {
 				// HACK don't add a row for scenario X
 				rowNames = Collections.emptySet();
 			} else {
-				assert ! rowNames.isEmpty() : rule;
+				if (rowNames.isEmpty()) {
+					selector.getRowNames(null);
+				}
+				assert ! rowNames.isEmpty() : selector+" "+rule;
 			}
 			// the rows named in this rule's selector
 			// Make sure they exist
@@ -489,23 +502,15 @@ public class Lang {
 					}
 				}
 				// filter?
-				if (parent.rule != null) {
+				if (rule.toString().contains("Sales Team") || rule.toString().contains("Nicolas")
+						|| rule.toString().contains("UK Staff")) {
+					System.out.println(rule);
+				}
+				if (parent.rule != null) { // UK Staff has no rule?!
 					GroupRule gr = parent.rule;
-					if (gr.getSelector() instanceof FilteredCellSet) {
-						FilteredCellSet fcs = ((FilteredCellSet) gr.getSelector());
-						Filter f = fcs.getFilter();
-						CellSet rsel = rule.getSelector();
-						// add the filter
-						FilteredCellSet rfcs = new FilteredCellSet(rsel, f, fcs.getSrc()+" and "+rsel.getSrc());
-						// copy because cached
-						Rule newRule = Utils.copy(rule);
-						newRule.setSelector(rfcs);
-						b.replaceRule(rule, newRule); // TODO also need to replace Group refs
-						if (group.rule == rule) {
-							group.rule = (GroupRule) newRule;
-						}
-						rule = newRule;
-					}
+					CellSet groupSelector = gr.getSelector();
+					CellSet andSelector = IntersectionCellSet.make(groupSelector, rule.getSelector());
+					rule.setSelector(andSelector);
 				}
 			} // ./parent!=null
 			
@@ -550,8 +555,8 @@ public class Lang {
 		// check up the stack
 		while(parent!=null) {
 			if (parent.byScenario != null) {
-				// copy because cached
-				newRule = Utils.copy(newRule); 
+//				// copy because cached (copy now done when getting the rule out)
+//				newRule = Utils.copy(newRule); 
 				newRule.setScenario(parent.byScenario);
 			}
 			parent = parent.parent;
@@ -574,6 +579,9 @@ public class Lang {
 			String lineln = lines[ln];
 			if (Utils.isBlank(lineln)) {
 				continue;			
+			}
+			if (lineln.contains("UK Staff")) {
+				System.out.println(lineln);
 			}
 			
 			// Parse a line of script

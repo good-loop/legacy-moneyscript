@@ -76,14 +76,14 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 		if (parent == null) {
 			return rules;
 		}
-		// copy this rows rules and add in the parent rules
+		// copy this rows rules and add in the parent rules ??now done during parse
 		ArrayList<Rule> rules2 = new ArrayList<Rule>(rules);
-		List<Rule> rs = parent.getRules();
-		for (Rule rule : rs) {
-			if (rule instanceof GroupRule)
-				continue;
-			rules2.add(rule);
-		}
+//		List<Rule> rs = parent.getRules();
+//		for (Rule rule : rs) {
+//			if (rule instanceof GroupRule)
+//				continue;
+//			rules2.add(rule);
+//		}
 		return rules2;	
 	}
 
