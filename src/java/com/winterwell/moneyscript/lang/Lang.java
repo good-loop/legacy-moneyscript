@@ -498,8 +498,13 @@ public class Lang {
 						// add the filter
 						FilteredCellSet rfcs = new FilteredCellSet(rsel, f, fcs.getSrc()+" and "+rsel.getSrc());
 						// copy because cached
-						rule = Utils.copy(rule);
-						rule.setSelector(rfcs);
+						Rule newRule = Utils.copy(rule);
+						newRule.setSelector(rfcs);
+						b.replaceRule(rule, newRule); // TODO also need to replace Group refs
+						if (group.rule == rule) {
+							group.rule = (GroupRule) newRule;
+						}
+						rule = newRule;
 					}
 				}
 			} // ./parent!=null
@@ -529,7 +534,7 @@ public class Lang {
 		Row row0 = rows.get(0);		
 		Group group = new Group(row0, rule.indent);
 		if (rule instanceof GroupRule) {
-			group.rule = (GroupRule) rule;
+			group.setRule((GroupRule) rule);
 		}
 		return group;
 	}

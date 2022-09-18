@@ -42,7 +42,10 @@ public class XeroPayrollCSV2MS {
 				String n2 = new ArrayMap<String,String>(
 					"Ben Durkin", "Vera Durkin",
 					"Ana Carolina Ratti Gomes", "Carol Ratti",
-					"Marie Lola Conrich", "Lola Conrich"
+					"Marie Lola Conrich", "Lola Conrich",
+					"Nida Ahmed", "Sara Ahmed",
+					"Idowu Boluwatife", "Tife Boluwatife"
+					
 				).get(name);
 				if (n2 !=null) name = n2;
 				payslip.name = name;

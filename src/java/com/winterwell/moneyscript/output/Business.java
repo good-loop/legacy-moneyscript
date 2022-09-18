@@ -547,6 +547,25 @@ public final class Business {
 			row.addRule(rule);			
 		}		
 	}
+
+
+	/**
+	 * Add to the row(s) rules. 
+	 * NB: Row must already exist.
+	 * @param rule
+	 */
+	public void replaceRule(Rule oldRule, Rule newRule) {
+		Collection<String> rows = newRule.getSelector().getRowNames(null);
+		for (String rn : rows) {			
+			Row row = getRow(rn);
+			assert row != null;
+			int i = row.rules.indexOf(oldRule);
+			if (i != -1) {
+				row.rules.set(i, newRule);
+			}
+		}		
+	}
+
 	
 	/**
 	 * Ahem, this does not include non-row rules, like "start: Jan 2020"

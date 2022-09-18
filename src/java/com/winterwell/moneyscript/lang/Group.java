@@ -12,9 +12,11 @@ import com.winterwell.utils.Utils;
  */
 final class Group {
 	
+	
+	
 	@Override
-	public String toString() {		
-		return Utils.toString(this);
+	public String toString() {
+		return "Group[indent=" + indent + ", rule=" + rule +", parent=" + parent +  "]";
 	}
 	public Group(Row row, int indent) {
 		this.indent = indent;
@@ -51,6 +53,10 @@ final class Group {
 	final int indent;
 	Group parent;
 	GroupRule rule;
+	
+	public void setRule(GroupRule rule) {
+		this.rule = rule;
+	}
 	
 	public void setParent(Group parent) {
 		this.parent = parent;

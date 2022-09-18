@@ -9,6 +9,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.FilteredCellSet;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.cells.SimpleLangCellSet;
@@ -40,7 +41,63 @@ import com.winterwell.utils.io.FileUtils;
 
 public class LangTest {
 
+	@Test
+	public void testGroupWithFilter() {
+		Lang lang = new Lang();
+		{
+			Business b = lang.parse("start: Jan 2021\nStaff from Jan 2022:\n\tAlice: 1");
+			Row row = b.getRow("Alice");
+			List<Rule> rules = row.getRules();
+			assert rules.size() == 1;
+			Rule rule = rules.get(0);
+			assert rule.getSelector() instanceof FilteredCellSet;
+			b.setColumns(3);
+			b.run();
+			String csv = b.toCSV();
+			assert csv.contains("Staff, 0, 0") : csv;
+			assert csv.contains("Alice, 0, 0") : csv;
+		}
+		{
+			Business b = lang.parse("start: Dec 2021\nStaff from Jan 2022:\n\tAlice: 1");
+			Row row = b.getRow("Alice");
+			List<Rule> rules = row.getRules();
+			assert rules.size() == 1;
+			Rule rule = rules.get(0);
+			assert rule.getSelector() instanceof FilteredCellSet;
+			b.setColumns(3);
+			b.run();
+			String csv = b.toCSV();
+			assert csv.contains("Staff, 0, 1") : csv;
+			assert csv.contains("Alice, 0, 1") : csv;
+		}
+	}
 
+
+	@Test
+	public void testNestedGroupWithFilter() {
+		Lang lang = new Lang();
+		{
+			Business b = lang.parse("start: Jan 2021\nStaff from Jan 2022:\n\tUK:\n\t\tAlice: 1");
+			Row rowuk = b.getRow("UK");
+			List<Rule> rulesuk = rowuk.getRules();
+			assert rulesuk.size() == 1;
+			Rule ruleuk = rulesuk.get(0);
+			assert ruleuk.getSelector() instanceof FilteredCellSet : ruleuk.getSelector();
+			
+			Row row = b.getRow("Alice");
+			List<Rule> rules = row.getRules();
+			assert rules.size() == 1;
+			Rule rule = rules.get(0);
+			assert rule.getSelector() instanceof FilteredCellSet : rule.getSelector();
+			b.setColumns(3);
+			b.run();
+			String csv = b.toCSV();
+			assert csv.contains("Staff, 0, 0") : csv;
+			assert csv.contains("Alice, 0, 0") : csv;
+		}
+	}
+
+	
 	@Test
 	public void testTagMaths() {
 		Lang lang = new Lang();
