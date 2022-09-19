@@ -109,6 +109,10 @@ public class Rule implements IReset {
 	String sheetId;
 	private String tag;
 	
+	public String getTag() {
+		return tag;
+	}
+	
 	@Override
 	public String toString() {
 		return src==null? super.toString() : src;

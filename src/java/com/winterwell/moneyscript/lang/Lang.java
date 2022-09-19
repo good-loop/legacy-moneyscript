@@ -123,8 +123,11 @@ public class Lang {
 					LangCellSet.cellSet, // allow "Row" or "Row from next year"
 					lit(":"), 
 					optSpace, opt(na), 
-//					optSpace, opt(LangMisc.tags),
-					opt(LangMisc.comment))) 
+					optSpace,
+					opt(LangNum.hashTag),
+					optSpace,
+					opt(LangMisc.comment))
+			)
 	{
 		protected Rule process(ParseResult r) {			
 			AST<Number> indentAst = r.getNode(LangMisc.indent);
@@ -136,12 +139,17 @@ public class Lang {
 			GroupRule gr;
 			if (scenario) {
 				gr = new ScenarioRule(new Scenario(rname), ind);
-			} else {				
+			} else {		
 				gr = new GroupRule(row, ind);
 			}
 			AST rna = r.getNode(na);
 			if (rna != null) {
 				gr.na = true;
+			}
+			AST hashtag = r.getNode(LangNum.hashTag);
+			if (hashtag != null) {
+				Object h = hashtag.getValue();
+				gr.setTag((String)h);
 			}
 			return gr;
 		}
@@ -170,7 +178,7 @@ public class Lang {
 			lit(":"), optSpace, 
 			ruleBody,
 			optSpace,
-			opt(LangMisc.tag),
+			opt(LangNum.hashTag),
 			optSpace,
 			opt(LangMisc.comment),
 			optSpace)
@@ -187,7 +195,7 @@ public class Lang {
 			// unit?
 			AST<String> u = r.getNode("unit");
 			// hashtag?
-			AST<String> astTag = r.getNode(LangMisc.tag);
+			AST<String> astTag = r.getNode(LangNum.hashTag);
 			String tag = null;
 			if (astTag!=null) {
 				tag = astTag.getX();			
@@ -532,6 +540,15 @@ public class Lang {
 			return;
 		}
 		GroupRule gr = parent.rule;
+		// hashtag?
+		if (gr.getTag() != null) {
+			if (rule.getTag()==null) {
+				rule.setTag(gr.getTag());
+			} else {
+				// rule-specific hashtag overrides a group level one
+			}
+		}
+		// filter
 		CellSet groupSelector = gr.getSelector();
 		CellSet gs = groupSelector;
 		List<Filter> filters = new ArrayList();
