@@ -13,12 +13,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.winterwell.maths.NoDupes;
+import com.winterwell.maths.timeseries.ChainedDataStream;
 import com.winterwell.moneyscript.data.PlanSheet;
 import com.winterwell.moneyscript.lang.bool.LangBool;
 import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.ChainFilter;
 import com.winterwell.moneyscript.lang.cells.CurrentRow;
 import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.cells.FilteredCellSet;
@@ -398,7 +401,7 @@ public class Lang {
 	private List<ParseFail> parse5_checkDuplicates(Business b) {
 		List<ParseFail> dupes = new ArrayList();
 		Set<Rule> rules = b.getAllRules();
-		NoDupes<String> cellsets = new NoDupes<>();
+		Map<String,Rule> rule4filter = new HashMap<>(); // detect dupes
 		for (Rule r : rules) {
 			if (r instanceof ImportRowCommand || r instanceof StyleRule) {
 				continue;
@@ -410,16 +413,17 @@ public class Lang {
 				continue;
 			}			
 			// NB: overlaps between scenarios are fine
-			String cs = StrUtils.joinWithSkip(" ", r.getScenario(), r.src);
+			String cs = StrUtils.joinWithSkip(" ", r.getScenario(), r.getSelector());
 			int i = cs.indexOf(':'); // pop the actual rule -- we just want the filter part
 			if (i!=-1) {
 				cs = cs.substring(0, i);
 			}
-			if ( ! cellsets.isDuplicate(cs)) {
+			if ( ! rule4filter.containsKey(cs)) {
+				rule4filter.put(cs, r);
 				continue; // all good
 			}
 			ParseFail pf = new ParseFail(new Slice(r.src), 
-				"This rule overlaps with another rule for: "+cs);
+				"This rule overlaps with another rule for: "+cs+" - "+rule4filter.get(cs));
 			pf.lineNum = r.getLineNum();
 			pf.setSheetId(r.sheetId);
 			dupes.add(pf);
@@ -437,7 +441,7 @@ public class Lang {
 				}
 			}
 
-			FIXME group selector before group
+			// NB: selector may be modified later to add group-level filter
 			CellSet selector = rule.getSelector();
 			if (selector==null) {
 				selector = new CurrentRow(null); // is this always OK?? How do grouping rules behave??
@@ -502,19 +506,9 @@ public class Lang {
 					}
 				}
 				// filter?
-				if (rule.toString().contains("Sales Team") || rule.toString().contains("Nicolas")
-						|| rule.toString().contains("UK Staff")) {
-					System.out.println(rule);
-				}
-				if (parent.rule != null) { // UK Staff has no rule?!
-					GroupRule gr = parent.rule;
-					CellSet groupSelector = gr.getSelector();
-					CellSet andSelector = IntersectionCellSet.make(groupSelector, rule.getSelector());
-					rule.setSelector(andSelector);
-				}
+				parse4_addRulesAndGroupRows_combinedFilters(rule, parent); 
 			} // ./parent!=null
-			
-			
+					
 			// rule grouping eg for scenarios (which apply at the rule level not the row level)
 			rule = parse4_addRulesAndGroupRows2_setRuleGroup(rule, parent);			
 
@@ -522,6 +516,42 @@ public class Lang {
 			b.addRule(rule);
 		}
 	}
+
+	
+	/**
+	 * Combine any group level filter with any filter on the row
+	 * @param rule
+	 * @param parent
+	 */
+	private void parse4_addRulesAndGroupRows_combinedFilters(Rule rule, Group parent) {
+		if (rule.toString().contains("Sales Team") || rule.toString().contains("Nicolas")
+				|| rule.toString().contains("UK Staff")) {
+			System.out.println(rule);
+		}
+		if (parent.rule == null) { 
+			return;
+		}
+		GroupRule gr = parent.rule;
+		CellSet groupSelector = gr.getSelector();
+		CellSet gs = groupSelector;
+		List<Filter> filters = new ArrayList();
+		while(gs instanceof FilteredCellSet) {
+			Filter filter = ((FilteredCellSet) gs).getFilter();
+			// NB: we can usually ignore the base of the groupSelector, which is "this group"
+			CellSet base = ((FilteredCellSet) groupSelector).getBase();
+			gs = base;
+			filters.add(filter);
+		}
+		if (filters.isEmpty()) {
+			return;
+		}		
+		Filter filter = filters.size() == 1? filters.get(0) : new ChainFilter(filters);
+		CellSet ruleCells = rule.getSelector();
+		FilteredCellSet fcs = new FilteredCellSet(ruleCells, filter, 
+				rule.getSelector().getSrc()+" + parent: "+groupSelector.getSrc());
+		rule.setSelector(fcs);
+	}
+
 
 	/**
 	 * 

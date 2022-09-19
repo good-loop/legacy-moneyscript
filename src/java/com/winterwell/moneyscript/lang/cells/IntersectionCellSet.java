@@ -37,8 +37,10 @@ public class IntersectionCellSet extends CellSet {
 	
 	@Override
 	public Set<String> getRowNames(Cell focus) {
-		Set<String> rn = new ArraySet<String>(a.getRowNames(focus));
-		rn.retainAll(b.getRowNames(focus));
+		Set<String> arns = a.getRowNames(focus);
+		Set<String> brns = b.getRowNames(focus);
+		Set<String> rn = new ArraySet<String>(arns);
+		rn.retainAll(brns);
 		return rn;
 	}
 

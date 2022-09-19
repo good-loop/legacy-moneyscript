@@ -176,7 +176,7 @@ public class LangFilter {
 				Filter f = ast.getX();
 				filters.add(f); 
 			}			
-			return new Chain(filters);
+			return new ChainFilter(filters);
 		}		
 	}.label(FILTER).setDesc("chain of filter0");
 	

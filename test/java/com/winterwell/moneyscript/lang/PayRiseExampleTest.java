@@ -36,7 +36,7 @@ public class PayRiseExampleTest {
 		Row pay = b.getRow("Bob");
 		String alicePay = Printer.out(cap.getValues());
 		String bobPay = Printer.out(pay.getValues());
-		assert alicePay.equals("1000, 1000, 1650, 1650, 1650, 1650");
+		assert alicePay.equals("1000, 1000, 1650, 1650, 1650, 1650") : alicePay;
 		assert bobPay.equals("1000, 1000, 1100, 1100, 1100, 1100");
 	}
 	

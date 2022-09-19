@@ -541,6 +541,7 @@ public final class Business {
 			return;
 		}
 		Collection<String> rows = rule.getSelector().getRowNames(null);
+		// NB: empty rows can happen for later groups that don't capture their rows.
 		for (String rn : rows) {			
 			Row row = getRow(rn);
 			assert row != null;

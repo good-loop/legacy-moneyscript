@@ -13,6 +13,7 @@ import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.containers.Containers;
+import com.winterwell.utils.containers.ITree;
 import com.winterwell.utils.containers.Tree;
 
 public final class RowName extends CellSet {
@@ -33,8 +34,9 @@ public final class RowName extends CellSet {
 	public Set<String> getRowNames(Cell focus) {
 		Row row = Cell.getBusiness().getRow(rowName);
 		if (row != null && row.isGroup()) {
-			List rows = row.flatten();
-			return new ArraySet(rows);
+			List<Row> rows = row.flatten();
+			List<String> names = Containers.apply(rows, r -> r.getName());
+			return new ArraySet(names);
 		}
 		return Collections.singleton(rowName);
 	}

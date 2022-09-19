@@ -34,6 +34,7 @@ import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
+import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.Slice;
 import com.winterwell.utils.containers.Tree;
 import com.winterwell.utils.io.FileUtils;
@@ -713,12 +714,10 @@ public class LangTest {
 		Lang lang = new Lang();
 		Business b = lang.parse("Staff:\n\tAlice:£1\nOverheads:Staff*10%\nStaff:\n\tBob:£2");
 		List<Row> rows = b.getRows();
+		List<String> rowNames = Containers.apply(rows, Row::getName);
 		Printer.out(rows);
 		assert rows.size() == 4;		
-		assert rows.get(0).getName().equals("Staff");
-		assert rows.get(1).getName().equals("Alice");
-		assert rows.get(2).getName().equals("Bob");
-		assert rows.get(3).getName().equals("Overheads");
+		assert Containers.same(rowNames, Arrays.asList("Staff Alice Bob Overheads".split(" ")));
 	}
 	
 //	@Test TODO scenarios
