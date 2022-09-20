@@ -532,7 +532,7 @@ public class Lang {
 	 * @param parent
 	 */
 	private void parse4_addRulesAndGroupRows_combinedFilters(Rule rule, Group parent) {
-		if (rule.toString().contains("Sales Team") || rule.toString().contains("Nicolas")
+		if (rule.toString().contains("Sales Team") || rule.toString().contains("Karim")
 				|| rule.toString().contains("UK Staff")) {
 			System.out.println(rule);
 		}
@@ -555,8 +555,9 @@ public class Lang {
 		while(gs instanceof FilteredCellSet) {
 			Filter filter = ((FilteredCellSet) gs).getFilter();
 			// NB: we can usually ignore the base of the groupSelector, which is "this group"
-			CellSet base = ((FilteredCellSet) groupSelector).getBase();
-			gs = base;
+			CellSet base = ((FilteredCellSet) gs).getBase();
+			assert base != gs;
+			gs = base; 
 			filters.add(filter);
 		}
 		if (filters.isEmpty()) {

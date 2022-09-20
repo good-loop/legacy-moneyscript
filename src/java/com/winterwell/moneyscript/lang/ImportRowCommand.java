@@ -6,9 +6,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.winterwell.maths.stats.distributions.d1.Gaussian1D;
 import com.winterwell.maths.stats.distributions.d1.MeanVar1D;
+import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.RowName;
 import com.winterwell.moneyscript.lang.num.BasicFormula;
 import com.winterwell.moneyscript.lang.num.Numerical;
@@ -143,8 +145,12 @@ public class ImportRowCommand extends ImportCommand {
 	}
 
 	private void run2_financeSheet(Business b, CSVReader r, List<String> headers) {
-
-		String importRowName = ((BasicFormula)formula).getCellSetSelector().getSrc();
+		CellSet cellset = ((BasicFormula)formula).getCellSetSelector();
+		Set<String> rowNames = cellset.getRowNames(null);
+		String importRowName = Containers.only(rowNames);
+		if (Utils.isBlank(importRowName)) {
+			throw new IllegalStateException("No cellset row name in "+cellset+" from "+formula+" for "+this);
+		}
 
 		ourCol4importCol = run2_importRows2_ourCol4importCol(b, headers.toArray(new String[0]), b.getSettings().getStart(), b.getSettings().getEnd());
 		// check we found something
