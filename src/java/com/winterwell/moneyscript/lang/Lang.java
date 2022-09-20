@@ -13,15 +13,19 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.winterwell.maths.NoDupes;
+import com.winterwell.maths.timeseries.ChainedDataStream;
 import com.winterwell.moneyscript.data.PlanSheet;
 import com.winterwell.moneyscript.lang.bool.LangBool;
 import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.ChainFilter;
 import com.winterwell.moneyscript.lang.cells.CurrentRow;
 import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.cells.FilteredCellSet;
+import com.winterwell.moneyscript.lang.cells.IntersectionCellSet;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
 import com.winterwell.moneyscript.lang.cells.LangFilter;
 import com.winterwell.moneyscript.lang.cells.RowName;
@@ -119,8 +123,11 @@ public class Lang {
 					LangCellSet.cellSet, // allow "Row" or "Row from next year"
 					lit(":"), 
 					optSpace, opt(na), 
-//					optSpace, opt(LangMisc.tags),
-					opt(LangMisc.comment))) 
+					optSpace,
+					opt(LangNum.hashTag),
+					optSpace,
+					opt(LangMisc.comment))
+			)
 	{
 		protected Rule process(ParseResult r) {			
 			AST<Number> indentAst = r.getNode(LangMisc.indent);
@@ -132,12 +139,17 @@ public class Lang {
 			GroupRule gr;
 			if (scenario) {
 				gr = new ScenarioRule(new Scenario(rname), ind);
-			} else {				
+			} else {		
 				gr = new GroupRule(row, ind);
 			}
 			AST rna = r.getNode(na);
 			if (rna != null) {
 				gr.na = true;
+			}
+			AST hashtag = r.getNode(LangNum.hashTag);
+			if (hashtag != null) {
+				Object h = hashtag.getValue();
+				gr.setTag((String)h);
 			}
 			return gr;
 		}
@@ -166,7 +178,7 @@ public class Lang {
 			lit(":"), optSpace, 
 			ruleBody,
 			optSpace,
-			opt(LangMisc.tag),
+			opt(LangNum.hashTag),
 			optSpace,
 			opt(LangMisc.comment),
 			optSpace)
@@ -183,7 +195,7 @@ public class Lang {
 			// unit?
 			AST<String> u = r.getNode("unit");
 			// hashtag?
-			AST<String> astTag = r.getNode(LangMisc.tag);
+			AST<String> astTag = r.getNode(LangNum.hashTag);
 			String tag = null;
 			if (astTag!=null) {
 				tag = astTag.getX();			
@@ -263,11 +275,18 @@ public class Lang {
 	}
 	
 
+	/**
+	 * Parse - uses a cache for spped
+	 * @param scriptLine
+	 * @param b
+	 * @return
+	 */
 	public Rule parseLine(String scriptLine, Business b) {
 		Object r = null;
 		// HACK cache for speed
 		if (cache != null) {
-			r = cache.get(scriptLine);			
+			r = cache.get(scriptLine);
+			r = Utils.copy(r); // copy to avoid cache vs edit issues
 		}
 		if (r==null) {
 			ParseResult pr = line.parse(scriptLine);
@@ -390,27 +409,29 @@ public class Lang {
 	private List<ParseFail> parse5_checkDuplicates(Business b) {
 		List<ParseFail> dupes = new ArrayList();
 		Set<Rule> rules = b.getAllRules();
-		NoDupes<String> cellsets = new NoDupes<>();
+		Map<String,Rule> rule4filter = new HashMap<>(); // detect dupes
 		for (Rule r : rules) {
 			if (r instanceof ImportRowCommand || r instanceof StyleRule) {
 				continue;
 			}
 			if (r.formula==null) {
-				// what is this??
-				continue;
-			}
+				continue; // no formula = dont care about overlaps
+			}			
 			if (r.getSelector()==null) {
 				continue;
-			}
-			CellSet cellset = r.getSelector();
-			
+			}			
 			// NB: overlaps between scenarios are fine
-			String cs = r.getScenario()+cellset.toString(); //XStreamUtils.serialiseToXml(cellset);
-			if ( ! cellsets.isDuplicate(cs)) {
+			String cs = StrUtils.joinWithSkip(" ", r.getScenario(), r.getSelector());
+			int i = cs.indexOf(':'); // pop the actual rule -- we just want the filter part
+			if (i!=-1) {
+				cs = cs.substring(0, i);
+			}
+			if ( ! rule4filter.containsKey(cs)) {
+				rule4filter.put(cs, r);
 				continue; // all good
 			}
 			ParseFail pf = new ParseFail(new Slice(r.src), 
-				"This rule overlaps with another rule for: "+cellset.getSrc());
+				"This rule overlaps with another rule for: "+cs+" - "+rule4filter.get(cs));
 			pf.lineNum = r.getLineNum();
 			pf.setSheetId(r.sheetId);
 			dupes.add(pf);
@@ -428,6 +449,7 @@ public class Lang {
 				}
 			}
 
+			// NB: selector may be modified later to add group-level filter
 			CellSet selector = rule.getSelector();
 			if (selector==null) {
 				selector = new CurrentRow(null); // is this always OK?? How do grouping rules behave??
@@ -437,7 +459,10 @@ public class Lang {
 				// HACK don't add a row for scenario X
 				rowNames = Collections.emptySet();
 			} else {
-				assert ! rowNames.isEmpty() : rule;
+				if (rowNames.isEmpty()) {
+					selector.getRowNames(null);
+				}
+				assert ! rowNames.isEmpty() : selector+" "+rule;
 			}
 			// the rows named in this rule's selector
 			// Make sure they exist
@@ -489,27 +514,9 @@ public class Lang {
 					}
 				}
 				// filter?
-				if (parent.rule != null) {
-					GroupRule gr = parent.rule;
-					if (gr.getSelector() instanceof FilteredCellSet) {
-						FilteredCellSet fcs = ((FilteredCellSet) gr.getSelector());
-						Filter f = fcs.getFilter();
-						CellSet rsel = rule.getSelector();
-						// add the filter
-						FilteredCellSet rfcs = new FilteredCellSet(rsel, f, fcs.getSrc()+" and "+rsel.getSrc());
-						// copy because cached
-						Rule newRule = Utils.copy(rule);
-						newRule.setSelector(rfcs);
-						b.replaceRule(rule, newRule); // TODO also need to replace Group refs
-						if (group.rule == rule) {
-							group.rule = (GroupRule) newRule;
-						}
-						rule = newRule;
-					}
-				}
+				parse4_addRulesAndGroupRows_combinedFilters(rule, parent); 
 			} // ./parent!=null
-			
-			
+					
 			// rule grouping eg for scenarios (which apply at the rule level not the row level)
 			rule = parse4_addRulesAndGroupRows2_setRuleGroup(rule, parent);			
 
@@ -517,6 +524,52 @@ public class Lang {
 			b.addRule(rule);
 		}
 	}
+
+	
+	/**
+	 * Combine any group level filter with any filter on the row
+	 * @param rule
+	 * @param parent
+	 */
+	private void parse4_addRulesAndGroupRows_combinedFilters(Rule rule, Group parent) {
+		if (rule.toString().contains("Sales Team") || rule.toString().contains("Karim")
+				|| rule.toString().contains("UK Staff")) {
+			System.out.println(rule);
+		}
+		if (parent.rule == null) { 
+			return;
+		}
+		GroupRule gr = parent.rule;
+		// hashtag?
+		if (gr.getTag() != null) {
+			if (rule.getTag()==null) {
+				rule.setTag(gr.getTag());
+			} else {
+				// rule-specific hashtag overrides a group level one
+			}
+		}
+		// filter
+		CellSet groupSelector = gr.getSelector();
+		CellSet gs = groupSelector;
+		List<Filter> filters = new ArrayList();
+		while(gs instanceof FilteredCellSet) {
+			Filter filter = ((FilteredCellSet) gs).getFilter();
+			// NB: we can usually ignore the base of the groupSelector, which is "this group"
+			CellSet base = ((FilteredCellSet) gs).getBase();
+			assert base != gs;
+			gs = base; 
+			filters.add(filter);
+		}
+		if (filters.isEmpty()) {
+			return;
+		}		
+		Filter filter = filters.size() == 1? filters.get(0) : new ChainFilter(filters);
+		CellSet ruleCells = rule.getSelector();
+		FilteredCellSet fcs = new FilteredCellSet(ruleCells, filter, 
+				rule.getSelector().getSrc()+" + parent: "+groupSelector.getSrc());
+		rule.setSelector(fcs);
+	}
+
 
 	/**
 	 * 
@@ -550,8 +603,8 @@ public class Lang {
 		// check up the stack
 		while(parent!=null) {
 			if (parent.byScenario != null) {
-				// copy because cached
-				newRule = Utils.copy(newRule); 
+//				// copy because cached (copy now done when getting the rule out)
+//				newRule = Utils.copy(newRule); 
 				newRule.setScenario(parent.byScenario);
 			}
 			parent = parent.parent;
@@ -574,6 +627,9 @@ public class Lang {
 			String lineln = lines[ln];
 			if (Utils.isBlank(lineln)) {
 				continue;			
+			}
+			if (lineln.contains("UK Staff")) {
+				System.out.println(lineln);
 			}
 			
 			// Parse a line of script

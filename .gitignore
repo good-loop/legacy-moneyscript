@@ -20,3 +20,4 @@ pom.bob.xml
 config/version.properties
 com.winterwell.moneyscript.output.SpeedTest.log
 data
+hs_err_pid*

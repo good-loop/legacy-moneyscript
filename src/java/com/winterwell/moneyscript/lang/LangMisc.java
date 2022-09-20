@@ -82,8 +82,7 @@ public class LangMisc {
 //			return tag;
 //		}		
 //	}.eg("#Edinburgh");
-
-	public static final Parser<String> tag = LangNum.hashTag; //, space).label("tags");
+//
 
 	/**
 	 * always matches and returns 0+

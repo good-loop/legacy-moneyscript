@@ -34,6 +34,7 @@ import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
+import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.Slice;
 import com.winterwell.utils.containers.Tree;
 import com.winterwell.utils.io.FileUtils;
@@ -95,8 +96,50 @@ public class LangTest {
 			assert csv.contains("Staff, 0, 0") : csv;
 			assert csv.contains("Alice, 0, 0") : csv;
 		}
+		{
+			Business b = lang.parse("start: Jan 2021\nStaff from Jan 2022:\n\tUK:\n\t\tSales:\n\t\t\tAlice: 1");
+			Row rowuk = b.getRow("UK");
+			List<Rule> rulesuk = rowuk.getRules();
+			assert rulesuk.size() == 1;
+			Rule ruleuk = rulesuk.get(0);
+			assert ruleuk.getSelector() instanceof FilteredCellSet : ruleuk.getSelector();
+			
+			Row row = b.getRow("Alice");
+			List<Rule> rules = row.getRules();
+			assert rules.size() == 1;
+			Rule rule = rules.get(0);
+			assert rule.getSelector() instanceof FilteredCellSet : rule.getSelector();
+			b.setColumns(3);
+			b.run();
+			String csv = b.toCSV();
+			assert csv.contains("Staff, 0, 0") : csv;
+			assert csv.contains("Alice, 0, 0") : csv;
+		}
 	}
 
+	@Test // currently fails :( Workaround: don't mix grouping with style rules
+	public void testNestedGroupWithFilterAndStyle() {
+		Lang lang = new Lang();
+		{
+			Business b = lang.parse("start: Jan 2021\nStaff from Jan 2022:\n\tUK: {.bg-blue}\n\t\tAlice: 1");
+			Row rowuk = b.getRow("UK");
+			List<Rule> rulesuk = rowuk.getRules();
+			assert rulesuk.size() == 1 : rulesuk;
+			Rule ruleuk = rulesuk.get(0);
+			assert ruleuk.getSelector() instanceof FilteredCellSet : ruleuk.getSelector();
+			
+			Row row = b.getRow("Alice");
+			List<Rule> rules = row.getRules();
+			assert rules.size() == 1;
+			Rule rule = rules.get(0);
+			assert rule.getSelector() instanceof FilteredCellSet : rule.getSelector();
+			b.setColumns(3);
+			b.run();
+			String csv = b.toCSV();
+			assert csv.contains("Staff, 0, 0") : csv;
+			assert csv.contains("Alice, 0, 0") : csv;
+		}
+	}
 	
 	@Test
 	public void testTagMaths() {
@@ -694,12 +737,10 @@ public class LangTest {
 		Lang lang = new Lang();
 		Business b = lang.parse("Staff:\n\tAlice:£1\nOverheads:Staff*10%\nStaff:\n\tBob:£2");
 		List<Row> rows = b.getRows();
+		List<String> rowNames = Containers.apply(rows, Row::getName);
 		Printer.out(rows);
 		assert rows.size() == 4;		
-		assert rows.get(0).getName().equals("Staff");
-		assert rows.get(1).getName().equals("Alice");
-		assert rows.get(2).getName().equals("Bob");
-		assert rows.get(3).getName().equals("Overheads");
+		assert Containers.same(rowNames, Arrays.asList("Staff Alice Bob Overheads".split(" ")));
 	}
 	
 //	@Test TODO scenarios

@@ -9,7 +9,6 @@ import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
-import com.winterwell.utils.Printer;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.time.Dt;
 
@@ -77,49 +76,6 @@ class ByUnit extends Filter {
 		}
 
 	}
-
-/**
- * Chain filters together
- * @author daniel
- *
- */
-class Chain extends Filter {
-		
-	private List<Filter> filters;
-
-	@Override
-	public String toString() {
-		return Printer.toString(filters, " && ");
-	}
-	
-	public Chain(List<Filter> filters) {
-		super(null);
-		this.filters = filters;
-		for (Filter f : filters) {
-			if (dirn==null) dirn = f.dirn; 
-		}
-	}
-
-	@Override
-	public Collection<Cell> filter(Collection<Cell> cells, Cell context) {
-		for (Filter f : filters) {
-			cells = f.filter(cells, context);
-		}
-		return cells;
-	}
-
-	@Override
-	public boolean contains(Cell cell, Cell context) {
-		// Hm... not always correct!
-		for (Filter f : filters) {
-			if ( ! f.contains(cell, context)) {
-				return false;
-			}
-		}
-		return true;
-	}		
-}
-	
 
 class Above extends Filter {
 

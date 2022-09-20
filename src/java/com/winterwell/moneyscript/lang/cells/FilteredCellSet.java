@@ -53,4 +53,8 @@ public class FilteredCellSet extends CellSet {
 		return filter.filter(cells, bc);
 	}
 
+	public CellSet getBase() {
+		return base;
+	}
+
 }

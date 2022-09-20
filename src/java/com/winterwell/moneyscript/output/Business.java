@@ -541,6 +541,7 @@ public final class Business {
 			return;
 		}
 		Collection<String> rows = rule.getSelector().getRowNames(null);
+		// NB: empty rows can happen for later groups that don't capture their rows.
 		for (String rn : rows) {			
 			Row row = getRow(rn);
 			assert row != null;
@@ -548,21 +549,21 @@ public final class Business {
 		}		
 	}
 
-
-	/**
-	 * Replace in row rules. Is this needed??
-	 */
-	public void replaceRule(Rule oldRule, Rule newRule) {
-		Collection<String> rows = newRule.getSelector().getRowNames(null);
-		for (String rn : rows) {			
-			Row row = getRow(rn);
-			assert row != null;
-			int i = row.rules.indexOf(oldRule);
-			if (i != -1) {
-				row.rules.set(i, newRule);
-			}
-		}		
-	}
+//
+//	/**
+//	 * Replace in row rules. Is this needed??
+//	 */
+//	public void replaceRule(Rule oldRule, Rule newRule) {
+//		Collection<String> rows = newRule.getSelector().getRowNames(null);
+//		for (String rn : rows) {			
+//			Row row = getRow(rn);
+//			assert row != null;
+//			int i = row.rules.indexOf(oldRule);
+//			if (i != -1) {
+//				row.rules.set(i, newRule);
+//			}
+//		}		
+//	}
 
 	
 	/**

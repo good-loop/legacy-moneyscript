@@ -67,7 +67,7 @@ public class GroupRuleTest {
 		
 		ArrayMap json = b.toJSON();
 		double[] vs = b.getRow("Alice").getValues();
-		assert vs[0] == 1000 && vs[1] == 1500;
+		assert vs[0] == 1000 && vs[1] == 1500 : Printer.toString(vs);
 //		Printer.out(json);
 	}
 
