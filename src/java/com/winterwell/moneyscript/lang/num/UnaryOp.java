@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.RowName;
 import com.winterwell.moneyscript.lang.time.DtDesc;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
@@ -53,7 +54,7 @@ public class UnaryOp extends Formula {
 			return calculate2_count(b);
 		}
 		// e.g. "previous Debt"
-		if (op=="previous") {
+		if ("previous".equals(op)) {
 			return calculate2_previous(b); 
 		}
 		Numerical x = right.calculate(b);
@@ -112,11 +113,18 @@ public class UnaryOp extends Formula {
 		// must be a cell set as formula
 		CellSet cellSet = ((BasicFormula)right).sel;
 		assert cellSet != null : right;
-		Set<String> rows = cellSet.getRowNames(b);
-		assert rows.size() == 1 : rows;
+		String rowName;
+		if (cellSet instanceof RowName) {
+			// shortcut
+			rowName = ((RowName) cellSet).getRowName();			
+		} else {
+			Set<String> rows = cellSet.getRowNames(b);
+			rowName = Containers.first(rows);
+	//		assert rows.size() == 1 : rows; group rows pull back more
+		}
 		Business biz = b.getBusiness();
-		Row row = biz.getRow(Containers.first(rows));
-		assert row != null : rows;
+		Row row = biz.getRow(rowName);
+		assert row != null : cellSet;
 		Cell prevCell = new Cell(row, new Col(b.getColumn().index-1));
 //		Cell b2 = new Cell(prevCell);
 		if ( ! cellSet.contains(prevCell, b)) {
