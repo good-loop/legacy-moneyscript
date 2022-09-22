@@ -159,7 +159,8 @@ public class LangNum {
 			"sum row", "sum", "mean", "log", 
 			"round down", "round up", "round", 
 			"sqrt", "abs", 
-			"previous", "p"
+			"previous", "p",
+			"average"
 			).label("mathFnNameUnary");
 
 

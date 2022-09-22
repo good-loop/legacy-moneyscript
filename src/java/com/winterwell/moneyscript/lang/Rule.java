@@ -108,9 +108,19 @@ public class Rule implements IReset {
 	private String unit;
 	String sheetId;
 	private String tag;
+	/**
+	 * NB: transient so we dont share group-level tags via the rule cache
+	 */
+	private transient String tag2 = "";
 	
 	public String getTag() {
-		return tag;
+		if (tag != null) {
+			return tag;
+		}
+		if (tag2 != null && ! tag2.isEmpty()) {
+			return tag2;
+		}		
+		return null;
 	}
 	
 	@Override
@@ -162,8 +172,9 @@ public class Rule implements IReset {
 			if (unit != null) {
 				v.setUnit(unit);
 			}
-			if (tag!=null) {
-				v.setTag(tag);
+			String _tag = getTag();
+			if (_tag!=null) {
+				v.setTag(_tag);
 			}
 			return v;
 		} catch(Throwable ex) {
@@ -226,6 +237,14 @@ public class Rule implements IReset {
 
 	public void setTag(String tag) {
 		this.tag = tag;
+	}
+
+	/**
+	 * NB: This is transient, so not shared via cache
+	 * @param tag2
+	 */
+	public void setTagFromParent(String tag2) {
+		this.tag2 = tag2;
 	}
 
 

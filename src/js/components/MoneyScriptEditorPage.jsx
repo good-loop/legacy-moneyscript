@@ -64,7 +64,7 @@ const MoneyScriptEditorPage = () => {
 	let id = getPlanId();
 	const type = C.TYPES.PlanDoc;
 	if (!id) {
-		return <ListLoad type={type} status={C.KStatus.ALL_BAR_TRASH} canDelete canCreate />;
+		return <ListLoad type={type} status={C.KStatus.ALL_BAR_TRASH} canDelete canCreate sort='lastModified-desc' />;
 	}
 
 	const path = DataStore.getDataPath({ status: C.KStatus.DRAFT, type, id });
@@ -126,7 +126,7 @@ const RightSide = ({plandoc}) => {
 	<BSCard className="mt-2" style={{ maxWidth: "300px" }} >
 		<SavePublishDeleteEtc size="md" type="PlanDoc" id={id} className="light" position="relative" 
 			canDiscard saveAs
-			sendDiff={false /* TODO fix flickering from multiple edits on text + 2 people editing issues to use this */} />
+			sendDiff={true /* TODO this being on is not the culprit for the flickering edits bug */} />
 	</BSCard></>);
 	// {/* <ShareLink /> */}
 	// {/* <ShareWidget /> */}

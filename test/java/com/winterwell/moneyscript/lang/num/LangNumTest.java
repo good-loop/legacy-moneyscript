@@ -34,6 +34,16 @@ public class LangNumTest {
 
 	
 	@Test
+	public void testAverageFormula() {
+		Lang lang = new Lang();
+		LangNum nlang = lang.langNum;
+		ParseResult<Formula> foo1 = nlang.num.parseOut("average(Staff)");
+		ParseResult<Formula> foo = nlang.num.parseOut("average(previous 6 months)");
+		System.out.println(foo);		
+	}
+	
+	
+	@Test
 	public void testHashTagFormula() {
 		Lang lang = new Lang();
 		LangNum nlang = lang.langNum;

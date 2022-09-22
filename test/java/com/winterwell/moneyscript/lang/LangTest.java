@@ -421,6 +421,47 @@ public class LangTest {
 		}		
 	}
 	
+
+	@Test
+	public void testGroupRuleHashTag() {
+		Lang lang = new Lang();
+		{
+			lang.groupRow.parseOut("UK: #foo");
+			lang.groupRow.parseOut("UK: #foo");
+			lang.groupRow.parseOut("	UK: #foo");
+		}
+		{			
+			Business b = lang.parse("Staff: #uk\n" +
+					"\tAlice:£1 per month\n" +
+					"\tBob:£1 per month\n" +
+					"SUK: Staff#uk");
+			b.setColumns(3);
+			b.run();
+//			System.out.println(b.toCSV());
+			assert b.toCSV().contains("SUK, £2, £2");
+		}
+		{	// FIXME rule caching means group-level hashtags are sticky :(
+			Business b = lang.parse("Staff:\n" +
+					"\tAlice:£1 per month #uk\n" +
+					"\tBob:£1 per month\n" +
+					"SUK: Staff#uk");
+			b.setColumns(2);
+			b.run();
+//			System.out.println(b.toCSV());
+			assert b.toCSV().contains("SUK, £1, £1");
+		}		
+		{			
+			Business b = lang.parse("Staff:\n\tLondon: #uk\n" +
+					"\t\tAlice:£1 per month\n" +
+					"\tBob:£1 per month\n" +
+					"SUK: Staff#uk");
+			b.setColumns(3);
+			b.run();
+//			System.out.println(b.toCSV());
+			assert b.toCSV().contains("SUK, £1, £1");
+		}		
+	}
+	
 	@Test
 	public void testScenarioRule() {
 		Lang lang = new Lang();

@@ -147,13 +147,13 @@ public class Lang {
 				gr.na = true;
 			}
 			AST hashtag = r.getNode(LangNum.hashTag);
-			if (hashtag != null) {
-				Object h = hashtag.getValue();
+			if (hashtag != null) {				
+				Object h = hashtag.getX();
 				gr.setTag((String)h);
 			}
 			return gr;
 		}
-	}.eg("Staff: na");
+	}.eg("Staff: na").eg("London: #uk // meh");
 	
 	Parser ruleBody = first(langNum.numList, LangNum.num, 
 							langNum.compoundingFormula, 						 
@@ -543,7 +543,7 @@ public class Lang {
 		// hashtag?
 		if (gr.getTag() != null) {
 			if (rule.getTag()==null) {
-				rule.setTag(gr.getTag());
+				rule.setTagFromParent(gr.getTag());
 			} else {
 				// rule-specific hashtag overrides a group level one
 			}

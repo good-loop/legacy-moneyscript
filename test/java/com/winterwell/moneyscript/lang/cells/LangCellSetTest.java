@@ -12,6 +12,7 @@ import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.bool.LangBool;
 import com.winterwell.moneyscript.lang.cells.Filter.KDirn;
+import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.lang.num.SimpleLangNum;
 import com.winterwell.moneyscript.lang.num.UnaryOp;
@@ -39,6 +40,57 @@ public class LangCellSetTest {
 		assert fcs.base.toString().equals("Staff");
 	}
 	
+
+
+	@Test public void testCellSetPeriod() {
+		Lang lang = new Lang();
+		{
+			CellSet cs = LangCellSet.cellSet.parseOut("Staff from month 2 to month 4").getX();
+			assert cs instanceof FilteredCellSet;
+			FilteredCellSet fcs = (FilteredCellSet) cs;
+			assert fcs.base.toString().equals("Staff");
+		}
+		{
+			CellSet cs = LangCellSet.cellSet.parseOut("Staff from 3 months ago").getX();
+			assert cs instanceof FilteredCellSet;
+			FilteredCellSet fcs = (FilteredCellSet) cs;
+			assert fcs.base.toString().equals("Staff");			
+		}
+		{
+			CellSet cs = LangCellSet.cellSet.parseOut("Staff from 3 months ago to now").getX();
+			assert cs instanceof FilteredCellSet;
+			FilteredCellSet fcs = (FilteredCellSet) cs;
+			assert fcs.base.toString().equals("Staff");
+		}
+		// which cells?
+		{
+			Business b = lang.parse("Staff: 1,2,3,4,5\nSlice: sum(Staff from month 2 to month 4)");
+			b.setColumns(5);
+			Rule rule = b.getRow("Slice").getRules().get(0);
+			Formula formula = rule.getFormula();
+			System.out.println(formula);
+			System.out.println(b.toCSV());
+			assert b.toCSV().contains("Slice, 9, 9, 9, 9, 9");
+		}
+		{
+			Business b = lang.parse("Staff: 1,2,3,4,5\nSlice: sum(Staff from 2 months ago to now)");
+			b.setColumns(5);
+			Rule rule = b.getRow("Slice").getRules().get(0);
+			Formula formula = rule.getFormula();
+			System.out.println(formula);
+			System.out.println(b.toCSV());
+			assert b.toCSV().contains("Slice, 1, 3, 6, 9, 12");
+		}
+		if (false) { // TODO
+			Business b = lang.parse("Staff: 1,2,4,8,16\nSlice: sum(Staff from 2 months ago)");
+			b.setColumns(5);
+			Rule rule = b.getRow("Slice").getRules().get(0);
+			Formula formula = rule.getFormula();
+			System.out.println(formula);
+			System.out.println(b.toCSV());
+			assert b.toCSV().contains("Slice, 1, 3, 7, 14, 28");
+		}
+	}
 	
 
 	@Test 

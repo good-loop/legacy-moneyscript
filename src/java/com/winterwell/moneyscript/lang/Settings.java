@@ -112,9 +112,11 @@ public final class Settings {
 	public void setEnd(Time _end) {
 		this._end = _end;
 		ts = null;		
-		this.yearEnd = _end.getMonth();
 	}	
 	
+	public void setYearEnd(Integer yearEnd) {
+		this.yearEnd = yearEnd;
+	}
 
 	private transient TimeSlicer ts;
 
@@ -128,9 +130,19 @@ public final class Settings {
 	/**
 	 * 12=dec (default), 3=march
 	 */
-	int yearEnd = 12;
+	private Integer yearEnd;
 	
+	/**
+	 * If unset, use end. If that is unset default to December
+	 * 12=dec (default), 3=march
+	 */
 	public int getYearEnd() {
+		if (yearEnd==null) {
+			if (_end==null) {
+				return 12;
+			}
+			return _end.getMonth();
+		}
 		return yearEnd;
 	}
 }

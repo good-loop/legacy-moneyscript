@@ -159,7 +159,7 @@ public class LangMisc {
 
 	
 	PP<Settings> startEndSetting = new PP<Settings>(
-			seq(lit("start", "end"), lit(":"), optSpace, LangTime.time)
+			seq(lit("start", "end", "year end"), lit(":"), optSpace, LangTime.time)
 			) {
 		protected Settings process(ParseResult<?> r) {
 			Settings s = new Settings();
@@ -176,6 +176,9 @@ public class LangMisc {
 				Time eom = TimeUtils.getEndOfMonth(time);
 				eom = eom.minus(TUnit.MILLISECOND); // in the month, just
 				s.setEnd(eom);
+			}
+			if ("year end".equals(keyword) && timeDesc instanceof SpecificTimeDesc) {				
+				s.setYearEnd(time.getMonth());
 			}
 			return s;
 		}

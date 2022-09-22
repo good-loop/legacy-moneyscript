@@ -47,6 +47,9 @@ public class UnaryOp extends Formula {
 		if (op.startsWith("sum")) {
 			return calculate2_sum(b);
 		}
+		if (op.equals("average")) {
+			return calculate2_sum(b);
+		}
 		if (op.startsWith("count row")) {
 			return calculate2_countRow(b); 		// TODO preserve tags
 		}
@@ -139,28 +142,41 @@ public class UnaryOp extends Formula {
 		return pc;
 	}
 
+	/**
+	 * Sum or average
+	 * @param b
+	 * @return
+	 */
 	private Numerical calculate2_sum(Cell b) {
 		Numerical sum = new Numerical(0);
+		Collection<Cell> cells;
 		// eg "sum Sales"
 		if (right instanceof BasicFormula) {
 			// right should be a selector
 			CellSet sel = ((BasicFormula)right).sel;
 			// ?? FIXME sum Sales = sum (Sales from start to now)
 //			sel.getStartColumn(sel.get, b);
-			Collection<Cell> cells = sel.getCells(b, true);
+			cells = sel.getCells(b, true);
 			for (Cell cell : cells) {
 				Numerical c = b.getBusiness().getCellValue(cell);
 				sum = sum.plus(c);
 			}
-			return sum;
+		} else {		
+			cells = b.getRow().getCells();
+			// apply the op
+			for (Cell cell : cells) {
+				Numerical c = right.calculate(cell);
+				sum = sum.plus(c);
+			}
 		}
-		
-		Collection<Cell> cells = b.getRow().getCells();
-		// apply the op
-		for (Cell cell : cells) {
-			Numerical c = right.calculate(cell);
-			sum = sum.plus(c);
-		}		
+		// average?
+		if ("average".equals(op)) {
+			int n = cells.size();
+			if (n==0) {
+				return sum;
+			}
+			sum = sum.divide(new Numerical(n));
+		}
 		return sum;
 	}
 
