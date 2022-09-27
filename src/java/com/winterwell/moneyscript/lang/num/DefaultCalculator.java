@@ -24,12 +24,19 @@ final class DefaultCalculator implements ICalculator {
 		assert x != null && y != null : x+" "+y;
 		if (x instanceof ErrorNumerical) return x;
 		if (y instanceof ErrorNumerical) return y;
+		if (Numerical.isZero(x)) {
+			// handles 0 / 0 as 0
+			return new Numerical(0, unit(x,y));
+		}
 		Numerical n = new Numerical(x.doubleValue() / y.doubleValue(), unit(x, y));
 		// tags
 		if (x.value4tag!=null) {
 			n.value4tag = new ArrayMap();
 			for(Map.Entry<String,Double> e : x.value4tag.entrySet()) {
 				Double xv = e.getValue();
+				if (xv == 0.0) {
+					continue; // no need to track 0s
+				}
 				if (y.value4tag == null) {
 					double v = xv / y.doubleValue();
 					if (MathUtils.isFinite(v)) {
