@@ -651,15 +651,17 @@ public class Lang {
 			rules.add(rule);
 			
 			// HACK: Process import of m$
-			if (rule instanceof ImportCommand && rule.src.endsWith("ms") || rule.src.endsWith("ms")) {
+			if (rule instanceof ImportCommand && rule.src.endsWith("ms") || rule.src.endsWith("ms")) {				
 				ImportCommand ic = (ImportCommand) rule;
-				Business b2 = ic.runImportMS(this);
-				Set<Rule> importedRules = b2.getAllRules();
-				Settings settings2 = b2.getSettings();
-				rules.addAll(importedRules);
-				// merge (our settings take precedence)
-				Settings s3 = settings2.merge(b.getSettings());
-				b.setSettings(s3);
+				if (ic.getVarName() == null) {
+					Business b2 = ic.runImportMS(this);
+					Set<Rule> importedRules = b2.getAllRules();
+					Settings settings2 = b2.getSettings();
+					rules.addAll(importedRules);
+					// merge (our settings take precedence)
+					Settings s3 = settings2.merge(b.getSettings());
+					b.setSettings(s3);
+				}
 			}			
 		}		
 		return rules;

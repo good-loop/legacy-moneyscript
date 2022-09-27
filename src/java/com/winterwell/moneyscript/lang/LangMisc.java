@@ -159,7 +159,7 @@ public class LangMisc {
 
 	
 	PP<Settings> startEndSetting = new PP<Settings>(
-			seq(lit("start", "end", "year end"), lit(":"), optSpace, LangTime.time)
+			seq(lit("start", "end", "year end", "currency"), lit(":"), optSpace, LangTime.time)
 			) {
 		protected Settings process(ParseResult<?> r) {
 			Settings s = new Settings();
@@ -240,7 +240,9 @@ public class LangMisc {
 	 * TODO other blend modes?
 	 */
 	PP<ImportCommand> importCommand = new PP<ImportCommand>(
-			seq(lit("import", "compare"), opt(cache), opt(lit(" all"," overlap").label("whichRows")), lit(":"), 
+			seq(lit("import", "compare"), opt(cache), opt(lit(" all"," overlap").label("whichRows")),
+					opt(seq(lit(" as "), ref(LangCellSet.ROW_NAME))),
+					lit(":"), 
 					optSpace, LangMisc.urlOrFile, 
 					optSpace, opt(jsonLike))
 			) {
@@ -263,6 +265,10 @@ public class LangMisc {
 			if (whichRows != null) {
 				s.setRows(whichRows.getX()); 
 			}			
+			AST<String> rName = r.getNode(LangCellSet.ROW_NAME);
+			if (rName != null) {
+				s.setVarName(rName.getValue().toString());
+			}
 			// extra info
 			AST<Map> _jobj = r.getNode(jsonLike);
 			if (_jobj!=null) {

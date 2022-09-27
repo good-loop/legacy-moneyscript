@@ -233,6 +233,9 @@ public final class Business {
 		phase = KPhase.IMPORT;
 		for(ImportCommand ic : getImportCommands()) {
 			if (ic instanceof CompareCommand) continue; // later
+			if (ic.getVarName() != null) {
+				continue;
+			}
 			ic.run2_importRows(this);
 		}
 		

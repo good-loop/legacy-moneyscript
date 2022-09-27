@@ -134,6 +134,18 @@ public class LangMiscTest {
 	
 
 	@Test
+	public void testImportAs() {
+		Lang lang = new Lang();
+		LangMisc lm = lang.langMisc;
+		
+		ImportCommand jobj0 = lm.importCommand.parseOut("import as Foo: https://docs.google.com/spreadsheets/d/1vksonmI0OWqshxPb7rNd5cKAMUbXZDwc1E0U6unSGw0").getX();
+		assert jobj0.getVarName().equals("Foo");
+		
+	}
+	
+	
+
+	@Test
 	public void testImportWithJsonInfo() {
 		Lang lang = new Lang();
 		LangMisc lm = lang.langMisc;

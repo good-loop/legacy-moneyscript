@@ -396,6 +396,8 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	 */
 	@ESNoIndex
 	protected Map<String, String> mappingImportRow2ourRow;
+
+	private String varName;
 	
 	public void fetch() {
 		// Always use in memory if set (e.g. if doing samples: 20))
@@ -535,6 +537,18 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 
 	public static boolean isImported(Numerical v) {
 		return v.comment != null && v.comment.startsWith(IMPORT_MARKER_COMMENT);
+	}
+
+	/**
+	 * Set only for "import as Foo: csv" commands
+	 * @return
+	 */
+	public String getVarName() {
+		return varName;
+	}
+
+	public void setVarName(String x) {
+		this.varName = x;
 	}
 	
 }

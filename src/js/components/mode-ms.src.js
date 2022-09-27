@@ -11,7 +11,7 @@ var PythonHighlightRules = function() {
 
     var keywords = (
 		"from|to|per|year|month|annual|at|sum|count|mean|months|ago|previous|fresh|this|row|except|" +
-        "if|import|export|all|overlap|off|aggregate|using|in|start|end|columns|na|samples|scenario"
+        "if|import|export|all|overlap|off|aggregate|using|in|start|end|year end|currency|columns|na|samples|scenario"
     );
 
     var builtinConstants = (
@@ -367,10 +367,10 @@ var PythonHighlightRules = function() {
 			},	
 			{
 				token: "constant.numeric", // e.g. £10k
-				regex: "(£|$)?" + floatNumber + "(k|m)?\\b"
+				regex: "(£|\$)?" + floatNumber + "(k|m)?\\b"
 			}, {
 				token: "constant.numeric", // e.g. £10k
-				regex: "(£|$)?" + integer + "(k|m)?\\b"
+				regex: "(£|\$)?" + integer + "(k|m)?\\b"
 			},
 			{
             token: "constant.numeric", // %
