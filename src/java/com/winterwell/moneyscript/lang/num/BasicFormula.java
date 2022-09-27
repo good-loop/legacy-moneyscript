@@ -9,8 +9,11 @@ import com.winterwell.moneyscript.lang.cells.CurrentRow;
 import com.winterwell.moneyscript.lang.cells.RowName;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.output.Cell;
+import com.winterwell.moneyscript.output.Row;
+import com.winterwell.utils.Dep;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Containers;
+import com.winterwell.utils.time.Time;
 
 /**
  * Just a number!
@@ -58,6 +61,7 @@ public class BasicFormula extends Formula {
 			if (tag!=null) {
 				n = n.getTagged(tag);
 			}
+			n = fx(n, b);
 			return n;
 		}
 		// HACK: a scenario?
@@ -88,6 +92,31 @@ public class BasicFormula extends Formula {
 		if (tag!=null) {
 			n = n.getTagged(tag);
 		}
+		return n;
+	}
+
+	private Numerical fx(Numerical n, Cell b) {
+		// HACK: handle dollars if a convertor was set for that
+		if ("$".equals(n.getUnit())) {
+			// did the user specify?
+			Row gbpusd = b.getBusiness().getRow("Set GBP USD"); // HACK!!
+			double v2;
+			if (gbpusd != null && b != null && ! gbpusd.equals(b.getRow())) {
+				Cell rcell = new Cell(gbpusd, b.getColumn());
+				Numerical rval = b.getBusiness().getCellValue(rcell);
+				v2 = n.doubleValue() / rval.doubleValue();
+			} else {
+				// use the date
+				Time date = b==null? new Time() : b.getColumn().getTime();
+				CurrencyConvertor_USD2GBP cc = new CurrencyConvertor_USD2GBP(date);				
+				double v = n.doubleValue();
+				v2 = cc.convertES(v);
+			}
+			Numerical n2 = new Numerical(v2);
+			n2.setUnit("£");
+			return n2;
+		}
+		// TODO other currencies
 		return n;
 	}
 

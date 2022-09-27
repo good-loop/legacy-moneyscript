@@ -75,17 +75,6 @@ public class LangNum {
 
 		protected Numerical process(ParseResult<?> r) {
 			Numerical n = new Numerical(r.parsed());
-			// HACK: handle dollars if a convertor was set for that
-			if ("$".equals(n.getUnit())) {
-				CurrencyConvertor_USD2GBP cc = Dep.getWithDefault(CurrencyConvertor_USD2GBP.class, null);				
-				if (cc !=null) {
-					double v = n.doubleValue();
-					double v2 = cc.convertES(v);
-					Numerical n2 = new Numerical(v2);
-					n2.setUnit("£");
-					return n2;
-				}
-			}
 			return n;
 		}
 	};
