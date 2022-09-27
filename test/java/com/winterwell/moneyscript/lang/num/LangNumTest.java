@@ -417,6 +417,75 @@ public class LangNumTest {
 			lang.gaussian.parseOut("N(£10,2)");
 		}
 	}
+	
+
+	
+	@Test
+	public void testNumberCurrency() {
+		LangNum lang = new LangNum();
+		{
+//			Parser.DEBUG = true;
+			assert Numerical.number.matcher("1000000.45").find();
+			ParseResult pr = lang._number.parseOut("100000.45");
+			Object n = pr.ast.getX();
+			assert n instanceof Numerical;
+			assert ((Numerical) n).doubleValue() == 100000.45;
+		}
+		
+		{
+			ParseResult pr = lang._number.parseOut("£100,000");
+			Object n = pr.ast.getX();
+			assert n instanceof Numerical;
+			assert ((Numerical) n).doubleValue() == 100000;
+		}
+		{
+			ParseResult pr = lang._number.parseOut("$100,000");
+			Object n = pr.ast.getX();
+			assert n instanceof Numerical;
+			assert ((Numerical) n).doubleValue() == 100000;
+			assert ((Numerical) n).getUnit().equals("$") : n;
+		}
+		{
+			ParseResult pr = lang._number.parseOut("100.45");
+			Object n = pr.ast.getX();
+			assert n instanceof Numerical;
+			assert ((Numerical) n).doubleValue() == 100.45;
+		}
+		{
+			assert Numerical.number.matcher("10.45").find();
+			assert Numerical.number.matcher("100.45").find();
+			assert Numerical.number.matcher("1000.45").find();
+			assert Numerical.number.matcher("10000.45").find();
+			assert Numerical.number.matcher("100000.45").find();
+			assert Numerical.number.matcher("1000000.45").find();
+		}
+		{
+			ParseResult pr = lang._number.parseOut("100000.45");
+			Object n = pr.ast.getX();
+			assert n instanceof Numerical;
+			assert ((Numerical) n).doubleValue() == 100000.45;
+		}
+		{
+			ParseResult pr = lang._number.parseOut("£100,000.45");
+			Object n = pr.ast.getX();
+			assert n instanceof Numerical;
+			assert ((Numerical) n).doubleValue() == 100000.45;
+		}
+		{
+			ParseResult pr = lang._number.parseOut("$100,000.45");
+			Object n = pr.ast.getX();
+			assert n instanceof Numerical;
+			assert ((Numerical) n).doubleValue() == 100000.45;
+			assert ((Numerical) n).getUnit().equals("$") : n;
+		}
+		{
+			ParseResult pr = lang._number.parseOut("-$100,000.45");
+			Object n = pr.ast.getX();
+			assert n instanceof Numerical;
+			assert ((Numerical) n).doubleValue() == -100000.45;
+			assert ((Numerical) n).getUnit().equals("$") : n;
+		}
+	}
 
 
 	@Test

@@ -153,7 +153,10 @@ public class ExportCommand
 					if (sheetProps.size() > i) {
 						_gsheetForPlanSheetId.put(ps.getId(), ""+sheetProps.get(i).getSheetId());
 					} else {
-						
+						// TODO make a new sheet!
+						Log.w(LOGTAG, "Make a new sheet please in "+url);
+						Object addSheetReq;
+//						sc.addSheetTab(getSpreadsheetId(), ps.getText());
 					}
 				}
 			}
@@ -163,6 +166,10 @@ public class ExportCommand
 				try {
 					String shid = _gsheetForPlanSheetId.get(planSheet.getId());
 					if ("skip".equals(shid)) {
+						continue;
+					}
+					if ("by-order".equals(shid)) {
+						// skip -- not enough sheets in the target
 						continue;
 					}
 					sc.setSheet(shid==null? null : Integer.parseInt(shid));

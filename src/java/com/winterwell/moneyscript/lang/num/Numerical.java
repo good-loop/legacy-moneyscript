@@ -78,7 +78,7 @@ public class Numerical extends Number implements IScalarArithmetic {
 	public int cnt;
 
 	// TODO remove the ,?
-	public static Pattern number = Pattern.compile("-?(£|\\$)?([0-9]+[0-9,]+[0-9]{3}|[0-9]+\\.[0-9]+|[0-9]+)(k|m|bn)?%?", Pattern.CASE_INSENSITIVE);
+	public static Pattern number = Pattern.compile("-?(£|\\$)?([0-9]+[0-9,]+[0-9]{3}(:?\\.[0-9]+)?|[0-9][0-9,]*\\.[0-9]+|[0-9]+)(k|m|bn)?%?", Pattern.CASE_INSENSITIVE);
 	
 	/**
 	 * @param s Accepts a range of things: £10, -£20, $5, 0.01, 1,000 5k, 5M, 1.5bn, 20%
