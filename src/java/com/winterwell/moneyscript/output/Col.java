@@ -26,7 +26,7 @@ public final class Col {
 	 */
 	public Col(int m) {
 		this(m, true);
-		assert m > 0;		
+		assert m > -1; // 0 is outside the range!		
 	}
 	
 	private Col(int m, boolean unsafe) {

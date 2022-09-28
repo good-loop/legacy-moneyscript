@@ -19,7 +19,7 @@ public class ErrorNumerical extends Numerical {
 	
 	@Override
 	public String toString() {				
-		return "Error "+ex.getMessage();
+		return "Error "+(ex==null? "" : ex.getMessage());
 	}
 
 }

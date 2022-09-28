@@ -45,6 +45,10 @@ public class UnaryOp extends Formula {
 	@Override
 	public Numerical calculate(Cell b) {
 		if (op.startsWith("sum")) {
+			String s = toString();
+			if (s.contains("Staff Count")) {
+				System.out.println(this);
+			}
 			return calculate2_sum(b);
 		}
 		if (op.equals("average")) {

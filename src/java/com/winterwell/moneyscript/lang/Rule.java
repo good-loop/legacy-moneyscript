@@ -142,7 +142,7 @@ public class Rule implements IReset {
 				return null;
 			}
 			// Filtered out?
-			if ( ! getSelector().contains(cell, cell)) {
+			if ( ! getSelector().contains(cell, cell) && true) {
 				return null;
 			}
 			Numerical v = calculate2_formula(cell);

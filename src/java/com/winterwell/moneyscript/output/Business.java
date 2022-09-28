@@ -747,10 +747,21 @@ public final class Business {
 		return BusinessContext.getBusiness();
 	}
 
-	
+	/**
+	 * 
+	 * @param time
+	 * @return Can be a Col outside the range!
+	 */
 	public Col getColForTime(Time time) {
-		int i = getSettings().getTimeSlicer().getBucket(time);
-		if (i < 0 || i >= columns.size()) {
+		TimeSlicer timeSlicer = getSettings().getTimeSlicer();
+		if (timeSlicer.getStart().isAfter(time)) {
+			return Col.THE_PAST;
+		}
+		if (timeSlicer.getEnd().isBefore(time)) {
+			return Col.THE_INDEFINITE_FUTURE;
+		}
+		int i = timeSlicer.getBucket(time);
+		if (i < 0 || i >= columns.size()) { // paranoia
 			return null;
 		}
 		Col coli = columns.get(i);

@@ -130,7 +130,9 @@ public class Numerical extends Number implements IScalarArithmetic {
 
 	public Numerical(double value, String unit) {
 		this.value = value;
-		assert MathUtils.isFinite(value) || getClass() != Numerical.class : value;
+		if ( ! MathUtils.isFinite(value)) { // divide by zero?
+			String s = toString(); // for debug
+		}
 		this.unit = unit==null? null : unit.intern();		
 	}
 
