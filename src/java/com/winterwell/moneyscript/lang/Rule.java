@@ -135,6 +135,10 @@ public class Rule implements IReset {
 	 */
 	public final Numerical calculate(Cell cell) {
 		try {
+			String s = this+" "+cell; // debug
+			if (s.contains("£5500")) {
+				System.out.println(s);
+			}
 			BusinessContext.setActiveRule(this);
 			// Are we in a scenario - if so, does this rule apply?
 			// ?? filter out earlier
@@ -142,7 +146,7 @@ public class Rule implements IReset {
 				return null;
 			}
 			// Filtered out?
-			if ( ! getSelector().contains(cell, cell) && true) {
+			if ( ! getSelector().contains(cell, cell)) {
 				return null;
 			}
 			Numerical v = calculate2_formula(cell);

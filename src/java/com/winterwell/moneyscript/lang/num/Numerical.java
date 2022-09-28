@@ -87,7 +87,12 @@ public class Numerical extends Number implements IScalarArithmetic {
 		Matcher m = number.matcher(s);
 		if ( ! m.matches()) throw new IllegalArgumentException(s);
 		Double v = Double.valueOf(m.group(2).replace(",", ""));
-		String mk = m.group(3);
+//		int gc = m.groupCount();
+//		String g0 = m.group(0);
+//		String g1 = m.group(1);
+//		String g2 = m.group(2);
+//		String g3 = m.group(3);
+		String mk = m.group(4);
 		if ("m".equals(mk)) {
 			v *= 1000000;
 		}

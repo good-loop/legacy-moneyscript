@@ -334,6 +334,7 @@ public class NumericalTest {
 		assert ! Numerical.number.matcher("1,0").matches();		
 		assert ! Numerical.number.matcher(",").matches();
 		assert ! Numerical.number.matcher("1,").matches();
+		assert Numerical.number.matcher("£100k").matches();
 	}
 	
 
@@ -414,6 +415,10 @@ public class NumericalTest {
 			Numerical n = new Numerical("10%");
 			assert n.doubleValue() == 0.1 : n;
 			assert n.getUnit() == "%" : n;
+		}
+		{
+			Numerical n = new Numerical("100k");
+			assert n.doubleValue() == 100000 : n;
 		}
 	}
 
