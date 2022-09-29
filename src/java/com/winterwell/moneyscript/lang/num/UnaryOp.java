@@ -45,10 +45,6 @@ public class UnaryOp extends Formula {
 	@Override
 	public Numerical calculate(Cell b) {
 		if (op.startsWith("sum")) {
-			String s = toString();
-			if (s.contains("Staff Count")) {
-				System.out.println(this);
-			}
 			return calculate2_sum(b);
 		}
 		if (op.equals("average")) {
@@ -204,10 +200,15 @@ public class UnaryOp extends Formula {
 		// apply the op
 		int cnt = 0;
 		Map<String,Double> cnt4tag = new ArrayMap();
+		String tag = ((BasicFormula) right).getTag();
 		for(Row row : leafRows) {
 			Cell rcell = new Cell(row, b.getColumn());
 			Numerical c = biz.getCellValue(rcell);
-			if (c == null || c.doubleValue() == 0) continue;
+			if (c == null) continue;
+			if (tag!=null) {
+				c = c.getTagged(tag);
+			}
+			if (c == null || c.doubleValue() == 0) continue;			
 			cnt++;
 			if (c.value4tag!=null) {
 				for(Map.Entry<String,Double> e : c.value4tag.entrySet()) {
@@ -221,7 +222,7 @@ public class UnaryOp extends Formula {
 		// NB: there's no unit carried over for a count
 		if ( ! cnt4tag.isEmpty()) {
 			n.value4tag = cnt4tag;
-		}
+		}		
 		return n;
 	}
 

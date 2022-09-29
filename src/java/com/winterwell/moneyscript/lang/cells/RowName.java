@@ -34,7 +34,7 @@ public final class RowName extends CellSet {
 	public Set<String> getRowNames(Cell focus) {
 		Row row = Cell.getBusiness().getRow(rowName);
 		if (row != null && row.isGroup()) {
-			List<Row> rows = row.flatten();
+			List<Row> rows = row.flatten();			
 			List<String> names = Containers.apply(rows, r -> r.getName());
 			return new ArraySet(names);
 		}

@@ -38,6 +38,10 @@ public class BasicFormula extends Formula {
 	Numerical num;
 	private String tag;
 
+	public String getTag() {
+		return tag;
+	}
+	
 	@Override
 	public String toString() {
 		return num==null? sel.toString() : num.toString();
