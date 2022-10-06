@@ -8,7 +8,7 @@ import C from '../C';
 import ServerIO from '../base/plumbing/ServerIOBase';
 
 ServerIO.APIBASE = ''; // local
-ServerIO.APIBASE = 'https://moneyscript.good-loop.com'; // live data, edited local!
+// ServerIO.APIBASE = 'https://moneyscript.good-loop.com'; // live data, edited local!
 
 ServerIO.checkBase();
 
