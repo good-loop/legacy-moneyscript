@@ -40,6 +40,13 @@ public class LangCellSetTest {
 		assert fcs.base.toString().equals("Staff");
 	}
 	
+	@Test public void testInQ1() {
+		Lang lang = new Lang();
+		CellSet cs = LangCellSet.cellSet.parseOut("Sales in Q1").getX();
+		assert cs instanceof FilteredCellSet;
+		FilteredCellSet fcs = (FilteredCellSet) cs;
+		assert fcs.base.toString().equals("Staff");
+	}
 
 
 	@Test public void testCellSetPeriod() {

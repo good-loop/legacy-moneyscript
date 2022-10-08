@@ -34,7 +34,10 @@ public class UncertainNumerical extends Numerical {
 //	double HIGH_CONFIDENCE = 0.75;
 	
 	@Override
-	public String toString() {				
+	public String toString() {		
+		if (dist==null) {
+			return super.toString(); // NB: can happen during new() with debug
+		}
 		if (dist instanceof Particles1D) {
 			double m = dist.getMean();
 			double sd = dist.getStdDev();

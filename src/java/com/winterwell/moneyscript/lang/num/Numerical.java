@@ -135,7 +135,7 @@ public class Numerical extends Number implements IScalarArithmetic {
 
 	public Numerical(double value, String unit) {
 		this.value = value;
-		if ( ! MathUtils.isFinite(value)) { // divide by zero?
+		if ( ! MathUtils.isFinite(value) && getClass() == Numerical.class) { // divide by zero?
 			String s = toString(); // for debug
 		}
 		this.unit = unit==null? null : unit.intern();		

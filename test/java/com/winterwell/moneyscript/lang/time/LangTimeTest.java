@@ -20,6 +20,15 @@ import com.winterwell.utils.time.TUnit;
 public class LangTimeTest {
 
 	@Test
+	public void testWhen() {
+		Parser.clearGrammar();
+		Lang lang = new Lang();
+		LangTime lt = new LangTime();
+		ParseResult<TimeDesc> w = lt.when.parseOut("when Sales > £100k");
+		System.out.println(w.getX());
+	}			
+
+	@Test
 	public void testAMonth() {
 		Parser.clearGrammar();
 		Lang lang = new Lang();
