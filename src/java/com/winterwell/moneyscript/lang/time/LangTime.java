@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.regex.MatchResult;
 
 import com.winterwell.depot.IInit;
+import com.winterwell.moneyscript.lang.bool.Condition;
+import com.winterwell.moneyscript.lang.bool.LangBool;
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
@@ -129,12 +131,12 @@ public class LangTime implements IInit {
 	 * Success: when Sales > £1m
 	 */
 	public final Parser<TimeDesc> when = new PP<TimeDesc>(
-			seq(lit("when"), space, LangFilter.filter)					
+			seq(lit("when"), space, LangBool.bool)					
 	) {
 		@Override
 		protected TimeDesc process(ParseResult<?> r) throws ParseFail {
 			List<AST> ls = r.getLeaves();
-			Filter f = r.getNode(LangFilter.filter).getX();
+			Condition f = r.getNode(LangBool.bool).getX();
 			ConditionalTimeDesc ctd = new ConditionalTimeDesc(r.parsed(), f);
 			return ctd;
 		}	

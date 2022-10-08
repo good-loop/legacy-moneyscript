@@ -3,7 +3,9 @@ package com.winterwell.moneyscript.lang.time;
 import org.junit.Test;
 
 import com.winterwell.moneyscript.lang.Lang;
+import com.winterwell.moneyscript.lang.bool.LangBool;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
+import com.winterwell.moneyscript.lang.cells.LangFilter;
 import com.winterwell.moneyscript.lang.num.SimpleLangNum;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
@@ -24,7 +26,9 @@ public class LangTimeTest {
 		Parser.clearGrammar();
 		Lang lang = new Lang();
 		LangTime lt = new LangTime();
-		ParseResult<TimeDesc> w = lt.when.parseOut("when Sales > £100k");
+		LangBool.bool.parseOut("Sales > £100");
+		ParseResult<TimeDesc> w = lt.when.parseOut("when Sales > £100");
+		assert w != null;
 		System.out.println(w.getX());
 	}			
 
