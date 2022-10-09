@@ -4,6 +4,11 @@ import com.winterwell.utils.TodoException;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
 
+/**
+ * e.g. 3 months ago
+ * @author daniel
+ *
+ */
 public class RelativeTimeDesc extends TimeDesc {
 
 	public RelativeTimeDesc(TUnit unit, double n) {

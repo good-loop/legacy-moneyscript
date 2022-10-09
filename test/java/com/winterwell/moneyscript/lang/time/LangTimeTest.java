@@ -1,9 +1,15 @@
 package com.winterwell.moneyscript.lang.time;
 
+import java.util.Set;
+
 import org.junit.Test;
 
 import com.winterwell.moneyscript.lang.Lang;
+import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.bool.LangBool;
+import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.Filter;
+import com.winterwell.moneyscript.lang.cells.FilteredCellSet;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
 import com.winterwell.moneyscript.lang.cells.LangFilter;
 import com.winterwell.moneyscript.lang.num.SimpleLangNum;
@@ -15,12 +21,41 @@ import com.winterwell.nlp.simpleparser.GrammarPrinter;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.utils.Printer;
+import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
+import com.winterwell.utils.time.Time;
 
 
 public class LangTimeTest {
 
+	@Test
+	public void testParseQ() {
+		Parser.clearGrammar();
+		Lang lang = new Lang();
+		LangTime lt = new LangTime();
+		LangTime.time.parseOut("Jun 2022");
+		LangTime.time.parseOut("Q1");
+		LangTime.time.parseOut("Q1 2022");
+	}
+	
+	@Test
+	public void testInQ() {
+		Lang lang = new Lang();
+		Business b = lang.parse("Sales in Q1 2022: £10");
+		b.getSettings().setStart(new Time(2022,1,1));
+		b.setColumns(5);
+		b.run();
+		Set<Rule> rules = b.getAllRules();
+		Rule rule = Containers.first(rules);
+		FilteredCellSet sel = (FilteredCellSet) rule.getSelector();
+		Filter f = sel.getFilter();
+//		System.out.println(rule);
+		String csv = b.toCSV();
+		System.out.println(csv);
+		assert csv.contains("Sales, £10, £10, £10, 0");
+	}
+	
 	@Test
 	public void testWhen() {
 		Parser.clearGrammar();

@@ -67,11 +67,12 @@ public class LangFilter {
 
 	Parser<Filter> conditionalFilter = new PP<Filter>(
 			
-			seq(lit(LangTime.from, "to", "if", "at").label("op"), space, 
+			seq(lit(LangTime.from, "to", "if", "at", "in").label("op"), space, 
 					first(LangBool.bool, LangTime.time))
 	) {
 		protected Filter process(ParseResult<?> r) {
 			String op = r.getNode("op").parsed();
+			if ("in".equals(op)) op = "at"; // at and in are synonyms (we prefer "in")
 			AST guts = r.getLeaves().get(1);
 			Object tst = guts.getX();
 			if (tst instanceof Condition) {

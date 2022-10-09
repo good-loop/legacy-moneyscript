@@ -3,6 +3,7 @@ package com.winterwell.moneyscript.lang.time;
 import com.winterwell.moneyscript.lang.Settings;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
+import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.Time;
 
 /**
@@ -13,12 +14,14 @@ import com.winterwell.utils.time.Time;
 public class SpecificTimeDesc extends TimeDesc {
 
 	private final Time time;
+	private int months;
 	
 	public SpecificTimeDesc(Time time, String parsed) {
 		super(parsed);
 		this.time = time;
 		assert time != null;
 	}
+	
 
 	/**
 	 * @return The (first) column for this time desc.
@@ -37,5 +40,18 @@ public class SpecificTimeDesc extends TimeDesc {
 	@Override
 	public Time getTime() {
 		return time;
+	}
+
+
+	/**
+	 * Normally unset (0). Use for e.g. quarters
+	 * @param dt
+	 */
+	public void setMonths(int months) {
+		this.months = months;
+	}
+	
+	public int getMonths() {
+		return months;
 	}
 }

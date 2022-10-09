@@ -12,6 +12,7 @@ import static com.winterwell.nlp.simpleparser.Parsers.space;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
 
 import com.winterwell.depot.IInit;
 import com.winterwell.moneyscript.lang.bool.Condition;
@@ -29,8 +30,12 @@ import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.nlp.simpleparser.Ref;
 import com.winterwell.nlp.simpleparser.RegexParser;
+import com.winterwell.utils.StrUtils;
+import com.winterwell.utils.TodoException;
+import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
+import com.winterwell.utils.time.TimeUtils;
 
 /**
  * @testedby  LangTimeTest}
@@ -39,8 +44,11 @@ import com.winterwell.utils.time.Time;
  */
 public class LangTime implements IInit {
 
+	/**
+	 * NB: also does e.g. Q1 2022
+	 */
 	public static final RegexParser MONTHYEAR_PARSER = regex(
-			"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)\\b(\\s+(20\\d\\d))?");
+			"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec|q\\d)\\b(\\s+(20\\d\\d))?");
 
 
 
@@ -150,17 +158,25 @@ public class LangTime implements IInit {
 	) {
 		@Override
 		protected TimeDesc process(ParseResult<?> r) throws ParseFail {
-			String month = r.parsed().substring(0, 3).toLowerCase();
+			String month = StrUtils.substring(r.parsed(), 0, 3).toLowerCase();
 			MatchResult mr = (MatchResult) r.getX();
 			String lastGrp = mr.group(mr.groupCount()-1);
 			int yr = lastGrp != null && mr.groupCount()> 1? 
 						Integer.valueOf(lastGrp.trim()) 
 						: new Time().getYear();
 			int i = Arrays.asList("jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec").indexOf(month);
+			if (i==-1) {
+				assert month.startsWith("q");
+				i = 3 * (Integer.valueOf(month.substring(1, 2)) - 1);
+			}
 			assert i != -1 : r;	
 			Time t = new Time(yr, i+1, 1);
 			// TODO "from April" in December means from April of the next year
-			return new SpecificTimeDesc(t, r.parsed());
+			SpecificTimeDesc std = new SpecificTimeDesc(t, r.parsed());
+			if (month.startsWith("q")) { // HACK for quarters
+				std.setMonths(3);
+			}
+			return std;
 		}	
 	};
 
@@ -179,6 +195,21 @@ public class LangTime implements IInit {
 		}	
 	};
 
+	final Parser<TimeDesc> quarter = new PP<TimeDesc>(
+			regex("Q(1|2|3|4)")
+	) {
+		@Override
+		protected TimeDesc process(ParseResult<?> r) throws ParseFail {
+			String qn = r.parsed();
+			int n = Integer.valueOf(qn.substring(1));
+			int m = 1 + (n-1)*3;
+			Time start = new Time(2000, m, 1);
+			Time end = TimeUtils.getEndOfMonth(new Time(2000, m+2, 1));
+			SeasonalTimeDesc std = new SeasonalTimeDesc(start, end, r.parsed());
+			return std;
+		}	
+	};
+
 	/**
 	 * A point in time, e.g. "date" "now", "year 2"
 	 * Also allow wrapping brackets, e.g. "(2 months ago)"
@@ -190,7 +221,8 @@ public class LangTime implements IInit {
 					date,
 					seq(tunit, space, num("n")),					
 					complexTime,
-					justYear
+					justYear,
+					quarter
 					), ")")
 	) {
 		protected TimeDesc process(ParseResult<?> r) {

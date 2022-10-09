@@ -17,6 +17,7 @@ import com.winterwell.utils.time.Time;
 
 /**
  * Describe one point in time (ie a column).
+ * See sub-classes: {@link SpecificTimeDesc} etc
  * @author daniel
  *
  */
@@ -28,9 +29,7 @@ public abstract class TimeDesc {
 		return desc;
 	}
 	
-//	private TUnit unit;
 	private DtDesc dt;
-//	private Number n;
 	/**
 	 * usually null. Non null in compound descriptions, such as
 	 * "1 year from start"
@@ -57,14 +56,12 @@ public abstract class TimeDesc {
 	/**
 	 * E.g. "1 year from start", "2 months ago"
 	 * @param dt
-	 * @param op
+	 * @param op Can be null e.g. "from" | "ago"
 	 * @param td null if op==ago
 	 */
 	public TimeDesc(DtDesc dt, String op, TimeDesc td) {
 		assert op==null || LangTime.from.equals(op) || "ago".equals(op) : op;
 		this.op = op;
-//		this.unit = dt.getUnit();
-//		n = dt.getValue();
 		this.dt = dt;
 		base = td;
 	}
@@ -169,7 +166,6 @@ public abstract class TimeDesc {
 		this.context = row;
 	}
 
-	// add a context input??
 	/**
 	 * Done in overrides
 	 * @return
