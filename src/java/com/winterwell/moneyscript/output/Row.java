@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.winterwell.moneyscript.lang.AnnualRule;
 import com.winterwell.moneyscript.lang.DummyRule;
+import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.GroupRule;
 import com.winterwell.moneyscript.lang.ImportCommand;
 import com.winterwell.moneyscript.lang.MetaRule;
@@ -484,13 +485,19 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 			return new ArrayMap("v", 0, "str", "");
 		}
 		double dv = v.doubleValue();
-		ArrayMap map = new ArrayMap("v", Double.isFinite(dv) ? dv : null, "str", v.toString(), "unit", v.getUnit(),
-				"comment", v.comment, "css", c == null ? null : b.getCSSForCell(c));
+		GSheetFromMS gs = new GSheetFromMS(null, new ExportCommand("dummy"), b);
+		gs.setupRows();
+		ArrayMap map = new ArrayMap(
+				"v", Double.isFinite(dv) ? dv : null, 
+				"str", v.toString(), 
+				"unit", v.getUnit(),
+				"comment", StrUtils.joinWithSkip("; ", v.comment, c==null? null : gs.exportCellRefs(gs.cellRef(c.row, c.col)), v.excel), 
+				"css", c == null ? null : b.getCSSForCell(c));
 		if (v.getDelta() != null) {
 			map.put("delta", v.getDelta());
 		}
 		if (b.isExportToGoogle) {
-			map.put("excel", v.excel);
+			map.put("excel", gs.exportCellRefs(v.excel));
 		}
 		return map;
 	}

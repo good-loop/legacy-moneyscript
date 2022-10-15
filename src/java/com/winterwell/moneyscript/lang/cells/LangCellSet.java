@@ -56,16 +56,17 @@ public class LangCellSet {
 
 	public static final String ROW_NAME = "row-name";
 	
+	public static Pattern rowNameRegex = Pattern.compile("^[A-Z][^:,\\+\\-\\*\\/<>=%\\?\\(\\)#]*");	
+	
 	/**
 	 * Parse row names, e.g. "Alice"
 	 */
-	public Parser<RowName> rowName = new Parser<RowName>() {
-		Pattern p = Pattern.compile("^[A-Z][^:,\\+\\-\\*\\/<>=%\\?\\(\\)#]*");		
+	public Parser<RowName> rowName = new Parser<RowName>() {		
 		
 		@Override
 		protected ParseResult<RowName> doParse(ParseState state) {			
 			Slice unparsed = state.unparsed();
-			Matcher m = p.matcher(unparsed);
+			Matcher m = rowNameRegex.matcher(unparsed);
 			if ( ! m.find()) return null;			
 			int end = m.end();			
 			// keyword? shorten what we parsed			

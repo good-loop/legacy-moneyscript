@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.goodloop.gsheets.GSheetsClient;
@@ -23,6 +24,7 @@ import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.ImportCommand;
 import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
+import com.winterwell.moneyscript.lang.cells.LangCellSet;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Cell;
@@ -73,6 +75,8 @@ public class GSheetFromMS {
 	
 	boolean incYearTotals;
 	private PlanSheet planSheet;
+	private boolean setupRowsFlag;
+	private List<String> spacedRowNames;
 
 	public void doExportToGoogle() throws Exception {
 		assert ec.getSpreadsheetId() !=null && true : ec;
@@ -276,7 +280,13 @@ public class GSheetFromMS {
 	}
 
 	
-	void setupRows() throws Exception {
+	/**
+	 * Repeated calls have no effect
+	 * @throws Exception
+	 */
+	public void setupRows() {
+		if (setupRowsFlag) return;
+		setupRowsFlag = true;
 		List<Row> rows = biz.getRows();
 		// filter by sheet
 		if (planSheet!=null) {
@@ -285,14 +295,21 @@ public class GSheetFromMS {
 			rows = Containers.filter(rows, row -> rowNames.contains(row.getName()));
 		}
 		if (ec.isOverlap()) {
-			setupRows2_overlap(ec, biz, rows);
-			return;
+			try {
+				setupRows2_overlap(ec, biz, rows);
+				return;
+			} catch (Exception e) {
+				throw Utils.runtime(e);
+			}
 		}		
 		// HACK - space with a blank row?
 		spacedRows = new ArrayList();
 		int prevLineNum = 0;
 		for (Row row : rows) {
 			// HACK - space with a blank row?
+			if (row.getRules().isEmpty()) {
+				continue;
+			}
 			Rule r0 = row.getRules().get(0);
 			int lineNum = r0.getLineNum();
 			if (lineNum > prevLineNum+1) {				
@@ -301,6 +318,7 @@ public class GSheetFromMS {
 			prevLineNum = lineNum;
 			spacedRows.add(row);
 		}
+		spacedRowNames = Containers.apply(spacedRows, r -> r==null? null : r.getName());
 	}
 
 	private void setupRows2_overlap(ExportCommand ec, Business biz, List<Row> rows) throws Exception {
@@ -343,10 +361,35 @@ public class GSheetFromMS {
 		Log.d(LOGTAG, sheetRows+" --> "+spacedRows);
 	}
 
+	/**
+	 * 
+	 * @param row
+	 * @param col
+	 * @return [row.name:col.index] e.g. "[Alice:2]"
+	 */
 	public String cellRef(Row row, Col col) {
-		String msref = row.getName()+":"+col.index; // TODO use this and deref it at export
-		int ki = spacedRows.indexOf(row)+2; // +1 for 0 index and +1 for the header row
-		return GSheetsClient.getBase26(col.index)+ki;
+		String msref = "["+row.getName()+":"+col.index+"]"; // use this and deref it at export
+		return msref;
+	}
+	
+	public String exportCellRefs(String excel) {
+		if (excel==null) return null;
+		assert setupRowsFlag;
+		// NB: substring(1) is to remove the initial ^ (start line) marker from rowNameRegex
+		Pattern p = Pattern.compile("\\[("+LangCellSet.rowNameRegex.pattern().substring(1)+")\\:(\\d+)\\]");
+		String export = StrUtils.replace(excel, p, (sb, m) -> {
+			String row = m.group(1);
+			int ci = Integer.valueOf(m.group(2));
+			String ex = exportCellRefs2(row, ci);
+			sb.append(ex);
+		});
+		return export;
+	}
+
+	private String exportCellRefs2(String row, int colIndex) {
+		int ki = spacedRowNames.indexOf(row)+2; // +1 for 0 index and +1 for the header row
+		String ex = GSheetsClient.getBase26(colIndex)+ki;
+		return ex;
 	}
 
 	public static String excel(Numerical x) {
