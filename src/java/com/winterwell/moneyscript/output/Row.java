@@ -7,7 +7,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import com.winterwell.moneyscript.data.PlanSheet;
 import com.winterwell.moneyscript.lang.AnnualRule;
 import com.winterwell.moneyscript.lang.DummyRule;
 import com.winterwell.moneyscript.lang.ExportCommand;
@@ -53,6 +55,23 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 		return parent;
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(name);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Row other = (Row) obj;
+		return Objects.equals(name, other.name);
+	}
+
 	public Row(String name) {
 		this.name = name.trim();
 		// HACK - avoid annual totals for Balance, Head Count, etc
@@ -91,6 +110,9 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 	final List<Rule> rules = new ArrayList<Rule>();
 	private int index = -1;
 	private List<Row> kids = new ArrayList<Row>();
+	/**
+	 * What about rows with 2 parents??
+	 */
 	private Row parent;
 	private List<StyleRule> stylers = new ArrayList<StyleRule>();
 	/**
@@ -268,7 +290,6 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 		}
 
 		Numerical sum = new Numerical(0);
-		GSheetFromMS gs = Dep.getWithDefault(GSheetFromMS.class, null);
 		// add them up...
 		boolean allImports = true; // stays true if every bit of the sum is an import
 		int size = 0;
@@ -288,10 +309,8 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 			size += v.cnt == 0 ? 1 : v.cnt;
 			String newComment = StrUtils.joinWithSkip(" + ", oldSum.comment, kid.getName() + "(" + v + ")");
 			sum.comment = newComment;
-			if (gs != null) {
-				String newExcel = (oldSum.excel == null ? "" : oldSum.excel + " + ") + gs.cellRef(kid, col);
-				sum.excel = newExcel;
-			}
+			String newExcel = (oldSum.excel == null ? "" : oldSum.excel + " + ") + GSheetFromMS.cellRef(kid, col);
+			sum.excel = newExcel;
 			if (allImports && ! ImportCommand.isImported(v)) {
 				allImports = false;
 			}
@@ -485,19 +504,21 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 			return new ArrayMap("v", 0, "str", "");
 		}
 		double dv = v.doubleValue();
-		GSheetFromMS gs = new GSheetFromMS(null, new ExportCommand("dummy"), b);
-		gs.setupRows();
+//		GSheetFromMS gs = c==null? null : ExportCommand.getGSheetFromMSForRow(c.row);
+//		String exref = c==null || gs==null? null : gs.exportCellRefs(gs.cellRef(c.row, c.col), null);
 		ArrayMap map = new ArrayMap(
 				"v", Double.isFinite(dv) ? dv : null, 
 				"str", v.toString(), 
 				"unit", v.getUnit(),
-				"comment", StrUtils.joinWithSkip("; ", v.comment, c==null? null : gs.exportCellRefs(gs.cellRef(c.row, c.col)), v.excel), 
+				"comment", StrUtils.joinWithSkip("; ", v.comment, dv, v.excel), // exref,  
 				"css", c == null ? null : b.getCSSForCell(c));
 		if (v.getDelta() != null) {
 			map.put("delta", v.getDelta());
 		}
-		if (b.isExportToGoogle) {
-			map.put("excel", gs.exportCellRefs(v.excel));
+		if (v.excel != null) {
+//			PlanSheet contextPlanSheet = b.getPlanSheetForRow(c.row);
+			map.put(ExportCommand.EXCEL_WITH_MS_CELL_REFS, v.excel); // not exported yet!
+//					gs==null? v.excel : gs.exportCellRefs(v.excel, contextPlanSheet));
 		}
 		return map;
 	}

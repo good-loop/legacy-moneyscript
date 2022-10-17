@@ -70,6 +70,14 @@ public class PlanDoc extends AThing {
 		return sheets;
 	}
 	
+	/**
+	 * @deprecated normally set by incoming json from the client
+	 * @param sheets
+	 */
+	public void setSheets(List<PlanSheet> sheets) {
+		this.sheets = sheets;
+	}
+	
 	@Deprecated // replaced by sheets
 	public String getText() {
 		// if sheets are in use, then combine them.

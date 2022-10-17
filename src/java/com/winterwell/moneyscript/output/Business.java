@@ -55,6 +55,12 @@ import com.winterwell.utils.web.WebUtils2;
 public final class Business {
 
 	
+	/**
+	 * HACK coordinate cell referencing during export.
+	 * This is _also_ used as a debug tool during normal app use
+	 */
+	public transient Map<Row, GSheetFromMS> gSheetFromMSForRow;
+
 	private Map<Scenario,Boolean> scenarios = new ArrayMap();
 	
 	/**
@@ -351,9 +357,8 @@ public final class Business {
 		}
 		if (v==null) {
 			v = Business.EMPTY; // no need to recaluclate this if eg its in a sum
-		} else if (v.excel==null){
-			GSheetFromMS gs = Dep.getWithDefault(GSheetFromMS.class, null);
-			if (gs!=null) v.excel = gs.cellRef(cell.row, cell.col);
+		} else  {
+			v.excelRef = GSheetFromMS.cellRef(cell.row, cell.col);
 		}
 		assert beforeSet==null || beforeSet==EVALUATING || beforeSet==v || v instanceof ErrorNumerical 
 				: beforeSet+" vs "+v;		
@@ -602,11 +607,13 @@ public final class Business {
 		if (planSheet !=null) {
 			String pid = planSheet.getId();
 			rows4plansheet.addOnce(pid, row.getName());
+			plansheet4row.put(row.getName(), planSheet); // ??what about rows in 2 plansheets?
 //			Log.d("Sheets", pid+" <- "+row);
 		}
 	}
 	
 	final ListMap<String,String> rows4plansheet = new ListMap(); 
+	Map<String, PlanSheet> plansheet4row = new HashMap();
 
 	public ListMap<String, String> getRows4plansheet() {
 		return rows4plansheet;
@@ -851,11 +858,11 @@ public final class Business {
 	
 	private List<ImportCommand> importCommands = new ArrayList<>();
 
-	/**
-	 * Flag to control whether excel formulae are constructed during a run
-	 */
-	public transient boolean isExportToGoogle;
-	
+//	/**
+//	 * Flag to control whether excel formulae are constructed during a run
+//	 */
+//	public transient boolean isExportToGoogle;
+//	
 	public Map<Scenario, Boolean> getScenarios() {
 		if (scenarios==null) {
 			scenarios = new ArrayMap(); // paranoia
@@ -891,6 +898,10 @@ public final class Business {
 			if (rn.equals(scenario.name)) return scenario;
 		}
 		return null;
+	}
+
+	public PlanSheet getPlanSheetForRow(Row row) {
+		return plansheet4row.get(row.getName());
 	}
 	
 }

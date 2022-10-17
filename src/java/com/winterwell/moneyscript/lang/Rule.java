@@ -163,10 +163,6 @@ public class Rule implements IReset {
 				Numerical vFixed = ((UncertainNumerical) v).sample();
 				v = vFixed;
 			}
-			GSheetFromMS gs = Dep.getWithDefault(GSheetFromMS.class, null);
-			if (gs!=null && v.excel==null) {
-				v.excel = gs.cellRef(cell.row, cell.col);
-			}
 			// Allow NaN or infinity (so the user can debug their formula)
 			if ( ! Double.isFinite(v.doubleValue())) {
 				Log.w("Rule", "not finite "+cell+" "+this);

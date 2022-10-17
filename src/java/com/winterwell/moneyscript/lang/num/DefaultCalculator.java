@@ -90,6 +90,7 @@ final class DefaultCalculator implements ICalculator {
 				Containers.plus(n.value4tag, entry.getKey(), entry.getValue()*b); 
 			}
 		}
+		// excel -- done higher up in Formula to potentially be a bit smarter		
 		return n;		
 	}
 

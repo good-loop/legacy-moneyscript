@@ -1,6 +1,7 @@
 package com.winterwell.moneyscript.data;
 
 import com.winterwell.utils.Utils;
+import com.winterwell.utils.containers.Pair2;
 import com.winterwell.utils.log.Log;
 
 public class PlanSheet {
@@ -13,6 +14,8 @@ public class PlanSheet {
 	}
 	String title;
 	String text;
+	private Integer gsheetId;
+	public String gsheetTitle;
 	
 	public PlanSheet() {
 	}
@@ -25,7 +28,17 @@ public class PlanSheet {
 	}
 	@Override
 	public String toString() {
-		return "PlanSheet [id=" + id + ", title=" + title + "]";
+		return "PlanSheet[id=" + id + ", title=" + title + "]";
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setGSheetMatch(Integer sheetId, String title2) {
+		this.gsheetId = sheetId;
+		this.gsheetTitle = title2;
+	}
+	public void setTitle(String string) {
+		this.title = string;
 	}
 	
 }

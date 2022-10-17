@@ -12,11 +12,6 @@ import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.containers.Range;
 import com.winterwell.utils.log.Log;
 
-public class Formulas {
-}
-
-
-
 class BinaryOp extends Formula {
 
 	private Formula left;
@@ -71,7 +66,9 @@ class BinaryOp extends Formula {
 		switch(op) {
 		case "-":
 			// handle minus as + -1*y -- so that we get the same % handling behaviour
-			y = y.times(-1);
+			Numerical oldy = y;
+			y = oldy.times(-1);
+			if (oldy.excel!=null) y.excel = "-1*"+oldy.excel;
 		case "+":
 			// special case: e.g. £10 + 20% = £12
 			if ("%".equals(y.getUnit()) && ! "%".equals(x.getUnit())) {
@@ -119,26 +116,5 @@ class BinaryOp extends Formula {
 	@Override
 	public String toString() {
 		return "("+left+op+right+")";
-	}
-}
-
-
-/**
- * For 10 widgets @ £5 - which is £50, but the 10 is still accessible via #
- * @author daniel
- *
- */
-class Numerical2 extends Numerical {
-	private static final long serialVersionUID = 1L;
-	private Numerical lhs;
-
-	public Numerical2(Numerical n, Numerical lhs) {
-		super(n.doubleValue(), n.getUnit());
-		assert n.getClass() == Numerical.class : n; // no nesting, or unsampled uncertains
-		this.lhs = lhs;
-	}
-	
-	public Numerical getLhs() {
-		return lhs;
 	}
 }

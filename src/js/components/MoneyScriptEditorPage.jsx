@@ -347,15 +347,16 @@ const ImportsList2 = ({ verb, imports }) => {
 
 const ExportEditor = ({ path }) => {
 	// gsheet info?
-	let ec = DataStore.getValue(path) || {};
+	const ec = DataStore.getValue(path) || {};
 
 	return (<>
 		<PropControl path={path} prop="active" label="Active" type="yesNo" dflt={true} />
+		<p><small>Last run: <Misc.RelativeDate date={ec.lastGoodRun} /></small></p>
 		<PropControl path={path} prop="name" label="Name here" />
 		<PropControl path={path} prop="url" placeholder="URL" label="Google Sheet URL" type="url" required
 			help='Make a spreadsheet in Google Drive, set sharing to "anyone with the url can edit", then copy the url here'
-			saveFn={e => { /* clear id on change - server will reset it */if (ec) ec.spreadsheetId = null; }} />
-		<small>ID: {ec && ec.spreadsheetId}</small>
+			saveFn={e => { /* clear id on change - server will reset it */ ec.spreadsheetId = null; }} />
+		<small>ID: {ec.spreadsheetId}</small>
 		{/* see GSheetsClient <PropControl path={path} prop="sheetId" label="Sheet/tab" help="Set this if you want to target a specific sheet within the spreadsheet" 
 			type="select"
 			labels={sheets.map(sprops => space(sprops.title, sprops.hidden&&"(hidden)"))}
@@ -391,8 +392,8 @@ const ExportsList = ({ planDoc }) => {
  * @returns 
  */
 const ViewExport = ({ item, i }) => {
-	return <LinkOut className={space('mr-2', !item.active && "text-muted")} href={item.url || item.src}
-		>[{item.name || "Export " + (i + 1)}]</LinkOut>
+	return <><LinkOut className={space('mr-2', !item.active && "text-muted")} href={item.url || item.src}
+		>[{item.name || "Export " + (i + 1)}]</LinkOut> <small>Last run: <Misc.RelativeDate date={item.lastGoodRun} /></small></>
 };
 
 MoneyScriptEditorPage.fullWidth = true;

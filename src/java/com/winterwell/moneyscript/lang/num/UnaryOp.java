@@ -16,6 +16,7 @@ import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.moneyscript.webapp.GSheetFromMS;
 import com.winterwell.utils.Dep;
+import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
@@ -134,11 +135,8 @@ public class UnaryOp extends Formula {
 			return null;
 		}			
 		Numerical pc = biz.getCellValue(prevCell);
-		GSheetFromMS gs = Dep.getWithDefault(GSheetFromMS.class, null);
-		if (gs!=null) {
-			pc = new Numerical(pc);
-			pc.excel = gs.cellRef(prevCell.row, prevCell.col);
-		}
+		pc = new Numerical(pc);
+		pc.excel = GSheetFromMS.cellRef(prevCell.row, prevCell.col);
 		return pc;
 	}
 
@@ -161,13 +159,17 @@ public class UnaryOp extends Formula {
 				Numerical c = b.getBusiness().getCellValue(cell);
 				sum = sum.plus(c);
 			}
-		} else {		
+			List<String> cellRefs = Containers.apply(cells, c -> GSheetFromMS.cellRef(c.row, c.col));
+			String excel = StrUtils.join(cellRefs, "+");
+			sum.excel = excel;
+		} else { // eg ??
 			cells = b.getRow().getCells();
 			// apply the op
 			for (Cell cell : cells) {
 				Numerical c = right.calculate(cell);
 				sum = sum.plus(c);
 			}
+			sum.excel = sum.doubleValue()+"+N(\"sum "+right+"\")";
 		}
 		// average?
 		if ("average".equals(op)) {
@@ -175,8 +177,11 @@ public class UnaryOp extends Formula {
 			if (n==0) {
 				return sum;
 			}
+			String sumExcel = sum.excel;
 			sum = sum.divide(new Numerical(n));
+			sum.excel = "("+sumExcel+")/"+n;
 		}
+		// simplify excel??
 		return sum;
 	}
 
@@ -223,6 +228,7 @@ public class UnaryOp extends Formula {
 		if ( ! cnt4tag.isEmpty()) {
 			n.value4tag = cnt4tag;
 		}		
+		n.excel = cnt+"+N(\"count "+sel+"\")";
 		return n;
 	}
 

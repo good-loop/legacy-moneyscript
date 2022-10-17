@@ -4,12 +4,16 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.goodloop.gsheets.GSheetsClient;
 import com.google.api.services.sheets.v4.model.SheetProperties;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
+import com.google.common.cache.CacheBuilder;
 import com.winterwell.gson.FlexiGson;
 import com.winterwell.gson.Gson;
 import com.winterwell.maths.datastorage.DataTable;
@@ -20,6 +24,8 @@ import com.winterwell.moneyscript.lang.time.TimeDesc;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.moneyscript.webapp.GSheetFromMS;
+import com.winterwell.nlp.dict.Dictionary;
+import com.winterwell.nlp.dict.NameMapper;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.utils.Dep;
 import com.winterwell.utils.MathUtils;
@@ -28,6 +34,7 @@ import com.winterwell.utils.TodoException;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Containers;
+import com.winterwell.utils.containers.ListMap;
 import com.winterwell.utils.io.CSVReader;
 import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Time;
@@ -44,6 +51,8 @@ public class ExportCommand
 	
 	// NB: some code will use "import" from the parent
 	public static final String LOGTAG = "export";
+
+	public static final String EXCEL_WITH_MS_CELL_REFS = "excel0";
 
 	boolean active = true;	
 
@@ -79,6 +88,8 @@ public class ExportCommand
 	 * gsheet can be a sheet ID or "by-order" or "skip" 
 	 */
 	public Map<String,String> gsheetForPlanSheetId;
+	
+	public transient Map<PlanSheet,GSheetFromMS> gsheetfromms4planSheet;
 	
 	public String spreadsheetId;
 
@@ -119,6 +130,10 @@ public class ExportCommand
 	}
 
 	public void runExport(PlanDoc pd, Business biz) throws Exception {
+		// HACK
+		if (preferFormulae) {
+			colFreq = KColFreq.ONLY_MONTHLY; // FIXME handle annual too
+		}
 		try {
 			if (getScenarios() != null) {
 				biz.setScenarios(getScenarios());
@@ -136,33 +151,32 @@ public class ExportCommand
 			}			
 			// Export all or overlap
 			GSheetsClient sc = sc();
-			// NB: don't save temporary allocations in case the target sheets change
-			Map<String, String> _gsheetForPlanSheetId = gsheetForPlanSheetId;
-			if (_gsheetForPlanSheetId==null) {
-				_gsheetForPlanSheetId = new ArrayMap();
-				for(PlanSheet planSheet : pd.getSheets()) {
-					_gsheetForPlanSheetId.put(planSheet.getId(), "by-order");
-				}
-			}
 			// fill in sheet IDs
 			List<SheetProperties> sheetProps = sc.getSheetProperties(getSpreadsheetId());
-			for(int i=0; i<pd.getSheets().size(); i++) {
-				PlanSheet ps = pd.getSheets().get(i);
-				String gs = _gsheetForPlanSheetId.get(ps.getId());
-				if ("by-order".equals(gs)) {
-					if (sheetProps.size() > i) {
-						_gsheetForPlanSheetId.put(ps.getId(), ""+sheetProps.get(i).getSheetId());
-					} else {
-						// TODO make a new sheet!
-						Log.w(LOGTAG, "Make a new sheet please in "+url);
-						Object addSheetReq;
-//						sc.addSheetTab(getSpreadsheetId(), ps.getText());
-					}
+			//match up
+			// NB: don't save temporary allocations in case the target sheets change
+			Map<String, String> _gsheetForPlanSheetId = runExport2_matchSheets(pd, sheetProps);
+			List<PlanSheet> sheets = pd.getSheets();
+			// init the gsheet exporters (so we can do cell-references)
+			gsheetfromms4planSheet = new ArrayMap();
+			for(PlanSheet planSheet : sheets) {
+				String shid = _gsheetForPlanSheetId.get(planSheet.getId());
+				if ("skip".equals(shid)) {
+					continue;
 				}
+				if ("by-order".equals(shid)) {
+					// skip -- not enough sheets in the target
+					Log.d(LOGTAG, "Skip export of "+planSheet);
+					continue;
+				}
+				GSheetFromMS ms2gs = new GSheetFromMS(sc, this, biz, planSheet);
+				ms2gs.setIncYearTotals(colFreq==KColFreq.MONTHLY_AND_ANNUAL);
+				ms2gs.setupRows();
+				gsheetfromms4planSheet.put(planSheet, ms2gs);
 			}
+			
 			boolean fail = false;
-			for(PlanSheet planSheet : pd.getSheets()) {
-				GSheetFromMS ms2gs;
+			for(PlanSheet planSheet : sheets) {
 				try {
 					String shid = _gsheetForPlanSheetId.get(planSheet.getId());
 					if ("skip".equals(shid)) {
@@ -172,11 +186,12 @@ public class ExportCommand
 						// skip -- not enough sheets in the target
 						continue;
 					}
+					// Set the GSheet client to point to the right tab
 					sc.setSheet(shid==null? null : Integer.parseInt(shid));
-					ms2gs = new GSheetFromMS(sc, this, biz);
-					ms2gs.setIncYearTotals(colFreq==KColFreq.MONTHLY_AND_ANNUAL);
-					ms2gs.setPlanSheet(planSheet);
+					GSheetFromMS ms2gs = gsheetfromms4planSheet.get(planSheet);
+					// Export!
 					ms2gs.doExportToGoogle();
+//					System.out.println(planSheet.getTitle()+"\t"+ms2gs.nonce);
 				} catch(Exception ex) {
 					error = ex;
 					Log.e(LOGTAG, ex);
@@ -194,6 +209,67 @@ public class ExportCommand
 //			Log.e(LOGTAG, ("repeat log")ex);
 			throw Utils.runtime(ex);
 		}
+	}
+	
+	
+	/**
+	 * Modifies
+	 * 
+	 * @param pd
+	 * @param _gsheetForPlanSheetId
+	 * @param sheetProps
+	 * @return 
+	 * 
+	 */
+	private Map<String, String> runExport2_matchSheets(PlanDoc pd, List<SheetProperties> sheetProps) 
+	{
+		// NB: don't save temporary allocations in case the target sheets change
+		Map<String, String> _gsheetIdForPlanSheetId = gsheetForPlanSheetId;
+		if (_gsheetIdForPlanSheetId==null) {
+			_gsheetIdForPlanSheetId = new ArrayMap();
+		}
+
+		List<String> ourNames = Containers.apply(pd.getSheets(), PlanSheet::getTitle);
+		Map<String,Integer> id4theirName = new ArrayMap();
+		for (SheetProperties sp : sheetProps) {
+			Integer old = id4theirName.put(sp.getTitle(), sp.getSheetId());
+			if (old != null) {
+				Log.w(LOGTAG, "ambiguous title for sheet "+sp.getTitle()+" "+url);
+				// oh well, carry on ??can we log this somewhere for the user to know??
+			}
+		}
+		NameMapper nm = new NameMapper(id4theirName.keySet());
+		List<String> unmatchedTheirSheetTitle = nm.addTheirNames(ourNames);
+		Map<String, String> gsheetName4ourname = nm.getOurNames4TheirNames();
+		for(int i=0; i<pd.getSheets().size(); i++) {
+			PlanSheet ps = pd.getSheets().get(i);
+			String gs = _gsheetIdForPlanSheetId.get(ps.getId());
+			if (gs==null) {
+				String theirSheetName = gsheetName4ourname.get(ps.getTitle());
+				if (theirSheetName!=null) {
+					Integer sheetId = id4theirName.get(theirSheetName);
+					assert sheetId != null : theirSheetName;
+					_gsheetIdForPlanSheetId.put(ps.getId(), ""+sheetId);
+					// stash in PlanSheet
+					ps.setGSheetMatch(sheetId, theirSheetName);
+					continue;
+				}
+			}
+			if (gs==null || "by-order".equals(gs)) {
+				if (sheetProps.size() > i) {
+					SheetProperties sp = sheetProps.get(i);
+					_gsheetIdForPlanSheetId.put(ps.getId(), ""+sp.getSheetId());
+					// stash in PlanSheet
+					ps.setGSheetMatch(sp.getSheetId(), sp.getTitle());
+				} else {
+					// TODO make a new sheet!
+					Log.w(LOGTAG, "Make a new sheet please in "+url);
+					Object addSheetReq;
+//						sc.addSheetTab(getSpreadsheetId(), ps.getText());
+				}
+			}
+		}
+		return _gsheetIdForPlanSheetId;
 	}
 
 	void runExport2_annualOnly(PlanDoc pd, Business biz) throws IOException, GeneralSecurityException {
@@ -258,6 +334,32 @@ public class ExportCommand
 	}
 	public void setScenarios(List<String> scenarios) {
 		this.scenarios = scenarios;
+	}
+	
+	
+	public GSheetFromMS getGSheetFromMSForRow(Row row) {
+		Business biz = Business.get();
+		Map<Row, GSheetFromMS> g4r = biz.gSheetFromMSForRow;
+		if (g4r==null) {
+			g4r = new HashMap();
+			biz.gSheetFromMSForRow = g4r;
+		}
+		GSheetFromMS g = g4r.get(row);
+		if (g==null) {
+			// which plansheet is this row in?
+			PlanSheet plansheet = biz.getPlanSheetForRow(row);
+			assert plansheet != null : row;
+			g = gsheetfromms4planSheet.get(plansheet);
+			assert g != null : row+" "+plansheet;
+			g4r.put(row, g);
+		}
+		return g;
+	}
+	
+	
+	ExportCommand setPreferFormulae(boolean b) {
+		this.preferFormulae = b;
+		return this;
 	}
 
 }

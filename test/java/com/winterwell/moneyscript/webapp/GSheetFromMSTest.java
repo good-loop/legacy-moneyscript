@@ -23,7 +23,7 @@ public class GSheetFromMSTest {
 		pd.setText("Staff:\n\tAlice: £1 per month\n\tBob: Alice + £1");
 		Business biz = MoneyServlet.lang.parse(pd.getText());
 		biz.setColumns(3);
-		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(), new ExportCommand(""), biz);
+		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(), new ExportCommand(""), biz, null);
 		gs4ms.setupRows();
 		List<List<Object>> vs = gs4ms.calcValues(biz);
 		System.out.println(vs);
@@ -38,7 +38,7 @@ public class GSheetFromMSTest {
 		biz.setColumns(14);
 		
 		ExportCommand ec = new ExportCommand("");
-		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),ec,biz);
+		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),ec,biz, null);
 		gs4ms.incYearTotals = true;
 		
 		gs4ms.setupRows();
@@ -61,7 +61,7 @@ public class GSheetFromMSTest {
 		Business biz = MoneyServlet.lang.parse(pd.getText());
 		biz.setColumns(3);
 		
-		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),new ExportCommand(""),biz);
+		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),new ExportCommand(""),biz, null);
 		gs4ms.setupRows();
 		List<List<Object>> vs = gs4ms.calcValues(biz);
 		System.out.println(vs);
@@ -74,7 +74,7 @@ public class GSheetFromMSTest {
 		Lang lang = new Lang();
 		Business b = lang.parse(txt);
 
-		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),new ExportCommand(""),b);
+		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),new ExportCommand(""),b, null);
 		gs4ms.setupRows();
 		
 		List<List<Object>> vs = gs4ms.calcValues(b);
@@ -92,7 +92,7 @@ public class GSheetFromMSTest {
 		ExportCommand ec = new ExportCommand(s.getSpreadsheetId());
 
 		pd.setText(txt);			
-		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),ec,pd.getBusiness());
+		GSheetFromMS gs4ms = new GSheetFromMS(new GSheetsClient(),ec,pd.getBusiness(), null);
 		gs4ms.doExportToGoogle();
 		
 	}

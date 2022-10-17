@@ -27,6 +27,7 @@ import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
+import com.winterwell.moneyscript.output.Business.KPhase;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
@@ -39,6 +40,8 @@ import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.IntRange;
+import com.winterwell.utils.containers.Pair2;
+import com.winterwell.utils.io.SqlUtils;
 import com.winterwell.utils.log.Log;
 
 /**
@@ -57,28 +60,36 @@ public class GSheetFromMS {
 		this.incYearTotals = incYearTotals;
 	}
 	private static final String LOGTAG = "GSheetFromMS";
-	private GSheetsClient sc;
+	private final GSheetsClient sc;
 	/**
 	 * The rows in the GSheet
 	 */
 	private List<Row> spacedRows;
+	private List<String> spacedRowNames;
+
 	private Business biz;
 	private ExportCommand ec;
 	private ArrayList unmatched;
 
-	public GSheetFromMS(GSheetsClient sc, ExportCommand exportCommand, Business biz) {
+	public GSheetFromMS(GSheetsClient sc, ExportCommand exportCommand, Business biz, PlanSheet planSheet) {
 		this.sc = sc;
 		this.ec = exportCommand;
 		assert exportCommand != null;
 		this.biz = biz;
+		this.planSheet = planSheet;
 	}
 	
 	boolean incYearTotals;
 	private PlanSheet planSheet;
 	private boolean setupRowsFlag;
-	private List<String> spacedRowNames;
+	private boolean debug = true; // TODO off
+	
+	public void setDebug(boolean debug) {
+		this.debug = debug;
+	}
 
 	public void doExportToGoogle() throws Exception {
+		Log.d(LOGTAG, "doExportToGoogle "+this);
 		assert ec.getSpreadsheetId() !=null && true : ec;
 
 		setupRows();
@@ -127,11 +138,12 @@ public class GSheetFromMS {
 	}
 
 	List<List<Object>> calcValues(Business biz) {
-		biz.isExportToGoogle = true;
-		Dep.set(GSheetFromMS.class, this); // for cell refs
+//		biz.isExportToGoogle = true;
 		
 		// run
-		biz.run();		
+		if (biz.getPhase() != KPhase.OUTPUT) {
+			biz.run();		
+		}
 		
 		// json based approach - reuses the logic for the M$ front-end TODO switch all to this
 		List<List<Object>> values = calcValues2_fromJson(biz);
@@ -191,14 +203,13 @@ public class GSheetFromMS {
 					rowvs.add(""); 
 					continue;
 				}
-				if (ec.preferFormulae && cell.get("excel") != null) {
-					// Avoid self-reference which would upset GSheets
-					// NB: "A12" contains "A1"
-//					Pattern p = Pattern.compile("\\b"+cellRef(cell.row, cell.col)+"\\b");
-//					if ( ! p.matcher(v.excel).find()) {
-					Object excel = cell.get("excel");
-					rowvs.add("="+excel); // a formula	
-					continue;					
+				if (ec.preferFormulae) {
+					String excel0 = (String) cell.remove(ExportCommand.EXCEL_WITH_MS_CELL_REFS);					
+					if (excel0 != null) {
+						String excel = exportCellRefs(excel0, planSheet);
+						rowvs.add("="+excel); // a formula	
+						continue;					
+					}					
 				}
 				rowvs.add(v.doubleValue());							
 			} // ./cell
@@ -297,6 +308,7 @@ public class GSheetFromMS {
 		if (ec.isOverlap()) {
 			try {
 				setupRows2_overlap(ec, biz, rows);
+				spacedRowNames = Containers.apply(spacedRows, r -> r==null? null : r.getName());
 				return;
 			} catch (Exception e) {
 				throw Utils.runtime(e);
@@ -367,35 +379,70 @@ public class GSheetFromMS {
 	 * @param col
 	 * @return [row.name:col.index] e.g. "[Alice:2]"
 	 */
-	public String cellRef(Row row, Col col) {
+	public static String cellRef(Row row, Col col) {
 		String msref = "["+row.getName()+":"+col.index+"]"; // use this and deref it at export
 		return msref;
 	}
 	
-	public String exportCellRefs(String excel) {
+	public String exportCellRefs(String excel, PlanSheet context) {
 		if (excel==null) return null;
 		assert setupRowsFlag;
-		// NB: substring(1) is to remove the initial ^ (start line) marker from rowNameRegex
 		Pattern p = Pattern.compile("\\[("+LangCellSet.rowNameRegex.pattern().substring(1)+")\\:(\\d+)\\]");
+		// NB: substring(1) is to remove the initial ^ (start line) marker from rowNameRegex
 		String export = StrUtils.replace(excel, p, (sb, m) -> {
 			String row = m.group(1);
 			int ci = Integer.valueOf(m.group(2));
-			String ex = exportCellRefs2(row, ci);
+			String ex = exportCellRefs2(row, ci, context);
 			sb.append(ex);
+			if (debug) {
+				sb.append("+N(\""+row+ci+"\")"); // +N() lets us put comments into Excel
+			}
 		});
 		return export;
 	}
 
-	private String exportCellRefs2(String row, int colIndex) {
-		int ki = spacedRowNames.indexOf(row)+2; // +1 for 0 index and +1 for the header row
+//	public static String nonce = Utils.getNonce();
+	
+	private String exportCellRefs2(String row, int colIndex, PlanSheet context) {
+		Row _row = new Row(row);
+		PlanSheet rowSheet = biz.getPlanSheetForRow(_row);		
+		GSheetFromMS sheetGSheet = this;
+		int ki = sheetGSheet.spacedRowNames.indexOf(row);
+		if (ki==-1) {
+			// fail!
+			assert ec != null : this;
+			assert ec.gsheetfromms4planSheet != null : ec;
+			sheetGSheet = ec.gsheetfromms4planSheet.get(rowSheet);
+			ki = sheetGSheet.spacedRowNames.indexOf(row);
+			if (ki==-1) {
+				return "Error: reference to unrecognised row "+row; // this will cause an error in the output - _probably_ easier to debug than throwing an exception
+			}
+		}
+		ki += 2; // +1 for 0 index and +1 for the header row		
 		String ex = GSheetsClient.getBase26(colIndex)+ki;
+		if (context != null && rowSheet != null && ! rowSheet.getId().equals(context.getId())) {
+			String sheetRef = rowSheet.getTitle();
+			if (rowSheet.gsheetTitle != null) sheetRef = rowSheet.gsheetTitle;
+			if ( ! StrUtils.isWord(sheetRef)) {
+				sheetRef = SqlUtils.sqlEncode(sheetRef);
+			}
+			ex = sheetRef+"!"+ex;
+		}
+//		if (debug) {
+//			ex = ex + "+N(\""+nonce+"\")";
+//		}
 		return ex;
 	}
 
 	public static String excel(Numerical x) {
-		return x.excel==null? 
-				Double.toString(x.doubleValue()) 
-				: x.excel;
+		// prefer to refer to cells over embedding formula
+		if (x.excelRef != null) {
+			return x.excelRef;
+		}
+		if (x.excel!=null) {
+			return x.excel;
+		}
+		return Double.toString(x.doubleValue());
 	}
 
 	/**
@@ -411,6 +458,11 @@ public class GSheetFromMS {
 
 	public void setPlanSheet(PlanSheet planSheet) {
 		this.planSheet = planSheet;
+	}
+
+	@Override
+	public String toString() {
+		return "GSheetFromMS [ec=" + ec + ", planSheet=" + planSheet+ "]";
 	}
 
 }
