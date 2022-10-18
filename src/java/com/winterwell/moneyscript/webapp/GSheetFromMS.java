@@ -386,6 +386,9 @@ public class GSheetFromMS {
 	
 	public String exportCellRefs(String excel, PlanSheet context) {
 		if (excel==null) return null;
+		if (excel.contains("Sales Revenue")) { // debug
+			System.out.println(excel);
+		}
 		assert setupRowsFlag;
 		Pattern p = Pattern.compile("\\[("+LangCellSet.rowNameRegex.pattern().substring(1)+")\\:(\\d+)\\]");
 		// NB: substring(1) is to remove the initial ^ (start line) marker from rowNameRegex
@@ -405,14 +408,16 @@ public class GSheetFromMS {
 	
 	private String exportCellRefs2(String row, int colIndex, PlanSheet context) {
 		Row _row = new Row(row);
-		PlanSheet rowSheet = biz.getPlanSheetForRow(_row);		
-		GSheetFromMS sheetGSheet = this;
+		PlanSheet rowSheet = biz.getPlanSheetForRow(_row);
+		assert ec != null : this;
+		assert ec.gsheetfromms4planSheet != null : ec;
+		GSheetFromMS sheetGSheet = ec.gsheetfromms4planSheet.get(rowSheet);
+		if (sheetGSheet==null) {
+			sheetGSheet = this; // paranoia
+		}
 		int ki = sheetGSheet.spacedRowNames.indexOf(row);
 		if (ki==-1) {
-			// fail!
-			assert ec != null : this;
-			assert ec.gsheetfromms4planSheet != null : ec;
-			sheetGSheet = ec.gsheetfromms4planSheet.get(rowSheet);
+			// fail!			
 			ki = sheetGSheet.spacedRowNames.indexOf(row);
 			if (ki==-1) {
 				return "Error: reference to unrecognised row "+row; // this will cause an error in the output - _probably_ easier to debug than throwing an exception
