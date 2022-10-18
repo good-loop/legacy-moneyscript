@@ -65,15 +65,31 @@ class BinaryOp extends Formula {
 
 		switch(op) {
 		case "-":
-			// handle minus as + -1*y -- so that we get the same % handling behaviour
-			Numerical oldy = y;
-			y = oldy.times(-1);
-			if (oldy.excel!=null) y.excel = "-1*"+oldy.excel;
+			// copy-pasta of "+"
+			// special case: e.g. £10 - 20% = £8
+			if ("%".equals(y.getUnit()) && ! "%".equals(x.getUnit())) {
+				Numerical one_y = new Numerical(1).minus(y);
+				Numerical xty = x.times(one_y);
+				xty.excel = GSheetFromMS.excelb(x)+" * "+GSheetFromMS.excelb(one_y); // TODO pass on y's excel
+				return xty;
+			}
+			Numerical xmy = x.minus(y);			
+			xmy.excel = GSheetFromMS.excel(x)+" - "+GSheetFromMS.excelb(y);
+
+//			// handle minus as + -1*y -- so that we get the same % handling behaviour
+//			Numerical oldy = y;
+//			y = oldy.times(-1);
+//			if (oldy.excel!=null) {
+//				y.excel = "-1*"+GSheetFromMS.excelb(oldy);
+//			}
+			return xmy;
 		case "+":
 			// special case: e.g. £10 + 20% = £12
 			if ("%".equals(y.getUnit()) && ! "%".equals(x.getUnit())) {
 				Numerical yplus1 = y.plus(1);
-				return x.times(yplus1);	
+				Numerical xty = x.times(yplus1);
+				xty.excel = GSheetFromMS.excelb(x)+" * "+GSheetFromMS.excelb(yplus1); // TODO pass on y's excel
+				return xty;
 			}
 			Numerical xny = x.plus(y);			
 			xny.excel = GSheetFromMS.excel(x)+" + "+GSheetFromMS.excel(y);

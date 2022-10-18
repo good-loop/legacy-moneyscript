@@ -457,7 +457,7 @@ public class GSheetFromMS {
 	 */
 	public static String excelb(Numerical x) {
 		String s = excel(x);
-		if (s.contains(" ")) s = "("+s+")";
+		if (s.contains(" ") || s.contains("+") || s.contains("-")) s = "("+s+")";
 		return s;
 	}
 
