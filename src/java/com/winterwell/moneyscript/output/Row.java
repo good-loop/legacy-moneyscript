@@ -510,7 +510,7 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 				"v", Double.isFinite(dv) ? dv : null, 
 				"str", v.toString(), 
 				"unit", v.getUnit(),
-				"comment", StrUtils.joinWithSkip("; ", v.comment, dv, v.excel), // exref,  
+				"comment", StrUtils.joinWithSkip("; ", v.comment, dv), // v.excel), // exref,  
 				"css", c == null ? null : b.getCSSForCell(c));
 		if (v.getDelta() != null) {
 			map.put("delta", v.getDelta());

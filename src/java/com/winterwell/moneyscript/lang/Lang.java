@@ -651,7 +651,7 @@ public class Lang {
 			rules.add(rule);
 			
 			// HACK: Process import of m$
-			if (rule instanceof ImportCommand && rule.src.endsWith("ms") || rule.src.endsWith("ms")) {				
+			if (rule instanceof ImportCommand && (rule.src.endsWith("ms") || rule.src.endsWith("ms"))) {				
 				ImportCommand ic = (ImportCommand) rule;
 				if (ic.getVarName() == null) {
 					Business b2 = ic.runImportMS(this);
