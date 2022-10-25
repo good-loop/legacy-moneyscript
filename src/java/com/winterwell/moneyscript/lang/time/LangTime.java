@@ -94,10 +94,15 @@ public class LangTime implements IInit {
 	 */
 	final Parser<DtDesc> _dt = new PP<DtDesc>(first(
 			seq(LangNum.num, space, tunit), 
-			tunit)) 
+			tunit,
+			lit("quarter") // NB: quarter isn't (yet) a TUnit
+			)) 
 	{
 		@Override
 		protected DtDesc process(ParseResult<?> r) {
+			if ("quarter".equals(r.parsed())) {
+				return new DtDesc(new Dt(3, TUnit.MONTH));				
+			}
 			List<AST> ls = r.getLeaves();
 			if (ls.size() == 1) {
 				TUnit tu = (TUnit) ls.get(0).getX();
