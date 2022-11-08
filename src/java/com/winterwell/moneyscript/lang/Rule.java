@@ -136,7 +136,7 @@ public class Rule implements IReset {
 	public final Numerical calculate(Cell cell) {
 		try {
 			String s = this+" "+cell; // debug
-			if (s.contains("Managed Service") && s.contains("Oct 2022]")) {
+			if (s.contains("Seasonality:") && s.contains("Jan 2021]")) {
 				System.out.println(s);
 			}
 			BusinessContext.setActiveRule(this);

@@ -70,7 +70,7 @@ class BinaryOp extends Formula {
 			if ("%".equals(y.getUnit()) && ! "%".equals(x.getUnit())) {
 				Numerical one_y = new Numerical(1).minus(y);
 				Numerical xty = x.times(one_y);
-				xty.excel = GSheetFromMS.excelb(x)+" * "+GSheetFromMS.excelb(one_y); // TODO pass on y's excel
+				xty.excel = GSheetFromMS.excelbon(x)+" * "+GSheetFromMS.excelbon(one_y); // TODO pass on y's excel
 				return xty;
 			}
 			Numerical xmy = x.minus(y);			
@@ -88,7 +88,7 @@ class BinaryOp extends Formula {
 			if ("%".equals(y.getUnit()) && ! "%".equals(x.getUnit())) {
 				Numerical yplus1 = y.plus(1);
 				Numerical xty = x.times(yplus1);
-				xty.excel = GSheetFromMS.excelb(x)+" * "+GSheetFromMS.excelb(yplus1); // TODO pass on y's excel
+				xty.excel = GSheetFromMS.excelbon(x)+" * "+GSheetFromMS.excelbon(yplus1); // TODO pass on y's excel
 				return xty;
 			}
 			Numerical xny = x.plus(y);			
@@ -97,7 +97,7 @@ class BinaryOp extends Formula {
 		case "*":
 			if (x==Numerical.NULL || y==Numerical.NULL) return null;
 			Numerical xy = x.times(y);
-			xy.excel = GSheetFromMS.excelb(x)+" * "+GSheetFromMS.excelb(y);
+			xy.excel = GSheetFromMS.excelbon(x)+" * "+GSheetFromMS.excelbon(y);
 			return xy;
 		case "@":	// like *, but preserves the LHS value for access
 			if (x==Numerical.NULL || y==Numerical.NULL) return null;
@@ -107,7 +107,7 @@ class BinaryOp extends Formula {
 			if (x==Numerical.NULL) return null;
 			// what to do with divide by zero?
 			Numerical xdy = x.divide(y);
-			xdy.excel = GSheetFromMS.excelb(x)+"/"+GSheetFromMS.excelb(y);
+			xdy.excel = GSheetFromMS.excelbon(x)+"/"+GSheetFromMS.excelbon(y);
 			return xdy;
 		case "+-": case "±":
 			Range range = new Range(x.doubleValue()-y.doubleValue(), x.doubleValue()+y.doubleValue());

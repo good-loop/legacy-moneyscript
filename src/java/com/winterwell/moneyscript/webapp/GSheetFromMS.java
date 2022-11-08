@@ -34,6 +34,7 @@ import com.winterwell.moneyscript.output.Row;
 import com.winterwell.nlp.dict.Dictionary;
 import com.winterwell.nlp.dict.NameMapper;
 import com.winterwell.utils.Dep;
+import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
@@ -457,7 +458,32 @@ public class GSheetFromMS {
 	 */
 	public static String excelb(Numerical x) {
 		String s = excel(x);
-		if (s.contains(" ") || s.contains("+") || s.contains("-")) s = "("+s+")";
+		if (s.contains(" ") || s.contains("+") || s.contains("-")) {
+			s = "("+s+")";
+		}
+		return s;
+	}
+	
+
+	/**
+	 * Always wrap in ()s so the later debug output, e.g. A1+N("Wages") is OK in e.g. division formula
+	 * @param x
+	 * @return
+	 */
+	public static String excelbon(Numerical x) {
+		String s = excel(x);
+		// NB: beware of "(a+b) + (c+d)" which starts and ends with brackets but is not bracketed overall		
+//		if (s.startsWith("(") && s.endsWith(")")) {
+//			int opens = StrUtils.countSubStrings(s, "(");
+//			int closes = StrUtils.countSubStrings(s, ")");
+//			if (opens==closes) {
+//				return s;
+//			}
+//		}
+		if (StrUtils.fastNumTest.matcher(s).matches()) {
+			return s;
+		}
+		s = "("+s+")";
 		return s;
 	}
 
