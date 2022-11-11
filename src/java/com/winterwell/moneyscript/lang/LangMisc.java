@@ -446,7 +446,7 @@ public class LangMisc {
 	 */
 	Parser<Settings> planSettings = seq(
 			first(startEndSetting, samplesSetting, columnSettings),			
-			opt(comment)
+			opt(space), opt(comment)
 			);
 
 	public PP<AnnualRule> annual = new PP<AnnualRule>(seq(
