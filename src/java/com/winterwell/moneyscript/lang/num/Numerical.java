@@ -156,6 +156,8 @@ public class Numerical extends Number implements IScalarArithmetic {
 			num = StrUtils.toNSigFigs(v/1000000, sigFigs)+"M";
 		} else if (v>1000) {
 			num = StrUtils.toNSigFigs(v/1000, sigFigs)+"k";
+		} else if (Math.abs(v) < 0.00001) {
+			num = "0";
 		} else {
 			num = StrUtils.toNSigFigs(v, sigFigs);
 		}

@@ -25,7 +25,22 @@ import com.winterwell.utils.time.TimeUtils;
 import com.winterwell.web.WebEx;
 
 /**
- * TODO doc: Get an export from ??
+ * Does total employee earnings per person per month
+ * -- including if there are a few lines (e.g. wage + home-allowance) 
+ * but not including pension or employer NI.
+ * 
+ * To use this:
+ * 
+ * 1. Manually make a report from Reports > Payroll Activity Details for all time
+ * https://payroll.xero.com/Reports/PayrollActivityDetails
+ * 
+ * 2. Export to Excel
+ * 
+ * 3. Convert the Excel to csv (e.g. open in LibreOffice, then save-as csv)
+ * 
+ * 4. Put the csv file in data/PayrollActivityDetails.csv
+ * 
+ * 5. Run this code.
  * 
  * @author daniel
  *
@@ -36,32 +51,34 @@ public class XeroPayrollCSV2MS {
 		CSVReader r = new CSVReader(new File("data/PayrollActivityDetails.csv"));
 		int n = 0;
 		List<Payslip> payslips = new ArrayList<>();
-		Payslip payslip = null;		
-		for (String[] row : r) {
-			// detect start of payslip
-			String[] bits = row[0].split(" - ");
-			if (bits.length==2) {
-				Time t = TimeUtils.parseExperimental(bits[1].trim());
-				payslip = new Payslip();
-				payslip.date = t;
-				String name = bits[0].trim();
-				String n2 = new ArrayMap<String,String>(
-					"Ben Durkin", "Vera Durkin",
-					"Ana Carolina Ratti Gomes", "Carol Ratti",
-					"Marie Lola Conrich", "Lola Conrich",
-					"Nida Ahmed", "Sara Ahmed",
-					"Idowu Boluwatife", "Tife Boluwatife"
-					
-				).get(name);
-				if (n2 !=null) name = n2;
-				payslip.name = name;
-				payslips.add(payslip);
+		{
+			Payslip payslip = null;		
+			for (String[] row : r) {
+				// detect start of payslip
+				String[] bits = row[0].split(" - ");
+				if (bits.length==2) {
+					Time t = TimeUtils.parseExperimental(bits[1].trim());
+					payslip = new Payslip();
+					payslip.date = t;
+					String name = bits[0].trim();
+					String n2 = new ArrayMap<String,String>(
+						"Ben Durkin", "Vera Durkin",
+						"Ana Carolina Ratti Gomes", "Carol Ratti",
+						"Marie Lola Conrich", "Lola Conrich",
+						"Nida Ahmed", "Sara Ahmed",
+						"Idowu Boluwatife", "Tife Boluwatife"
+						
+					).get(name);
+					if (n2 !=null) name = n2;
+					payslip.name = name;
+					payslips.add(payslip);
+				}
+				if (payslip==null) continue;
+				payslip.rows.add(row);
 			}
-			if (payslip==null) continue;
-			payslip.rows.add(row);
+			Printer.out(payslips.get(0));
+			Printer.out(payslips.get(1));
 		}
-		Printer.out(payslips.get(0));
-		Printer.out(payslips.get(1));
 		
 		// Build a sheet of person / time		
 		Time start=TimeUtils.WELL_FUTURE, end=TimeUtils.WELL_OLD;
@@ -69,24 +86,24 @@ public class XeroPayrollCSV2MS {
 			if (payslip2.date.isAfter(end)) end = payslip2.date;
 			if (payslip2.date.isBefore(start)) start = payslip2.date;
 		}
-		Map<String,List> dt = new HashMap<>();
+		Map<String,List> datatable = new HashMap<>();
 		int si = start.getYear()*12 + start.getMonth();
 		int ei = end.getYear()*12 + end.getMonth();
 		int numMonths = 1 + ei - si;
 		Printer.out(start, end, si, ei, numMonths);
 		for (Payslip payslip2 : payslips) {
-			List row = dt.get(payslip2.name);
+			List row = datatable.get(payslip2.name);
 			if (row==null) {
 				row = new ArrayList(numMonths);
-				dt.put(payslip2.name, row);
+				datatable.put(payslip2.name, row);
 			}
 			int i = payslip2.date.getYear()*12 + payslip2.date.getMonth();
 			i -= si;
 			while(row.size() <= i) row.add(null);
 			row.set(i, payslip2.getEarnings());
 		}
-		Printer.out(Printer.toString(dt.get("Aidan Thomson"), ", "));
-		Printer.out(Printer.toString(dt.get("Daniel Winterstein"), ", "));
+		Printer.out(Printer.toString(datatable.get("Aidan Thomson"), ", "));
+		Printer.out(Printer.toString(datatable.get("Daniel Winterstein"), ", "));
 		CSVWriter w = new CSVWriter(new File("data/PayrollActivityDetails.processed.csv"));
 		List<List<Object>> jarr = new ArrayList();
 		ArrayList h = new ArrayList();
@@ -98,8 +115,8 @@ public class XeroPayrollCSV2MS {
 		}
 		w.write(h);
 		jarr.add(h);
-		for(String k : dt.keySet()) {
-			List row = dt.get(k);
+		for(String k : datatable.keySet()) {
+			List row = datatable.get(k);
 			row.add(0, k);
 			w.write(row);
 			jarr.add(row);
@@ -141,7 +158,19 @@ class Payslip {
 	public String toString() {
 		return "Payslip[name="+name+", date=" + date +", earnings="+getEarnings()+", rows=" + Printer.toString(rows) + "]";
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
 	double getEarnings() {
+		// example rows:
+//		Employee	Pay Item	Date	Hourly Rate	Hours	Amount
+//		Bob Thomas - 24 Nov 2021					
+//		Earnings					
+//		Bob Thomas	Home office allowance	24/11/2021			$26.00
+//		Bob Thomas	Regular Hours	24/11/2021	9.66	97.5	$942.03
+//																$968.03	<-- This is the total we want
 		for (String[] row : rows) {
 			// 5 blanks and a number
 			boolean nope = false;
