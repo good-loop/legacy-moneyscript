@@ -8,7 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.goodloop.xero.data.Invoice;
 import com.winterwell.gson.Gson;
+import com.winterwell.gson.GsonBuilder;
 import com.winterwell.gson.JsonArray;
 import com.winterwell.gson.JsonElement;
 import com.winterwell.gson.JsonObject;
@@ -25,6 +27,7 @@ import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
 import com.winterwell.utils.time.TimeParser;
 import com.winterwell.utils.time.TimeUtils;
+import com.winterwell.utils.web.SimpleJson;
 import com.winterwell.utils.web.WebUtils;
 import com.winterwell.utils.web.WebUtils2;
 import com.winterwell.web.ConfigException;
@@ -71,6 +74,7 @@ public class JXero {
 	}
 	
 	XeroConfig xsc;
+	private Gson gson;
 	
 	public void init() {
 		// Read in the auth details
@@ -160,7 +164,7 @@ public class JXero {
 		// ...ask for a code
 		String redirect_uri = 
 			"http://localhost:"+jl.getPort()+"/xeroResponse";
-		String scope = "offline_access accounting.reports.read";
+		String scope = "offline_access accounting.reports.read accounting.transactions payroll.payruns.read payroll.payslip.read";
 		// NB: This method will url encode the id & secret. Is that needed? - well it can't do any harm.
 		String url = WebUtils.addQueryParameters(
 				"https://login.xero.com/identity/connect/authorize",
@@ -190,6 +194,37 @@ public class JXero {
 //		}
 	
 
+	/**
+	 * see https://developer.xero.com/documentation/api/accounting/invoices
+	 * @return
+	 */
+	public List<Invoice> fetchInvoices(Time modifiedSince) {
+		// P&L API url
+				
+		String pnlUrl = "https://api.xero.com/api.xro/2.0/Invoices"
+//				+"?page=1"
+				;
+		// NB: odd that it wants start, end, timeframe and number of periods -- there's some redundant info there
+		// -- ah, it can and will roll several months into one report. We avoid that here.
+		FakeBrowser fb = fetch4_fb();
+		if (modifiedSince != null) {
+			fb.setRequestHeader("If-Modified-Since", modifiedSince.toISOString());
+		}
+		String got = fb.getPage(pnlUrl);
+		Map jobj = WebUtils2.parseJSON(got);
+		List<Map> invoices = SimpleJson.getList(jobj, "Invoices");
+		List is = Containers.apply(invoices, i -> gson().convert(i, Invoice.class));
+		return is;
+	}
+	
+	Gson gson() {
+		if (gson==null) {
+			GsonBuilder gb = new GsonBuilder();
+			gson = gb.create();
+		}
+		return gson;
+	}
+	
 	/**
 	 * @param xsc
 	 * @param start first day of latest month to fetch data from
@@ -305,14 +340,7 @@ public class JXero {
 	
 
 	private List<List<Object>> fetch3(String pnlUrl) {
-		FakeBrowser fb = new FakeBrowser();
-		fb.setDebug(true);
-		
-		String accessToken = (String) xsc.token.get("access_token");
-		assert accessToken!=null : xsc.token;
-		fb.setAuthenticationByJWT(accessToken);
-		fb.setRequestHeader("Xero-tenant-id", xsc.tenantId);
-		fb.setRequestHeader("Accept","application/json");
+		FakeBrowser fb = fetch4_fb();
 		String response = fb.getPage(pnlUrl);
 		
 		// parse the json response
@@ -372,6 +400,28 @@ public class JXero {
 	}
 
 
+	/**
+	 * auth and get
+	 * @param pnlUrl
+	 * @return
+	 */
+	private FakeBrowser fetch4_fb() {
+		FakeBrowser fb = new FakeBrowser();
+		fb.setDebug(true);
+		// auth
+		if (xsc.bearer != null) {
+			fb.setAuthenticationByJWT(xsc.bearer);
+		} else {		
+			String accessToken = (String) xsc.token.get("access_token");
+			assert accessToken!=null : xsc.token;
+			fb.setAuthenticationByJWT(accessToken);
+		}
+		fb.setRequestHeader("Xero-tenant-id", xsc.tenantId);
+		fb.setRequestHeader("Accept","application/json");
+		return fb;
+	}
+
+
 	private String svalue(JsonElement cell) {
 		return cell.getAsJsonObject().get("Value").getAsString();
 	}
@@ -388,12 +438,18 @@ public class JXero {
 
 
 	/**
+	 * TODO https://developer.xero.com/documentation/api/payrolluk/payruns
+	 * 
 	 * @deprecated doesn't work -- but you can export a big csv from the UI
 	 * @param start
 	 * @param end
 	 * @return
 	 */
 	DataTable<String> fetchPayroll(Time start, Time end) {
+		FakeBrowser fb = fetch4_fb();
+		String got = fb.getPage("https://api.xero.com/payroll.xro/2.0/payRuns");
+		System.out.println(got);
+//		https://api.xero.com/payroll.xro/2.0/payRuns
 		DataTable<String> fetched = fetch2("PayrollActivityDetails", start, end, TUnit.MONTH);
 		return fetched;
 	}

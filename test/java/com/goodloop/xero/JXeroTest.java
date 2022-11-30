@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.goodloop.xero.data.Invoice;
 import com.winterwell.maths.datastorage.DataTable;
 import com.winterwell.maths.stats.StatsUtils;
 import com.winterwell.utils.MathUtils;
@@ -15,9 +16,25 @@ import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
 
 import org.junit.Assert;
-
+/**
+ * https://api-explorer.xero.com/accounting/invoices/getinvoices
+ * @author daniel
+ *
+ */
 public class JXeroTest {
 
+	@Test
+	public void testFetchInvoices() {
+		JXero jxero = new JXero();
+		jxero.init();
+		Time s = new Time(2022,10,1);
+		List<Invoice> data = jxero.fetchInvoices(s);
+		for (Invoice invoice : data) {
+			Printer.out(invoice);
+		}
+	}
+
+	
 //	@Test TODO
 	public void test2020() {
 		JXero jxero = new JXero();
@@ -30,7 +47,7 @@ public class JXeroTest {
 		assert row0.size() > 1 : row0;
 	}
 
-//	@Test
+	@Test
 	public void testPayroll() {
 		JXero jxero = new JXero();
 		jxero.init();

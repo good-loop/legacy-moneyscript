@@ -6,6 +6,7 @@ import java.util.Map;
 import com.winterwell.gson.Gson;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.io.FileUtils;
+import com.winterwell.utils.io.Option;
 import com.winterwell.utils.web.WebUtils2;
 import com.winterwell.web.FakeBrowser;
 
@@ -23,6 +24,8 @@ class XeroConfig {
 	
 	String refresh_token;
 	
+	@Option(description="If set, use this to authorise via a token taken from the API Explorer")
+	String bearer;
 
 	static void refreshToken(XeroConfig xsc, File xscFile, Gson gson) {
 		FakeBrowser fb = new FakeBrowser();
