@@ -11,9 +11,11 @@ import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.Containers;
+import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
+import com.winterwell.utils.time.TimeUtils;
 
 /**
  * Describe one point in time (ie a column).
@@ -21,7 +23,7 @@ import com.winterwell.utils.time.Time;
  * @author daniel
  *
  */
-public abstract class TimeDesc {
+public class TimeDesc {
 
 	private String desc;
 	
@@ -167,9 +169,12 @@ public abstract class TimeDesc {
 	}
 
 	/**
-	 * Done in overrides
+	 * Should be done in overrides! Falls back to specific-time
 	 * @return
 	 */
-	public abstract Time getTime();
+	public Time getTime() {
+		Log.d("TimeDesc", "getTime() not overridden by a subclass "+getClass().getSimpleName()+" "+desc);
+		return TimeUtils.parseExperimental(desc);
+	}
 
 }
