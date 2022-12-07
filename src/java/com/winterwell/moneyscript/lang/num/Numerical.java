@@ -276,7 +276,7 @@ public class Numerical extends Number implements IScalarArithmetic {
 		value4tag.put(tag, value);
 		return this;
 	}
-
+	
 	/**
 	 * 
 	 * @param tag

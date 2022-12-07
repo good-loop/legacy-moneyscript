@@ -306,6 +306,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 					}
 					assert false;
 				}
+				
 				// add in the data
 				for (int i = 1; i < row.length; i++) {
 					if (i >= ourCol4importCol.length) {
@@ -323,6 +324,9 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 					}
 					Cell cell = new Cell(brow, col);
 					Numerical v = run2_setCellValue(b, n, cell, srcRowName);
+					// tag
+					// ??Should this be later where it can follow selector logic in tagging rules?
+					brow.tagImport(cell, v);
 				}
 			}
 			// all good

@@ -105,8 +105,10 @@ public class LangNum {
 
 	/**
 	 * lowercase and including the hash e.g. "#uk"
+	 * 
+	 * NB: "#name" is a special case - handled in Rule.calculate()
 	 */
-	public static Parser<String> hashTag = new PP<String>(regex("#[a-zA-Z0-9]+")) {
+	public static Parser<String> hashTag = new PP<String>(regex("#[a-zA-Z0-9_]+")) {
 		@Override
 		protected String process(ParseResult<?> r) throws ParseFail {
 			MatchResult htag = (MatchResult) r.getX();
