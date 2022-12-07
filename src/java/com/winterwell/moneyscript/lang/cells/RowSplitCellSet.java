@@ -7,6 +7,7 @@ import java.util.Set;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.ArraySet;
+import com.winterwell.utils.containers.Containers;
 
 /**
  * e.g. "split by Staff"
@@ -35,15 +36,16 @@ public class RowSplitCellSet extends CellSet {
 	
 	@Override
 	public Set<String> getRowNames(Cell focus) {
-		String grpRow = getSrc();
+		// TODO when rows are made -- this should be done later to ensure that the splitBy group has been fleshed out
+		String grpName = Containers.first(base.getRowNames(focus));
 		Set<String> baseRows = splitBy.getRowNames(focus);
 		ArraySet set = new ArraySet();
-		set.add(grpRow);
+		set.add(grpName+" split");
 		for(String baseRow : baseRows) {
 			if (baseRow.equals(splitBy.getSrc())) {
 				continue;
 			}
-			String splitRow = base.getSrc()+" for "+baseRow;
+			String splitRow = grpName+" for "+baseRow;
 			set.add(splitRow);
 		}
 		return set;
