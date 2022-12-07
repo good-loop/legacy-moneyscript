@@ -121,6 +121,21 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 	private boolean noTotal;
 
 	/**
+	 * Similar rule selection to {@link #calculate(Col, Business)} but it just tags the cell
+	 * @param cell
+	 * @param v
+	 */
+	public void tagImport(Cell cell, Numerical v) {
+		if (isGroup()) {
+			return;
+		}
+		List<Rule> rs = getRules();
+		for (Rule r : rs) {
+			r.tagImport(cell, v);
+		}
+	}
+	
+	/**
 	 * Process the cell -- except group cells
 	 * 
 	 * @param col
@@ -552,5 +567,6 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 	public void setValue(Object value) {
 		throw new UnsupportedOperationException();
 	}
+
 
 }

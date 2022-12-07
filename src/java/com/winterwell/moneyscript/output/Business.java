@@ -343,6 +343,10 @@ public final class Business {
 			throw new StackOverflowError("This could loop forever: "+cell);
 		}
 		if (v!=null) {
+			// When to tag imports? Done early so tags are there for use in follow-on formula 
+//			if (ImportCommand.isImported(v)) {
+//				cell.row.tagImport(cell, v);
+//			}
 			return v;	// NB: this means imports won't get overwritten
 		}
 		// set flag

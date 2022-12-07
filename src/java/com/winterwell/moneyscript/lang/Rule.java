@@ -6,6 +6,7 @@ import java.util.Objects;
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.num.Formula;
+import com.winterwell.moneyscript.lang.num.LangNum;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
@@ -172,14 +173,19 @@ public class Rule implements IReset {
 			if (unit != null) {
 				v.setUnit(unit);
 			}
-			String _tag = getTag();
-			if (_tag!=null) {
-				v.setTag(_tag);
-			}
+			calculate2_tag(cell, v);
 			return v;
 		} catch(Throwable ex) {
 			throw new RuleException(ex+" Cell "+cell+" Rule "+this, ex);
 		}
+	}
+
+	private void calculate2_tag(Cell cell, Numerical v) {
+		String _tag = getTag();
+		if (_tag==null) return;
+		// Hack: special tag?
+		_tag = LangNum.resolveTag(_tag, cell);
+		v.setTag(_tag);		
 	}
 
 	public boolean isActiveScenario(Cell context) {
@@ -245,6 +251,22 @@ public class Rule implements IReset {
 	 */
 	public void setTagFromParent(String tag2) {
 		this.tag2 = tag2;
+	}
+
+	public void tagImport(Cell cell, Numerical v) {
+		if (getTag()==null) return;
+		BusinessContext.setActiveRule(this);
+		// Are we in a scenario - if so, does this rule apply?
+		// ?? filter out earlier
+		if ( ! isActiveScenario(cell)) {
+			return;
+		}
+		// Filtered out?
+		if ( ! getSelector().contains(cell, cell)) {
+			return;
+		}
+		// tag it
+		calculate2_tag(cell, v);
 	}
 
 

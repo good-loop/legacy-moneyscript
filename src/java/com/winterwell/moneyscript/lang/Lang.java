@@ -29,6 +29,7 @@ import com.winterwell.moneyscript.lang.cells.IntersectionCellSet;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
 import com.winterwell.moneyscript.lang.cells.LangFilter;
 import com.winterwell.moneyscript.lang.cells.RowName;
+import com.winterwell.moneyscript.lang.cells.RowSplitCellSet;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.LangNum;
@@ -82,7 +83,7 @@ public class Lang {
 			// global variables
 			+"row column previous "
 			// structural
-			+"annual "
+			+"annual split "
 			// future use: 
 //			+"depreciated vat tax "
 			+"sheet scenario "
@@ -364,13 +365,13 @@ public class Lang {
 			int ln = 0;
 			// get title? (any other header stuff?)
 			while(ln<lines.length) {
-				String line = lines[ln];
-				if (Utils.isBlank(line)) {
+				String linen = lines[ln];
+				if (Utils.isBlank(linen)) {
 					ln++;
 					continue;
 				}
-				if (line.indexOf(':') == -1 || line.startsWith("title:")) {
-					b.title = line;
+				if (linen.indexOf(':') == -1 || linen.startsWith("title:")) {
+					b.title = linen;
 					ln++;
 				}
 				break;
@@ -441,28 +442,28 @@ public class Lang {
 
 
 	private void parse3_addRulesAndGroupRows(Business b, PlanSheet planSheet, List<Group> groupStack, List<Rule> rules) {
-		for (Rule rule : rules) {
-			if (rule instanceof DummyRule || rule instanceof ImportCommand)  {
+		for (Rule rule1 : rules) {
+			if (rule1 instanceof DummyRule || rule1 instanceof ImportCommand)  {
 				// HACK imports dont have rows per-se. But ImportRowCommand does
-				if ( ! (rule instanceof ImportRowCommand)) {
+				if ( ! (rule1 instanceof ImportRowCommand)) {
 					continue;
 				}
 			}
 
 			// NB: selector may be modified later to add group-level filter
-			CellSet selector = rule.getSelector();
+			CellSet selector = rule1.getSelector();
 			if (selector==null) {
 				selector = new CurrentRow(null); // is this always OK?? How do grouping rules behave??
 			}
 			Set<String> rowNames = selector.getRowNames(null);
-			if (rule instanceof ScenarioRule) {
+			if (rule1 instanceof ScenarioRule) {
 				// HACK don't add a row for scenario X
 				rowNames = Collections.emptySet();
 			} else {
 				if (rowNames.isEmpty()) {
 					selector.getRowNames(null);
 				}
-				assert ! rowNames.isEmpty() : selector+" "+rule;
+				assert ! rowNames.isEmpty() : selector+" "+rule1;
 			}
 			// the rows named in this rule's selector
 			// Make sure they exist
@@ -483,7 +484,7 @@ public class Lang {
 			
 			// Grouping by groupStack
 			// NB: only if there's one row (i.e. not for no-row comments, or a multi-row rule -- Do we have those?)
-			Group group = parse4_addRulesAndGroupRows2_group(rule, rows);
+			Group group = parse4_addRulesAndGroupRows2_group(rule1, rows);
 			Group parent = null;
 			if (group!=null) {
 				// Manage the group stack				
@@ -510,18 +511,27 @@ public class Lang {
 						row0.setParent(parent.byRow);
 						b.reorderRows();
 					} else {
-						Log.d("Lang", "huh "+rule);
+						Log.d("Lang", "huh "+rule1);
 					}
 				}
 				// filter?
-				parse4_addRulesAndGroupRows_combinedFilters(rule, parent); 
+				parse4_addRulesAndGroupRows_combinedFilters(rule1, parent); 
 			} // ./parent!=null
-					
+			// add split-by rows to the new group?
+			if (selector instanceof RowSplitCellSet) {
+				for(Row row : rows) {
+					if (row != group.byRow) {
+						row.setParent(group.byRow);
+					}
+//					b.reorderRows(); not needed for split-by
+				}
+			}
+			
 			// rule grouping eg for scenarios (which apply at the rule level not the row level)
-			rule = parse4_addRulesAndGroupRows2_setRuleGroup(rule, parent);			
+			rule1 = parse4_addRulesAndGroupRows2_setRuleGroup(rule1, parent);			
 
 			// add the rule
-			b.addRule(rule);
+			b.addRule(rule1);
 		}
 	}
 
@@ -582,7 +592,11 @@ public class Lang {
 			return new Group(rule.getScenario(), rule.indent);
 		}
 		if (rows.size() != 1) {
-			return null;
+			if (rule.getSelector() instanceof RowSplitCellSet) {
+				// carry on
+			} else {
+				return null;
+			}
 		}
 		Row row0 = rows.get(0);		
 		Group group = new Group(row0, rule.indent);

@@ -1,11 +1,12 @@
 package com.winterwell.moneyscript.lang.cells;
 
-import static com.winterwell.nlp.simpleparser.Parsers.bracketed;
+import static com.winterwell.nlp.simpleparser.Parsers.bracketed; 
 import static com.winterwell.nlp.simpleparser.Parsers.chain;
 import static com.winterwell.nlp.simpleparser.Parsers.first;
 import static com.winterwell.nlp.simpleparser.Parsers.lit;
 import static com.winterwell.nlp.simpleparser.Parsers.opt;
 import static com.winterwell.nlp.simpleparser.Parsers.optSpace;
+import static com.winterwell.nlp.simpleparser.Parsers.space;
 import static com.winterwell.nlp.simpleparser.Parsers.ref;
 import static com.winterwell.nlp.simpleparser.Parsers.seq;
 import static com.winterwell.nlp.simpleparser.Parsers.word;
@@ -15,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.winterwell.moneyscript.lang.Lang;
+import com.winterwell.moneyscript.lang.num.LangNum;
 import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.nlp.simpleparser.AST;
 import com.winterwell.nlp.simpleparser.PP;
@@ -24,6 +26,7 @@ import com.winterwell.nlp.simpleparser.ParseState;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.TodoException;
+import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.Slice;
 import com.winterwell.utils.time.TimeParser;
 
@@ -56,12 +59,17 @@ public class LangCellSet {
 
 	public static final String ROW_NAME = "row-name";
 	
+	/**
+	 * NB: this can be shortened by {@link #kw}
+	 */
 	public static Pattern rowNameRegex = Pattern.compile("^[A-Z][^:,\\+\\-\\*\\/<>=%\\?\\(\\)#]*");	
 	
 	/**
 	 * Parse row names, e.g. "Alice"
 	 */
-	public Parser<RowName> rowName = new Parser<RowName>() {		
+	public Parser<RowName> rowName = new RowNameParser().label(ROW_NAME);
+	
+	static class RowNameParser extends Parser<RowName> {		
 		
 		@Override
 		protected ParseResult<RowName> doParse(ParseState state) {			
@@ -69,7 +77,7 @@ public class LangCellSet {
 			Matcher m = rowNameRegex.matcher(unparsed);
 			if ( ! m.find()) return null;			
 			int end = m.end();			
-			// keyword? shorten what we parsed			
+			// keyword? e.g. "from" -- shorten what we parsed if it contains a keyword			
 			String rn = state.unparsed().subSequence(0, end).toString();
 			Matcher kwm = kw.matcher(rn);
 			if (kwm.find()) {
@@ -96,7 +104,7 @@ public class LangCellSet {
 			ParseResult<RowName> r = new ParseResult<>(state, ast, state.text, state.posn + end);
 			return r;
 		}
-	}.label(ROW_NAME);
+	}
 	
 	
 	Parser<CellSet> all = new PP<CellSet>(word("all")) {
@@ -113,8 +121,19 @@ public class LangCellSet {
 		}		
 	};
 	
+	Parser<CellSet> rowSplit = new PP<CellSet>(seq(
+			lit("split by"), space, first(rowName, LangNum.hashTag)
+	)) {
+		protected CellSet process(ParseResult<?> pr) {
+			Object splitter = Containers.last(pr.getLeafValues());
+			// NB: this will be replaced by a version with a base
+			RowSplitCellSet cs = new RowSplitCellSet(null, (RowName) splitter, pr.parsed());
+			return cs;
+		}
+	};
+
 	Parser<CellSet> selector1 = new PP<CellSet>(seq(
-			first(rowName, all, thisRow), optSpace, opt(LangFilter.filter)
+			first(rowName, all, thisRow), optSpace, opt(first(LangFilter.filter, rowSplit))
 	)) {
 		protected CellSet process(ParseResult<?> pr) {
 			List<AST> ls = pr.getLeaves();
@@ -132,10 +151,15 @@ public class LangCellSet {
 			}
 			assert ls.size() == 2;
 			Object f = ls.get(1).getX();
-			return new FilteredCellSet(base, (Filter) f, pr.parsed());
+			if (f instanceof Filter) {
+				return new FilteredCellSet(base, (Filter) f, pr.parsed());
+			}
+			RowSplitCellSet cs0 = (RowSplitCellSet) f;
+			RowSplitCellSet cs = new RowSplitCellSet(base, cs0.splitBy, pr.parsed());
+			return cs;
 		}
 	}.label(CELLSET_SINGLE_ROW);
-	
+		
 
 	public static Parser<CellSet> cellSetFilter = new PP<CellSet>(LangFilter.filter) {
 		@Override

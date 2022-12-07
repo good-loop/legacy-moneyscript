@@ -1,8 +1,11 @@
 package com.winterwell.moneyscript.lang;
 
+import java.util.Objects;
+
 import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.output.Row;
+import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 
 /**
@@ -12,11 +15,9 @@ import com.winterwell.utils.Utils;
  */
 final class Group {
 	
-	
-	
 	@Override
 	public String toString() {
-		return "Group[indent=" + indent + ", rule=" + rule +", parent=" + parent +  "]";
+		return "Group["+StrUtils.joinWithSkip(", ", byRow, byScenario, byFilter, rule, parent)+", indent=" + indent+"]";
 	}
 	public Group(Row row, int indent) {
 		this.indent = indent;

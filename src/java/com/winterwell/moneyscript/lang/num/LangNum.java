@@ -25,6 +25,7 @@ import com.winterwell.moneyscript.lang.cells.CurrentRow;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
 import com.winterwell.moneyscript.lang.time.DtDesc;
 import com.winterwell.moneyscript.lang.time.LangTime;
+import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.nlp.simpleparser.AST;
 import com.winterwell.nlp.simpleparser.ChainParser;
 import com.winterwell.nlp.simpleparser.PP;
@@ -105,8 +106,10 @@ public class LangNum {
 
 	/**
 	 * lowercase and including the hash e.g. "#uk"
+	 * 
+	 * NB: "#name" is a special case - handled in Rule.calculate()
 	 */
-	public static Parser<String> hashTag = new PP<String>(regex("#[a-zA-Z0-9]+")) {
+	public static Parser<String> hashTag = new PP<String>(regex("#[a-zA-Z0-9_]+")) {
 		@Override
 		protected String process(ParseResult<?> r) throws ParseFail {
 			MatchResult htag = (MatchResult) r.getX();
@@ -367,4 +370,26 @@ public class LangNum {
 			return fs;
 		}		
 	}.label("numList");
+
+
+	/**
+	 * 
+	 * @param _tag
+	 * @param cell
+	 * @return _tag or #rowname for the special #name tag
+	 */
+	public static String resolveTag(String _tag, Cell cell) {
+		if ("#name".equals(_tag)) {
+			// split-by HACK "A for B" becomes "B"
+			String rn = cell.getRow().getName();
+			int i = rn.indexOf(" for ");
+			if (i != -1) {
+				rn = rn.substring(i+5);
+			}
+			// lowercased - see LangNum#hashTag
+			// strip spaces
+			_tag = "#"+rn.replaceAll("\\s+", "").toLowerCase();
+		}
+		return _tag;
+	}
 }

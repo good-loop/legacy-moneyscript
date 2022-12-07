@@ -11,6 +11,7 @@ import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.utils.Dep;
+import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.time.Time;
@@ -44,7 +45,7 @@ public class BasicFormula extends Formula {
 	
 	@Override
 	public String toString() {
-		return num==null? sel.toString() : num.toString();
+		return StrUtils.joinWithSkip("", num==null? sel.toString() : num.toString(), getTag());
 	}
 	
 	public BasicFormula(Numerical num) {
@@ -94,7 +95,8 @@ public class BasicFormula extends Formula {
 		Numerical n = b.getBusiness().getCellValue(cell);
 		// filter by tag?
 		if (tag!=null) {
-			n = n.getTagged(tag);
+			String _tag = LangNum.resolveTag(tag, b);
+			n = n.getTagged(_tag);
 		}
 		return n;
 	}
