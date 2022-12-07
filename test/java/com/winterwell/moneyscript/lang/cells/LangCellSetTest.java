@@ -31,6 +31,15 @@ import com.winterwell.utils.containers.Containers;
 
 public class LangCellSetTest {
 	
+	@Test public void testSplit() {
+		Lang lang = new Lang();
+		ParseResult<RowName> pr0 = lang.langCellSet.rowName.parse("Cost split by Staff");
+		assert pr0 == null;
+		
+		ParseResult<CellSet> pr = lang.langCellSet.selector1.parseOut("Cost split by Staff");
+		CellSet cs = pr.getX();
+		System.out.println(cs);
+	}
 
 	@Test public void testCellSetFrom() {
 		Lang lang = new Lang();

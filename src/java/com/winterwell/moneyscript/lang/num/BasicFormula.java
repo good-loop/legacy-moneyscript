@@ -95,7 +95,8 @@ public class BasicFormula extends Formula {
 		Numerical n = b.getBusiness().getCellValue(cell);
 		// filter by tag?
 		if (tag!=null) {
-			n = n.getTagged(tag);
+			String _tag = LangNum.resolveTag(tag, b);
+			n = n.getTagged(_tag);
 		}
 		return n;
 	}

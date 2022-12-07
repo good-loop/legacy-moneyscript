@@ -6,6 +6,7 @@ import java.util.Objects;
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.num.Formula;
+import com.winterwell.moneyscript.lang.num.LangNum;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
@@ -183,10 +184,7 @@ public class Rule implements IReset {
 		String _tag = getTag();
 		if (_tag==null) return;
 		// Hack: special tag?
-		if ("#name".equals(_tag)) {
-			// lowercased - see LangNum#hashTag
-			_tag = "#"+cell.getRow().getName().replaceAll("\\s+", "").toLowerCase();
-		}
+		_tag = LangNum.resolveTag(_tag, cell);
 		v.setTag(_tag);		
 	}
 

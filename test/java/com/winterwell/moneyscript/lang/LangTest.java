@@ -43,6 +43,25 @@ import com.winterwell.utils.io.FileUtils;
 public class LangTest {
 
 	@Test
+	public void testSplitBy() {
+		Lang lang = new Lang();
+		{
+			//lang.langCellSet.selector1.parseOut("Cost split by Staff");
+			LangCellSet.cellSet.parseOut("Cost split by Staff");
+			ParseResult<Rule> pr = lang.rule.parseOut("Cost split by Staff: Staff#name");
+		}
+		{
+			Business b = lang.parse("start: Jan 2020\nend: Jan 2020\nStaff: #name\n\tAlice: 1\n\tBob: 2\n"
+					+"Cost split by Staff: Staff#name");
+			b.run();
+			String csv = b.toCSV();
+			assert csv.contains("Staff, 3") : csv;
+			assert csv.contains("Alice, 1") : csv;
+			assert csv.contains("Cost for Alice, 1") : csv;
+		}
+	}
+	
+	@Test
 	public void testGroupWithFilter() {
 		Lang lang = new Lang();
 		{
