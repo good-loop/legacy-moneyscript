@@ -16,6 +16,11 @@ import com.winterwell.utils.containers.Containers;
  */
 public class RowSplitCellSet extends CellSet {
 	
+	@Override
+	public String toString() {
+		return "RowSplitCellSet [splitBy=" + splitBy + ", base=" + base + "]";
+	}
+
 	CellSet splitBy;
 	private CellSet base;	
 
