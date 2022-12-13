@@ -30,6 +30,7 @@ import PropControlList from '../base/components/PropControlList';
 import { Tabs, Tab } from '../base/components/Tabs';
 import PlanDoc from '../data/PlanDoc';
 import MDText from '../base/components/MDText';
+import { setShowLogin } from '../base/components/LoginWidget';
 const dummy = PropControlList;
 
 /**
@@ -112,8 +113,10 @@ const RightSide = ({plandoc}) => {
 	<DownloadTextLink text={PlanDoc.text(item)} filename={item.name + ".txt"} />
 	<HelpLink />
 	<BSCard className="mt-2" style={{ maxWidth: "300px" }}>
+		<ScriptSettings plandoc={plandoc} />
 		<h3>Imports
-			<Misc.SubmitButton formData={{action:"clear-imports"}} size="sm" className='m-auto ml-2' color='secondary' title='Refresh the imports now'
+			<Misc.SubmitButton formData={{action:"clear-imports"}} size="sm" 
+				className='m-auto float-right' color='secondary-outline' title='Refresh the imports'
 				url={'/plandoc/'+encURI(id)} ><Icon name="reload" /></Misc.SubmitButton>
 		</h3>
 		<ImportsList cargo={item} />
@@ -400,8 +403,30 @@ const ExportsList = ({ planDoc }) => {
  */
 const ViewExport = ({ item, i }) => {
 	return <><LinkOut className={space('mr-2', !item.active && "text-muted")} href={item.url || item.src}
-		>[{item.name || "Export " + (i + 1)}]</LinkOut> <small>Last run: <Misc.RelativeDate date={item.lastGoodRun} /></small></>
+		>[{item.name || "Export " + (i + 1)}]</LinkOut><small>Last run: <Misc.RelativeDate date={item.lastGoodRun} /></small></>
 };
+
+const ScriptSettings = ({plandoc}) => {
+	const [show, setShow] = useState();
+	const toggle = () => setShow( ! show);
+	const path = getDataPath({id:plandoc.id,type:C.TYPES.PlanDoc,status:KStatus.DRAFT});
+	const spath = path.concat("settings");
+	return (<>
+	<div>
+		<Button title="Settings" className='float-right' onClick={toggle} size="sm" color="secondary-outline"><Icon name="settings" /></Button>
+	</div>
+	<Modal isOpen={show} toggle={toggle}>
+		<ModalHeader toggle={toggle}>
+			<Icon name="settings" /> Sheet Settings
+		</ModalHeader>
+		<ModalBody>
+			<PropControl type="select" prop="numberFormat" label="Number format" options={["abbreviate","standard"]} 
+				labels={["abbreviations e.g. £10k", "standard e.g. £10,000"]} path={spath}/>
+		</ModalBody>
+		</Modal>
+		</>);
+};
+
 
 MoneyScriptEditorPage.fullWidth = true;
 export default MoneyScriptEditorPage;

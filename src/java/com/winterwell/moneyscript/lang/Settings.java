@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import com.goodloop.data.KCurrency;
 import com.winterwell.maths.timeseries.TimeSlicer;
 import com.winterwell.utils.ReflectionUtils;
+import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
@@ -34,6 +35,8 @@ public final class Settings {
 	 * TODO use to switch $ handling on/off
 	 */
 	KCurrency currency;
+	
+	KNumberFormat numberFormat;
 	
 	public void setSamples(int samples) {
 		this.samples = samples;
@@ -144,5 +147,9 @@ public final class Settings {
 			return _end.getMonth();
 		}
 		return yearEnd;
+	}
+	public KNumberFormat getNumberFormat() {
+		if (numberFormat==null) numberFormat = KNumberFormat.abbreviate;
+		return numberFormat;
 	}
 }
