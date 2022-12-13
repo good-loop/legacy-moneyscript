@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.winterwell.gson.Gson;
 import com.winterwell.moneyscript.data.PlanDoc;
 import com.winterwell.moneyscript.data.PlanSheet;
+import com.winterwell.moneyscript.lang.ImportCommand;
 import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.output.Business;
@@ -18,6 +19,7 @@ import com.winterwell.utils.Dep;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.web.WebUtils2;
+import com.winterwell.web.ajax.AjaxMsg;
 import com.winterwell.web.ajax.JSend;
 import com.winterwell.web.ajax.JThing;
 import com.winterwell.web.ajax.KAjaxStatus;
@@ -30,11 +32,18 @@ import com.winterwell.web.fields.JsonField;
 import com.winterwell.web.fields.ListField;
 import com.winterwell.web.fields.MissingFieldException;
 
+/**
+ * Drives processing.
+ * 
+ * @author daniel
+ *
+ */
 public class MoneyServlet implements IServlet {
 
 	private static final ListField<Scenario> SCENARIOS = new ListField<Scenario>(
 			"scenarios", new AStringField("", Scenario.class))
 			.setSplitPattern(",");
+	
 	static Lang lang = new Lang();
 	
 	@Override
@@ -77,6 +86,7 @@ public class MoneyServlet implements IServlet {
 			processFail(pex.getErrors(), state);
 		}
 	}
+
 
 	private PlanDoc getPlanDoc(WebRequest state) {
 		PlanDoc _plandoc = new PlanDocServlet().getThing(state);

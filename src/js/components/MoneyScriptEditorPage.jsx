@@ -112,12 +112,19 @@ const RightSide = ({plandoc}) => {
 	<DownloadTextLink text={PlanDoc.text(item)} filename={item.name + ".txt"} />
 	<HelpLink />
 	<BSCard className="mt-2" style={{ maxWidth: "300px" }}>
-		<h3>Imports</h3>
+		<h3>Imports
+			<Misc.SubmitButton formData={{action:"clear-imports"}} size="sm" className='m-auto ml-2' color='secondary' title='Refresh the imports now'
+				url={'/plandoc/'+encURI(id)} ><Icon name="reload" /></Misc.SubmitButton>
+		</h3>
 		<ImportsList cargo={item} />
 		<h3>Errors</h3>
 		<ErrorsList errors={item.errors} sheets={item.sheets} />
 		<h3>Exports</h3>
 		<ExportsList planDoc={item} />
+		{/* <Misc.SubmitButton size="sm"			
+			url='/money?action=export'
+			title='Exports are normally done when you publish or re-publish'>Export Now
+		</Misc.SubmitButton> */}
 		<h3>Comment Links</h3>
 		<ul>
 		{links.map(link => <li key={link}><LinkOut href={link} fetchTitle /></li>)}

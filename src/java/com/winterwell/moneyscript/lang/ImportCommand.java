@@ -554,5 +554,10 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 	public void setVarName(String x) {
 		this.varName = x;
 	}
+
+	public void clearCache() {
+		String cu = getCsvUrl();
+		csvCache.remove(cu);
+	}
 	
 }
