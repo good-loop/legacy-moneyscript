@@ -130,6 +130,7 @@ public class ExportCommand
 	}
 
 	public void runExport(PlanDoc pd, Business biz) throws Exception {
+		Log.d(LOGTAG, "runExport "+this+"...");
 		// HACK
 		if (preferFormulae) {
 			colFreq = KColFreq.ONLY_MONTHLY; // FIXME handle annual too
