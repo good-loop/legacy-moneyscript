@@ -523,7 +523,7 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 //		String exref = c==null || gs==null? null : gs.exportCellRefs(gs.cellRef(c.row, c.col), null);
 		ArrayMap map = new ArrayMap(
 				"v", Double.isFinite(dv) ? dv : null, 
-				"str", v.toString(), 
+				"str", b.getSettings().getNumberFormat().str(v), 
 				"unit", v.getUnit(),
 				"comment", StrUtils.joinWithSkip("; ", v.comment, dv), // v.excel), // exref,  
 				"css", c == null ? null : b.getCSSForCell(c));

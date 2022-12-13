@@ -33,7 +33,9 @@ import com.winterwell.utils.log.Log;
 import com.winterwell.utils.web.IHasJson;
 import com.winterwell.web.WebEx.E403;
 import com.winterwell.web.ajax.AjaxMsg;
+import com.winterwell.web.ajax.JSend;
 import com.winterwell.web.ajax.JThing;
+import com.winterwell.web.ajax.KAjaxStatus;
 import com.winterwell.web.app.AppUtils;
 import com.winterwell.web.app.CommonFields;
 import com.winterwell.web.app.CrudServlet;
@@ -45,6 +47,30 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 
 	static File plansDir = new File(FileUtils.getWinterwellDir(), "moneyscript-plans");
 
+	private void doRefreshImports(WebRequest state, PlanDoc planDoc) {
+		Business biz = planDoc.getBusiness();
+		List<ImportCommand> ics = biz.getImportCommands();
+		for (ImportCommand importCommand : ics) {
+			importCommand.clearCache();
+		}
+		state.addMessage("Cleared cached imports for "+ics.size()+" "+ics);
+	}
+	
+	static final String ACTION_CLEAR_IMPORTS = "clear-imports";
+	@Override
+	protected void doAction(WebRequest state) throws Exception {
+		super.doAction(state);
+		
+		if (state.actionIs(ACTION_CLEAR_IMPORTS)) {
+			JThing<PlanDoc> jplanDoc = getThingStateOrDB(state);
+			doRefreshImports(state, jplanDoc.java());
+			JSend jsend = new JSend().setStatus(KAjaxStatus.success);			
+			jsend.send(state);
+			return;
+		}	
+	}
+	
+	
 	public PlanDocServlet() {
 		super(PlanDoc.class);
 		augmentFlag = true;

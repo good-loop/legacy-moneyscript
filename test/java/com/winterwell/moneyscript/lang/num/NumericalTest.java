@@ -421,5 +421,15 @@ public class NumericalTest {
 			assert n.doubleValue() == 100000 : n;
 		}
 	}
+	
+
+	@Test
+	public void testToExportString() {
+		{
+			Numerical n = new Numerical(10001.1);
+			assert n.toExportString(false).equals("10001.1");
+			assert n.toExportString(true).equals("10,001.1") : n.toExportString(true);
+		}		
+	}
 
 }

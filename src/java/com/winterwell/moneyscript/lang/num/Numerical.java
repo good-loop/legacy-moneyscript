@@ -1,5 +1,6 @@
 package com.winterwell.moneyscript.lang.num;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -10,6 +11,7 @@ import com.winterwell.maths.stats.distributions.discrete.ObjectDistribution;
 import com.winterwell.moneyscript.lang.ICalculator;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.utils.MathUtils;
+import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.containers.ArrayMap;
 
@@ -173,16 +175,24 @@ public class Numerical extends Number implements IScalarArithmetic {
 
 
 	/**
-	 * Suitable for spreadsheets. Avoids human friendly abbreviations e.g. "£10k" 
+	 * Suitable for spreadsheets. Avoids human friendly abbreviations e.g. "£10k".
+	 * Does not do commas 
+	 * @param b 
 	 */
-	public String toExportString() {
+	public String toExportString(boolean commas) {
 		String sign = doubleValue() < 0? "-" : "";
 		double v = Math.abs(doubleValue());
 		if ("%".equals(unit)) {
 			v *= 100;
 		}
 		// round (a bit) + to string
-		String num = StrUtils.toNSigFigs(v, 8);		
+		String num;
+		if (commas) {
+			DecimalFormat f = new DecimalFormat("###,###.##");
+			num = f.format(v);				
+		} else {
+			num = StrUtils.toNSigFigs(v, 8);
+		}
 		if (unit==null) {
 			return sign+num;	
 		}
@@ -195,6 +205,8 @@ public class Numerical extends Number implements IScalarArithmetic {
 		// No unit :( G-Sheets issue: "Function ADD parameter 1 expects number values. But '£232.91' is a text and cannot be coerced to a number."
 		return sign+num; 
 	}
+	
+	
 
 	@Override
 	public int intValue() {
