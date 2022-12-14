@@ -104,7 +104,9 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	protected List<ESHit<PlanDoc>> doList2_securityFilter(List<ESHit<PlanDoc>> hits2, WebRequest state,
 			List<AuthToken> tokens, YouAgainClient yac) 
 	{
-		return super.doList2_securityFilter2_teamGoodLoop(hits2, state, tokens, yac);
+		List<ESHit<PlanDoc>> safeHits = super.doList2_securityFilter2_filterByShares(hits2, state, tokens, yac);
+//		super.doList2_securityFilter2_teamGoodLoop(hits2, state, tokens, yac);
+		return safeHits;
 	}
 
 	@Override

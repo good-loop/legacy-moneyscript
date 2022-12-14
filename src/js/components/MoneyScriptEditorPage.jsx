@@ -24,7 +24,7 @@ import Editor3ColLayout, { MainPane, RightSidebar } from '../base/components/Edi
 import BG from '../base/components/BG';
 import AceCodeEditor from './AceCodeEditor';
 import Icon from '../base/components/Icon';
-import { getId, getStatus, getType } from '../base/data/DataClass';
+import { getId, getName, getStatus, getType } from '../base/data/DataClass';
 import KStatus from '../base/data/KStatus';
 import PropControlList from '../base/components/PropControlList';
 import { Tabs, Tab } from '../base/components/Tabs';
@@ -106,14 +106,17 @@ const RightSide = ({plandoc}) => {
 	links = uniq(links);
 
 	return (<>
-	<a className='btn btn-primary btn-sm ml-2 mr-2' 
-		href={'/#sheet/' + encURI(id)+"?tab="+(DataStore.getUrlValue("tab")||"")}>View Sheet &gt;</a>
-	<GSheetLink item={item} />
-	<GitHubLink item={item} />
-	<DownloadTextLink text={PlanDoc.text(item)} filename={item.name + ".txt"} />
-	<HelpLink />
-	<BSCard className="mt-2" style={{ maxWidth: "300px" }}>
-		<ScriptSettings plandoc={plandoc} />
+	<div>
+		<a className='btn btn-primary btn-sm ml-2 mr-2' 
+			href={'/#sheet/' + encURI(id)+"?tab="+(DataStore.getUrlValue("tab")||"")}>View Sheet &gt;</a>
+		<GSheetLink item={item} />
+		<GitHubLink item={item} />
+		<DownloadTextLink text={PlanDoc.text(item)} filename={item.name + ".txt"} />
+		<HelpLink />
+		<ShareLink item={item} button color="light" size="sm" /><ShareWidget item={item} name={getName(item)} />
+		<ScriptSettings className="ml-1" plandoc={plandoc} />
+	</div>
+	<BSCard className="mt-2" style={{ maxWidth: "300px" }}>		
 		<h3>Imports
 			<Misc.SubmitButton formData={{action:"clear-imports"}} size="sm" 
 				className='m-auto float-right' color='secondary-outline' title='Refresh the imports'
@@ -406,15 +409,13 @@ const ViewExport = ({ item, i }) => {
 		>[{item.name || "Export " + (i + 1)}]</LinkOut><small>Last run: <Misc.RelativeDate date={item.lastGoodRun} /></small></>
 };
 
-const ScriptSettings = ({plandoc}) => {
+const ScriptSettings = ({plandoc, color="light", className}) => {
 	const [show, setShow] = useState();
 	const toggle = () => setShow( ! show);
 	const path = getDataPath({id:plandoc.id,type:C.TYPES.PlanDoc,status:KStatus.DRAFT});
 	const spath = path.concat("settings");
 	return (<>
-	<div>
-		<Button title="Settings" className='float-right' onClick={toggle} size="sm" color="secondary-outline"><Icon name="settings" /></Button>
-	</div>
+	<Button title="Settings" onClick={toggle} size="sm" color={color} className={className}><Icon name="settings" /></Button>
 	<Modal isOpen={show} toggle={toggle}>
 		<ModalHeader toggle={toggle}>
 			<Icon name="settings" /> Sheet Settings
