@@ -32,6 +32,31 @@ public class GSheetsClientTest {
         assert s != null;
 
 	}
+	
+
+//	@Test // fails for now - but helpfully
+	public void testAuthOnline() throws Exception {        
+        final String spreadsheetId = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms";
+        GSheetsClient sq = new GSheetsClient();
+        sq.setAccessType("online");
+        sq.setUserId("daniel@good-loop.com");
+        sq.setRedirectUri("https://localmoneyscript.good-loop.com/oauthcallback");
+        Spreadsheet s = sq.getSheet(spreadsheetId);
+        System.out.println(s);
+        assert s != null;
+
+	}
+
+	@Test
+	public void testAuthOffline() throws Exception {        
+        final String spreadsheetId = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms";
+        GSheetsClient sq = new GSheetsClient();
+        sq.setAccessType("offline");
+        Spreadsheet s = sq.getSheet(spreadsheetId);
+        System.out.println(s);
+        assert s != null;
+
+	}
 
 
 	/**
