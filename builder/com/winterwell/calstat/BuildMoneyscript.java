@@ -4,7 +4,9 @@ import java.util.List;
 
 import com.winterwell.bob.BuildTask;
 import com.winterwell.bob.tasks.MavenDependencyTask;
+import com.winterwell.bob.wwjobs.BuildHacks;
 import com.winterwell.bob.wwjobs.BuildWinterwellProject;
+import com.winterwell.web.app.KServerType;
 
 public class BuildMoneyscript extends BuildWinterwellProject {
 
@@ -35,7 +37,7 @@ public class BuildMoneyscript extends BuildWinterwellProject {
 //		mdt.addDependency("com.google.apis:google-api-services-sheets:v4-rev612-1.25.0");
 		// https://mvnrepository.com/artifact/com.google.apis/google-api-services-sheets
 
-		mdt.setIncSrc(true);
+		mdt.setIncSrc(BuildHacks.getServerType()==KServerType.LOCAL);
 		bts.add(mdt);
 		
 		return bts;
