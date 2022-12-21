@@ -66,7 +66,9 @@ public class XeroPayrollCSV2MS {
 						"Ana Carolina Ratti Gomes", "Carol Ratti",
 						"Marie Lola Conrich", "Lola Conrich",
 						"Nida Ahmed", "Sara Ahmed",
-						"Idowu Boluwatife", "Tife Boluwatife"
+						"Idowu Boluwatife", "Tife Idowu", // ??
+						"Boluwatife Idowu", "Tife Idowu",
+						"Maria-Lola Edun", "Lola Edun"
 						
 					).get(name);
 					if (n2 !=null) name = n2;

@@ -267,7 +267,8 @@ public class Lang {
 	}
 
 	/**
-	 * HACK speed up repeated parsing with a cache
+	 * HACK speed up repeated parsing with a cache.
+	 * Things in the cache must be copied to avoid shared-state bugs.
 	 */
 	private static Cache<String, Object> cache = new Cache(5000);
 	
@@ -377,7 +378,7 @@ public class Lang {
 				break;
 			}
 			// track the group we're in to group rules
-			List<Group> groupStack = new ArrayList();
+			List<Group> groupStack = new ArrayList(); // ??Group has a parent, so do we need this stack??
 	
 			// ...do the actual parse
 			List<Rule> rules = parse2_rulesFromLines(lines, ln, errors, b, planSheet);		
@@ -449,7 +450,12 @@ public class Lang {
 					continue;
 				}
 			}
-
+			
+			String sdebug = rule1.toString();
+			if (sdebug.contains("except")) {
+				System.out.println(sdebug);
+			}
+			
 			// NB: selector may be modified later to add group-level filter
 			CellSet selector = rule1.getSelector();
 			if (selector==null) {
@@ -527,8 +533,10 @@ public class Lang {
 				}
 			}
 			
-			// rule grouping eg for scenarios (which apply at the rule level not the row level)
-			rule1 = parse4_addRulesAndGroupRows2_setRuleGroup(rule1, parent);			
+			// rule grouping eg for scenarios (which apply at the rule level not the row level, 
+			// and use the local stack not the "canonical" row tree)
+			Group lastGroup = groupStack.get(groupStack.size() - 1);
+			rule1 = parse4_addRulesAndGroupRows2_setRuleGroup(rule1, lastGroup);			
 
 			// add the rule
 			b.addRule(rule1);
