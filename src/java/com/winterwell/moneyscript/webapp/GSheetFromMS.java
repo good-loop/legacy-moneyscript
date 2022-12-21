@@ -83,7 +83,7 @@ public class GSheetFromMS {
 	boolean incYearTotals;
 	private PlanSheet planSheet;
 	private boolean setupRowsFlag;
-	private boolean debug = true; // TODO off
+	private boolean debug;
 	
 	public void setDebug(boolean debug) {
 		this.debug = debug;
@@ -398,7 +398,7 @@ public class GSheetFromMS {
 			int ci = Integer.valueOf(m.group(2));
 			String ex = exportCellRefs2(row, ci, context);
 			sb.append(ex);
-			if (debug) {
+			if (ec.isComments() || debug) {
 				sb.append("+N(\""+row+ci+"\")"); // +N() lets us put comments into Excel
 			}
 		});

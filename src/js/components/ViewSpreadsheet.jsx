@@ -1,7 +1,7 @@
 import React, { Component, useState } from 'react';
 import { ReactDOM } from 'react-dom';
 import _ from 'lodash';
-import printer, { prettyNumber } from '../base/utils/printer';
+import { prettyNumber } from '../base/utils/printer';
 import Graphs from '../components/Graphs'
 import C from '../C';
 import Roles from '../base/Roles';
@@ -162,6 +162,8 @@ const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 		});
 	}
 
+	let [selection, setSelection] = useState();
+
 
 	// The Table	
 	return (<>
@@ -176,28 +178,41 @@ const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 			)}
 		</Nav>
 		<TabContent activeTab={tabId}>
-			<TabPane tabId={tabId}>
-	<SimpleTable
-		tableName={plandoc.name}
-		dataTree={dtree}
-		columns={vizcolumns}
-		showSortButtons={false}
-		scroller
-		hasCollapse
-		hideEmpty={false}
-		hasCsv />
-	<Graphs 
-		data={runOutput}
-		tableName={plandoc.name}
-		dataTree={dtree}
-		columns={vizcolumns} />
-	
+			<TabPane tabId={tabId} style={{position:"relative"}}>
+				<SimpleTable
+					tableName={plandoc.name}
+					dataTree={dtree}
+					columns={vizcolumns}
+					showSortButtons={false}
+					scroller
+					hasCollapse
+					hideEmpty={false}
+					hasCsv 
+					onSelect={setSelection}
+					/>
+				<SelectedInfo selection={selection} />
+				<Graphs 
+					data={runOutput}
+					tableName={plandoc.name}
+					dataTree={dtree}
+					columns={vizcolumns} />	
 	</TabPane></TabContent></>);
 };
 
 const InfoPop = ({ text }) => {
 	if (!text) return null;
 	return <Badge className='ml-1 mr-1' color='info' pill title={text}>i</Badge>;
+};
+
+const SelectedInfo = ({selection}) => {
+	if ( ! selection?.data) return null;
+	let total = 0, n=0;
+	selection.data.forEach(row => row.forEach(v => {
+		total += v;
+		n++;
+	}));
+	if (isNaN(total) || n===0) return null;
+	return <Alert style={{position:"fixed",bottom:"1vh",right:"1vw"}} color='info'>Sum: {prettyNumber(total)} Average: {prettyNumber(total/n)}</Alert>;
 };
 
 /**

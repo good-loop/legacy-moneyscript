@@ -79,6 +79,8 @@ public class ExportCommand
 	 * If true, try to create excel formulae in the export
 	 */
 	public boolean preferFormulae;
+	
+	boolean comments;
 
 	List<String> scenarios;
 
@@ -361,6 +363,14 @@ public class ExportCommand
 	ExportCommand setPreferFormulae(boolean b) {
 		this.preferFormulae = b;
 		return this;
+	}
+	
+	/**
+	 * 
+	 * @return should comments be exported?
+	 */
+	public boolean isComments() {
+		return comments;
 	}
 
 }

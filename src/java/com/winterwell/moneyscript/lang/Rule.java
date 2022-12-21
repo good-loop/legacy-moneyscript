@@ -136,10 +136,10 @@ public class Rule implements IReset {
 	 */
 	public final Numerical calculate(Cell cell) {
 		try {
-			String s = this+" "+cell; // debug
-			if (s.contains("Seasonality:") && s.contains("Jan 2021]")) {
-				System.out.println(s);
-			}
+//			String s = this+" "+cell; // debug
+//			if (s.contains("Seasonality:") && s.contains("Jan 2021]")) {
+//				System.out.println(s);
+//			}
 			BusinessContext.setActiveRule(this);
 			// Are we in a scenario - if so, does this rule apply?
 			// ?? filter out earlier

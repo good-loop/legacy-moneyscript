@@ -34,7 +34,10 @@ const PAGES = {
 		Top-level: tabs
 */
 const MainDiv = () => {
-	return <MainDivBase loginRequired navbarPages={['plan']} defaultPage='plan' pageForPath={PAGES} fullWidthPages={['plan', 'sheet']} />;
+	return <MainDivBase loginRequired navbarPages={['plan']} defaultPage='plan' pageForPath={PAGES} 
+		fullWidthPages={['plan', 'sheet']} 
+		loginServices={"twitter facebook google".split(" ")}
+		/>;
 };
 
 export default MainDiv;

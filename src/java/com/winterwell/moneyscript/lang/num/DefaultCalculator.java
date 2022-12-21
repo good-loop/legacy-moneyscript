@@ -11,6 +11,11 @@ import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.log.Log;
 
+/**
+ * @testedby {@link DefaultCalculatorTest}
+ * @author daniel
+ *
+ */
 final class DefaultCalculator implements ICalculator {
 
 	/**
@@ -37,23 +42,38 @@ final class DefaultCalculator implements ICalculator {
 				if (xv == 0.0) {
 					continue; // no need to track 0s
 				}
+				String tag = e.getKey();
 				if (y.value4tag == null) {
 					double v = xv / y.doubleValue();
 					if (MathUtils.isFinite(v)) {
-						n.value4tag.put(e.getKey(), v);
+						n.value4tag.put(tag, v);
 					}
 					continue;
 				}
 				// tagA / tagB
-				Double yv = y.value4tag.get(e.getKey());
+				Double yv = y.value4tag.get(tag);
 				if (yv==null) {
-					double sumTaggedY = MathUtils.sum(y.value4tag.values());
-					double residual = y.doubleValue() - sumTaggedY;
+					double residual = untaggedResidual(y, tag);
 					yv = residual; // can be zero!
 				}
 				double v = xv / yv;
 				if (MathUtils.isFinite(v)) {
-					n.value4tag.put(e.getKey(), v);
+					n.value4tag.put(tag, v);
+				}
+			}
+			// tagset logic -- allow e.g. colour.red and product.truck to mix - part two
+			// handle any tagset.tags in y that may have got missed 
+			if (y.value4tag != null) {
+				for(Map.Entry<String,Double> e : y.value4tag.entrySet()) {
+					Double yv = e.getValue();
+					String tag = e.getKey();
+					if (tag.indexOf('.')==-1) continue; // done already in the previous for loop
+					if (x.value4tag.containsKey(tag)) continue; // done already in the previous for loop
+					double residual = untaggedResidual(x, tag);
+					double v = residual / yv;	
+					if (MathUtils.isFinite(v)) {					
+						n.value4tag.put(tag, v);
+					}
 				}
 			}
 		} else if (y.value4tag!=null) {
@@ -111,20 +131,35 @@ final class DefaultCalculator implements ICalculator {
 			for(Map.Entry<String,Double> e : x.value4tag.entrySet()) {
 				Double xv = e.getValue();
 				if (y.value4tag == null) {
+					// just one side is tagged -- carry the tags across
 					n.value4tag.put(e.getKey(), xv * y.doubleValue());
 					continue;
 				}
 				// tagA * tagB
-				Double yv = y.value4tag.get(e.getKey());
+				String tag = e.getKey();
+				Double yv = y.value4tag.get(tag);
 				if (yv==null) {
-					double sumTaggedY = MathUtils.sum(y.value4tag.values());
-					double residual = y.doubleValue() - sumTaggedY;
+					double residual = untaggedResidual(y, tag);
 					if (residual==0) continue;
 					yv = residual;
 				}
-				n.value4tag.put(e.getKey(), xv * yv);				
+				n.value4tag.put(tag, xv * yv);				
+			}
+			// tagset logic -- allow e.g. colour.red and product.truck to mix - part two
+			// handle any tagset.tags in y that may have got missed 
+			if (y.value4tag != null) {
+				for(Map.Entry<String,Double> e : y.value4tag.entrySet()) {
+					Double yv = e.getValue();
+					String tag = e.getKey();
+					if (tag.indexOf('.')==-1) continue; // done already in the previous for loop
+					if (x.value4tag.containsKey(tag)) continue; // done already in the previous for loop
+					double residual = untaggedResidual(x, tag);
+					if (residual==0) continue;					
+					n.value4tag.put(tag, residual * yv);				
+				}
 			}
 		} else if (y.value4tag!=null) {
+			// just one side is tagged -- carry the tags across
 			n.value4tag = new ArrayMap();
 			for(Map.Entry<String,Double> e : y.value4tag.entrySet()) {
 				Double yv = e.getValue();
@@ -132,6 +167,29 @@ final class DefaultCalculator implements ICalculator {
 			}			
 		}
 		return n;
+	}
+
+
+	/**
+	 * - Allow 2#green * 3 = 6#green
+	 * - Tagset logic -- allow e.g. colour.red and product.truck to mix.
+	 * @param y
+	 * @param tag
+	 * @return the untagged (wrt tag's tagset if it has one) residual of y
+	 */
+	private double untaggedResidual(Numerical y, String tag) {
+		double sumTaggedY = 0; 
+		String tagset = tag.substring(0, tag.indexOf('.')+1);								
+		for(String ytag : y.value4tag.keySet()) {
+			if (ytag.startsWith(tagset)) {
+				if (tagset.isEmpty() && ytag.indexOf('.') != -1) {
+					continue;
+				}
+				sumTaggedY += y.value4tag.get(ytag);
+			}
+		}					
+		double residual = y.doubleValue() - sumTaggedY;
+		return residual;
 	}
 	
 

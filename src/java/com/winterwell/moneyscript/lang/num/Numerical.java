@@ -1,6 +1,7 @@
 package com.winterwell.moneyscript.lang.num;
 
 import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -283,9 +284,18 @@ public class Numerical extends Number implements IScalarArithmetic {
 		return this;
 	}
 
+	/**
+	 * Overwrites any existing tags on this Numerical.
+	 * E.g. in this rule
+	 * 	Blue Sales: (MixedSales - MixedSales#green) #blue
+	 * The results should be all blue, and should not have a negative #green component.  
+	 * @param tag
+	 * @return this
+	 */
 	public Numerical setTag(String tag) {
-		if (value4tag==null) value4tag = new ArrayMap();
-		value4tag.put(tag, value);
+//		if (value4tag==null)  new ArrayMap(tag, value);
+//		value4tag.put(tag, value);
+		value4tag = Collections.singletonMap(tag,  value);
 		return this;
 	}
 	
