@@ -382,7 +382,8 @@ const ExportEditor = ({ path }) => {
 		<PropControl path={path} prop="colFreq" label="Columns" type="select"
 			options={["MONTHLY_AND_ANNUAL", "ONLY_MONTHLY", "ONLY_ANNUAL"]}
 			labels={["monthly and annual", "only monthly", "only annual"]} />
-		<PropControl path={path} prop="preferFormulae" label="(Experimental!) Formulae" type="checkbox" help="Export formulae instead of numbers where possible" />
+		<PropControl path={path} prop="preferFormulae" label="Formulae" type="checkbox" help="Export formulae instead of numbers where possible" />
+		<PropControl path={path} prop="comments" label="Export comments" type="checkbox" help='Include comments within formulae using N("comment")' />
 	</>);
 };
 
