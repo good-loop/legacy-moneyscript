@@ -66,24 +66,6 @@ public class LangMisc {
 	
 	public static final Parser comment = regex("\\s*//.*").label("comment").setCanBeZeroLength(false);	
 
-//	/**
-//	 * TODO
-//	 * e.g. #Edinburgh to add a tag or -#London to remove a tag. To match using "-", "+" is supported but optional.
-//	 */
-//	static final Parser _tag = new PP(regex("(\\+|\\-)?#\\w+")) {
-//		@Override
-//		protected Object process(ParseResult r) throws ParseFail {
-//			String s = r.parsed();
-//			// minus tag?
-//			if (s.charAt(0) == '-') {
-//				throw new TodoException(s);
-//			}
-//			String tag = s.substring(1);
-//			return tag;
-//		}		
-//	}.eg("#Edinburgh");
-//
-
 	/**
 	 * always matches and returns 0+
 	 */

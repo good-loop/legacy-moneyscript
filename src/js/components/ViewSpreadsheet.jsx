@@ -211,7 +211,8 @@ const SelectedInfo = ({selection}) => {
 		total += v;
 		n++;
 	}));
-	return <Alert style={{position:"absolute",bottom:0,right:0}} color='info'>Sum: {total} Average: {prettyNumber(total/n)}</Alert>;
+	if (isNaN(total) || n===0) return null;
+	return <Alert style={{position:"fixed",bottom:"1vh",right:"1vw"}} color='info'>Sum: {prettyNumber(total)} Average: {prettyNumber(total/n)}</Alert>;
 };
 
 /**

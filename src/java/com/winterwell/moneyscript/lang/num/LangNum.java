@@ -107,9 +107,13 @@ public class LangNum {
 	/**
 	 * lowercase and including the hash e.g. "#uk"
 	 * 
+	 * Tags are mutually exclusive.
+	 * However you can create tag sets with ".", and tags can coexist across sets.
+	 * e.g. (#sales.shop / #sales.online) (#product.car / #product.truck)
+	 * 
 	 * NB: "#name" is a special case - handled in Rule.calculate()
 	 */
-	public static Parser<String> hashTag = new PP<String>(regex("#[a-zA-Z0-9_]+")) {
+	public static Parser<String> hashTag = new PP<String>(regex("#[a-zA-Z0-9_\\.]+")) {
 		@Override
 		protected String process(ParseResult<?> r) throws ParseFail {
 			MatchResult htag = (MatchResult) r.getX();

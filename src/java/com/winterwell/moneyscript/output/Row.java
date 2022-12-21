@@ -143,9 +143,9 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 	 * @return value or null for a group cell
 	 */
 	public Numerical calculate(Col col, Business b) {
-		if (("" + getName() + " " + this).toLowerCase().contains("seasonality")) { // debug!
-			System.out.println(this);
-		}
+//		if (("" + getName() + " " + this).toLowerCase().contains("managed service")) { // debug!
+//			System.out.println(this);
+//		}
 		Cell cell = new Cell(this, col);
 		// special case: group rows
 		if (isGroup()) {
