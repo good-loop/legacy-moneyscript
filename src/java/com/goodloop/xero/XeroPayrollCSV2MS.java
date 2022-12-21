@@ -61,6 +61,8 @@ public class XeroPayrollCSV2MS {
 					payslip = new Payslip();
 					payslip.date = t;
 					String name = bits[0].trim();
+					// HACK handle name mismatches
+					// NB: we do have a shortname handler somewhere that could do this for common cases -- but not all
 					String n2 = new ArrayMap<String,String>(
 						"Ben Durkin", "Vera Durkin",
 						"Ana Carolina Ratti Gomes", "Carol Ratti",
@@ -68,7 +70,10 @@ public class XeroPayrollCSV2MS {
 						"Nida Ahmed", "Sara Ahmed",
 						"Idowu Boluwatife", "Tife Idowu", // ??
 						"Boluwatife Idowu", "Tife Idowu",
-						"Maria-Lola Edun", "Lola Edun"
+						"Maria-Lola Edun", "Lola Edun",
+						"Geoffrey Ballinger", "Geoff Ballinger",
+						"Benjamin Bowers", "Ben Bowers",
+						"Louise Nylander", "Lou Nylander"
 						
 					).get(name);
 					if (n2 !=null) name = n2;
