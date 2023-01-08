@@ -7,15 +7,12 @@ import org.junit.Test;
 
 import com.goodloop.xero.data.Invoice;
 import com.winterwell.maths.datastorage.DataTable;
-import com.winterwell.maths.stats.StatsUtils;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
-
-import org.junit.Assert;
 /**
  * https://api-explorer.xero.com/accounting/invoices/getinvoices
  * @author daniel

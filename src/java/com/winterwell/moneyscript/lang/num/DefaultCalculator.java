@@ -1,8 +1,8 @@
 package com.winterwell.moneyscript.lang.num;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.winterwell.moneyscript.lang.ErrorNumerical;
 import com.winterwell.moneyscript.lang.ICalculator;

@@ -6,8 +6,6 @@ package com.goodloop.xero;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.goodloop.gsheets.GSheetsClient;

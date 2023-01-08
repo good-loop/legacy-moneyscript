@@ -2,17 +2,14 @@ package com.winterwell.moneyscript.lang.num;
 
 import java.text.DecimalFormat;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.winterwell.maths.IScalarArithmetic;
-import com.winterwell.maths.stats.distributions.discrete.ObjectDistribution;
 import com.winterwell.moneyscript.lang.ICalculator;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.utils.MathUtils;
-import com.winterwell.utils.Printer;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.containers.ArrayMap;
 

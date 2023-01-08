@@ -9,8 +9,6 @@ import java.util.Map;
 
 import com.goodloop.gsheets.GSheetsClient;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.winterwell.maths.datastorage.DataTable;
-import com.winterwell.maths.timeseries.TimeSlicer;
 import com.winterwell.utils.FailureException;
 import com.winterwell.utils.MathUtils;
 import com.winterwell.utils.Printer;
@@ -18,7 +16,6 @@ import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.io.CSVReader;
 import com.winterwell.utils.io.CSVWriter;
-import com.winterwell.utils.log.Log;
 import com.winterwell.utils.time.TUnit;
 import com.winterwell.utils.time.Time;
 import com.winterwell.utils.time.TimeUtils;

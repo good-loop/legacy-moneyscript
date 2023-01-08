@@ -1,7 +1,6 @@
 package com.winterwell.moneyscript.lang;
 
 import com.winterwell.moneyscript.lang.num.Numerical;
-import com.winterwell.utils.Printer;
 
 public enum KNumberFormat {
 	/** this is our default */

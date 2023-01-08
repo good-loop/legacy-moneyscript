@@ -6,13 +6,10 @@ package com.goodloop.xero;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.goodloop.gsheets.GSheetsClient;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.winterwell.maths.datastorage.DataTable;
 import com.winterwell.utils.io.CSVWriter;
 import com.winterwell.utils.log.Log;

@@ -1,7 +1,5 @@
 package com.winterwell.moneyscript.lang.cells;
 
-import java.util.Arrays;
-
 import org.junit.Test;
 
 import com.winterwell.moneyscript.lang.Lang;

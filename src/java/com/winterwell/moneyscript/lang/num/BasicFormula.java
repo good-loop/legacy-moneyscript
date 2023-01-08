@@ -10,7 +10,6 @@ import com.winterwell.moneyscript.lang.cells.RowName;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Row;
-import com.winterwell.utils.Dep;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Containers;

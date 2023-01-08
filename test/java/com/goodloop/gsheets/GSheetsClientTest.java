@@ -6,13 +6,11 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.jetty.util.ajax.JSON;
 import org.junit.Test;
 
 import com.google.api.services.sheets.v4.model.Request;
 import com.google.api.services.sheets.v4.model.SheetProperties;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
-import com.winterwell.maths.GridInfo;
 import com.winterwell.utils.Printer;
 import com.winterwell.utils.containers.IntRange;
 

@@ -1,12 +1,9 @@
 package com.winterwell.moneyscript.lang;
 
-import java.util.Objects;
-
 import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.utils.StrUtils;
-import com.winterwell.utils.Utils;
 
 /**
  * marker for grouping rules

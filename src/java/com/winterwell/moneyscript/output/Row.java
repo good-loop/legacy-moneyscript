@@ -2,14 +2,12 @@ package com.winterwell.moneyscript.output;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.winterwell.moneyscript.data.PlanSheet;
 import com.winterwell.moneyscript.lang.AnnualRule;
 import com.winterwell.moneyscript.lang.DummyRule;
 import com.winterwell.moneyscript.lang.ExportCommand;
@@ -21,13 +19,9 @@ import com.winterwell.moneyscript.lang.Settings;
 import com.winterwell.moneyscript.lang.StyleRule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.cells.CellSet;
-import com.winterwell.moneyscript.lang.cells.CurrentRow;
 import com.winterwell.moneyscript.lang.cells.RowName;
-import com.winterwell.moneyscript.lang.num.BasicFormula;
 import com.winterwell.moneyscript.lang.num.Numerical;
-import com.winterwell.moneyscript.lang.num.UnaryOp;
 import com.winterwell.moneyscript.webapp.GSheetFromMS;
-import com.winterwell.utils.Dep;
 import com.winterwell.utils.IFilter;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;

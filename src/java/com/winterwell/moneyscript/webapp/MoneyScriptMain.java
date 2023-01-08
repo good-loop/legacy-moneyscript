@@ -6,14 +6,10 @@ import com.goodloop.data.KCurrency;
 import com.goodloop.gsheets.GSheetsClient;
 import com.winterwell.data.KStatus;
 import com.winterwell.datalog.DataLog;
-import com.winterwell.es.XIdTypeAdapter;
-import com.winterwell.gson.Gson;
 import com.winterwell.gson.GsonBuilder;
-import com.winterwell.gson.KLoopPolicy;
 import com.winterwell.gson.StandardAdapters;
 import com.winterwell.moneyscript.data.PlanDoc;
 import com.winterwell.moneyscript.lang.num.CurrencyConvertor_USD2GBP;
-import com.winterwell.utils.AString;
 import com.winterwell.utils.Dep;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Slice;
@@ -22,7 +18,6 @@ import com.winterwell.web.app.AMain;
 import com.winterwell.web.app.AppUtils;
 import com.winterwell.web.app.JettyLauncher;
 import com.winterwell.web.app.MasterServlet;
-import com.winterwell.web.data.XId;
 
 public class MoneyScriptMain extends AMain<MoneyScriptConfig> {
 

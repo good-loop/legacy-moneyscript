@@ -11,7 +11,7 @@ import static com.winterwell.nlp.simpleparser.Parsers.regex;
 import static com.winterwell.nlp.simpleparser.Parsers.seq;
 import static com.winterwell.nlp.simpleparser.Parsers.space;
 import static com.winterwell.nlp.simpleparser.Parsers.word;
-import com.winterwell.datalog.server.CurrencyConvertor;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.MatchResult;
@@ -32,8 +32,6 @@ import com.winterwell.nlp.simpleparser.PP;
 import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
-import com.winterwell.utils.Dep;
-import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Slice;
 import com.winterwell.utils.containers.Tree;
 

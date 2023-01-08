@@ -2,7 +2,6 @@ package com.winterwell.moneyscript.lang.num;
 
 import org.junit.Test;
 
-import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.utils.Printer;
 
 public class NumericalTest {
