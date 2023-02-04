@@ -12,16 +12,17 @@
 	<classpathentry kind="lib" path="dependencies/jackson-core.jar"/>
 	<classpathentry kind="lib" path="dependencies/jackson-annotations.jar"/>
 	<classpathentry kind="lib" path="dependencies/jackson-databind.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/goodloop.google"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.maths"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.utils"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.web"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.webappbase"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/youagain-java-client"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.bob"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.nlp"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/elasticsearch-java-client"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.depot"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.datalog"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.depot"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elasticsearch-java-client"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.nlp"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.bob"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/youagain-java-client"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.webappbase"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.web"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.utils"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/winterwell.maths"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/goodloop.google"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/goodloop.jxero"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
