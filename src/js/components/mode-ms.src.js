@@ -367,11 +367,8 @@ var PythonHighlightRules = function() {
 			},	
 			{
 				token: "constant.numeric", // e.g. £10k
-				regex: "(£|\$)?" + floatNumber + "(k|m)?\\b"
-			}, {
-				token: "constant.numeric", // e.g. £10k
-				regex: "(£|\$)?" + integer + "(k|m)?\\b"
-			},
+				regex: "(£|\\$)?" + floatNumber + "(k|m)?\\b" // TODO test dollar $100 recognition
+			}, 
 			{
             token: "constant.numeric", // %
             regex: floatNumber + "%\\b"
