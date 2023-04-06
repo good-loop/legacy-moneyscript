@@ -26,7 +26,7 @@ import AceCodeEditor from './AceCodeEditor';
 import Icon from '../base/components/Icon';
 import { getId, getName, getStatus, getType } from '../base/data/DataClass';
 import KStatus from '../base/data/KStatus';
-import PropControlList from '../base/components/PropControlList';
+import PropControlList from '../base/components/propcontrols/PropControlList';
 import { Tabs, Tab } from '../base/components/Tabs';
 import PlanDoc from '../data/PlanDoc';
 import MDText from '../base/components/MDText';

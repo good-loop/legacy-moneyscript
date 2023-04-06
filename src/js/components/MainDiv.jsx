@@ -18,7 +18,8 @@ import ChartPage from './ChartPage';
 import TaskList from '../base/components/TaskList';
 import Crud from '../base/plumbing/Crud';
 import MainDivBase from '../base/components/MainDivBase';
-import PropControls from '../base/components/PropControls';
+import PropControls from '../base/components/propcontrols/PropControls';
+let dummy = [PropControls,Crud];
 
 C.setupDataStore();
 
