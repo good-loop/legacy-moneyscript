@@ -18,7 +18,11 @@ import com.winterwell.web.app.AMain;
 import com.winterwell.web.app.AppUtils;
 import com.winterwell.web.app.JettyLauncher;
 import com.winterwell.web.app.MasterServlet;
-
+/**
+ * Run MoneyScript!
+ * @author daniel
+ *
+ */
 public class MoneyScriptMain extends AMain<MoneyScriptConfig> {
 
 	public MoneyScriptMain() {

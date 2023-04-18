@@ -524,6 +524,16 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 		if (v.getDelta() != null) {
 			map.put("delta", v.getDelta());
 		}
+		// HACK extra info on what the formula would do
+		if (ImportCommand.isImported(v) && Double.isFinite(dv)) {
+			b.state.set(c, null);
+			Numerical ruleBased = calculate(c.col, b);
+			b.state.set(c, v);
+			if (ruleBased!=null && Double.isFinite(ruleBased.doubleValue())) {
+				map.put("ruleValue", ruleBased.doubleValue());
+				map.put("ruleComment", ruleBased.comment);
+			}			
+		}
 		if (v.excel != null) {
 //			PlanSheet contextPlanSheet = b.getPlanSheetForRow(c.row);
 			map.put(ExportCommand.EXCEL_WITH_MS_CELL_REFS, v.excel); // not exported yet!

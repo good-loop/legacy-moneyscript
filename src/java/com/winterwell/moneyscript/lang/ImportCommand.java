@@ -28,6 +28,7 @@ import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Cache;
+import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.Trio;
 import com.winterwell.utils.io.CSVReader;
 import com.winterwell.utils.io.CSVSpec;
@@ -276,54 +277,7 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			// cols -- done already
 			
 			for (String[] row : r) {
-				if (isEmptyRow(row)) {
-					continue;
-				}
-				String srcRowName = row[0];
-				if (Utils.isBlank(srcRowName))
-					continue;
-				
-				// Hack to prevent null pointer exception for ambiguous rows
-				if (exempt.contains(srcRowName))
-					continue;
-				
-				// match row name
-				String ourRowName = mappingImportRow2ourRow.get(srcRowName);
-				assert ourRowName != null : srcRowName;
-				// get/make the row
-				Row brow = b.getRow(ourRowName);
-				if (brow == null) {
-					if (isEmptyRow(row)) {
-						continue;
-					}
-					if (isOverlap()) {
-//						Log.d(LOGTAG, "Skip non-overlap row "+rowName);
-						continue; // don't import this row
-					}
-					assert false;
-				}
-				
-				// add in the data
-				for (int i = 1; i < row.length; i++) {
-					if (i >= ourCol4importCol.length) {
-						Log.e(LOGTAG, "Overlong row? "+i+" from "+srcRowName);
-						break;
-					}
-					Col col = ourCol4importCol[i];
-					if (col==null) {
-						continue; // skip e.g. not in the sheet's time window
-					}
-					String ri = row[i];
-					double n = MathUtils.getNumber(ri);
-					if (n == 0 && (ri==null || ! "0".equals(ri.trim()))) {
-						continue; // skip blanks and non-numbers but not "true" 0s
-					}
-					Cell cell = new Cell(brow, col);
-					Numerical v = run2_setCellValue(b, n, cell, srcRowName);
-					// tag
-					// ??Should this be later where it can follow selector logic in tagging rules?
-					brow.tagImport(cell, v);
-				}
+				run2_row(row, b);
 			}
 			// all good
 			error = null;
@@ -331,6 +285,64 @@ public class ImportCommand extends Rule implements IHasJson, IReset {
 			error = ex;
 			throw Utils.runtime(ex);
 		}
+	}
+	
+	/** for Import, we want to skip blanks. But for Compare we want them. */
+	boolean blankIsZero = false;			
+
+	void run2_row(String[] row, Business b) {
+		if (isEmptyRow(row)) {
+			return;
+		}
+		String srcRowName = row[0];
+		if (Utils.isBlank(srcRowName)) {
+			return;
+		}
+		
+		// Hack to prevent null pointer exception for ambiguous rows
+		if (exempt.contains(srcRowName)) {
+			return;
+		}
+		
+		// match row name
+		String ourRowName = mappingImportRow2ourRow.get(srcRowName);
+		assert ourRowName != null : srcRowName;
+		// get/make the row
+		Row brow = b.getRow(ourRowName);
+		if (brow == null) {
+			if (isEmptyRow(row)) {
+				return;
+			}
+			if (isOverlap()) {
+//				Log.d(LOGTAG, "Skip non-overlap row "+rowName);
+				return; // don't import this row
+			}
+			assert false;
+		}
+				
+		// add in the data
+		for (int i = 1; i < row.length; i++) {
+			if (i >= ourCol4importCol.length) {
+				Log.e(LOGTAG, "Overlong row? "+i+" from "+srcRowName);
+				break;
+			}
+			Col col = ourCol4importCol[i];
+			if (col==null) {
+				continue; // skip e.g. not in the sheet's time window
+			}
+			String ri = row[i];
+			double n = MathUtils.getNumber(ri);
+			if (
+				n == 0 && ! blankIsZero && ! (ri!=null && "0".equals(ri.trim())) 
+			) {
+				continue; // skip blanks and non-numbers but not "true" 0s
+			}
+			Cell cell = new Cell(brow, col);
+			Numerical v = run2_setCellValue(b, n, cell, srcRowName);
+			// tag
+			// ??Should this be later where it can follow selector logic in tagging rules?
+			brow.tagImport(cell, v);
+		}		
 	}
 
 	protected Col[] run2_importRows2_ourCol4importCol(Business b, String[] headers, Time start, Time end) {

@@ -31,6 +31,10 @@ import { Tabs, Tab } from '../base/components/Tabs';
 import PlanDoc from '../data/PlanDoc';
 import MDText from '../base/components/MDText';
 import { setShowLogin } from '../base/components/LoginWidget';
+import { getLock } from '../base/plumbing/locker';
+import Messaging from '../base/plumbing/Messaging';
+import Login from '../base/youagain';
+import XId from '../base/data/XId';
 const dummy = PropControlList;
 
 /**
@@ -66,6 +70,11 @@ const MoneyScriptEditorPage = () => {
 	const type = C.TYPES.PlanDoc;
 	if (!id) {
 		return <ListLoad type={type} status={C.KStatus.ALL_BAR_TRASH} canDelete canCreate sort='lastModified-desc' />;
+	}
+
+	let pvLock = getLock(id);
+	if (pvLock.value && pvLock.value.uid !== Login.getId()) {
+		Messaging.notifyUser({id:"lock"+id, text:"Being edited by "+XId.id(pvLock.value.uid), type:"error"});
 	}
 
 	const path = DataStore.getDataPath({ status: C.KStatus.DRAFT, type, id });

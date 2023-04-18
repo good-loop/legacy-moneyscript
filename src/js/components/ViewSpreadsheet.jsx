@@ -98,20 +98,35 @@ const renderCell = (v, column, item) => {
 	const colv = item[column.index];
 	let vs = (colv && colv.str) || v || '';
 	vs = vs.replace('-', '‑'); // str value for display, then replace - with a non-breaking hyphen (which looks the same here, but it is different)	
+	let $deltaSpan, $ruleSpan;
 	if (colv && colv.delta) {
 		try {			
 			let deltaPercent = (v / (v - colv.delta)) - 1;
 			if (Math.abs(deltaPercent) > 0.1) { // ignore under 10% difference
-				return <div>{vs} <span className='small text-info' title={prettyNumber(v-colv.delta, 3)}>{prettyNumber(100*deltaPercent, 2)}%</span></div>;
+				$deltaSpan = <span className='small text-info' title={prettyNumber(v-colv.delta, 3)}>{prettyNumber(100*deltaPercent, 2)}%</span>;				
 			}
 		} catch(err) { //paranoia
 			console.error("(swallow) delta caused maths error", v, colv, column, item, err);
 		}
 	}
+	if (colv && colv.ruleValue) {
+		try {			
+			let deltaPercent = (v / colv.ruleValue) - 1;
+			if (Math.abs(deltaPercent) > 0.1) { // ignore under 10% difference
+				$ruleSpan = <span className='small text-warning' title={"By rule would have been "+prettyNumber(colv.ruleValue, 3)+" "+colv.ruleComment}>{prettyNumber(100*deltaPercent, 2)}%</span>;				
+			}
+		} catch(err) { //paranoia
+			console.error("(swallow) ruleValue caused maths error", v, colv, column, item, err);
+		}
+	}
+	if ($deltaSpan || $ruleSpan) {
+		return <div>{vs} {$deltaSpan} {$ruleSpan}</div>;
+	}
 	// HACK show % change
 	if (colv && colv.dv) {
+		console.warn("When is dv used?!");
 		return <div>{vs} <span className='small text-info percent'>{colv.dx>0?<>&uarr;</>:<>&#x2191;</>}{prettyNumber(100*colv.dv, 2)}%</span></div>;
-	}
+	}	
 	return vs;
 };
 
@@ -234,7 +249,8 @@ const makeDataTree = ({ runOutput, sheetId}) => {
 			index: i,
 			accessor: r => r[i] && (r[i].v || r[i].str), // get the numerical value for csv export
 			Cell: renderCell,
-			tooltip: ({ cellValue, item, column }) => item && item[i] && item[i].comment,
+			tooltip: ({ cellValue, item, column }) => item && item[i]?.comment,
+				// space(item[i].comment, item[i].ruleComment && "By-formula would have been: "+item[i].ruleValue+" "+item[i].ruleComment),
 			Header: c,
 			style: fStyle
 		});

@@ -9,11 +9,18 @@ public class CompareCommand extends ImportCommand {
 
 	public CompareCommand(String src) {
 		super(src);
+		blankIsZero = true;
+	}
+	
+	@Override
+	void run2_row(String[] row, Business b) {
+		super.run2_row(row, b);
 	}
 
 	@Override
 	Numerical run2_setCellValue(Business b, double v, Cell cell, String srcRowNameIgnored) {
-		if (cell.row.getName().contains("DEBUGGrant")) {
+		if (cell.row.getName().contains("Ross") 
+				&& cell.toString().contains("2023")) {
 			System.out.println(cell);
 		}
 		Numerical ours = b.getCellValue(cell);

@@ -72,7 +72,7 @@ public class Numerical extends Number implements IScalarArithmetic {
 	 * For comparing against another set of values
 	 */
 	private Double delta;
-
+	
 	/**
 	 * HACK how many bits went into this number?
 	 */
