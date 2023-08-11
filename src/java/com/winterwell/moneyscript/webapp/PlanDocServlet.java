@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.winterwell.bob.tasks.WinterwellProjectFinder;
 import com.winterwell.data.AThing;
 import com.winterwell.data.KStatus;
 import com.winterwell.es.ESPath;
@@ -101,6 +102,10 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 		return safeHits;
 	}
 
+	protected boolean doList3_securityFilter3_filterByShares2_isGLSecurityHack(WebRequest state) {
+		return isGLSecurityHack(state) && WinterwellProjectFinder.isDev(state);
+	}
+	
 	@Override
 	protected JThing<PlanDoc> doPublish(WebRequest state, KRefresh forceRefresh, boolean deleteDraft) throws Exception {
 		// normal
