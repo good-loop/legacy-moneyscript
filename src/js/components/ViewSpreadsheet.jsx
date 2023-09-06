@@ -155,9 +155,17 @@ const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 	} // data prep done
 	
 	const dtree = runOutput.dataTree[sheetId];
-	// console.log("dataTree", dtree, "allcolumns", runOutput.allcolumns);
-	// HACK - only show year totals?
+	
+	// Prune the columns?
 	let vizcolumns = runOutput.allcolumns;
+	// HACK hide the first years?
+	if (plandoc?.settings?.hideTo) {
+		let hideToTime = new Date(plandoc?.settings?.hideTo).getTime() - 1;
+		vizcolumns = vizcolumns.filter(
+			col => new Date(col.Header).getTime() >= hideToTime || _.isNaN(new Date(col.Header).getTime())
+		);
+	}
+	// HACK - only show year totals?
 	if (hideMonths) {
 		vizcolumns = vizcolumns.filter(col => col.Header === "Row" || col.Header.includes("Total"));
 		// HACK add % change info

@@ -59,7 +59,7 @@ public class Lang {
 			// filters
 			("from to above below at £ $ except "
 			// times
-			+"start end now for at "
+			+"start end now for at hide "
 			+"per over "
 			+"year quarter month day hour minute years quarters months days hours minutes "
 			// finance

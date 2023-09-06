@@ -122,8 +122,10 @@ const ScenariosOnOff = ({scenarioMap, scenarioTexts}) => {
  */
 const ChartVisuals = ({chartSetup, data }) => {
 	let type = chartSetup.type;
-	// columns (skip annual totals)
+	// columns (skip annual totals)	
 	let colMask = data.columns.map(colName => ! colName.includes("Total"))
+	// TODO if (plandoc.settings?.hideTo) {		
+	// }
 	let myLabels = data.columns.filter((el, i) => colMask[i]);
 	// HACK in case it is not an array
 	let lines = asArray(chartSetup.lines);

@@ -133,6 +133,10 @@ public final class Settings {
 	 * 12=dec (default), 3=march
 	 */
 	private Integer yearEnd;
+	/**
+	 * HACK hide to: Jan 2021 means calculate but dont display the earlier columns
+	 */
+	Time hideTo;
 	
 	/**
 	 * If unset, use end. If that is unset default to December
@@ -150,5 +154,8 @@ public final class Settings {
 	public KNumberFormat getNumberFormat() {
 		if (numberFormat==null) numberFormat = KNumberFormat.abbreviate;
 		return numberFormat;
+	}
+	public void setHideTo(Time time) {
+		this.hideTo = time;
 	}
 }

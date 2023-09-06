@@ -222,6 +222,9 @@ public final class Business {
 		// scenarios
 		map.put("scenarios", getScenarios());
 		map.put("scenarioTexts", Containers.applyToMap(getScenarios(), (s,on) -> s.ruleText));
+		
+		// settings -- in the PlanDoc
+		
 		//done
 		return map;
 	}

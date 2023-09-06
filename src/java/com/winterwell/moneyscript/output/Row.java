@@ -520,7 +520,7 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 				"str", b.getSettings().getNumberFormat().str(v), 
 				"unit", v.getUnit(),
 				"comment", StrUtils.joinWithSkip("; ", v.comment, dv), // v.excel), // exref,  
-				"css", c == null ? null : b.getCSSForCell(c));
+				"css", c == null || ! Utils.truthy(dv) ? null : b.getCSSForCell(c)); // hacl no styling for 0s
 		if (v.getDelta() != null) {
 			map.put("delta", v.getDelta());
 		}

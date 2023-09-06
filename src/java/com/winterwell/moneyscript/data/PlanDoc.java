@@ -14,6 +14,7 @@ import com.winterwell.moneyscript.lang.Settings;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.containers.Containers;
+import com.winterwell.utils.log.Log;
 
 public class PlanDoc extends AThing {
 
@@ -53,7 +54,11 @@ public class PlanDoc extends AThing {
 	
 	public Business getBusiness() {
 		if (business==null) {
-			business = lang.parse(getSheets(), null);	
+			business = lang.parse(getSheets(), null);
+			if (business.getSettings() != settings) {				
+				settings = business.getSettings(); 
+				Log.d("PlanDoc", "Update settings from parse: "+settings);
+			}
 		}
 		return business;
 	}

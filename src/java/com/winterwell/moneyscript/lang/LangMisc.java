@@ -140,7 +140,7 @@ public class LangMisc {
 
 	
 	PP<Settings> startEndSetting = new PP<Settings>(
-			seq(lit("start", "end", "year end", "currency"), lit(":"), optSpace, LangTime.time)
+			seq(lit("start", "end", "year end", "currency", "hide to"), lit(":"), optSpace, LangTime.time)
 			) {
 		protected Settings process(ParseResult<?> r) {
 			Settings s = new Settings();
@@ -160,6 +160,10 @@ public class LangMisc {
 			}
 			if ("year end".equals(keyword) && timeDesc instanceof SpecificTimeDesc) {				
 				s.setYearEnd(time.getMonth());
+			}
+			// HACK
+			if ("hide to".equals(keyword)) {
+				s.setHideTo(time);
 			}
 			return s;
 		}
