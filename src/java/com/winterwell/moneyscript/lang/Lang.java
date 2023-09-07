@@ -71,7 +71,7 @@ public class Lang {
 			// logic
 			+"if then else and "
 			// meta
-			+"show hide plot off "
+			+"show hide plot off only " // TODO "only" as a marker for "only this rule", like css !important
 			// IO
 			+"import fresh "
 			// global variables
@@ -166,12 +166,15 @@ public class Lang {
 	public static Parser<String> unit = seq(lit("("), lit("%","£","$").label("unit"), lit(")"))
 			.eg("(%)");
 	
+	static final Parser<String> only = lit(" only");
+	
 	Parser<Rule> rule = new PP<Rule>(seq( 
 			LangMisc.indent,
 			LangCellSet.cellSet,
 			opt(unit),
 			lit(":"), optSpace, 
 			ruleBody,
+			opt(only),
 			optSpace,
 			opt(LangNum.hashTag),
 			optSpace,
@@ -195,37 +198,38 @@ public class Lang {
 			if (astTag!=null) {
 				tag = astTag.getX();			
 			}
+			boolean isOnly = r.getNode(only) != null;
 			// a formula?
+			Rule _rule = null;
 			Object rbx = rb.getX();			
 			if (rbx instanceof Formula) {
-				Rule _rule = new Rule(sel, (Formula) rbx, r.parsed(), ind).setComment(comment);
-				if (u != null) {
-					_rule.setUnit(u.getX());
-				}
-				if (tag !=null) {
-					_rule.setTag(tag);
-				}
-				return _rule;
-			}
-			// a list of values
-			if (rbx instanceof List) {
-				Rule _rule = new ListValuesRule(sel, (List<Formula>) rbx, r.parsed(), ind).setComment(comment);
-				if (u != null) {
-					_rule.setUnit(u.getX());
-				}
-				if (tag !=null) {
-					_rule.setTag(tag);
-				}
-				return _rule;
+				_rule = new Rule(sel, (Formula) rbx, r.parsed(), ind);
+			} else if (rbx instanceof List) { 
+				// list of values
+				_rule = new ListValuesRule(sel, (List<Formula>) rbx, r.parsed(), ind);
 			}
 			// a rule? (importRow does this -- it probably should return a formula instead)
 			if (rbx instanceof Rule) {
-				Rule _rule = (Rule) rbx;
+				_rule = (Rule) rbx;
 				_rule.setSelector(sel);
 				_rule.indent = ind;
-				_rule.setComment(comment);
+			}
+			if (_rule != null) {
+				if (u != null) {
+					_rule.setUnit(u.getX());
+				}
+				if (tag !=null) {
+					_rule.setTag(tag);
+				}
+				if (comment!=null) {
+					_rule.setComment(comment);
+				}
+				if (isOnly) {
+					_rule.setOnly(isOnly);
+				}
 				return _rule;
 			}
+			
 			// meta rule?
 			AST<String> m = rb.getNode(LangMisc.meta);
 			if (m != null) {

@@ -111,6 +111,7 @@ public class Rule implements IReset {
 	 * NB: transient so we dont share group-level tags via the rule cache
 	 */
 	private transient String tag2 = "";
+	private boolean only;
 	
 	public String getTag() {
 		if (tag != null) {
@@ -265,6 +266,14 @@ public class Rule implements IReset {
 		}
 		// tag it
 		calculate2_tag(cell, v);
+	}
+
+	public void setOnly(boolean isOnly) {
+		only = isOnly;
+	}
+
+	public boolean isOnly() {
+		return only;
 	}
 
 

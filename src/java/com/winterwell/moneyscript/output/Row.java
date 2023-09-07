@@ -137,9 +137,10 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 	 * @return value or null for a group cell
 	 */
 	public Numerical calculate(Col col, Business b) {
-//		if (("" + getName() + " " + this).toLowerCase().contains("managed service")) { // debug!
-//			System.out.println(this);
-//		}
+		String sdebug = ("" + getName() + " " + col).toLowerCase();
+		if (sdebug.contains("daniel") && sdebug.contains("feb 2024")) { // debug!
+			System.out.println(this);
+		}
 		Cell cell = new Cell(this, col);
 		// special case: group rows
 		if (isGroup()) {
@@ -151,6 +152,19 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 		if (rs.isEmpty())
 			return null;
 		Numerical v = null;
+		// only rules? If one applies, then leave off other rules
+		for(int i=rs.size() -1; i>=0; i--) { // last first, so last one wins
+			Rule r = rs.get(i);
+			if ( ! r.isOnly()) continue;
+			// NB: scenario on/off is done inside calculate
+			Numerical v2 = r.calculate(cell);
+			if (v2 == null) {
+				continue; // e.g. rule not active yet
+			}
+			if (v2.comment==null) v2.comment = r.src;
+			b.state.set(cell, v);
+			return v;
+		}
 		// Last rule wins in a straight calculation (some rules are modifiers)
 		// Minor efficiency TODO - mark which rules are modifiers, then start with the
 		// last absolute rule
