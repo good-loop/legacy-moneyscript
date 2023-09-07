@@ -272,7 +272,7 @@ public class Rule implements IReset {
 		only = isOnly;
 	}
 
-	public boolean isOnly() {
+	public final boolean isOnly() {
 		return only;
 	}
 
