@@ -149,6 +149,7 @@ const ChartVisuals = ({chartSetup, data }) => {
 	return (
 		<div className="chart-visual-container">
 			<NewChartWidget
+				id="msChart"
 				type={type}
 				responsive="true"
 				maintainAspectRatio="false"
@@ -162,6 +163,7 @@ const ChartVisuals = ({chartSetup, data }) => {
 				maxy={chartSetup.maxy}
 				miny={chartSetup.miny}
 			/>
+			<PNGDownloadButton ?? />
 		</div>
 	)
 };
