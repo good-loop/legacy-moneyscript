@@ -27,6 +27,8 @@ class ChartSetup {
 	lines = [];
 	/** @type {?number} */
 	maxy;
+	/** @type {?string} */
+	title;
 }
 
 /** component for a charts setting & visuals  */
@@ -42,6 +44,7 @@ const ChartChunk = ({id, plandoc, rows, scenarios }) => {
 	// HACK only one chart
 	let chartPath = getDataPath({status:KStatus.DRAFT, id, type:C.TYPES.PlanDoc}).concat("charts", 0);
 	let chartSetup = DataStore.setValueIfAbsent(chartPath, new ChartSetup());
+	chartSetup.title = plandoc.name || "plan-"+plandoc.id;
 
 	let rowNames = rows.map(el => el.name);
 	rowNames.sort(); // A-Z
@@ -150,7 +153,7 @@ const ChartVisuals = ({chartSetup, data }) => {
 				maxy={chartSetup.maxy}
 				miny={chartSetup.miny}
 			/>
-			<PNGDownloadButton querySelector="#msChart" />
+			<PNGDownloadButton querySelector="#msChart" fileName={(chartSetup.title || "chart")} />
 		</div>
 	)
 };
