@@ -1,33 +1,20 @@
-import React, { Component, useState } from 'react';
-import { ReactDOM } from 'react-dom';
-import printer from '../base/utils/printer';
-import { Alert, Button, Container, Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Form, Row, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
+import _ from 'lodash';
+import React from 'react';
+import { Alert, Col, Form, Row } from 'reactstrap';
 import C from '../C';
 import CSS from '../base/components/CSS';
-import Roles from '../base/Roles';
 import Misc from '../base/components/Misc';
-import { stopEvent, modifyHash, encURI, asArray } from '../base/utils/miscutils';
-import DataStore, { getDataPath } from '../base/plumbing/DataStore';
-import Settings from '../base/Settings';
-import ShareWidget, { ShareLink } from '../base/components/ShareWidget';
-import ListLoad, { CreateButton } from '../base/components/ListLoad';
-import ActionMan from '../plumbing/ActionMan';
+import NewChartWidget from '../base/components/NewChartWidget';
+import PNGDownloadButton from '../base/components/PNGDownloadButton';
 import PropControl from '../base/components/PropControl';
-import JSend from '../base/data/JSend';
-import SimpleTable from '../base/components/SimpleTable';
-import { setTaskTags } from '../base/components/TaskList';
-import ServerIO from '../plumbing/ServerIO';
-import ViewCharts from './ViewCharts';
-import ViewSpreadSheet, { doShowMeTheMoney, makeDataTree } from './ViewSpreadsheet';
-import ChartWidget from '../base/components/ChartWidget';
-import _, { cloneDeep, remove } from 'lodash';
-import { getPlanId } from './MoneyScriptEditorPage';
-import NewChartWidget from '../base/components/NewChartWidget'
-import deepCopy from '../base/utils/deepCopy';
-import KStatus from '../base/data/KStatus';
 import SavePublishDeleteEtc from '../base/components/SavePublishDeleteEtc';
+import KStatus from '../base/data/KStatus';
+import DataStore, { getDataPath } from '../base/plumbing/DataStore';
 import { assert } from '../base/utils/assert';
-import Tree from '../base/data/Tree';
+import { asArray, encURI } from '../base/utils/miscutils';
+import ActionMan from '../plumbing/ActionMan';
+import { getPlanId } from './MoneyScriptEditorPage';
+import { doShowMeTheMoney } from './ViewSpreadsheet';
 
 class ChartLine {
 	rowName;
@@ -163,7 +150,7 @@ const ChartVisuals = ({chartSetup, data }) => {
 				maxy={chartSetup.maxy}
 				miny={chartSetup.miny}
 			/>
-			<PNGDownloadButton ?? />
+			<PNGDownloadButton querySelector="#msChart" />
 		</div>
 	)
 };
