@@ -21,12 +21,27 @@ import "ace-builds/src-noconflict/mode-python";
 
 
 // TODO control-f is broken :( It DOES work in the react-ace demo -- something in the webpack setup??
-
-const AceCodeEditor = ({path, prop, annotations, markers, ...props}) => {
+/**
+ * 
+ * @param {Object} p
+ * @param {Object[]} p.completions [{value: "word"}]);
+ * @returns 
+ */
+const AceCodeEditor = ({path, prop, annotations, markers, completions, ...props}) => {
 	// DEBUG
 	// if ( ! markers) markers = [];
 	// markers.push({startRow: 6, startCol: 1, endRow: 6, endCol: 2, className: 'wibble', type: 'fullLine' })	
 	// markers.push({startRow: 4, startCol: 1, endRow: 4, endCol: 6, className: 'bg-danger', type: 'fullLine' })	
+
+	// https://github.com/ajaxorg/ace/wiki/How-to-enable-Autocomplete-in-the-Ace-editor
+	// https://github.com/securingsincity/react-ace/issues/69
+	// TODO make this refresh somehow
+	let customCompleter = completions && {
+		getCompletions: function(editor, session, pos, prefix, callback) {
+			 callback(null, completions);
+		}
+   };
+//   langTools.addCompleter(customCompleter);
 
 	return <div className='position-relative'>
 		<CSS css={`.wibble {background:green; position:absolute;}`}/>
@@ -54,7 +69,8 @@ const AceCodeEditor = ({path, prop, annotations, markers, ...props}) => {
 	}}
 	markers={markers} //Not working ?!
 	annotations={annotations}
-	enableBasicAutocompletion
+	enableBasicAutocompletion={customCompleter? [customCompleter] : true}
+	enableLiveAutocompletion={false} /* auto popup as you type - off 'cos doesnt handle numbers well */
 	/>
 	{/* {markers.map(m => <div key={JSON.stringify(m)} className='bg-warning' style={{position:"absolute",left:"75%",right:0,top:16*m.startRow}} title={m.text}>{m.text || "!"}</div>)} */}
 	</div>

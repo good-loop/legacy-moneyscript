@@ -18,6 +18,7 @@ import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.ImportCommand;
 import com.winterwell.moneyscript.lang.ImportRowCommand;
 import com.winterwell.moneyscript.output.Business;
+import com.winterwell.nlp.dict.Dictionary;
 import com.winterwell.nlp.simpleparser.ParseExceptions;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
@@ -140,12 +141,14 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 	protected JThing<PlanDoc> augment(JThing<PlanDoc> jThing, WebRequest state) {
 		// parse and add parse-info
 		PlanDoc plandoc = jThing.java();
+		Business biz = null;
 		try {			
-			Business biz = plandoc.getBusiness();
-			Map pi = biz.getParseInfoJson();
-			if ( ! Utils.isEmpty(plandoc.errors)) {
+			biz = plandoc.getBusiness();
+			Map pi = biz.getParseInfoJson(); // can throw ParseException, caught below
+			if ( ! Utils.isEmpty(plandoc.errors)) { 
+				// no exception was thrown so remove any old errors
 				plandoc.errors = null;				
-			}
+			}			
 			// test out the import commands
 			if (biz.getImportCommands() != null) {
 				for(ImportCommand ic : biz.getImportCommands()) {					
@@ -189,6 +192,16 @@ public class PlanDocServlet extends CrudServlet<PlanDoc> {
 			));
 			jThing.setJava(plandoc);
 		}
+		// HACK: add rowNames to the json
+		if (biz != null) {
+			Dictionary rowNames = biz.getRowNames();
+			if (rowNames.size() > 0) {
+				ArrayMap map = new ArrayMap(jThing.map());
+				map.put("rowNames", rowNames.values());
+				jThing.setMap(map);
+			}
+		}
+		// done
 		return jThing;
 	}
 	

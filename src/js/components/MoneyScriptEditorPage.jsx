@@ -35,7 +35,9 @@ import { getLock } from '../base/plumbing/locker';
 import Messaging from '../base/plumbing/Messaging';
 import Login from '../base/youagain';
 import XId from '../base/data/XId';
-const dummy = PropControlList;
+import _MS from './mode-ms.src';
+
+const dummy = PropControlList || _MS;
 
 /**
  * @returns {?String}
@@ -304,6 +306,15 @@ const EditScript = ({ id, plandoc, path }) => {
 		clickHandlerAdded = true;
 	}
 	
+	// auto complete row names TODO how to make this refresh?
+	let completions = plandoc.rowNames?.map(rn => {return {value:rn};});
+	if (completions) { // HACK add keywords
+		if (window.ms_keywords) completions.push(...ms_keywords.split("|"));
+		if (window.ms_builtInConstants) completions.push(...ms_builtInConstants.split("|"));
+		if (window.ms_builtInFunctions) completions.push(...ms_builtInFunctions.split("|"));
+	}
+	// console.log("completons for ",completions, plandoc);
+
 	return (<div>
 		<Nav tabs>
 			{plandoc.sheets.map((sheet, i) => (<NavItem key={i} className={tabId===i? 'active' : "bg-secondary"}>
@@ -331,6 +342,7 @@ const EditScript = ({ id, plandoc, path }) => {
 		<TabContent activeTab={tabId}>
 			<TabPane tabId={tabId}>
 				<AceCodeEditor path={path.concat('sheets', tabId)}
+					completions={completions}
 					prop='text'
 					annotations={pesHere.map(markerFromParseFail)} 
 					height="calc(100vh - 10em)"
