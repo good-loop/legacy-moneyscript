@@ -13,6 +13,7 @@ import com.winterwell.moneyscript.lang.DummyRule;
 import com.winterwell.moneyscript.lang.ExportCommand;
 import com.winterwell.moneyscript.lang.GroupRule;
 import com.winterwell.moneyscript.lang.ImportCommand;
+import com.winterwell.moneyscript.lang.ListValuesRule;
 import com.winterwell.moneyscript.lang.MetaRule;
 import com.winterwell.moneyscript.lang.Rule;
 import com.winterwell.moneyscript.lang.Settings;
@@ -87,18 +88,8 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 	 * @return
 	 */
 	public List<Rule> getRules() {
-		if (parent == null) {
-			return rules;
-		}
-		// copy this rows rules and add in the parent rules ??now done during parse
-		ArrayList<Rule> rules2 = new ArrayList<Rule>(rules);
-//		List<Rule> rs = parent.getRules();
-//		for (Rule rule : rs) {
-//			if (rule instanceof GroupRule)
-//				continue;
-//			rules2.add(rule);
-//		}
-		return rules2;	
+		return rules;
+//		// copy this rows rules and add in the parent rules - No: now done during parse
 	}
 
 	final List<Rule> rules = new ArrayList<Rule>();
@@ -138,19 +129,28 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 	 */
 	public Numerical calculate(Col col, Business b) {
 //		String sdebug = ("" + getName() + " " + col).toLowerCase();
-//		if (sdebug.contains("daniel") && sdebug.contains("feb 2024")) { // debug!
+//		if (sdebug.contains("tadg display")) { // debug!
 //			System.out.println(this);
 //		}
 		Cell cell = new Cell(this, col);
+		List<Rule> rs = getRules();
 		// special case: group rows
 		if (isGroup()) {
-			// ??But you can also use a group for organisation, to contain a set of child
-			// rows
-			return getGroupValue(col, cell);
-		}
-		List<Rule> rs = getRules();
-		if (rs.isEmpty())
+			// Does it have a values rule? If so compute that (not the group)
+			boolean ignoreGroup = false;
+			for(Rule r : rs) {
+				if (r.getClass()==ListValuesRule.class || r.getClass()==Rule.class) {
+					ignoreGroup = true;
+					break;
+				}
+			}
+			if ( ! ignoreGroup) {
+				return getGroupValue(col, cell);
+			}
+		}		
+		if (rs.isEmpty()) {
 			return null;
+		}
 		// only rules? If one applies, then leave off other rules
 		for(int i=rs.size() -1; i>=0; i--) { // last first, so last one wins
 			Rule r = rs.get(i);
