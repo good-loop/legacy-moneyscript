@@ -23,7 +23,9 @@ public final class BusinessState {
 	}
 
 	public Numerical get(Cell cell) {
-		Numerical v = values[cell.row.getIndex()][cell.col.index];
+		Row r = cell.row;
+//		assert r != null : cell;
+		Numerical v = values[r.getIndex()][cell.col.index];
 		return v;
 	}
 

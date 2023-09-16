@@ -1,13 +1,17 @@
 package com.winterwell.moneyscript.lang.num;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.output.Cell;
+import com.winterwell.utils.containers.Tree;
 
 public abstract class Formula {
 
+	public abstract Tree<Formula> asTree();
+	
 	/**
 	 * Convert distributions into samples. 
 	 * @param n

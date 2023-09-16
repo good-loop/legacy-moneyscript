@@ -19,6 +19,15 @@ public class NumericalTest {
 
 	@Test
 	public void testPlus() {
+		{	// mixed tag
+			Numerical a = new Numerical("10");
+			a.setTag("red");
+			Numerical b = new Numerical("5");
+			b.setTag("blue");
+			Numerical c = a.plus(b);
+			assert c.value4tag.get("red") == 10;
+			assert c.value4tag.get("blue") == 5;
+		}
 		{
 			Numerical a = new Numerical("10");
 			a.setTag("red");
@@ -161,9 +170,9 @@ public class NumericalTest {
 			Numerical a = new Numerical("10");
 			a.setTag("red");
 			Numerical b = new Numerical("5");
-			a.setTag("blue");
+			b.setTag("blue");
 			Numerical c = a.plus(b);
-			
+			assert c.value4tag.get("red") == 10;
 			Numerical d = new Numerical("2");
 			d.setTag("red");
 			
@@ -181,7 +190,7 @@ public class NumericalTest {
 			Numerical a = new Numerical("10");
 			a.setTag("red");
 			Numerical b = new Numerical("5");
-			a.setTag("blue");
+			b.setTag("blue");
 			Numerical c = a.plus(b);
 			
 			Numerical d1 = new Numerical("2").setTag("red");
@@ -284,7 +293,7 @@ public class NumericalTest {
 			Numerical a = new Numerical("10");
 			a.setTag("red");
 			Numerical b = new Numerical("5");
-			a.setTag("blue");
+			b.setTag("blue");
 			Numerical c = a.plus(b);
 			
 			Numerical d = new Numerical("2");
@@ -304,7 +313,7 @@ public class NumericalTest {
 			Numerical a = new Numerical("10");
 			a.setTag("red");
 			Numerical b = new Numerical("5");
-			a.setTag("blue");
+			b.setTag("blue");
 			Numerical c = a.plus(b);
 			
 			Numerical d1 = new Numerical("2").setTag("red");

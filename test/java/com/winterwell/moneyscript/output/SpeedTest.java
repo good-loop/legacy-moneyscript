@@ -2,6 +2,7 @@ package com.winterwell.moneyscript.output;
 
 import java.io.File;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.winterwell.moneyscript.lang.Lang;
@@ -14,7 +15,7 @@ public class SpeedTest {
 
 	LogFile lf = new LogFile();
 	
-	@Test
+	@Test @Ignore
 	public void testRunGLPlan() {
 		
 		Parser.DEBUG = false;

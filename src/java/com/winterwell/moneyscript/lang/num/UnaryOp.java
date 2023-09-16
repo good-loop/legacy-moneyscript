@@ -2,6 +2,7 @@ package com.winterwell.moneyscript.lang.num;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,11 +21,21 @@ import com.winterwell.utils.TodoException;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.Containers;
+import com.winterwell.utils.containers.Tree;
 import com.winterwell.utils.log.Log;
 
 public class UnaryOp extends Formula {
 
 	public final Formula right;
+	
+	@Override
+	public Tree<Formula> asTree() {
+		Tree t = new Tree(this);
+		Tree tr = right.asTree();
+		tr.setParent(t);
+		return t;
+	}
+	
 	
 	public UnaryOp(String op, Formula right) {
 		super(op);

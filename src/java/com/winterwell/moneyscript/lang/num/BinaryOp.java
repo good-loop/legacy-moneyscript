@@ -10,13 +10,24 @@ import com.winterwell.moneyscript.webapp.GSheetFromMS;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.containers.Range;
+import com.winterwell.utils.containers.Tree;
 import com.winterwell.utils.log.Log;
 
 class BinaryOp extends Formula {
 
 	private Formula left;
 	private Formula right;
-
+	
+	@Override
+	public Tree<Formula> asTree() {
+		Tree t = new Tree(this);
+		Tree tl = left.asTree();
+		Tree tr = right.asTree();
+		tl.setParent(t);
+		tr.setParent(t);
+		return t;
+	}
+	
 	@Override
 	public boolean isStacked() {
 		return left.isStacked() || right.isStacked();

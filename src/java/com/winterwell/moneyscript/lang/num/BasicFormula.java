@@ -13,6 +13,7 @@ import com.winterwell.moneyscript.output.Row;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Containers;
+import com.winterwell.utils.containers.Tree;
 import com.winterwell.utils.time.Time;
 
 /**
@@ -100,6 +101,12 @@ public class BasicFormula extends Formula {
 		return n;
 	}
 
+	/**
+	 * Currency conversion FX
+	 * @param n
+	 * @param b
+	 * @return
+	 */
 	private Numerical fx(Numerical n, Cell b) {
 		// HACK: handle dollars if a convertor was set for that
 		if ("$".equals(n.getUnit())) {
@@ -131,6 +138,11 @@ public class BasicFormula extends Formula {
 
 	public void setTag(String htag) {
 		this.tag = htag;
+	}
+
+	@Override
+	public Tree<Formula> asTree() {
+		return new Tree(this);
 	}
 	
 }

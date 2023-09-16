@@ -126,7 +126,7 @@ final class DefaultCalculator implements ICalculator {
 		if (y instanceof ErrorNumerical) return y;
 		Numerical n = new Numerical(x.doubleValue() * y.doubleValue(), unit(x, y));
 		// tags
-		if (x.value4tag!=null) {
+		if (x.value4tag!=null && true) {
 			n.value4tag = new ArrayMap();
 			for(Map.Entry<String,Double> e : x.value4tag.entrySet()) {
 				Double xv = e.getValue();

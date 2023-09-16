@@ -3,6 +3,7 @@ package com.winterwell.moneyscript.lang.num;
 import com.winterwell.moneyscript.lang.time.DtDesc;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.utils.MathUtils;
+import com.winterwell.utils.containers.Tree;
 import com.winterwell.utils.time.Dt;
 import com.winterwell.utils.time.TUnit;
 
@@ -13,6 +14,18 @@ public class MortgageFormula extends Formula {
 	private Formula interestRate;
 	private DtDesc period;
 
+	@Override
+	public Tree<Formula> asTree() {
+		Tree t = new Tree(this);
+		Tree tl = capital.asTree();
+		Tree tr = interestRate.asTree();
+		Tree tp = period.f.asTree();
+		tl.setParent(t);
+		tr.setParent(t);
+		tp.setParent(t);
+		return t;
+	}
+	
 	public MortgageFormula(Formula capital, Formula interestRate, DtDesc period) {
 		super("repay");
 		this.capital = capital;

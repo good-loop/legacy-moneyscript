@@ -14,7 +14,7 @@ import com.winterwell.moneyscript.output.Row;
 import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.containers.Containers;
 
-public final class RowName extends CellSet {
+public class RowName extends CellSet {
 	private final String rowName;
 	
 	public RowName(String rowName) {
@@ -52,6 +52,18 @@ public final class RowName extends CellSet {
 	private Row getRow(Cell ignored) {
 		Business b = BusinessContext.getBusiness();
 		Row r = b.getRow(rowName);
+		if (r != null) return r;
+		// Is it an object using a variable eg [Region in Region Mix * Region.Price]?
+		// HACK only handles one deep -- not recursive
+		if (rowName.contains(".")) {
+			String bit0 = rowName.substring(0, rowName.indexOf('.'));
+			Row r0 = b.getRow(bit0);
+			if (r0 != null) {
+				String modName = rowName.replaceFirst(bit0, r0.getName());
+				Row modRow = b.getRow(modName);
+				return modRow;
+			}
+		}
 		return r;
 	}
 
@@ -94,7 +106,7 @@ public final class RowName extends CellSet {
 	 */
 	@Override
 	public Collection<Cell> getCells(Cell bc, boolean wide) {
-		Row row = getRow(bc);
+		Row row = getRow(null);
 		if (row==null) {
 			// HACK 
 			return null;			

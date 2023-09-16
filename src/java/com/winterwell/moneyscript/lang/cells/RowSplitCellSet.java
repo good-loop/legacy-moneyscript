@@ -11,6 +11,8 @@ import com.winterwell.utils.containers.Containers;
 
 /**
  * e.g. "split by Staff"
+ * 
+ * Doc: ?? What does this do??!
  * @author daniel
  *
  */
