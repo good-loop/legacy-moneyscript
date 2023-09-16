@@ -527,6 +527,11 @@ public final class Business {
 	 */
 	public BusinessState state ;
 	
+	/**
+	 * Get / evaluate if unset
+	 * @param cell
+	 * @return
+	 */
 	public Numerical getCellValue(Cell cell) {	
 		Numerical n = state.get(cell);
 		if (n==null) {
@@ -594,7 +599,7 @@ public final class Business {
 	Can be null
 	*/
 	public void addRow(Row row, PlanSheet planSheet) {
-		assert _rows.indexOf(row) == -1 : row;
+		assert _rows.indexOf(row) == -1 : "duplicate row "+row;
 		_rows.add(row);
 		_row4name.put(row.name, row);
 		// change state
@@ -602,6 +607,17 @@ public final class Business {
 			state.resize(_rows.size(), columns.size());
 		}
 		addRow2_linkToPlanSheet(row, planSheet);
+	}
+	
+	/**
+	 * HACK set a variable to point to a row e.g. Region=UK
+	 * @param name
+	 * @param row
+	 * @return prev setting (reset this to manage nested scope properly)
+	 */
+	public Row putRow4Name(String name, Row row) {
+		Row old = _row4name.put(name, row);
+		return old;
 	}
 
 	public void addRow2_linkToPlanSheet(Row row, PlanSheet planSheet) {

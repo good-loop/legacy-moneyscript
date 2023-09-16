@@ -6,12 +6,23 @@ import com.winterwell.moneyscript.lang.bool.Condition;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.ArraySet;
+import com.winterwell.utils.containers.Tree;
 
 public class ConditionalFormula extends Formula {
 
 	private Formula then;
 	private Formula other;
 
+	@Override
+	public Tree<Formula> asTree() {
+		Tree t = new Tree(this);
+		Tree tl = then.asTree();
+		Tree tr = other.asTree();
+		tl.setParent(t);
+		tr.setParent(t);
+		return t;
+	}
+	
 	@Override
 	public Set<String> getRowNames(Cell focus) {
 		ArraySet<String> set = new ArraySet<String>(then.getRowNames(focus));

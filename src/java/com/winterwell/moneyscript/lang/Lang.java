@@ -28,6 +28,7 @@ import com.winterwell.moneyscript.lang.cells.RowSplitCellSet;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.LangNum;
+import com.winterwell.moneyscript.lang.num.VariableDistributionFormula;
 import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
@@ -41,9 +42,12 @@ import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.ParseState;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.utils.StrUtils;
+import com.winterwell.utils.TodoException;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Cache;
+import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.Slice;
+import com.winterwell.utils.containers.Tree;
 import com.winterwell.utils.log.Log;
 
 
@@ -162,8 +166,9 @@ public class Lang {
 	
 	/**
 	 * What unit is this row?
+	 * HACK: includes CPM as a unit!
 	 */
-	public static Parser<String> unit = seq(lit("("), lit("%","£","$").label("unit"), lit(")"))
+	public static Parser<String> unit = seq(lit("("), lit("%","£","$","CPM").label("unit"), lit(")"))
 			.eg("(%)");
 	
 	static final Parser<String> only = lit(" only");
@@ -729,7 +734,7 @@ public class Lang {
 			String n2 = parse4_checkReferences2_stripNameDown(name);			
 			similarNames.put(n2,name);
 		}
-		
+		// check all rules
 		Set<Rule> rules = b.getAllRules();		
 		for (Rule r : rules) {
 			if (r.formula == null) continue;
@@ -747,8 +752,23 @@ public class Lang {
 				String v2 = parse4_checkReferences2_stripNameDown(var);
 				String couldBe = similarNames.get(v2);
 				boolean exists = names.contains(var);
+				if ( ! exists) {
+					// check variables
+					Formula f = r.getFormula();
+					if (f != null) {
+						Tree<Formula> tree = f.asTree();
+						List<Formula> fs = tree.flattenToValues();
+						List<VariableDistributionFormula> varfs = Containers.filterByClass(fs, VariableDistributionFormula.class);
+						List<String> varNames = Containers.apply(varfs, varf -> varf.getVar());
+						exists = varNames.contains(var);
+						if ( ! exists && var.contains(".")) { // handle e.g. Region.Price
+							String var1 = var.split("\\.")[0];
+							exists = varNames.contains(var1);
+						}
+					}
+				}
 				// undefined?!
-				if ( ! exists) {									
+				if ( ! exists) {							
 					String msg = "`"+var+"` is not defined.";
 					if (couldBe!=null) msg += " Did you mean `"+couldBe+"`?"; 
 					ParseFail pf = new ParseFail(new Slice(r.src), msg);

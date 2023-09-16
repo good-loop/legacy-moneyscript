@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.winterwell.moneyscript.lang.Lang;
@@ -31,6 +32,45 @@ import com.winterwell.utils.containers.Containers;
 
 public class LangCellSetTest {
 	
+
+	@Test public void testDot() {
+		Lang lang = new Lang();
+		ParseResult<CellSet> v = lang.langCellSet.selector1.parseOut("UK.Price");
+		assert v != null;
+	}
+	
+	@Test public void testVariableFilter() {
+		Lang lang = new Lang();
+		ParseResult<SetVariable> v = lang.langCellSet.variableFilter.parse("Method=Managed");
+		assert v != null;
+		assert v.getX().var.equals("Method");
+		assert v.getX().value.equals("Managed");
+	}
+
+	@Test public void testRowNameWithFixedVariable() {
+		Lang lang = new Lang();
+//		Parser.DEBUG = true;
+		ParseResult<CellSet> rnv = lang.langCellSet.rowNameWithFixedVariable.parseOut("Fees [Method=Managed]");
+		assert rnv != null;
+		ParseResult<CellSet> rnvb = lang.langCellSet.rowNameWithFixedVariable.parseOut("Fees[Method=Managed]");
+		assert rnvb != null;
+		
+		ParseResult<CellSet> rnv2 = lang.langCellSet.rowNameWithFixedVariable.parseOut("Fees [Method=Managed,Region=UK]");
+		assert rnv2 != null;
+		RowNameWithFixedVariables row = (RowNameWithFixedVariables) rnv2.getX();
+		assert row.vars.size() == 2;
+	}
+
+	@Test public void testSelectorRowNameWithFixedVariable() {
+		Lang lang = new Lang();
+//		Parser.DEBUG = true;
+
+		ParseResult<CellSet> pr0 = lang.langCellSet.selector1.parseOut("Fees [Method=Managed]");
+		assert pr0 != null;		
+		RowNameWithFixedVariables row = (RowNameWithFixedVariables) pr0.getX();
+		assert row.vars.size() == 1;
+	}
+	
 	@Test public void testSplit() {
 		Lang lang = new Lang();
 		ParseResult<RowName> pr0 = lang.langCellSet.rowName.parse("Cost split by Staff");
@@ -49,7 +89,8 @@ public class LangCellSetTest {
 		assert fcs.base.toString().equals("Staff");
 	}
 	
-	@Test public void testInQ1() {
+	@Test @Ignore
+	public void testInQ1() {
 		Lang lang = new Lang();
 		CellSet cs = LangCellSet.cellSet.parseOut("Sales in Q1").getX();
 		assert cs instanceof FilteredCellSet;

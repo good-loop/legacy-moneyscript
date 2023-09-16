@@ -23,6 +23,7 @@ import com.winterwell.moneyscript.lang.bool.LangBool;
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.CurrentRow;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
+import com.winterwell.moneyscript.lang.cells.RowName;
 import com.winterwell.moneyscript.lang.time.DtDesc;
 import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.moneyscript.output.Cell;
@@ -32,6 +33,7 @@ import com.winterwell.nlp.simpleparser.PP;
 import com.winterwell.nlp.simpleparser.ParseFail;
 import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.Parser;
+import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Slice;
 import com.winterwell.utils.containers.Tree;
 
@@ -143,7 +145,7 @@ public class LangNum {
 		}
 	}.label("cellSetAsFormula");
 
-	
+
 	Parser<Numerical> _number = first(gaussian, plainNumber)
 									.label(NUMBER); // temporary assignment for simple egs in this class
 
@@ -283,16 +285,44 @@ public class LangNum {
 			return new BasicFormula(sel);
 		}
 	};		
+	
+
+	/**
+	 * e.g. [Region in Region Mix * Region.Price]
+	 *  
+	 */
+	PP<Formula> variableDistributionAsFormula = (PP) new PP<Formula>(
+			seq(ignore("["), 
+					LangCellSet.rowName, ignore(" in "), LangCellSet.rowName,
+					ignore(":"), optSpace, num, // must have a payload formula, e.g. " * Region.Price"
+				ignore("]")) 
+			) {
+		@Override
+		protected Formula process(ParseResult<?> r) {
+//			Utils.breakpoint();
+			List ls = r.getLeafValues();
+			assert ls.size() == 3 : ls;			
+			String var = ((RowName) ls.get(0)).getRowName();
+			String grp = ((RowName) ls.get(1)).getRowName();
+//			String op = (String) ls.get(2);
+			Formula f = (Formula) ls.get(2);
+			VariableDistributionFormula vdf = new VariableDistributionFormula(var, grp, f);
+			return vdf;
+		}
+	}.label("variableDistributionAsFormula");
+
+	
 
 	Parser<Formula> formulaValue = first( 
 			numAsFormula,							
 			cellSetAsFormula,
+			variableDistributionAsFormula,
 			// enforced brackets
 			seq(lit("(").label(null), num, lit(")").label(null)),
 			mathFnUnary, mathFnBinary, mathFnSpecial,
 			// after mathFnUnary 'cos of the overlap
 			globalVars
-			);		
+			).label("formulaValue");		
 	
 	Parser<Formula> formulaTight = first(
 			binaryOp(formulaValue, opTightBind, ref("fTight")),

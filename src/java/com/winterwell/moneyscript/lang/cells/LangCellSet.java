@@ -25,6 +25,7 @@ import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.nlp.simpleparser.ParseState;
 import com.winterwell.nlp.simpleparser.Parser;
 import com.winterwell.utils.StrUtils;
+import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.Containers;
 import com.winterwell.utils.containers.Slice;
 
@@ -60,12 +61,15 @@ public class LangCellSet {
 	/**
 	 * NB: this can be shortened by {@link #kw}
 	 */
-	public static Pattern rowNameRegex = Pattern.compile("^[A-Z][^:,\\+\\-\\*\\/<>=%\\?\\(\\)#]*");	
+	public static Pattern rowNameRegex = Pattern.compile(
+//			"^[A-Z][^:,\\+\\-\\*\\/<>=%\\?\\(\\)#]*"
+			"^[A-Z][A-Za-z0-9_ \\.]*"
+			);	
 	
 	/**
 	 * Parse row names, e.g. "Alice"
 	 */
-	public Parser<RowName> rowName = new RowNameParser().label(ROW_NAME);
+	public static Parser<RowName> rowName = new RowNameParser().label(ROW_NAME);
 	
 	static class RowNameParser extends Parser<RowName> {		
 		
@@ -130,8 +134,33 @@ public class LangCellSet {
 		}
 	};
 
+	Parser<SetVariable> variableFilter = new PP<SetVariable>(seq(
+			rowName, lit("=").label(null), rowName
+	)) {
+		protected SetVariable process(ParseResult<?> pr) {
+			List rn_rn = pr.getLeafValues();
+			RowName a = (RowName) rn_rn.get(0);
+			RowName b = (RowName) rn_rn.get(1);
+			return new SetVariable(a.getRowName(), b.getRowName());
+		}
+	};
+	
+	Parser<CellSet> rowNameWithFixedVariable = new PP<CellSet>(seq(
+			rowName, optSpace, lit("[").label(null), 
+			chain(variableFilter, lit(", ",",").label(null)), 
+			lit("]").label(null)
+	)) {
+		protected CellSet process(ParseResult<?> pr) {
+			AST<RowName> rn = pr.getNode(rowName);
+			List vs = Containers.filterByClass(pr.getLeafValues(), SetVariable.class);
+			RowNameWithFixedVariables rnv = new RowNameWithFixedVariables(rn.getX().getRowName(), vs);
+			return rnv;
+		}
+	};
+	
+	
 	Parser<CellSet> selector1 = new PP<CellSet>(seq(
-			first(rowName, all, thisRow), optSpace, opt(first(LangFilter.filter, rowSplit))
+			first(rowNameWithFixedVariable, rowName, all, thisRow), optSpace, opt(first(LangFilter.filter, rowSplit))
 	)) {
 		protected CellSet process(ParseResult<?> pr) {
 			List<AST> ls = pr.getLeaves();

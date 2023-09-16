@@ -30,8 +30,76 @@ import com.winterwell.utils.time.Time;
 
 public class LangNumTest {
 
+
+	@Test
+	public void testParseVariableDistributionFormula_smokeTest() {
+		Lang lang = new Lang();
+		LangNum nlang = lang.langNum;
+		ParseResult<Formula> foo1 = nlang.variableDistributionAsFormula.parseOut(
+				"[Region in Region Mix: 1]");
+		VariableDistributionFormula f = (VariableDistributionFormula) foo1.getX();
+		System.out.println(f);		
+	}
+	
+	@Test
+	public void testParseVariableDistributionFormula() {
+		Lang lang = new Lang();
+		LangNum nlang = lang.langNum;
+		ParseResult<Formula> foo2 = nlang.variableDistributionAsFormula.parseOut(
+				"[Region in Region Mix: 10]");
+		VariableDistributionFormula f2 = (VariableDistributionFormula) foo2.getX();
+		System.out.println(f2);	
+	}
+
+	
+	@Test
+	public void testVariableDistributionFormula_smokeTest() {
+		Lang lang = new Lang();
+		LangNum nlang = lang.langNum;
+		ParseResult<Formula> foo1 = nlang.num.parseOut("[Region in Region Mix: 1]");
+		VariableDistributionFormula f = (VariableDistributionFormula) foo1.getX();
+		System.out.println(f);		
+		
+		Business biz = lang.parse("Region Mix:\n\tUK:40%\n\tUS:60%\n"
+				+"Check1: [Region in Region Mix: 1]");
+		
+		biz.run();
+		
+		Numerical v = biz.getCellValue(new Cell(biz.getRow("Check1"), new Col(1)));
+		assert v.doubleValue() == 1 : v;
+	}
+	
+	@Test
+	public void testVariableDistributionFormula_sumTimes() {
+		Lang lang = new Lang();		
+		Business biz = lang.parse("Region Mix:\n\tUK:40%\n\tUS:60%\n"
+				+"Avg Price: [Region in Region Mix: Region.Price]\n"
+				+"UK.Price: 10\n"
+				+"US.Price: 20\n"
+				);
+		
+		biz.run();
+		
+		Numerical v = biz.getCellValue(new Cell(biz.getRow("Avg Price"), new Col(1)));
+		assert v.doubleValue() == 16 : v;
+	}
 	
 
+	@Test
+	public void testVariableDistributionFormula_multiSplit() {
+		Lang lang = new Lang();		
+		Business biz = lang.parse("RegionMix:\n\tUK:40%\n\tUS:60%\nProductMix:\n\tWTD:60%\n\tTADG:40%\n"
+				+"Avg Dntn: [Region in RegionMix: [Product in ProductMix: Product.Dntn * Region.Price]]\n"
+				+"UK.Price: 10\n"
+				+"US.Price: 20\n"
+				+"WTD.Dntn: 50%\n"
+				+"TADG.Dntn: 50%\n"
+				);
+		biz.run();
+		
+		Numerical v = biz.getCellValue(new Cell(biz.getRow("Avg Dntn"), new Col(1)));
+		assert v.doubleValue() == 8 : v;
+	}
 	
 	@Test
 	public void testAverageFormula() {
@@ -139,7 +207,8 @@ public class LangNumTest {
 		Dep.set(CurrencyConvertor_USD2GBP.class, new CurrencyConvertor_USD2GBP(new Time()));
 		Formula tenBucks = LangNum.num.parseOut("$10").getX();
 		System.out.println(tenBucks);
-		Cell cell = new Cell(null, null);
+		Cell cell = new Cell(null, new Col(1));
+		BusinessContext.setBusiness(new Business()); // avoid an NPE
 		Numerical v = tenBucks.calculate(cell);
 		assert v.getUnit().equals("£");
 		assert v.doubleValue() < 9 : v;

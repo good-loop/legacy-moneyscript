@@ -4,8 +4,14 @@ import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
 import com.winterwell.utils.TodoException;
+import com.winterwell.utils.containers.Tree;
 import com.winterwell.utils.time.TUnit;
 
+/**
+ * e.g. "previous"
+ * @author daniel
+ *
+ */
 public class Var extends Formula {
 
 	private String var;
@@ -14,6 +20,13 @@ public class Var extends Formula {
 		super("");
 		this.var = varName;
 	}
+	
+	@Override
+	public Tree<Formula> asTree() {
+		Tree t = new Tree(this);
+		return t;
+	}
+	
 
 	@Override
 	public Numerical calculate(Cell b) {

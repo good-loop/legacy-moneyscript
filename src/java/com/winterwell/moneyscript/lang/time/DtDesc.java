@@ -14,7 +14,7 @@ import com.winterwell.utils.time.TUnit;
  */
 public class DtDesc {
 
-	final Formula f;
+	public final Formula f;
 	private TUnit unit;
 		
 	public DtDesc(Formula f, TUnit unit) {
