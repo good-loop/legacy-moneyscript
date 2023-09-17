@@ -27,4 +27,20 @@ public class VarSystemTest {
 				"[Price [Region=UK], Price [Region=US], Revenue [Region=UK], Revenue [Region=US]]") : names.toString();		
 	}
 
+	@Test
+	public void testRunRowExpansion() {
+		String s = "start: Jan 2000\nend: Jan 2000\n"
+				+"Price [Region=UK]: £1\n"
+				+"Price [Region=US]: £2\n"
+				+"Revenue: 10 * Price\n";
+		Lang lang = new Lang();
+		Business b = lang.parse(s);
+		b.run();
+		
+		System.out.println(b.getRows());
+		
+		String csv = b.toCSV();
+		assert csv.contains("Revenue [Region=UK], £10") : csv;
+		assert csv.contains("Revenue [Region=US], £20") : csv;
+	}
 }

@@ -1,20 +1,29 @@
 package com.winterwell.moneyscript.lang;
 
 import java.io.Closeable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.RowName;
 import com.winterwell.moneyscript.lang.cells.RowNameWithFixedVariables;
 import com.winterwell.moneyscript.lang.cells.Scenario;
+import com.winterwell.moneyscript.lang.cells.SetVariable;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.LangNum;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Cell;
+import com.winterwell.moneyscript.output.Row;
 import com.winterwell.moneyscript.output.RuleException;
+import com.winterwell.moneyscript.output.VarSystem;
 import com.winterwell.utils.Utils;
+import com.winterwell.utils.containers.Pair;
+import com.winterwell.utils.containers.Pair2;
 import com.winterwell.utils.log.Log;
 
 /**
@@ -148,11 +157,13 @@ public class Rule implements IReset {
 				return null;
 			}
 			// Filtered out?
-			if ( ! getSelector().contains(cell, cell)) {
+			CellSet sel = getSelector();
+			// NB: An optimisation: assume "yes" for RowName, as this is the common setup, and a Rule can't be attached to a non-matching row
+			if ( ! (sel instanceof RowName) && ! sel.contains(cell, cell)) {
 				return null;
 			}
 			Numerical v;
-			try (Closeable reset = setAnyVariables(getSelector())) { // e.g. Price [Region=UK]: £5
+			try (Closeable reset = setAnyVariables(cell, sel)) { // e.g. Price [Region=UK]: £5
 				v = calculate2_formula(cell);
 			}
 			if (v==null) {
@@ -188,17 +199,23 @@ public class Rule implements IReset {
 	
 	/**
 	 * // e.g. Price [Region=UK]: £5 => Region=UK during this rule
+	 * @param cell 
 	 * @param selector2
 	 * @return
 	 */
-	private Closeable setAnyVariables(CellSet selector2) {
-		Closeable c = NOOP; // no-op
-		if (selector2 instanceof RowNameWithFixedVariables) {
-			// TODO
-//			selector2.getVars()
-			Log.w("TODO",selector2+" "+this);
+	private Closeable setAnyVariables(Cell cell, CellSet selector2) {
+		Collection<SetVariable> vals = selector2.getVars(cell);
+		if (vals.isEmpty()) {
+			return NOOP;
 		}
-		return c;
+		Business biz = Business.get();
+		VarSystem vars = biz.getVars();
+		List<Pair<String>> resets = new ArrayList<>();
+		for (SetVariable sv : vals) {
+			String prev = vars.setRow4Name(sv.var,  sv.value);
+			resets.add(new Pair(sv.var, prev));
+		}
+		return new ResetVars(vars, resets);
 	}
 
 	private void calculate2_tag(Cell cell, Numerical v) {

@@ -15,6 +15,7 @@ import com.winterwell.moneyscript.lang.cells.LangCellSet;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.cells.SimpleLangCellSet;
 import com.winterwell.moneyscript.lang.num.BasicFormula;
+import com.winterwell.moneyscript.lang.num.ColVar;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.LangNum;
 import com.winterwell.moneyscript.lang.num.Numerical;
@@ -285,7 +286,7 @@ public class LangTest {
 			Rule rule2 = r2.getX(lang.rule);
 			assert ! (rule1 instanceof DummyRule) : rule1;
 			assert rule1.formula instanceof BasicFormula : rule1.formula;
-			assert rule2.formula.getClass().getSimpleName().equals("Var") : rule1.formula;
+			assert rule2.formula.getClass() == ColVar.class : rule1.formula;
 		}
 	}
 	

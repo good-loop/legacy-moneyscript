@@ -147,12 +147,12 @@ public class LangCellSet {
 		}
 	};
 	
-	Parser<CellSet> rowNameWithFixedVariable = new PP<CellSet>(seq(
+	Parser<RowNameWithFixedVariables> rowNameWithFixedVariable = new PP<RowNameWithFixedVariables>(seq(
 			rowName, optSpace, ignore("["), 
 			chain(variableFilter, ignore(", ",",")), 
 			ignore("]")
 	)) {
-		protected CellSet process(ParseResult<?> pr) {
+		protected RowNameWithFixedVariables process(ParseResult<?> pr) {
 			AST<RowName> rn = pr.getNode(rowName);
 			List vs = Containers.filterByClass(pr.getLeafValues(), SetVariable.class);
 			String baseName = rn.getX().getRowName();

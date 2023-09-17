@@ -49,7 +49,7 @@ public class LangNum {
 	{
 		@Override
 		protected Formula process(ParseResult<?> r) {			
-			return new Var(r.parsed());
+			return new ColVar(r.parsed());
 		}		
 	};
 	

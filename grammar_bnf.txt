@@ -32,7 +32,7 @@
 
 <opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
 
-<num> ::= {<__udxawa18a9f031bcd>|<fPer>, <opAny>}+
+<num> ::= {<__qxwnvk18aa4ed2d30>|<fPer>, <opAny>}+
 
 <meta> ::= "hide"|"show"|"plot distribution"|"plot"|"off"
 
@@ -52,7 +52,7 @@
 
 <num> ::= {<fPer>|<fPer>, <opAny>}+
 
-<__udxawa18a9f031bcd> ::= "(" <fPer>|<__udxawa18a9f031bcd> ")"
+<__qxwnvk18aa4ed2d30> ::= "(" <fPer>|<__qxwnvk18aa4ed2d30> ")"
 
 <fPer> ::= <fPlus> ["\s+" "per" "\s+" <dt>]
 
@@ -144,7 +144,7 @@
 
 <cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
 
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
+<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> ":" ["\s+"] <num> "]"
 
 <mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
 
@@ -162,7 +162,7 @@
 
 <cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
 
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
+<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> ":" ["\s+"] <num> "]"
 
 <mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
 
@@ -182,15 +182,13 @@
 
 <time> ::= <__r49>|"start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec|q\d)\b(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"|"Q(1|2|3|4)"
 
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
 <123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
 
 <123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
 
 <cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
 
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
+<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> ":" ["\s+"] <num> "]"
 
 <mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
 
@@ -202,23 +200,7 @@
 
 <n> ::= "-?\d+(\.\d+)?"
 
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
 <time> ::= <__r48>|"start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec|q\d)\b(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"|"Q(1|2|3|4)"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
 
 <__r48> ::= "(" "start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec|q\d)\b(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"|"Q(1|2|3|4)"|<__r48> ")"
 
@@ -226,21 +208,7 @@
 
 <n> ::= "-?\d+(\.\d+)?"
 
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
 <time> ::= <__r46>|"start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec|q\d)\b(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"|"Q(1|2|3|4)"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
 
 <__r46> ::= "(" "start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec|q\d)\b(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"|"Q(1|2|3|4)"|<__r46> ")"
 
@@ -248,11 +216,7 @@
 
 <n> ::= "-?\d+(\.\d+)?"
 
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
 <time> ::= <__r44>|"start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec|q\d)\b(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"|"Q(1|2|3|4)"
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
 
 <__r44> ::= "(" "start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec|q\d)\b(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"|"Q(1|2|3|4)"|<__r44> ")"
 
@@ -260,21 +224,7 @@
 
 <n> ::= "-?\d+(\.\d+)?"
 
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
 <time> ::= <__r41>|"start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec|q\d)\b(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"|"Q(1|2|3|4)"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
 
 <__r41> ::= "(" "start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec|q\d)\b(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"|"Q(1|2|3|4)"|<__r41> ")"
 
@@ -282,506 +232,10 @@
 
 <n> ::= "-?\d+(\.\d+)?"
 
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
 <time> ::= <__r279>|"start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec|q\d)\b(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"|"Q(1|2|3|4)"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
 
 <__r279> ::= "(" "start" "\s+" <of> "\s+" <row-name>|"date"|"now"|"start"|"previous"|"quarter"|"(?i)(january|jan|february|febuary|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec|q\d)\b(\s+(20\d\d))?"|<tunit> "\s+" <n>|<dt> "\s+" "from" "\s+" <time>|<dt> "\s+" "ago"|"20\d\d"|"Q(1|2|3|4)"|<__r279> ")"
 
 <of> ::= "of"
 
 <n> ::= "-?\d+(\.\d+)?"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]
-
-<formulaValue> ::= "N(" <123v2> "\s*,\s*" <123v2> ")"|<123>|<cellSetAsFormula>|<variableDistributionAsFormula>|"(" <num> ")"|<mathFnUnaryNormal>|<mathFnNameUnary> "\s+" <cellSetAsFormula>|"max"|"min" "(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] ")"|"repay(" ["\s+"] <num> ["\s+"] "," ["\s+"] <num> ["\s+"] "," ["\s+"] <dt> ["\s+"] ")"|"row"|"column"|"month"|"previous"|"year"
-
-<123v2> ::= "-?(£|$)?([0-9]+\.?\d*)(k|m|bn)?%?"
-
-<123> ::= "-?(£|\$)?([0-9]+[0-9,]+[0-9]{3}(:?\.[0-9]+)?|[0-9][0-9,]*\.[0-9]+|[0-9]+)(k|m|bn)?%?"
-
-<cellSetAsFormula> ::= <CellSet1Row>|<CellSetFilter> [<hashtag>]
-
-<variableDistributionAsFormula> ::= "[" <row-name> " in " <row-name> <opAny> <formulaValue> "]"
-
-<mathFnUnaryNormal> ::= <mathFnNameUnary> "(" ["\s+"] <num> ["\s+"] ")"
-
-<mathFnNameUnary> ::= "count row"|"count"|"sum row"|"sum"|"mean"|"log"|"round down"|"round up"|"round"|"sqrt"|"abs"|"previous"|"p"|"average"
-
-<opAny> ::= ["\s+"] "+-"|"±"|"^" ["\s+"]|["\s+"] "*"|"/"|"@" ["\s+"]|["\s+"] "+"|"-" ["\s+"]

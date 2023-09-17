@@ -6,11 +6,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.winterwell.moneyscript.lang.Lang;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Col;
 import com.winterwell.moneyscript.output.Row;
+import com.winterwell.moneyscript.output.RowVar;
+import com.winterwell.moneyscript.output.VarSystem;
+import com.winterwell.nlp.simpleparser.ParseResult;
+import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.ArraySet;
 import com.winterwell.utils.containers.Containers;
 
@@ -23,15 +28,41 @@ public class RowName extends CellSet {
 //		assert LangCellSet.rowName.parse(rowName) != null : rowName;
 		this.rowName = rowName;
 	}
+
+	Collection<SetVariable> vars;
+	/**
+	 * cache for RowName = a row. i.e. no SetVariables
+	 */
+	private transient Row rowSimple;
 	
+	@Override
+	public Collection<SetVariable> getVars(Cell cell) {
+		if (vars!=null && vars.isEmpty()) {
+			return vars;
+		}
+		VarSystem vs = Business.get().getVars();
+		if ( ! vs.isSwitchRow(rowName)) {
+			vars = Collections.EMPTY_LIST;
+			return vars;
+		}
+		// HACK a 2nd order switch row
+		String cellRowName = cell.row.getName();
+		LangCellSet lcs = new LangCellSet();
+		ParseResult<RowNameWithFixedVariables> p = lcs.rowNameWithFixedVariable.parse(cellRowName);
+		RowNameWithFixedVariables rnv = p.getX();
+//		vars = rnv.vars; // can't stash this as this RowName can cover several expanded rows with different values
+		return rnv.vars;
+	}
+
 	public String getRowName() {
 		return rowName;
 	}
 	
 	@Override
 	public Set<String> getRowNames(Cell focus) {
-		Row row = Cell.getBusiness().getRow(rowName);
-		if (row != null && row.isGroup()) {
+		// expand a group?
+		Row row = Cell.getBusiness().getRow(rowName); 
+		if (row != null && row.isGroup()) { // cache??
 			List<Row> rows = row.flatten();			
 			List<String> names = Containers.apply(rows, r -> r.getName());
 			return new ArraySet(names);
@@ -50,21 +81,31 @@ public class RowName extends CellSet {
 	}
 	
 	private Row getRow(Cell ignored) {
+		if (rowSimple!=null) return rowSimple;
 		Business b = BusinessContext.getBusiness();
 		Row r = b.getRow(rowName);
-		if (r != null) return r;
+		if (r != null) {
+			assert ! b.getVars().isSwitchRow(rowName) : rowName;
+			rowSimple = r;
+			return r;
+		}
 		// Is it an object using a variable eg [Region in Region Mix * Region.Price]?
 		// HACK only handles one deep -- not recursive
+		VarSystem vs = b.getVars();
 		if (rowName.contains(".")) {
-			String bit0 = rowName.substring(0, rowName.indexOf('.'));
-			Row r0 = b.getRow(bit0);
-			if (r0 != null) {
-				String modName = rowName.replaceFirst(bit0, r0.getName());
-				Row modRow = b.getRow(modName);
-				return modRow;
+			String activeName = vs.getActiveName(rowName);
+			Row modRow = b.getRow(activeName);
+			if (modRow !=null) {
+				return modRow;			
 			}
 		}
-		return r;
+		// Is it an unfixed switch row?
+		if (vs.isSwitchRow(rowName)) {
+			String rn = vs.getActiveRow(rowName);
+			Row aRow = b.getRow(rn);
+			return aRow;
+		}
+		return null;
 	}
 
 	/**

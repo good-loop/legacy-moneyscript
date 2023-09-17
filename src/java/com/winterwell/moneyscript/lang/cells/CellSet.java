@@ -2,6 +2,7 @@ package com.winterwell.moneyscript.lang.cells;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -88,6 +89,15 @@ public abstract class CellSet implements Comparable<CellSet> {
 
 	public String getSrc() {
 		return src;
+	}
+
+	/**
+	 * 
+	 * @param cell Can be null
+	 * @return
+	 */
+	public Collection<SetVariable> getVars(Cell cell) {
+		return Collections.EMPTY_LIST; // TODO better recursive support!
 	}
 
 }

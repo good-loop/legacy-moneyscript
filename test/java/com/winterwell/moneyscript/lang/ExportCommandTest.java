@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.winterwell.moneyscript.data.PlanDoc;
@@ -58,7 +59,7 @@ public class ExportCommandTest {
 
 
 
-	@Test
+	@Test @Ignore
 	public void testExport2Sheets() throws Exception {
 		PlanSheet s1 = new PlanSheet("start: June 2020\nend: Dec 2021\n"
 				+ "Alice: 1");

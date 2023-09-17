@@ -23,6 +23,7 @@ import com.winterwell.moneyscript.lang.ScenarioRule;
 import com.winterwell.moneyscript.lang.Settings;
 import com.winterwell.moneyscript.lang.StyleRule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
+import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.RowName;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.cells.SetVariable;
@@ -30,6 +31,7 @@ import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.webapp.GSheetFromMS;
 import com.winterwell.nlp.dict.Dictionary;
 import com.winterwell.utils.StrUtils;
+import com.winterwell.utils.TodoException;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.ArrayMap;
 import com.winterwell.utils.containers.ArraySet;
@@ -400,20 +402,13 @@ public final class Business {
 		if (row != null) {
 			return row;
 		}
-		// Is this ever used??
-		if (getSettings().fuzzyNames) {	
-			// maybe cache for speed??
-			Dictionary rowNames = getRowNames();
-			String rn = getRow2(name, rowNames);
-			if (rn==null) {
-				return null;
-			}
-			for(Row r : getRows()) {
-				if (rn.equals(r.name)) {
-					return r;
-				}
-			}	
-		}
+//		// a switch-row? Done in RowName
+//		if (getVars().isSwitchRow(name)) {
+//			// find the right match
+//			String selected = vars.getActiveRow(name);
+//			Row selRow = _row4name.get(selected);
+//			return selRow;
+//		}
 		return null;
 	}
 
@@ -556,6 +551,13 @@ public final class Business {
 			scenarios.put(s, false);
 			return;
 		}
+		// change the selector??
+		CellSet sel = rule.getSelector();
+		VarSystem vars = Business.get().getVars();
+		if (vars.isSwitchRow(sel)) {
+//			throw new TodoException();
+		}
+
 //		Collection<String> rows = rule.getSelector().getRowNames(null);
 		// NB: empty rows can happen for later groups that don't capture their rows.
 		for (Row row : rows) {			
@@ -608,17 +610,6 @@ public final class Business {
 			state.resize(_rows.size(), columns.size());
 		}
 		addRow2_linkToPlanSheet(row, planSheet);
-	}
-	
-	/**
-	 * HACK set a variable to point to a row e.g. Region=UK
-	 * @param name
-	 * @param row
-	 * @return prev setting (reset this to manage nested scope properly)
-	 */
-	public Row putRow4Name(String name, Row row) {
-		Row old = _row4name.put(name, row);
-		return old;
 	}
 
 	public void addRow2_linkToPlanSheet(Row row, PlanSheet planSheet) {
@@ -923,7 +914,7 @@ public final class Business {
 		return plansheet4row.get(row.getName());
 	}
 
-	VarSystem vars = new VarSystem();
+	transient VarSystem vars;
 	
 	public VarSystem getVars() {
 		if (vars==null) vars = new VarSystem();

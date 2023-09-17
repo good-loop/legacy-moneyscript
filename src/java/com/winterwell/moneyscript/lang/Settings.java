@@ -24,12 +24,7 @@ public final class Settings {
 	 */
 	int samples;
 	protected Dt _runTime;
-	
-	/**
-	 * Is this ever used??
-	 */
-	public boolean fuzzyNames;
-	
+		
 	/**
 	 * TODO use to switch $ handling on/off
 	 */

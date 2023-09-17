@@ -455,11 +455,11 @@ public class LangNumTest {
 		LangNum lang = new LangNum();
 		{
 			ParseResult pr = lang.globalVars.parseOut("row");
-			Var n = (Var) pr.ast.getX();
+			ColVar n = (ColVar) pr.ast.getX();
 		}
 		{
 			ParseResult pr = lang.num.parseOut("row");
-			Var n = (Var) pr.ast.getX();
+			ColVar n = (ColVar) pr.ast.getX();
 		}
 	}
 	

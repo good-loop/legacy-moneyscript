@@ -50,12 +50,12 @@ public class LangCellSetTest {
 	@Test public void testRowNameWithFixedVariable() {
 		Lang lang = new Lang();
 //		Parser.DEBUG = true;
-		ParseResult<CellSet> rnv = lang.langCellSet.rowNameWithFixedVariable.parseOut("Fees [Method=Managed]");
+		ParseResult<RowNameWithFixedVariables> rnv = lang.langCellSet.rowNameWithFixedVariable.parseOut("Fees [Method=Managed]");
 		assert rnv != null;
-		ParseResult<CellSet> rnvb = lang.langCellSet.rowNameWithFixedVariable.parseOut("Fees[Method=Managed]");
+		ParseResult<RowNameWithFixedVariables> rnvb = lang.langCellSet.rowNameWithFixedVariable.parseOut("Fees[Method=Managed]");
 		assert rnvb != null;
 		
-		ParseResult<CellSet> rnv2 = lang.langCellSet.rowNameWithFixedVariable.parseOut("Fees [Method=Managed,Region=UK]");
+		ParseResult<RowNameWithFixedVariables> rnv2 = lang.langCellSet.rowNameWithFixedVariable.parseOut("Fees [Method=Managed,Region=UK]");
 		assert rnv2 != null;
 		RowNameWithFixedVariables row = (RowNameWithFixedVariables) rnv2.getX();
 		assert row.vars.size() == 2;

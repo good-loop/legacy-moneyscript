@@ -69,7 +69,7 @@ public class BasicFormula extends Formula {
 			n = fx(n, b);
 			return n;
 		}
-		// HACK: a scenario?
+		// HACK: a scenario? TODO cache
 		if (sel instanceof RowName) {
 			Scenario s = new Scenario(((RowName) sel).getRowName());
 			Boolean onOff = b.getBusiness().getScenarios().get(s);

@@ -33,11 +33,13 @@ import com.winterwell.moneyscript.lang.cells.SetVariable;
 import com.winterwell.moneyscript.lang.num.BasicFormula;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.LangNum;
+import com.winterwell.moneyscript.lang.num.ColVar;
 import com.winterwell.moneyscript.lang.num.VariableDistributionFormula;
 import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Row;
+import com.winterwell.moneyscript.output.RowVar;
 import com.winterwell.moneyscript.output.VarSystem;
 import com.winterwell.nlp.simpleparser.AST;
 import com.winterwell.nlp.simpleparser.IDebug;
@@ -391,7 +393,7 @@ public class Lang {
 	
 			// ...do the actual parse
 			List<Rule> rules = parse2_rulesFromLines(lines, ln, errors, b, planSheet);
-			// TODO identify special variable value rows, e.g. "Price [Region=UK]: £1"
+			// identify special variable value rows, e.g. "Price [Region=UK]: £1"
 			parse3_identifyVariables(b, rules);
 			// make rows + group
 			parse3_addRulesAndGroupRows(b, planSheet, groupStack, rules);
@@ -416,22 +418,40 @@ public class Lang {
 	private void parse3_identifyVariables(Business b, List<Rule> rules) {
 		// add SetVariables, so we know e.g. Region can be UK|US|EU
 		// and functional rows, so we know e.g. "Price" can be "Price [Region=UK]" etc		
+		VarSystem vs = b.getVars();
 		for (Rule r : rules) {
 			CellSet selector = r.getSelector();
 			Formula f = r.getFormula();
 			if (selector==null || f==null) continue;
 			// variable??
 			if (selector instanceof RowNameWithFixedVariables) {
-				VarSystem vs = b.getVars();
-				Collection<SetVariable> vars = ((RowNameWithFixedVariables) selector).getVars();
-//				for (SetVariable v : vars) {
-//					vs.addSetVariable(v);
-//				}
+				Collection<SetVariable> vars = ((RowNameWithFixedVariables) selector).getVars(null);
 				// this is a functional row
 				String baseName = ((RowNameWithFixedVariables) selector).getBaseName();
 				vs.addSwitchRow(baseName, vars);
 			}
 		}
+
+		//		// todo?? upgrade seemingly simple rows if they reference a var
+//		boolean checkOnceMore = true;
+//		while(checkOnceMore) {
+//			checkOnceMore = false;
+//			for (Rule r : rules) {
+//				CellSet selector = r.getSelector();
+//				Formula f = r.getFormula();
+//				if (selector==null || f==null) continue;				
+//				if (selector.getClass() == RowName.class) {
+//					// this is a functional row
+//					String baseName = ((RowName) selector).getRowName();
+//					vs.addSwitchRow(baseName, vars); // bleurgh - vars
+//					Collection<SetVariable> hmm;
+//					RowNameWithFixedVariables sel2 = new RowNameWithFixedVariables(selector.getSrc(), baseName, hmm);
+//					r.setSelector(sel2);
+//					checkOnceMore = true;
+//				}
+//			}
+//		}
+		Log.d("parse", "VarSystem: "+vs);
 	}
 
 
@@ -516,23 +536,15 @@ public class Lang {
 				// HACK don't add a row for scenario X
 				rowNames = Collections.emptySet();
 			} else {
-				// are any of the references to switch-rows? If so, expand the rows
+				// are any of the references to switch-rows containing vars? If so, expand the rows
 				Formula f = rule1.getFormula();
 				if (f!=null) {
-					List<Formula> fs = f.asTree().flattenToValues();
-					List<BasicFormula> basics = Containers.filterByClass(fs, BasicFormula.class);
-					for (BasicFormula bf : basics) {
-						CellSet sel = bf.getCellSetSelector();
-						if (sel instanceof RowName) {
-							if (vars.isSwitchRow(sel)) {
-								rowNames = vars.expandRowNames(rowNames, (RowName) sel);
-							}
-						}
+					List<RowVar> refs = vars.getVarRefs(f);
+					if ( ! refs.isEmpty()) {
+						rowNames = vars.expandRowNames(rowNames, refs);
+						// NB: rowNames dont have the A=B SetVariable -- done later
 					}
 				}
-//				if (rowNames.isEmpty()) {	
-//					selector.getRowNames(null); // debug
-//				}
 				assert ! rowNames.isEmpty() : selector+" "+rule1;
 			}
 			// the rows named in this rule's selector

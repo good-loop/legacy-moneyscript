@@ -12,11 +12,11 @@ import com.winterwell.utils.time.TUnit;
  * @author daniel
  *
  */
-public class Var extends Formula {
+public class ColVar extends Formula {
 
 	private String var;
 
-	public Var(String varName) {
+	public ColVar(String varName) {
 		super("");
 		this.var = varName;
 	}
