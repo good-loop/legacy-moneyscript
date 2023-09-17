@@ -1,8 +1,10 @@
 package com.winterwell.moneyscript.lang.cells;
 
+
 import static com.winterwell.nlp.simpleparser.Parsers.bracketed;
 import static com.winterwell.nlp.simpleparser.Parsers.chain;
 import static com.winterwell.nlp.simpleparser.Parsers.first;
+import static com.winterwell.nlp.simpleparser.Parsers.ignore;
 import static com.winterwell.nlp.simpleparser.Parsers.lit;
 import static com.winterwell.nlp.simpleparser.Parsers.opt;
 import static com.winterwell.nlp.simpleparser.Parsers.optSpace;
@@ -135,7 +137,7 @@ public class LangCellSet {
 	};
 
 	Parser<SetVariable> variableFilter = new PP<SetVariable>(seq(
-			rowName, lit("=").label(null), rowName
+			rowName, ignore("="), rowName
 	)) {
 		protected SetVariable process(ParseResult<?> pr) {
 			List rn_rn = pr.getLeafValues();
@@ -146,14 +148,14 @@ public class LangCellSet {
 	};
 	
 	Parser<CellSet> rowNameWithFixedVariable = new PP<CellSet>(seq(
-			rowName, optSpace, lit("[").label(null), 
-			chain(variableFilter, lit(", ",",").label(null)), 
-			lit("]").label(null)
+			rowName, optSpace, ignore("["), 
+			chain(variableFilter, ignore(", ",",")), 
+			ignore("]")
 	)) {
 		protected CellSet process(ParseResult<?> pr) {
 			AST<RowName> rn = pr.getNode(rowName);
 			List vs = Containers.filterByClass(pr.getLeafValues(), SetVariable.class);
-			RowNameWithFixedVariables rnv = new RowNameWithFixedVariables(rn.getX().getRowName(), vs);
+			RowNameWithFixedVariables rnv = new RowNameWithFixedVariables(pr.parsed(), rn.getX().getRowName(), vs);
 			return rnv;
 		}
 	};

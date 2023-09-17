@@ -128,10 +128,10 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 	 * @return value or null for a group cell
 	 */
 	public Numerical calculate(Col col, Business b) {
-//		String sdebug = ("" + getName() + " " + col).toLowerCase();
-//		if (sdebug.contains("tadg display")) { // debug!
-//			System.out.println(this);
-//		}
+		String sdebug = ("" + getName() + " " + col).toLowerCase();
+		if (sdebug.contains("price")) { // debug!
+			System.out.println(this);
+		}
 		Cell cell = new Cell(this, col);
 		List<Rule> rs = getRules();
 		// special case: group rows
