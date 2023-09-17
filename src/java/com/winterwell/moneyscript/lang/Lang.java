@@ -8,6 +8,7 @@ import static com.winterwell.nlp.simpleparser.Parsers.seq;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,8 +25,12 @@ import com.winterwell.moneyscript.lang.cells.Filter;
 import com.winterwell.moneyscript.lang.cells.FilteredCellSet;
 import com.winterwell.moneyscript.lang.cells.LangCellSet;
 import com.winterwell.moneyscript.lang.cells.LangFilter;
+import com.winterwell.moneyscript.lang.cells.RowName;
+import com.winterwell.moneyscript.lang.cells.RowNameWithFixedVariables;
 import com.winterwell.moneyscript.lang.cells.RowSplitCellSet;
 import com.winterwell.moneyscript.lang.cells.Scenario;
+import com.winterwell.moneyscript.lang.cells.SetVariable;
+import com.winterwell.moneyscript.lang.num.BasicFormula;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.LangNum;
 import com.winterwell.moneyscript.lang.num.VariableDistributionFormula;
@@ -33,6 +38,7 @@ import com.winterwell.moneyscript.lang.time.LangTime;
 import com.winterwell.moneyscript.output.Business;
 import com.winterwell.moneyscript.output.BusinessContext;
 import com.winterwell.moneyscript.output.Row;
+import com.winterwell.moneyscript.output.VarSystem;
 import com.winterwell.nlp.simpleparser.AST;
 import com.winterwell.nlp.simpleparser.IDebug;
 import com.winterwell.nlp.simpleparser.PP;
@@ -384,7 +390,9 @@ public class Lang {
 			List<Group> groupStack = new ArrayList(); // ??Group has a parent, so do we need this stack??
 	
 			// ...do the actual parse
-			List<Rule> rules = parse2_rulesFromLines(lines, ln, errors, b, planSheet);		
+			List<Rule> rules = parse2_rulesFromLines(lines, ln, errors, b, planSheet);
+			// TODO identify special variable value rows, e.g. "Price [Region=UK]: £1"
+			parse3_identifyVariables(b, rules);
 			// make rows + group
 			parse3_addRulesAndGroupRows(b, planSheet, groupStack, rules);
 				
@@ -404,6 +412,28 @@ public class Lang {
 		
 		return b;
 	}
+
+	private void parse3_identifyVariables(Business b, List<Rule> rules) {
+		// add SetVariables, so we know e.g. Region can be UK|US|EU
+		// and functional rows, so we know e.g. "Price" can be "Price [Region=UK]" etc		
+		for (Rule r : rules) {
+			CellSet selector = r.getSelector();
+			Formula f = r.getFormula();
+			if (selector==null || f==null) continue;
+			// variable??
+			if (selector instanceof RowNameWithFixedVariables) {
+				VarSystem vs = b.getVars();
+				Collection<SetVariable> vars = ((RowNameWithFixedVariables) selector).getVars();
+//				for (SetVariable v : vars) {
+//					vs.addSetVariable(v);
+//				}
+				// this is a functional row
+				String baseName = ((RowNameWithFixedVariables) selector).getBaseName();
+				vs.addSwitchRow(baseName, vars);
+			}
+		}
+	}
+
 
 	/**
 	 * In a spreadsheet you can have two identical rows. That would be a mistake here.
@@ -430,7 +460,8 @@ public class Lang {
 			int i = cs.indexOf(':'); // pop the actual rule -- we just want the filter part
 			if (i!=-1) {
 				cs = cs.substring(0, i);
-			}
+			}			
+			// the main overlap check
 			if ( ! rule4filter.containsKey(cs)) {
 				rule4filter.put(cs, r);
 				continue; // all good
@@ -441,11 +472,27 @@ public class Lang {
 			pf.setSheetId(r.sheetId);
 			dupes.add(pf);
 		}
+		// handle e.g. "Price [Region=UK]" means a bald "Price" isnt allowed
+		// Future TODO we could allow Price: ... as a group-level rule over all the variable-values
+		for (Rule r : rules) {
+			CellSet cs = r.getSelector();
+			if (cs instanceof RowNameWithFixedVariables) {
+				String bn = ((RowNameWithFixedVariables) cs).getBaseName();
+				if (rule4filter.containsKey(bn)) {
+					ParseFail pf = new ParseFail(new Slice(r.src), 
+						"Having a "+cs+" rule means you cannot have a \"bald\" rule "+bn+": rule.");
+					pf.lineNum = r.getLineNum();
+					pf.setSheetId(r.sheetId);
+					dupes.add(pf);					
+				}
+			}
+		}
 		return dupes;
 	}
 
 
 	private void parse3_addRulesAndGroupRows(Business b, PlanSheet planSheet, List<Group> groupStack, List<Rule> rules) {
+		VarSystem vars = b.getVars();
 		for (Rule rule1 : rules) {
 			if (rule1 instanceof DummyRule || rule1 instanceof ImportCommand)  {
 				// HACK imports dont have rows per-se. But ImportRowCommand does
@@ -455,7 +502,7 @@ public class Lang {
 			}
 			
 			String sdebug = rule1.toString();
-			if (sdebug.contains("except")) {
+			if (sdebug.contains("Price")) {
 				System.out.println(sdebug);
 			}
 			
@@ -469,9 +516,23 @@ public class Lang {
 				// HACK don't add a row for scenario X
 				rowNames = Collections.emptySet();
 			} else {
-				if (rowNames.isEmpty()) {
-					selector.getRowNames(null);
+				// are any of the references to switch-rows? If so, expand the rows
+				Formula f = rule1.getFormula();
+				if (f!=null) {
+					List<Formula> fs = f.asTree().flattenToValues();
+					List<BasicFormula> basics = Containers.filterByClass(fs, BasicFormula.class);
+					for (BasicFormula bf : basics) {
+						CellSet sel = bf.getCellSetSelector();
+						if (sel instanceof RowName) {
+							if (vars.isSwitchRow(sel)) {
+								rowNames = vars.expandRowNames(rowNames, (RowName) sel);
+							}
+						}
+					}
 				}
+//				if (rowNames.isEmpty()) {	
+//					selector.getRowNames(null); // debug
+//				}
 				assert ! rowNames.isEmpty() : selector+" "+rule1;
 			}
 			// the rows named in this rule's selector
@@ -488,8 +549,8 @@ public class Lang {
 					// make sure its part of this sheet
 					b.addRow2_linkToPlanSheet(row, planSheet);
 				}
-				rows.add(row);
-			}				
+				rows.add(row);				
+			}
 			
 			// Grouping by groupStack
 			// NB: only if there's one row (i.e. not for no-row comments, or a multi-row rule -- Do we have those?)
@@ -542,7 +603,7 @@ public class Lang {
 			rule1 = parse4_addRulesAndGroupRows2_setRuleGroup(rule1, lastGroup);			
 
 			// add the rule
-			b.addRule(rule1);
+			b.addRule(rule1, rows);
 		}
 	}
 
@@ -724,6 +785,11 @@ public class Lang {
 		for(Row r : b.getRows()) {
 			String name = r.getName();
 			names.add(name);
+			// baseName?
+			if (name.indexOf("[") != -1) {
+				String baseName = VarSystem.getBaseName(name);
+				names.add(baseName);
+			}
 			String n2 = parse4_checkReferences2_stripNameDown(name);			
 			similarNames.put(n2,name);
 		}
@@ -753,13 +819,10 @@ public class Lang {
 				String couldBe = similarNames.get(v2);
 				boolean exists = names.contains(var);
 				if ( ! exists) {
-					// check variables
+					// check variables e.g. [Product in ProductMix: Product.Price]
 					Formula f = r.getFormula();
 					if (f != null) {
-						Tree<Formula> tree = f.asTree();
-						List<Formula> fs = tree.flattenToValues();
-						List<VariableDistributionFormula> varfs = Containers.filterByClass(fs, VariableDistributionFormula.class);
-						List<String> varNames = Containers.apply(varfs, varf -> varf.getVar());
+						List<String> varNames = VarSystem.getVarNames(f);
 						exists = varNames.contains(var);
 						if ( ! exists && var.contains(".")) { // handle e.g. Region.Price
 							String var1 = var.split("\\.")[0];

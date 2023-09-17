@@ -25,6 +25,7 @@ import com.winterwell.moneyscript.lang.StyleRule;
 import com.winterwell.moneyscript.lang.UncertainNumerical;
 import com.winterwell.moneyscript.lang.cells.RowName;
 import com.winterwell.moneyscript.lang.cells.Scenario;
+import com.winterwell.moneyscript.lang.cells.SetVariable;
 import com.winterwell.moneyscript.lang.num.Numerical;
 import com.winterwell.moneyscript.webapp.GSheetFromMS;
 import com.winterwell.nlp.dict.Dictionary;
@@ -548,18 +549,18 @@ public final class Business {
 	 * NB: Row must already exist.
 	 * @param rule
 	 */
-	public void addRule(Rule rule) {
+	public void addRule(Rule rule, Collection<Row> rows) {
 		if (rule instanceof ScenarioRule) {
 			Scenario s = rule.getScenario();
 			assert s != null : rule;
 			scenarios.put(s, false);
 			return;
 		}
-		Collection<String> rows = rule.getSelector().getRowNames(null);
+//		Collection<String> rows = rule.getSelector().getRowNames(null);
 		// NB: empty rows can happen for later groups that don't capture their rows.
-		for (String rn : rows) {			
-			Row row = getRow(rn);
-			assert row != null;
+		for (Row row : rows) {			
+//			Row row = getRow(rn);
+//			assert row != null : rn;
 			row.addRule(rule);			
 		}		
 	}
@@ -921,5 +922,11 @@ public final class Business {
 	public PlanSheet getPlanSheetForRow(Row row) {
 		return plansheet4row.get(row.getName());
 	}
+
+	VarSystem vars = new VarSystem();
 	
+	public VarSystem getVars() {
+		if (vars==null) vars = new VarSystem();
+		return vars;
+	}
 }

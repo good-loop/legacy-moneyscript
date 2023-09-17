@@ -155,7 +155,8 @@ public class LangCellSet {
 		protected CellSet process(ParseResult<?> pr) {
 			AST<RowName> rn = pr.getNode(rowName);
 			List vs = Containers.filterByClass(pr.getLeafValues(), SetVariable.class);
-			RowNameWithFixedVariables rnv = new RowNameWithFixedVariables(pr.parsed(), rn.getX().getRowName(), vs);
+			String baseName = rn.getX().getRowName();
+			RowNameWithFixedVariables rnv = new RowNameWithFixedVariables(pr.parsed(), baseName, vs);
 			return rnv;
 		}
 	};

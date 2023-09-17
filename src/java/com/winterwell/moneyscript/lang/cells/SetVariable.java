@@ -10,10 +10,10 @@ import com.winterwell.moneyscript.output.Row;
  */
 public class SetVariable {
 
-	final Object value;
-	final String var;
+	public final String value;
+	public final String var;
 
-	public SetVariable(String var, Object value) {
+	public SetVariable(String var, String value) {
 		this.var = var;
 		this.value = value;
 	}

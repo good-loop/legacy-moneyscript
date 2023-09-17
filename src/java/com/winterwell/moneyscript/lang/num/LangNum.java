@@ -288,7 +288,7 @@ public class LangNum {
 	
 
 	/**
-	 * e.g. [Region in Region Mix * Region.Price]
+	 * e.g. [Region in Region Mix: Region.Price]
 	 *  
 	 */
 	PP<Formula> variableDistributionAsFormula = (PP) new PP<Formula>(

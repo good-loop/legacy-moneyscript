@@ -11,6 +11,11 @@ import com.winterwell.moneyscript.output.Row;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.Tree;
 
+/**
+ * e.g. [Region in Region Mix: Region.Price]
+ * @author daniel
+ *
+ */
 public class VariableDistributionFormula extends Formula {
 	
 	String var;

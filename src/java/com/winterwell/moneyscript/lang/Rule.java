@@ -1,9 +1,11 @@
 package com.winterwell.moneyscript.lang;
 
+import java.io.Closeable;
 import java.util.Map;
 import java.util.Objects;
 
 import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.RowNameWithFixedVariables;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.LangNum;
@@ -149,7 +151,10 @@ public class Rule implements IReset {
 			if ( ! getSelector().contains(cell, cell)) {
 				return null;
 			}
-			Numerical v = calculate2_formula(cell);
+			Numerical v;
+			try (Closeable reset = setAnyVariables(getSelector())) { // e.g. Price [Region=UK]: £5
+				v = calculate2_formula(cell);
+			}
 			if (v==null) {
 				return v; // null
 			}
@@ -177,6 +182,23 @@ public class Rule implements IReset {
 		} catch(Throwable ex) {
 			throw new RuleException(ex+" Cell "+cell+" Rule "+this, ex);
 		}
+	}
+
+	static final Closeable NOOP = () -> {};
+	
+	/**
+	 * // e.g. Price [Region=UK]: £5 => Region=UK during this rule
+	 * @param selector2
+	 * @return
+	 */
+	private Closeable setAnyVariables(CellSet selector2) {
+		Closeable c = NOOP; // no-op
+		if (selector2 instanceof RowNameWithFixedVariables) {
+			// TODO
+//			selector2.getVars()
+			Log.w("TODO",selector2+" "+this);
+		}
+		return c;
 	}
 
 	private void calculate2_tag(Cell cell, Numerical v) {
