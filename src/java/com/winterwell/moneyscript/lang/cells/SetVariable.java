@@ -13,6 +13,10 @@ public class SetVariable {
 	public final String value;
 	public final String var;
 
+	public String getVar() {
+		return var;
+	}
+	
 	public SetVariable(String var, String value) {
 		this.var = var;
 		this.value = value;

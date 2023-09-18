@@ -8,7 +8,7 @@ import C from '../C';
 import Roles from '../base/Roles';
 import Misc from '../base/components/Misc';
 import { stopEvent, modifyHash, encURI, space, uniq, urlRegex } from '../base/utils/miscutils';
-import DataStore, { getDataPath } from '../base/plumbing/DataStore';
+import DataStore, { getDataPath, getUrlValue } from '../base/plumbing/DataStore';
 import Settings from '../base/Settings';
 import ShareWidget, { ShareLink } from '../base/components/ShareWidget';
 import ListLoad, { CreateButton } from '../base/components/ListLoad';
@@ -105,8 +105,10 @@ const RightSide = ({plandoc}) => {
 	const id = getId(plandoc);
 	const item = plandoc; // old code
 	
+	// which sheet are we on?
+	let tabId = PlanDoc.getSheetIndex(plandoc);
 	// links in comments?
-	const text = PlanDoc.text(plandoc);
+	const text = plandoc.sheets[tabId].text || "";
 	let links = [];
 	const comments = text.matchAll(/[^:]\/\/.+$/gm);
 	comments.forEach(c => {
@@ -265,7 +267,7 @@ const EditScript = ({ id, plandoc, path }) => {
 		PlanDoc.addSheet(plandoc, {text:plandoc.text});
 	}
 	// which sheet?
-	let tabId = 1*(DataStore.getUrlValue("tab") || 0);
+	let tabId = PlanDoc.getSheetIndex(plandoc);
 	const deleteSheet = _tabId => {
 		let ok = confirm("Are you sure you want to delete "+(plandoc.sheets[tabId].title || tabId)+"?")
 		if ( ! ok) return;

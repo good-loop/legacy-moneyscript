@@ -147,7 +147,7 @@ public class LangCellSet {
 		}
 	};
 	
-	Parser<RowNameWithFixedVariables> rowNameWithFixedVariable = new PP<RowNameWithFixedVariables>(seq(
+	public Parser<RowNameWithFixedVariables> rowNameWithFixedVariable = new PP<RowNameWithFixedVariables>(seq(
 			rowName, optSpace, ignore("["), 
 			chain(variableFilter, ignore(", ",",")), 
 			ignore("]")

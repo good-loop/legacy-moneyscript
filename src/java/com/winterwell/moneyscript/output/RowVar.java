@@ -31,7 +31,7 @@ public final class RowVar implements Comparable<RowVar> {
 
 	@Override
 	public String toString() {
-		return "Var [name=" + name + ", values=" + values + ", value=" + value + "]";
+		return "RowVar[" + name + "=" + value + ", values=" + values + "]";
 	}
 
 	@Override

@@ -146,7 +146,7 @@ const ViewSpreadSheet = ({ plandoc, scenarios, hideMonths }) => {
 		const errors = (runOutput && runOutput.errors) || [pvrun.error];
 		return errors.map(e => <Alert color="danger" key={JSON.stringify(e)}>{JSON.stringify(e)}</Alert>);
 	}
-	let tabId = 1*(DataStore.getUrlValue("tab") || 0);
+	let tabId = PlanDoc.getSheetIndex(plandoc);
 	const sheetId = plandoc.sheets[tabId].id;
 	assert(sheetId, "ViewSpreadsheet.jsx - no sheetId for tabId "+tabId);
 	// only process the data once (so the Tree is stable)

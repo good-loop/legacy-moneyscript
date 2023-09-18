@@ -33,3 +33,12 @@ PlanDoc.addSheet = (plandoc, sheet={}) => {
 	plandoc.sheets.push(sheet);
 	return sheet;
 }
+
+/**
+ * 
+ * @param {PlanDoc} plandocIgnored Comes from the url 
+ * @returns {!number}
+ */
+PlanDoc.getSheetIndex = (plandocIgnored) => {
+	return 1*(DataStore.getUrlValue("tab") || 0); 
+}

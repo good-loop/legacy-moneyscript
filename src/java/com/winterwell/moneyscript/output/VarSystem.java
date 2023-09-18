@@ -10,11 +10,14 @@ import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.winterwell.moneyscript.lang.cells.CellSet;
+import com.winterwell.moneyscript.lang.cells.LangCellSet;
 import com.winterwell.moneyscript.lang.cells.RowName;
+import com.winterwell.moneyscript.lang.cells.RowNameWithFixedVariables;
 import com.winterwell.moneyscript.lang.cells.SetVariable;
 import com.winterwell.moneyscript.lang.num.BasicFormula;
 import com.winterwell.moneyscript.lang.num.Formula;
 import com.winterwell.moneyscript.lang.num.VariableDistributionFormula;
+import com.winterwell.nlp.simpleparser.ParseResult;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.TodoException;
 import com.winterwell.utils.containers.ArraySet;
@@ -36,6 +39,7 @@ import com.winterwell.utils.containers.Tree;
  * 	"Region" in `[Region in RegionMix: Region.Sales]`
  * 
  * Row properties, e.g. "Region.Sales" can resolve to "UK.Sales"
+ * TODO remove this and just use switch-rows??
  * 
  * Expanding rows, where a formula references a switch-row, and so is expanded to a few variants
  * e.g. `Revenue: Price * Sales` expanding to several output rows
@@ -85,6 +89,11 @@ public final class VarSystem {
 		return getVar(var).values;
 	}
 
+	/**
+	 * Repeat eequivalent calls have no effect
+	 * @param baseName
+	 * @param vars
+	 */
 	public void addSwitchRow(String baseName, Collection<SetVariable> vars) {
 		for(SetVariable v : vars) {
 			switchRow2vars.addOnce(baseName, getVar(v.var));
@@ -133,21 +142,40 @@ public final class VarSystem {
 	}
 
 	public Set<String> expandRowNames(Collection<String> rowNames, List<RowVar> refs) {
+		// What if the rowNames have set variables themsleves??
 		if (refs.size() > 1) {
 			// consistent order
 			ArrayList list = new ArrayList(refs);
 			Collections.sort(refs);
 			refs = list;
 		}
+		// cross-product of all combinations for refs
 		List<List<SetVariable>> allOptions = expandRowNames2(refs, 0);
+		// build an expanded set of row-names
 		ArraySet<String> expanded = new ArraySet();
+		LangCellSet lcs = new LangCellSet();
 		for (String rn : rowNames) {
+			// just the new ones - respect any SetVariables in the row name
+			String baseName = rn;
+			Collection<SetVariable> rnVars = Collections.EMPTY_LIST;
+			ParseResult<RowNameWithFixedVariables> p = lcs.rowNameWithFixedVariable.parse(rn);
+			if (p != null) {
+				RowNameWithFixedVariables rnv = p.getX();
+				rnVars = rnv.getVars(null);
+				baseName = rnv.getBaseName();
+			}
+			List<String> rnVarNames = Containers.apply(rnVars, SetVariable::getVar);
+
 			for(List<SetVariable> setvs : allOptions) {
-				StringBuilder sb = new StringBuilder(rn);
+				List<SetVariable> setvs2 = new ArrayList(rnVars);
+				List<SetVariable> newSVs = Containers.filter(setvs, setv -> ! rnVarNames.contains(setv.var));
+				setvs2.addAll(newSVs);
+				// make the augmented row-name
+				StringBuilder sb = new StringBuilder(baseName);
 				sb.append(" ");
-				sb.append(setvs); // HACK: does "["+vals,+"]"
+				sb.append(setvs2); // HACK: does "["+vals,+"]"
 				String rn2 = sb.toString();
-				expanded.add(rn2);
+				expanded.add(rn2);	// this is a set, so repeats dont matter
 				// these are now switch-rows too
 				addSwitchRow(rn, setvs);
 			}
@@ -183,16 +211,20 @@ public final class VarSystem {
 	 * @return e.g. "Price [Region=UK]"
 	 */
 	public String getActiveRow(String name) {
+		assert isSwitchRow(name) : name;
 		List<RowVar> vars = switchRow2vars.get(name);
 		if (vars==null) return null;
-		String aname = name;
+		StringBuilder aname = new StringBuilder(name);
+		aname.append(" [");
 		// HACK (and fragile to spaces and ordering!)
 		for (RowVar v : vars) {
 			if (v.value==null) return null;
-			aname = aname+" ["+v.name+"="+v.value+"]";
+			aname.append(v.name+"="+v.value);
+			aname.append(", ");
 		}
-		assert isSwitchRow(name) : name;
-		return aname;
+		StrUtils.pop(aname, 2);
+		aname.append("]");
+		return aname.toString();
 	}
 
 	/**
@@ -207,6 +239,15 @@ public final class VarSystem {
 		return old;
 	}
 	
+	/**
+	 * Vars with values
+	 * @return
+	 */
+	public List<RowVar> getCurrentSetVars() {
+		Collection<RowVar> allVars = name2var.values();
+		List<RowVar> setVars = Containers.filter(allVars, v -> v.value != null);
+		return setVars;
+	}
 
 	@Override
 	public String toString() {

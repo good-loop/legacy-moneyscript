@@ -2,6 +2,7 @@ package com.winterwell.moneyscript.lang.num;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import com.winterwell.moneyscript.lang.cells.CellSet;
@@ -10,6 +11,8 @@ import com.winterwell.moneyscript.lang.cells.RowName;
 import com.winterwell.moneyscript.lang.cells.Scenario;
 import com.winterwell.moneyscript.output.Cell;
 import com.winterwell.moneyscript.output.Row;
+import com.winterwell.moneyscript.output.RowVar;
+import com.winterwell.moneyscript.output.VarSystem;
 import com.winterwell.utils.StrUtils;
 import com.winterwell.utils.Utils;
 import com.winterwell.utils.containers.Containers;
@@ -88,6 +91,8 @@ public class BasicFormula extends Formula {
 		Collection<Cell> cell2 = sel.getCells(b, false);
 		if (cell2==null || cell2.isEmpty()) {
 			if (sel instanceof RowName) {
+				VarSystem vs = b.getBusiness().getVars();
+				List<RowVar> svs = vs.getCurrentSetVars();
 				sel.getCells(b, false); // debug
 				throw new IllegalStateException("No active cells for "+sel+" context:"+b);
 			}
