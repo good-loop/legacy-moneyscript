@@ -513,19 +513,19 @@ public class Lang {
 
 	private void parse3_addRulesAndGroupRows(Business b, PlanSheet planSheet, List<Group> groupStack, List<Rule> rules) {
 		VarSystem vars = b.getVars();
-		for (Rule rule1 : rules) {
+		for (Rule rule1 : rules) {			
+			String sdebug = rule1.toString();
+			if (sdebug.contains("Staff from Jan 2024")) {
+				System.out.println(sdebug);
+			}
+
 			if (rule1 instanceof DummyRule || rule1 instanceof ImportCommand)  {
 				// HACK imports dont have rows per-se. But ImportRowCommand does
 				if ( ! (rule1 instanceof ImportRowCommand)) {
 					continue;
 				}
 			}
-			
-			String sdebug = rule1.toString();
-			if (sdebug.contains("Price")) {
-				System.out.println(sdebug);
-			}
-			
+						
 			// NB: selector may be modified later to add group-level filter
 			CellSet selector = rule1.getSelector();
 			if (selector==null) {
@@ -612,7 +612,7 @@ public class Lang {
 			// rule grouping eg for scenarios (which apply at the rule level not the row level, 
 			// and use the local stack not the "canonical" row tree)
 			Group lastGroup = groupStack.get(groupStack.size() - 1);
-			rule1 = parse4_addRulesAndGroupRows2_setRuleGroup(rule1, lastGroup);			
+			rule1 = parse4_addRulesAndGroupRows2_setScenario(rule1, lastGroup);			
 
 			// add the rule
 			b.addRule(rule1, rows);
@@ -697,7 +697,10 @@ public class Lang {
 	 * @param parent
 	 * @return 
 	 */
-	private Rule parse4_addRulesAndGroupRows2_setRuleGroup(Rule newRule, Group parent) {		
+	private Rule parse4_addRulesAndGroupRows2_setScenario(Rule newRule, Group parent) {		
+		if (newRule.indent == 0) {
+			return newRule;
+		}
 		// check up the stack
 		while(parent!=null) {
 			if (parent.byScenario != null) {
