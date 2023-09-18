@@ -65,7 +65,7 @@ public class LangCellSet {
 	 */
 	public static Pattern rowNameRegex = Pattern.compile(
 //			"^[A-Z][^:,\\+\\-\\*\\/<>=%\\?\\(\\)#]*"
-			"^[A-Z][A-Za-z0-9_ \\.]*"
+			"^[A-Z][A-Za-z0-9_ \\.&]*"
 			);	
 	
 	/**

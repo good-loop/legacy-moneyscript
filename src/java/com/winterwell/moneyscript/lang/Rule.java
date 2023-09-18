@@ -1,6 +1,7 @@
 package com.winterwell.moneyscript.lang;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -147,7 +148,7 @@ public class Rule implements IReset {
 	public final Numerical calculate(Cell cell) {
 		try {
 //			String s = this+" "+cell; // debug
-//			if (s.contains("Seasonality:") && s.contains("Jan 2021]")) {
+//			if (s.contains("TADG_Display.Donation [Method=PMP]")) {
 //				System.out.println(s);
 //			}
 			BusinessContext.setActiveRule(this);
@@ -195,7 +196,7 @@ public class Rule implements IReset {
 		}
 	}
 
-	static final Closeable NOOP = () -> {};
+	static final Closeable NOOP = new NoOp();
 	
 	/**
 	 * // e.g. Price [Region=UK]: £5 => Region=UK during this rule
@@ -316,4 +317,10 @@ public class Rule implements IReset {
 	}
 
 
+}
+
+final class NoOp implements Closeable {
+	@Override
+	public void close() throws IOException {	
+	}
 }

@@ -2,11 +2,13 @@ package com.winterwell.moneyscript.output;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
 import com.winterwell.moneyscript.lang.cells.CellSet;
 import com.winterwell.moneyscript.lang.cells.RowName;
 import com.winterwell.moneyscript.lang.cells.SetVariable;
@@ -60,6 +62,9 @@ public final class VarSystem {
 	 */
 	ListMap<String,RowVar> switchRow2vars = new ListMap();
 
+	/**
+	 * Both loop variables and switch vars
+	 */
 	Map<String,RowVar> name2var = new HashMap();
 	
 	private void addSetVariable(SetVariable v) {
@@ -127,23 +132,56 @@ public final class VarSystem {
 		return varNames;
 	}
 
-	public Set<String> expandRowNames(Set<String> rowNames, List<RowVar> refs) {
-		if (refs.size() > 1) throw new TodoException(rowNames+" "+refs);
+	public Set<String> expandRowNames(Collection<String> rowNames, List<RowVar> refs) {
+		if (refs.size() > 1) {
+			// consistent order
+			ArrayList list = new ArrayList(refs);
+			Collections.sort(refs);
+			refs = list;
+		}
+		List<List<SetVariable>> allOptions = expandRowNames2(refs, 0);
 		ArraySet<String> expanded = new ArraySet();
 		for (String rn : rowNames) {
-			Collection<SetVariable> vars = new ArrayList();
-			for(RowVar ref : refs) {
-				for (String val : ref.values) {
-					expanded.add(rn+" ["+ref.name+"="+val+"]");
-					vars.add(new SetVariable(ref.name, val));
-				}
+			for(List<SetVariable> setvs : allOptions) {
+				StringBuilder sb = new StringBuilder(rn);
+				sb.append(" ");
+				sb.append(setvs); // HACK: does "["+vals,+"]"
+				String rn2 = sb.toString();
+				expanded.add(rn2);
+				// these are now switch-rows too
+				addSwitchRow(rn, setvs);
 			}
-			// these are now switch-rows too
-			addSwitchRow(rn, vars);
 		}
 		return expanded;
 	}
 
+	private List<List<SetVariable>> expandRowNames2(List<RowVar> refs, int i) {
+		List<List<SetVariable>> options = new ArrayList();
+		RowVar ref = refs.get(i);
+		for (String val : ref.values) {
+			options.add(Collections.singletonList(new SetVariable(ref.name, val)));
+		}
+		i++;
+		if (i == refs.size()) {
+			return options;
+		}
+		List<List<SetVariable>> subOpts = expandRowNames2(refs, i);
+		List<List<SetVariable>> allOptions = new ArrayList();
+		for (List<SetVariable> opt : options) {
+			for (List<SetVariable> subOpt : subOpts) {
+				ArrayList combo = new ArrayList(opt);
+				combo.addAll(subOpt);
+				allOptions.add(combo);
+			}
+		}
+		return allOptions;
+	}
+
+	/**
+	 * Resolve switch rows
+	 * @param name e.g. "Price"
+	 * @return e.g. "Price [Region=UK]"
+	 */
 	public String getActiveRow(String name) {
 		List<RowVar> vars = switchRow2vars.get(name);
 		if (vars==null) return null;
@@ -175,38 +213,85 @@ public final class VarSystem {
 		return "VarSystem [switchRow2vars=" + switchRow2vars + ", name2var=" + name2var + "]";
 	}
 
+	/**
+	 * Resolve loop-variables and switch-values
+	 * @param rowName e.g. "Product.Price"
+	 * @return e.g. "MyProduct.Price [Region=UK]"
+	 */
 	public String getActiveName(String rowName) {
 		String[] bits = rowName.split("\\.");
-		String[] modBits = new String[bits.length];
+//		String[] modBits = new String[bits.length];
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < bits.length; i++) {
 			String bi = bits[i];
+			String mbi = bi;
+			// loop variable?
 			RowVar vari = name2var.get(bi);
-			modBits[i] = vari==null? bi : vari.value;
+			if (vari!=null) {
+				mbi = vari.value;
+			}
+			if (i != 0) sb.append('.');
+			sb.append(mbi);
+			// switch row?
+			if (isSwitchRow(sb.toString())) { // add a set variable to the row name??
+				String arow = getActiveRow(sb.toString());
+				if (arow!=null) {
+					sb = new StringBuilder(arow);
+				}
+			}
+//			modBits[i] = mbi;
 		}
-		return StrUtils.join(modBits, '.');
+		return sb.toString(); // StrUtils.join(modBits, '.');
 	}
 
 	/**
-	 * e.g. "Price" returns Var[Region=US|UK]
+	 * e.g. "Price" might return Var[Region=US|UK]
 	 * @param f
 	 * @return
 	 */
-	public List<RowVar> getVarRefs(Formula f) {
-		List<Formula> fs = f.asTree().flattenToValues();
-		List<BasicFormula> basics = Containers.filterByClass(fs, BasicFormula.class);
-		List<RowVar> refs = new ArrayList();
-		for (BasicFormula bf : basics) {
-			CellSet sel = bf.getCellSetSelector();
+	public List<RowVar> getVarRefs(Formula formula) {
+		int x = 0;
+		Tree<List> newTree = formula.asTree().apply(f -> {
+			if (f instanceof VariableDistributionFormula) {
+				// don't count vars that get summed over - they're not exposed
+				String var = ((VariableDistributionFormula) f).getVar();
+				return Collections.singletonList(var); // HACK String => exclude this
+			}
+			if ( ! (f instanceof BasicFormula)) {
+				return Collections.EMPTY_LIST;
+			}
+			CellSet sel = ((BasicFormula) f).getCellSetSelector();
 			if (sel instanceof RowName) {
 				String rn = ((RowName) sel).getRowName();
-				if ( ! isSwitchRow(rn)) continue;
+				if ( ! isSwitchRow(rn)) return Collections.EMPTY_LIST;
 				List<RowVar> vars = switchRow2vars.get(rn);
 				if (vars!=null) {
-					refs.addAll(vars);
+					return vars; //refs.addAll(vars);
 				}
 			}
-		}
-		return refs;
+			return Collections.EMPTY_LIST;			
+		});
+//		List<Formula> fs = f.asTree().flattenToValues();
+//		List<BasicFormula> basics = Containers.filterByClass(fs, BasicFormula.class);
+//		List<RowVar> refs = new ArrayList();
+//		for (BasicFormula bf : basics) {
+//			CellSet sel = bf.getCellSetSelector();
+//			if (sel instanceof RowName) {
+//				String rn = ((RowName) sel).getRowName();
+//				if ( ! isSwitchRow(rn)) continue;
+//				List<RowVar> vars = switchRow2vars.get(rn);
+//				if (vars!=null) {
+//					refs.addAll(vars);
+//				}
+//			}
+//		}
+		List vals = Containers.flatten(newTree.flattenToValues());
+		if (vals.isEmpty()) return vals; // shortcut
+		List<RowVar> rvs = Containers.filterByClass(vals, RowVar.class);
+		List<String> excludes = Containers.filterByClass(vals, String.class);
+		List<RowVar> rvs2 = Containers.filter(rvs, rv -> ! excludes.contains(rv.name));
+		ArraySet<RowVar> rvs3 = new ArraySet(rvs2);
+		return new ArrayList(rvs3);
 	}
 
 	

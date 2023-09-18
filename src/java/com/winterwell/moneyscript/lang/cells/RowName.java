@@ -33,13 +33,13 @@ public class RowName extends CellSet {
 	/**
 	 * cache for RowName = a row. i.e. no SetVariables
 	 */
-	private transient Row rowSimple;
+//	private transient Row rowSimple;
 	
 	@Override
 	public Collection<SetVariable> getVars(Cell cell) {
-		if (vars!=null && vars.isEmpty()) {
-			return vars;
-		}
+//		if (vars!=null && vars.isEmpty()) {
+//			return vars;
+//		}
 		VarSystem vs = Business.get().getVars();
 		if ( ! vs.isSwitchRow(rowName)) {
 			vars = Collections.EMPTY_LIST;
@@ -81,12 +81,12 @@ public class RowName extends CellSet {
 	}
 	
 	private Row getRow(Cell ignored) {
-		if (rowSimple!=null) return rowSimple;
+//		if (rowSimple!=null) return rowSimple;
 		Business b = BusinessContext.getBusiness();
 		Row r = b.getRow(rowName);
 		if (r != null) {
 			assert ! b.getVars().isSwitchRow(rowName) : rowName;
-			rowSimple = r;
+//			rowSimple = r;
 			return r;
 		}
 		// Is it an object using a variable eg [Region in Region Mix * Region.Price]?
@@ -149,8 +149,8 @@ public class RowName extends CellSet {
 	public Collection<Cell> getCells(Cell bc, boolean wide) {
 		Row row = getRow(null);
 		if (row==null) {
-			// HACK 
-			return null;			
+			// HACK ?? Why not throw an exception??
+			return null;
 		}
 		assert row != null : rowName+" in "+bc;
 		if (wide) {

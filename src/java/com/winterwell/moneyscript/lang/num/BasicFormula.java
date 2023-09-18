@@ -58,7 +58,11 @@ public class BasicFormula extends Formula {
 	}
 	
 	@Override
-	public Numerical calculate(Cell b) {		 
+	public Numerical calculate(Cell b) {
+//		String sdebug = b+"";
+//		if(sdebug.contains("Donations1")) {
+//			Utils.breakpoint();
+//		}
 		assert Utils.isBlank(op) : op;
 //		assert b != null;
 		if (num!=null) {
@@ -83,6 +87,10 @@ public class BasicFormula extends Formula {
 		// get first cell of the set
 		Collection<Cell> cell2 = sel.getCells(b, false);
 		if (cell2==null || cell2.isEmpty()) {
+			if (sel instanceof RowName) {
+				sel.getCells(b, false); // debug
+				throw new IllegalStateException("No active cells for "+sel+" context:"+b);
+			}
 			return null;
 		}
 		assert cell2.size() == 1 : sel+" "+cell2;

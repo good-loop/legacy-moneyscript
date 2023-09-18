@@ -129,7 +129,7 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 	 */
 	public Numerical calculate(Col col, Business b) {
 		String sdebug = ("" + getName() + " " + col).toLowerCase();
-		if (sdebug.contains("price")) { // debug!
+		if (sdebug.contains("staff") && sdebug.contains("2024")) { // debug!
 			System.out.println(this);
 		}
 		Cell cell = new Cell(this, col);
@@ -139,7 +139,19 @@ public final class Row implements ITree // NB: we don't use Row ITree anywhere (
 			// Does it have a values rule? If so compute that (not the group)
 			boolean ignoreGroup = false;
 			for(Rule r : rs) {
-				if (r.getClass()==ListValuesRule.class || r.getClass()==Rule.class) {
+				if (r.getClass()==ListValuesRule.class) {
+					Numerical v2 = r.calculate(cell);
+					if (v2 == null) {
+						continue; // e.g. rule not active yet
+					}
+					ignoreGroup = true;
+					break;
+				}
+				if (r.getClass()==Rule.class && ! r.isStacked()) {
+					Numerical v2 = r.calculate(cell);
+					if (v2 == null) {
+						continue; // e.g. rule not active yet
+					}
 					ignoreGroup = true;
 					break;
 				}

@@ -61,12 +61,17 @@ public class VariableDistributionFormula extends Formula {
 			Numerical weight = biz.getCellValue(rc);
 			if ( ! Numerical.isZero(weight)) {
 				BinaryOp bop = new BinaryOp("*", new BasicFormula(weight), right);
-				Numerical rowVal = bop.calculate(rc);
+				Numerical rowVal = bop.calculate(b);
 				sum = sum.plus(rowVal);
 			}
 			vars.setRow4Name(var, prev); // reset
 		}
 		return sum;
+	}
+
+	@Override
+	public String toString() {
+		return "VariableDistributionFormula [var=" + var + ", group=" + group + ", right=" + right + "]";
 	}
 
 }
