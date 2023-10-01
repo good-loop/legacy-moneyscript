@@ -611,7 +611,12 @@ public class Lang {
 			
 			// rule grouping eg for scenarios (which apply at the rule level not the row level, 
 			// and use the local stack not the "canonical" row tree)
-			Group lastGroup = groupStack.get(groupStack.size() - 1);
+			Group lastGroup = null;
+			if ( ! groupStack.isEmpty()) {
+				lastGroup = groupStack.get(groupStack.size() - 1);
+			} else {
+				Log.d("Lang", "Odd! empty groupStack "+rule1);
+			}
 			rule1 = parse4_addRulesAndGroupRows2_setScenario(rule1, lastGroup);			
 
 			// add the rule
